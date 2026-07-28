@@ -1,0 +1,78 @@
+plugins {
+    java
+    id("org.springframework.boot") version "3.5.16"
+    id("io.spring.dependency-management") version "1.1.7"
+    id("com.diffplug.spotless") version "6.25.0"
+}
+
+group = "com.jbank"
+version = "0.0.1-SNAPSHOT"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom(configurations.annotationProcessor.get())
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+extra["testcontainersVersion"] = "1.20.4"
+extra["archunitVersion"] = "1.3.0"
+extra["springdocVersion"] = "2.7.0"
+extra["redissonVersion"] = "3.41.0"
+
+dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-batch")
+    implementation("org.springframework.kafka:spring-kafka")
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-database-postgresql")
+    implementation("org.redisson:redisson-spring-boot-starter:${property("redissonVersion")}")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${property("springdocVersion")}")
+
+    runtimeOnly("org.postgresql:postgresql")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("org.springframework.batch:spring-batch-test")
+    testImplementation("org.springframework.kafka:spring-kafka-test")
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.testcontainers:kafka")
+    testImplementation("com.tngtech.archunit:archunit-junit5:${property("archunitVersion")}")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+dependencyManagement {
+    imports {
+        mavenBom("org.testcontainers:testcontainers-bom:${property("testcontainersVersion")}")
+    }
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
+
+spotless {
+    java {
+        target("src/*/java/**/*.java")
+        googleJavaFormat()
+        removeUnusedImports()
+    }
+    kotlinGradle {
+        target("*.gradle.kts")
+        ktlint()
+    }
+}
