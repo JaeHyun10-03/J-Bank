@@ -1,0 +1,34 @@
+# Gradle
+apps/jbank-api/.gradle/
+apps/jbank-api/build/
+!apps/jbank-api/gradle/wrapper/gradle-wrapper.jar
+
+# Java
+*.class
+*.log
+HELP.md
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Node / Next.js
+apps/frontend/node_modules/
+apps/frontend/.next/
+apps/frontend/out/
+apps/frontend/.env*.local
+
+# Terraform
+infra/terraform/**/.terraform/
+infra/terraform/**/*.tfstate
+infra/terraform/**/*.tfstate.*
+infra/terraform/**/.terraform.lock.hcl
+
+# 환경변수·비밀값
+.env
+.env.local
+
+# 성능 측정 원본 로그(요약만 커밋)
+perf/results/**/*.raw
