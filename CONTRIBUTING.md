@@ -56,12 +56,13 @@
 | `perf` | `perf/` |
 | `docs` | 설계 문서, ADR |
 
-예: `feat(api): add account opening endpoint`, `fix(frontend): preserve balance query on OTP success`
+예: `feat(api): 계좌 개설 API 추가`, `fix(frontend): OTP 성공 후 잔액 쿼리 무효화 안 되는 문제 수정`
 
 ### description
 
-- 명령형, 소문자 시작, 마침표 없음
+- 한글로 작성한다. type·scope 키워드만 Conventional Commits 표준을 따라 영어로 둔다.
 - "무엇을"보다 "왜"가 본문에서 드러나야 한다. 설계 판단이 걸린 커밋은 본문에 근거를 남긴다.
+- Claude Code로 작업했더라도 `Co-Authored-By`, `Claude-Session` 같은 트레일러는 붙이지 않는다.
 
 근거: `docs/07_J-Bank_구현계획.md` 3.2절, `docs/10_J-Bank_폴더구조.md`
 
