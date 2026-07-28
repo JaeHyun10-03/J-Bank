@@ -1,0 +1,49 @@
+name: 버그 리포트
+description: 의도한 동작과 실제 동작이 다를 때
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: scope
+    attributes:
+      label: 영역
+      options:
+        - api
+        - frontend
+        - infra
+        - contracts
+        - perf
+        - docs
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: 실제 동작
+      description: 무엇이 잘못됐는지
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 기대 동작
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 재현 절차
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 로그·스크린샷
+      render: shell

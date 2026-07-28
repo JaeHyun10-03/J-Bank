@@ -1,0 +1,46 @@
+name: 기능 요청
+description: 요구사항명세서에 없는 기능을 새로 제안할 때
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        요구사항명세서(`docs/01_J-Bank_요구사항명세서.md`)에 없는 기능은 문서에 먼저 반영하고 우선순위를 재조정한 뒤 착수한다(구현계획 12절 리스크 6번). 이 이슈는 그 문서 반영 전 제안 단계다.
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: 영역
+      options:
+        - api
+        - frontend
+        - infra
+        - contracts
+        - perf
+        - docs
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 어떤 문제를 해결하나
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 제안하는 방식
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 검토했던 대안
+  - type: textarea
+    id: docs-impact
+    attributes:
+      label: 반영해야 할 설계 문서
+      description: 요구사항명세서, ERD, API설계 등 어느 문서를 함께 고쳐야 하는지
