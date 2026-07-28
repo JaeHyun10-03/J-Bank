@@ -2,11 +2,11 @@
 
 ## 브랜치 전략
 
-트렁크 기반이다. `main`은 항상 배포 가능한 상태를 유지한다. 작업은 `feat/`, `fix/` 접두어를 붙인 짧은 수명 브랜치에서 하고 Pull Request로 병합한다. git-flow의 릴리스 브랜치 관리는 도입하지 않는다.
+트렁크 기반이다. `main`은 항상 배포 가능한 상태를 유지한다. 작업은 `feat/`, `fix/` 등 커밋 type과 같은 접두어를 붙인 짧은 수명 브랜치에서 하고 Pull Request로 병합한다. git-flow의 릴리스 브랜치 관리는 도입하지 않는다.
 
-브랜치명 예: `feat/account-open-api`, `fix/idempotency-key-race`
+브랜치명 예: `feat/api-account-open`, `fix/api-idempotency-key-race`
 
-근거: `docs/07_J-Bank_구현계획.md` 3.2절
+네이밍, 병합 방식(rebase + fast-forward, squash 안 씀), 태그 시점, main 보호 규칙은 `docs/브랜치전략.md` 참고.
 
 ## Atomic Commit
 
