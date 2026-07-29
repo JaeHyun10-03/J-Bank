@@ -16,3 +16,4 @@
 |---|---|---|
 | 2026-07-28 | [2026-07-28_개발환경세팅.md](2026-07-28_개발환경세팅.md) | Java 21 설치, Spring Boot 3.3 단종 대응, Tailwind v4 전환, Docker 부팅 문제 |
 | 2026-07-28 | [2026-07-28_공통응답포맷과전역예외처리.md](2026-07-28_공통응답포맷과전역예외처리.md) | ApiResponse/ErrorCode/GlobalExceptionHandler 설계 결정 |
+| 2026-07-29 | [2026-07-29_공통기반마무리와Springdoc노출.md](2026-07-29_공통기반마무리와Springdoc노출.md) | 금액 시리얼라이저, 요청추적ID 필터, SecurityConfig 부재로 막혀있던 Springdoc 노출 문제 |
