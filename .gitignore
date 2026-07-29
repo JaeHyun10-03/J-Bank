@@ -30,8 +30,6 @@ infra/terraform/**/.terraform.lock.hcl
 .env
 .env.local
 
-# 개인 작업용 todo (공유 문서 아님)
-/todo/
 
 # 성능 측정 원본 로그(요약만 커밋)
 perf/results/**/*.raw
