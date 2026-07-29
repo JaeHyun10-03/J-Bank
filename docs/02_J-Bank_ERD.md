@@ -1,8 +1,8 @@
 # J-Bank 코어시스템 ERD 설계
 
-문서 버전: v1.2
+문서 버전: v1.3
 작성일: 2026-07-21
-최종 수정: 2026-07-26
+최종 수정: 2026-07-29
 DB: PostgreSQL 기준
 
 ## 버전 이력
@@ -12,6 +12,7 @@ DB: PostgreSQL 기준
 | v1.0 | 2026-07-21 | 최초 작성 |
 | v1.1 | 2026-07-21 | CustomerRiskAssessmentHistory, CtrReportQueue 엔티티 추가 |
 | v1.2 | 2026-07-26 | Account에 지급정지 금액 컬럼 추가, OutboxEvent 테이블 신규 정의, Transaction 상태 기계 정의, 관련 인덱스 반영 |
+| v1.3 | 2026-07-29 | kyc_grade 값 체계를 GENERAL/CDD/EDD 3단계로 명시(API설계 문서 API-001 응답 예시와 통일, 기존 "CDD 또는 EDD" 표기 오류 수정) |
 
 ## 1. ERD 다이어그램
 
@@ -170,7 +171,7 @@ AuditLog는 target_type과 target_id로 임의 엔티티를 참조하는 범용 
 | occupation | VARCHAR(100) | NULL | 직업정보 |
 | identity_verification_method | VARCHAR(20) | NOT NULL | FACE_TO_FACE 또는 NON_FACE_TO_FACE |
 | identity_verified_at | TIMESTAMPTZ | NOT NULL | 실명확인 완료 시각 |
-| kyc_grade | VARCHAR(20) | NOT NULL | CDD 또는 EDD |
+| kyc_grade | VARCHAR(20) | NOT NULL | GENERAL, CDD, EDD 중 하나. aml_risk_level LOW→GENERAL, MEDIUM→CDD, HIGH→EDD |
 | aml_risk_level | VARCHAR(10) | NOT NULL | LOW, MEDIUM, HIGH |
 | transaction_purpose | VARCHAR(200) | NULL | EDD 대상만 필수 |
 | fund_source | VARCHAR(200) | NULL | EDD 대상만 필수 |
