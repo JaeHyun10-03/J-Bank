@@ -30,3 +30,62 @@ jobs:
 
       - name: Spotless check
         run: ./gradlew spotlessCheck
+
+  openapi-drift:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: jbank
+          POSTGRES_USER: jbank
+          POSTGRES_PASSWORD: jbank
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U jbank"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+    defaults:
+      run:
+        working-directory: apps/jbank-api
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: 백그라운드로 API 기동
+        run: |
+          nohup ./gradlew bootRun --args='--spring.profiles.active=local' > bootrun.log 2>&1 &
+          echo $! > bootrun.pid
+
+      - name: API 기동 대기
+        run: |
+          for i in $(seq 1 40); do
+            if curl -sf http://localhost:8080/v3/api-docs.yaml -o /dev/null; then
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "API가 제한 시간 안에 기동되지 않았다"
+          cat bootrun.log
+          exit 1
+
+      - name: OpenAPI 스냅샷 드리프트 검사
+        run: |
+          curl -sf http://localhost:8080/v3/api-docs.yaml -o /tmp/openapi.yaml
+          diff -u ../../contracts/openapi/openapi.yaml /tmp/openapi.yaml
+
+      - name: API 종료
+        if: always()
+        run: kill "$(cat bootrun.pid)" || true

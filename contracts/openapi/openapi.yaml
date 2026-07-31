@@ -1,0 +1,507 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+paths:
+  /api/v1/customers:
+    post:
+      tags:
+      - customer-controller
+      operationId: register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomerRegisterRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseCustomerRegisterResponse"
+  /api/v1/customers/{customerId}/edd:
+    post:
+      tags:
+      - customer-controller
+      operationId: registerEdd
+      parameters:
+      - name: customerId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EddRegisterRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseEddRegisterResponse"
+  /api/v1/accounts:
+    post:
+      tags:
+      - account-controller
+      operationId: open
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountOpenRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseAccountOpenResponse"
+  /api/v1/accounts/{accountId}/status:
+    patch:
+      tags:
+      - account-controller
+      operationId: changeStatus
+      parameters:
+      - name: accountId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountStatusChangeRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseAccountStatusChangeResponse"
+  /api/v1/customers/{customerId}/accounts:
+    get:
+      tags:
+      - customer-account-controller
+      operationId: list
+      parameters:
+      - name: customerId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - ACTIVE
+          - SUSPENDED
+          - DORMANT
+          - CLOSED
+      - name: pageable
+        in: query
+        required: true
+        schema:
+          $ref: "#/components/schemas/Pageable"
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponsePageResponseCustomerAccountSummaryResponse"
+  /api/v1/accounts/{accountId}:
+    get:
+      tags:
+      - account-controller
+      operationId: getDetail
+      parameters:
+      - name: accountId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: customerId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseAccountDetailResponse"
+    delete:
+      tags:
+      - account-controller
+      operationId: close
+      parameters:
+      - name: accountId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: customerId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseAccountCloseResponse"
+components:
+  schemas:
+    CustomerRegisterRequest:
+      required:
+      - birthDate
+      - identityVerificationMethod
+      - name
+      - phone
+      - residentRegNo
+      type: object
+      properties:
+        name:
+          type: string
+        residentRegNo:
+          type: string
+        birthDate:
+          type: string
+          format: date
+        phone:
+          type: string
+        address:
+          type: string
+        occupation:
+          type: string
+        identityVerificationMethod:
+          type: string
+          enum:
+          - FACE_TO_FACE
+          - NON_FACE_TO_FACE
+        transactionPurpose:
+          type: string
+        fundSource:
+          type: string
+    ApiResponseCustomerRegisterResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/CustomerRegisterResponse"
+        error:
+          $ref: "#/components/schemas/ErrorDetail"
+    CustomerRegisterResponse:
+      type: object
+      properties:
+        customerId:
+          type: string
+        kycGrade:
+          type: string
+          enum:
+          - GENERAL
+          - CDD
+          - EDD
+        amlRiskLevel:
+          type: string
+          enum:
+          - LOW
+          - MEDIUM
+          - HIGH
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - DORMANT
+          - CLOSED
+        eddRequired:
+          type: boolean
+    ErrorDetail:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+    EddRegisterRequest:
+      required:
+      - fundSource
+      - supportingDocumentRef
+      - transactionPurpose
+      type: object
+      properties:
+        transactionPurpose:
+          type: string
+        fundSource:
+          type: string
+        supportingDocumentRef:
+          type: string
+    ApiResponseEddRegisterResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/EddRegisterResponse"
+        error:
+          $ref: "#/components/schemas/ErrorDetail"
+    EddRegisterResponse:
+      type: object
+      properties:
+        customerId:
+          type: string
+        amlRiskLevel:
+          type: string
+          enum:
+          - LOW
+          - MEDIUM
+          - HIGH
+        eddCompletedAt:
+          type: string
+          format: date-time
+    AccountOpenRequest:
+      required:
+      - customerId
+      - initialDeposit
+      - productType
+      type: object
+      properties:
+        customerId:
+          type: string
+        productType:
+          type: string
+          enum:
+          - CHECKING
+        initialDeposit:
+          type: number
+    AccountOpenResponse:
+      type: object
+      properties:
+        accountId:
+          type: string
+        accountNumber:
+          type: string
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - SUSPENDED
+          - DORMANT
+          - CLOSED
+        openedAt:
+          type: string
+          format: date-time
+    ApiResponseAccountOpenResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/AccountOpenResponse"
+        error:
+          $ref: "#/components/schemas/ErrorDetail"
+    AccountStatusChangeRequest:
+      required:
+      - targetStatus
+      type: object
+      properties:
+        targetStatus:
+          type: string
+          enum:
+          - ACTIVE
+          - SUSPENDED
+          - DORMANT
+          - CLOSED
+        reason:
+          type: string
+    AccountStatusChangeResponse:
+      type: object
+      properties:
+        accountId:
+          type: string
+        previousStatus:
+          type: string
+          enum:
+          - ACTIVE
+          - SUSPENDED
+          - DORMANT
+          - CLOSED
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - SUSPENDED
+          - DORMANT
+          - CLOSED
+    ApiResponseAccountStatusChangeResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/AccountStatusChangeResponse"
+        error:
+          $ref: "#/components/schemas/ErrorDetail"
+    Pageable:
+      type: object
+      properties:
+        page:
+          minimum: 0
+          type: integer
+          format: int32
+        size:
+          minimum: 1
+          type: integer
+          format: int32
+        sort:
+          type: array
+          items:
+            type: string
+    ApiResponsePageResponseCustomerAccountSummaryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/PageResponseCustomerAccountSummaryResponse"
+        error:
+          $ref: "#/components/schemas/ErrorDetail"
+    CustomerAccountSummaryResponse:
+      type: object
+      properties:
+        accountId:
+          type: string
+        accountNumber:
+          type: string
+        customerId:
+          type: string
+        productType:
+          type: string
+          enum:
+          - CHECKING
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - SUSPENDED
+          - DORMANT
+          - CLOSED
+        openedAt:
+          type: string
+          format: date-time
+        closedAt:
+          type: string
+          format: date-time
+        balance:
+          type: number
+        holdAmount:
+          type: number
+        availableBalance:
+          type: number
+        asOf:
+          type: string
+          format: date-time
+    PageResponseCustomerAccountSummaryResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/CustomerAccountSummaryResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+    AccountDetailResponse:
+      type: object
+      properties:
+        accountId:
+          type: string
+        accountNumber:
+          type: string
+        customerId:
+          type: string
+        productType:
+          type: string
+          enum:
+          - CHECKING
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - SUSPENDED
+          - DORMANT
+          - CLOSED
+        openedAt:
+          type: string
+          format: date-time
+        closedAt:
+          type: string
+          format: date-time
+    ApiResponseAccountDetailResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/AccountDetailResponse"
+        error:
+          $ref: "#/components/schemas/ErrorDetail"
+    AccountCloseResponse:
+      type: object
+      properties:
+        accountId:
+          type: string
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - SUSPENDED
+          - DORMANT
+          - CLOSED
+        closedAt:
+          type: string
+          format: date-time
+    ApiResponseAccountCloseResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/AccountCloseResponse"
+        error:
+          $ref: "#/components/schemas/ErrorDetail"
