@@ -10,6 +10,7 @@ import com.jbank.account.dto.AccountOpenRequest;
 import com.jbank.account.dto.AccountOpenResponse;
 import com.jbank.account.dto.AccountStatusChangeRequest;
 import com.jbank.account.dto.AccountStatusChangeResponse;
+import com.jbank.account.dto.CustomerAccountSummaryResponse;
 import com.jbank.account.repository.AccountRepository;
 import com.jbank.customer.domain.Customer;
 import com.jbank.customer.domain.CustomerStatus;
@@ -17,8 +18,11 @@ import com.jbank.customer.domain.KycGrade;
 import com.jbank.customer.repository.CustomerRepository;
 import com.jbank.customer.repository.CustomerRiskAssessmentHistoryRepository;
 import com.jbank.global.exception.ErrorCode;
+import com.jbank.global.response.PageResponse;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -141,6 +145,34 @@ public class AccountService {
     account.close();
     return new AccountCloseResponse(
         String.valueOf(accountId), account.getStatus(), account.getClosedAt());
+  }
+
+  @Transactional(readOnly = true)
+  public PageResponse<CustomerAccountSummaryResponse> listByCustomer(
+      Long customerId, AccountStatus statusFilter, Pageable pageable) {
+    Page<Account> page =
+        statusFilter == null
+            ? accountRepository.findByCustomerId(customerId, pageable)
+            : accountRepository.findByCustomerIdAndStatus(customerId, statusFilter, pageable);
+    return PageResponse.from(page.map(AccountService::toSummary));
+  }
+
+  private static CustomerAccountSummaryResponse toSummary(Account account) {
+    OffsetDateTime asOf = OffsetDateTime.now();
+    BigDecimal availableBalance =
+        account.getCurrentBalanceCache().subtract(account.getHoldAmount());
+    return new CustomerAccountSummaryResponse(
+        String.valueOf(account.getAccountId()),
+        account.getAccountNumber(),
+        String.valueOf(account.getCustomerId()),
+        account.getAccountType(),
+        account.getStatus(),
+        account.getOpenedAt(),
+        account.getClosedAt(),
+        account.getCurrentBalanceCache(),
+        account.getHoldAmount(),
+        availableBalance,
+        asOf);
   }
 
   // 해지(CLOSED)는 API-005 전용이라 이 경로로는 진입/이탈 모두 허용하지 않는다.

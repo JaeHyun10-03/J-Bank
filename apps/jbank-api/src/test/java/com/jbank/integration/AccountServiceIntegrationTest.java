@@ -14,6 +14,7 @@ import com.jbank.account.dto.AccountOpenRequest;
 import com.jbank.account.dto.AccountOpenResponse;
 import com.jbank.account.dto.AccountStatusChangeRequest;
 import com.jbank.account.dto.AccountStatusChangeResponse;
+import com.jbank.account.dto.CustomerAccountSummaryResponse;
 import com.jbank.account.repository.AccountRepository;
 import com.jbank.account.service.AccountService;
 import com.jbank.common.crypto.HmacKeyHolder;
@@ -25,6 +26,7 @@ import com.jbank.customer.domain.KycGrade;
 import com.jbank.customer.domain.RiskLevel;
 import com.jbank.customer.repository.CustomerRepository;
 import com.jbank.global.exception.ErrorCode;
+import com.jbank.global.response.PageResponse;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -34,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -276,6 +279,56 @@ class AccountServiceIntegrationTest {
             ex ->
                 assertThat(((AccountException) ex).getErrorCode())
                     .isEqualTo(ErrorCode.ACC_008_BALANCE_NOT_ZERO));
+  }
+
+  @Test
+  void 고객의_계좌목록을_페이지로_조회한다() {
+    // given
+    Long customerId = saveCustomer(KycGrade.GENERAL, RiskLevel.LOW, CustomerStatus.ACTIVE);
+    accountService.open(
+        new AccountOpenRequest(String.valueOf(customerId), AccountType.CHECKING, BigDecimal.ZERO));
+    accountService.open(
+        new AccountOpenRequest(String.valueOf(customerId), AccountType.CHECKING, BigDecimal.ZERO));
+
+    // when
+    PageResponse<CustomerAccountSummaryResponse> response =
+        accountService.listByCustomer(customerId, null, PageRequest.of(0, 20));
+
+    // then
+    assertThat(response.totalElements()).isEqualTo(2);
+    assertThat(response.content())
+        .allSatisfy(item -> assertThat(item.customerId()).isEqualTo(String.valueOf(customerId)));
+  }
+
+  @Test
+  void 상태필터를_주면_해당_상태의_계좌만_반환한다() {
+    // given
+    Long customerId = saveCustomer(KycGrade.GENERAL, RiskLevel.LOW, CustomerStatus.ACTIVE);
+    Long activeAccountId =
+        Long.valueOf(
+            accountService
+                .open(
+                    new AccountOpenRequest(
+                        String.valueOf(customerId), AccountType.CHECKING, BigDecimal.ZERO))
+                .accountId());
+    Long toSuspendId =
+        Long.valueOf(
+            accountService
+                .open(
+                    new AccountOpenRequest(
+                        String.valueOf(customerId), AccountType.CHECKING, BigDecimal.ZERO))
+                .accountId());
+    accountService.changeStatus(
+        toSuspendId, new AccountStatusChangeRequest(AccountStatus.SUSPENDED, "테스트"));
+
+    // when
+    PageResponse<CustomerAccountSummaryResponse> response =
+        accountService.listByCustomer(customerId, AccountStatus.SUSPENDED, PageRequest.of(0, 20));
+
+    // then
+    assertThat(response.totalElements()).isEqualTo(1);
+    assertThat(response.content().get(0).accountId()).isEqualTo(String.valueOf(toSuspendId));
+    assertThat(response.content().get(0).accountId()).isNotEqualTo(String.valueOf(activeAccountId));
   }
 
   private Long saveCustomer(KycGrade kycGrade, RiskLevel riskLevel, CustomerStatus status) {
