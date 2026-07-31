@@ -74,6 +74,11 @@ public class Account {
     this.updatedAt = now;
   }
 
+  public void changeStatus(AccountStatus newStatus) {
+    this.status = newStatus;
+    this.updatedAt = OffsetDateTime.now();
+  }
+
   public Long getAccountId() {
     return accountId;
   }

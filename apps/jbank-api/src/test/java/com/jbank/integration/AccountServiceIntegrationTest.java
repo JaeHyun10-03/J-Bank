@@ -10,6 +10,8 @@ import com.jbank.account.domain.AccountType;
 import com.jbank.account.dto.AccountDetailResponse;
 import com.jbank.account.dto.AccountOpenRequest;
 import com.jbank.account.dto.AccountOpenResponse;
+import com.jbank.account.dto.AccountStatusChangeRequest;
+import com.jbank.account.dto.AccountStatusChangeResponse;
 import com.jbank.account.service.AccountService;
 import com.jbank.common.crypto.HmacKeyHolder;
 import com.jbank.common.crypto.PiiEncryptionKeyHolder;
@@ -177,6 +179,54 @@ class AccountServiceIntegrationTest {
             ex ->
                 assertThat(((AccountException) ex).getErrorCode())
                     .isEqualTo(ErrorCode.COMMON_004_NOT_FOUND));
+  }
+
+  @Test
+  void 정지로_전이하면_상태가_바뀐다() {
+    // given
+    Long customerId = saveCustomer(KycGrade.GENERAL, RiskLevel.LOW, CustomerStatus.ACTIVE);
+    Long accountId =
+        Long.valueOf(
+            accountService
+                .open(
+                    new AccountOpenRequest(
+                        String.valueOf(customerId), AccountType.CHECKING, BigDecimal.ZERO))
+                .accountId());
+
+    // when
+    AccountStatusChangeResponse response =
+        accountService.changeStatus(
+            accountId, new AccountStatusChangeRequest(AccountStatus.SUSPENDED, "이상거래 의심"));
+
+    // then
+    assertThat(response.previousStatus()).isEqualTo(AccountStatus.ACTIVE);
+    assertThat(response.status()).isEqualTo(AccountStatus.SUSPENDED);
+    assertThat(accountService.getDetail(accountId, customerId).status())
+        .isEqualTo(AccountStatus.SUSPENDED);
+  }
+
+  @Test
+  void 허용되지_않는_전이는_거절한다() {
+    // given
+    Long customerId = saveCustomer(KycGrade.GENERAL, RiskLevel.LOW, CustomerStatus.ACTIVE);
+    Long accountId =
+        Long.valueOf(
+            accountService
+                .open(
+                    new AccountOpenRequest(
+                        String.valueOf(customerId), AccountType.CHECKING, BigDecimal.ZERO))
+                .accountId());
+
+    // when & then
+    assertThatThrownBy(
+            () ->
+                accountService.changeStatus(
+                    accountId, new AccountStatusChangeRequest(AccountStatus.CLOSED, "임의 해지 시도")))
+        .isInstanceOf(AccountException.class)
+        .satisfies(
+            ex ->
+                assertThat(((AccountException) ex).getErrorCode())
+                    .isEqualTo(ErrorCode.ACC_007_INVALID_STATUS_TRANSITION));
   }
 
   private Long saveCustomer(KycGrade kycGrade, RiskLevel riskLevel, CustomerStatus status) {

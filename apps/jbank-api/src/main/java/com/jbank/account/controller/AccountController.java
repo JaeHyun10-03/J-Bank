@@ -3,12 +3,15 @@ package com.jbank.account.controller;
 import com.jbank.account.dto.AccountDetailResponse;
 import com.jbank.account.dto.AccountOpenRequest;
 import com.jbank.account.dto.AccountOpenResponse;
+import com.jbank.account.dto.AccountStatusChangeRequest;
+import com.jbank.account.dto.AccountStatusChangeResponse;
 import com.jbank.account.service.AccountService;
 import com.jbank.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,6 +41,13 @@ public class AccountController {
   public ResponseEntity<ApiResponse<AccountDetailResponse>> getDetail(
       @PathVariable Long accountId, @RequestParam Long customerId) {
     AccountDetailResponse response = accountService.getDetail(accountId, customerId);
+    return ResponseEntity.ok(ApiResponse.success(response));
+  }
+
+  @PatchMapping("/{accountId}/status")
+  public ResponseEntity<ApiResponse<AccountStatusChangeResponse>> changeStatus(
+      @PathVariable Long accountId, @Valid @RequestBody AccountStatusChangeRequest request) {
+    AccountStatusChangeResponse response = accountService.changeStatus(accountId, request);
     return ResponseEntity.ok(ApiResponse.success(response));
   }
 }

@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -15,6 +16,8 @@ import com.jbank.account.domain.AccountType;
 import com.jbank.account.dto.AccountDetailResponse;
 import com.jbank.account.dto.AccountOpenRequest;
 import com.jbank.account.dto.AccountOpenResponse;
+import com.jbank.account.dto.AccountStatusChangeRequest;
+import com.jbank.account.dto.AccountStatusChangeResponse;
 import com.jbank.account.service.AccountService;
 import com.jbank.global.config.SecurityConfig;
 import com.jbank.global.exception.ErrorCode;
@@ -107,5 +110,42 @@ class AccountControllerTest {
         .perform(get("/api/v1/accounts/1").param("customerId", "2"))
         .andExpect(status().isForbidden())
         .andExpect(jsonPath("$.error.code").value("COMMON_003_FORBIDDEN"));
+  }
+
+  @Test
+  void 상태변경에_성공하면_200과_변경결과를_반환한다() throws Exception {
+    // given
+    given(accountService.changeStatus(eq(1L), any()))
+        .willReturn(
+            new AccountStatusChangeResponse("1", AccountStatus.ACTIVE, AccountStatus.SUSPENDED));
+
+    // when & then
+    mockMvc
+        .perform(
+            patch("/api/v1/accounts/1/status")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        new AccountStatusChangeRequest(AccountStatus.SUSPENDED, "이상거래 의심"))))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data.status").value("SUSPENDED"));
+  }
+
+  @Test
+  void 허용되지_않는_전이면_409를_반환한다() throws Exception {
+    // given
+    given(accountService.changeStatus(eq(1L), any()))
+        .willThrow(new AccountException(ErrorCode.ACC_007_INVALID_STATUS_TRANSITION));
+
+    // when & then
+    mockMvc
+        .perform(
+            patch("/api/v1/accounts/1/status")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        new AccountStatusChangeRequest(AccountStatus.CLOSED, "임의 해지 시도"))))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.error.code").value("ACC_007_INVALID_STATUS_TRANSITION"));
   }
 }

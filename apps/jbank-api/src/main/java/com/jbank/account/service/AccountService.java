@@ -7,6 +7,8 @@ import com.jbank.account.domain.AccountStatus;
 import com.jbank.account.dto.AccountDetailResponse;
 import com.jbank.account.dto.AccountOpenRequest;
 import com.jbank.account.dto.AccountOpenResponse;
+import com.jbank.account.dto.AccountStatusChangeRequest;
+import com.jbank.account.dto.AccountStatusChangeResponse;
 import com.jbank.account.repository.AccountRepository;
 import com.jbank.customer.domain.Customer;
 import com.jbank.customer.domain.CustomerStatus;
@@ -95,5 +97,36 @@ public class AccountService {
         account.getStatus(),
         account.getOpenedAt(),
         account.getClosedAt());
+  }
+
+  @Transactional
+  public AccountStatusChangeResponse changeStatus(
+      Long accountId, AccountStatusChangeRequest request) {
+    Account account =
+        accountRepository
+            .findById(accountId)
+            .orElseThrow(() -> new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
+
+    AccountStatus previousStatus = account.getStatus();
+    if (!isTransitionAllowed(previousStatus, request.targetStatus())) {
+      throw new AccountException(ErrorCode.ACC_007_INVALID_STATUS_TRANSITION);
+    }
+    account.changeStatus(request.targetStatus());
+
+    return new AccountStatusChangeResponse(
+        String.valueOf(accountId), previousStatus, request.targetStatus());
+  }
+
+  // 해지(CLOSED)는 API-005 전용이라 이 경로로는 진입/이탈 모두 허용하지 않는다.
+  private static boolean isTransitionAllowed(AccountStatus from, AccountStatus to) {
+    if (from == to || to == AccountStatus.CLOSED || from == AccountStatus.CLOSED) {
+      return false;
+    }
+    return switch (from) {
+      case ACTIVE -> to == AccountStatus.SUSPENDED || to == AccountStatus.DORMANT;
+      case SUSPENDED -> to == AccountStatus.ACTIVE || to == AccountStatus.DORMANT;
+      case DORMANT -> to == AccountStatus.ACTIVE;
+      case CLOSED -> false;
+    };
   }
 }
