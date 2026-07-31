@@ -18,9 +18,9 @@ import com.jbank.customer.domain.RiskLevel;
 import com.jbank.customer.repository.CustomerRepository;
 import com.jbank.global.exception.ErrorCode;
 import com.jbank.ledger.repository.LedgerEntryRepository;
-import com.jbank.transfer.domain.Transaction;
 import com.jbank.transfer.domain.TransactionException;
 import com.jbank.transfer.domain.TransactionStatus;
+import com.jbank.transfer.dto.TransferResponse;
 import com.jbank.transfer.repository.TransactionRepository;
 import com.jbank.transfer.service.TransferService;
 import java.math.BigDecimal;
@@ -68,7 +68,7 @@ class TransferServiceIntegrationTest {
     Account from = saveAccount(new BigDecimal("100000.00"), BigDecimal.ZERO, AccountStatus.ACTIVE);
     Account to = saveAccount(new BigDecimal("5000.00"), BigDecimal.ZERO, AccountStatus.ACTIVE);
 
-    Transaction transaction =
+    TransferResponse response =
         transferService.transfer(
             from.getAccountNumber(),
             to.getAccountNumber(),
@@ -76,7 +76,8 @@ class TransferServiceIntegrationTest {
             UUID.randomUUID().toString(),
             "생활비");
 
-    assertThat(transaction.getStatus()).isEqualTo(TransactionStatus.COMPLETED);
+    assertThat(response.status()).isEqualTo(TransactionStatus.COMPLETED);
+    assertThat(response.fromAccountBalanceAfter()).isEqualByComparingTo("70000.00");
     Account updatedFrom = accountRepository.findById(from.getAccountId()).orElseThrow();
     Account updatedTo = accountRepository.findById(to.getAccountId()).orElseThrow();
     assertThat(updatedFrom.getCurrentBalanceCache()).isEqualByComparingTo("70000.00");
@@ -91,14 +92,14 @@ class TransferServiceIntegrationTest {
     Account to = saveAccount(new BigDecimal("5000.00"), BigDecimal.ZERO, AccountStatus.ACTIVE);
     String idempotencyKey = UUID.randomUUID().toString();
 
-    Transaction first =
+    TransferResponse first =
         transferService.transfer(
             from.getAccountNumber(),
             to.getAccountNumber(),
             new BigDecimal("30000.00"),
             idempotencyKey,
             null);
-    Transaction second =
+    TransferResponse second =
         transferService.transfer(
             from.getAccountNumber(),
             to.getAccountNumber(),
@@ -106,7 +107,7 @@ class TransferServiceIntegrationTest {
             idempotencyKey,
             null);
 
-    assertThat(second.getTransactionId()).isEqualTo(first.getTransactionId());
+    assertThat(second.transactionId()).isEqualTo(first.transactionId());
     Account updatedFrom = accountRepository.findById(from.getAccountId()).orElseThrow();
     assertThat(updatedFrom.getCurrentBalanceCache()).isEqualByComparingTo("70000.00");
     assertThat(ledgerEntryRepository.findByAccountId(from.getAccountId())).hasSize(1);

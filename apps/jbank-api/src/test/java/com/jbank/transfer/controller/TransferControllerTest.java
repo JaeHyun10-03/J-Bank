@@ -1,0 +1,88 @@
+package com.jbank.transfer.controller;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jbank.global.config.JacksonConfig;
+import com.jbank.global.config.SecurityConfig;
+import com.jbank.transfer.domain.TransactionStatus;
+import com.jbank.transfer.dto.TransferRequest;
+import com.jbank.transfer.dto.TransferResponse;
+import com.jbank.transfer.service.TransferService;
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+@WebMvcTest(TransferController.class)
+@Import({SecurityConfig.class, JacksonConfig.class})
+class TransferControllerTest {
+
+  @Autowired private MockMvc mockMvc;
+  @Autowired private ObjectMapper objectMapper;
+
+  @MockitoBean private TransferService transferService;
+
+  @Test
+  void 유효한_요청이면_201과_이체결과를_반환한다() throws Exception {
+    given(
+            transferService.transfer(
+                eq("110-000001-4"), eq("110-000002-1"), any(), eq("idem-key-1"), any()))
+        .willReturn(
+            new TransferResponse(
+                "20",
+                TransactionStatus.COMPLETED,
+                new BigDecimal("1200000.00"),
+                OffsetDateTime.now()));
+
+    mockMvc
+        .perform(
+            post("/api/v1/transfers")
+                .header("Idempotency-Key", "idem-key-1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        new TransferRequest(
+                            "110-000001-4", "110-000002-1", new BigDecimal("3000000.00"), "생활비"))))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.data.status").value("COMPLETED"))
+        .andExpect(jsonPath("$.data.fromAccountBalanceAfter").value("1200000.00"));
+  }
+
+  @Test
+  void Idempotency_Key_헤더가_없으면_400이다() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/v1/transfers")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        new TransferRequest(
+                            "110-000001-4", "110-000002-1", new BigDecimal("3000000.00"), null))))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void 출금계좌번호가_없으면_400이다() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/v1/transfers")
+                .header("Idempotency-Key", "idem-key-2")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        new TransferRequest(
+                            "", "110-000002-1", new BigDecimal("3000000.00"), null))))
+        .andExpect(status().isBadRequest());
+  }
+}

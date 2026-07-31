@@ -11,6 +11,7 @@ import com.jbank.ledger.repository.LedgerEntryRepository;
 import com.jbank.transfer.domain.Transaction;
 import com.jbank.transfer.domain.TransactionException;
 import com.jbank.transfer.domain.TransactionType;
+import com.jbank.transfer.dto.TransferResponse;
 import com.jbank.transfer.repository.TransactionRepository;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -36,7 +37,7 @@ public class TransferService {
   }
 
   @Transactional
-  public Transaction transfer(
+  public TransferResponse transfer(
       String fromAccountNumber,
       String toAccountNumber,
       BigDecimal amount,
@@ -44,7 +45,7 @@ public class TransferService {
       String memo) {
     Transaction existing = transactionRepository.findByIdempotencyKey(idempotencyKey).orElse(null);
     if (existing != null) {
-      return existing;
+      return toResponse(existing, resolveFromBalance(existing));
     }
 
     if (fromAccountNumber.equals(toAccountNumber)) {
@@ -80,7 +81,9 @@ public class TransferService {
     } catch (DataIntegrityViolationException e) {
       // 사전 조회 통과 후 동시에 같은 키로 들어온 요청이 유니크 제약에 걸린 경우, 먼저
       // 커밋된 원래 결과를 그대로 반환해 완전한 멱등을 보장한다.
-      return transactionRepository.findByIdempotencyKey(idempotencyKey).orElseThrow(() -> e);
+      Transaction raced =
+          transactionRepository.findByIdempotencyKey(idempotencyKey).orElseThrow(() -> e);
+      return toResponse(raced, resolveFromBalance(raced));
     }
 
     OffsetDateTime occurredAt = OffsetDateTime.now();
@@ -104,7 +107,7 @@ public class TransferService {
             occurredAt));
     transaction.complete(occurredAt);
 
-    return transaction;
+    return toResponse(transaction, from.getCurrentBalanceCache());
   }
 
   private Account lockAccount(String accountNumber, String toAccountNumber) {
@@ -115,5 +118,20 @@ public class TransferService {
                 accountNumber.equals(toAccountNumber)
                     ? new TransactionException(ErrorCode.TXN_003_COUNTERPARTY_ACCOUNT_NOT_FOUND)
                     : new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
+  }
+
+  private BigDecimal resolveFromBalance(Transaction transaction) {
+    return accountRepository
+        .findById(transaction.getFromAccountId())
+        .map(Account::getCurrentBalanceCache)
+        .orElseThrow(() -> new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
+  }
+
+  private TransferResponse toResponse(Transaction transaction, BigDecimal fromAccountBalanceAfter) {
+    return new TransferResponse(
+        String.valueOf(transaction.getTransactionId()),
+        transaction.getStatus(),
+        fromAccountBalanceAfter,
+        transaction.getProcessedAt());
   }
 }

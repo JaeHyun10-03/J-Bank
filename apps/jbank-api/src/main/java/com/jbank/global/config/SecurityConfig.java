@@ -19,7 +19,9 @@ public class SecurityConfig {
     "/api/v1/customers",
     "/api/v1/customers/*/edd",
     "/api/v1/customers/*/accounts",
-    "/api/v1/accounts/**"
+    "/api/v1/accounts/**",
+    "/api/v1/transfers",
+    "/api/v1/transfers/**"
   };
 
   @Bean
