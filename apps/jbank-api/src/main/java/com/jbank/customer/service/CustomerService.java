@@ -11,6 +11,8 @@ import com.jbank.customer.domain.KycGrade;
 import com.jbank.customer.domain.RiskLevel;
 import com.jbank.customer.dto.CustomerRegisterRequest;
 import com.jbank.customer.dto.CustomerRegisterResponse;
+import com.jbank.customer.dto.EddRegisterRequest;
+import com.jbank.customer.dto.EddRegisterResponse;
 import com.jbank.customer.repository.CustomerRepository;
 import com.jbank.customer.repository.CustomerRiskAssessmentHistoryRepository;
 import com.jbank.global.exception.ErrorCode;
@@ -79,5 +81,33 @@ public class CustomerService {
         assessment.amlRiskLevel(),
         CustomerStatus.ACTIVE,
         assessment.kycGrade() == KycGrade.EDD);
+  }
+
+  // ponytail: 소명 자료의 충분성을 판단하는 규칙이 없어 형식 검증(NotBlank) 통과만 확인하고
+  // 항상 수리한다. 위험도 재평가 규칙표가 생기면 여기서 amlRiskLevel을 다시 계산한다.
+  @Transactional
+  public EddRegisterResponse registerEdd(Long customerId, EddRegisterRequest request) {
+    Customer customer =
+        customerRepository
+            .findById(customerId)
+            .orElseThrow(() -> new CustomerException(ErrorCode.COMMON_004_NOT_FOUND));
+    if (customer.getKycGrade() != KycGrade.EDD) {
+      throw new CustomerException(ErrorCode.ACC_004_CUSTOMER_NOT_HIGH_RISK);
+    }
+
+    customer.recordEddConfirmation(request.transactionPurpose(), request.fundSource());
+
+    OffsetDateTime completedAt = OffsetDateTime.now();
+    historyRepository.save(
+        new CustomerRiskAssessmentHistory(
+            customerId,
+            customer.getKycGrade(),
+            customer.getAmlRiskLevel(),
+            request.transactionPurpose(),
+            request.fundSource(),
+            "OPERATOR"));
+
+    return new EddRegisterResponse(
+        String.valueOf(customerId), customer.getAmlRiskLevel(), completedAt);
   }
 }

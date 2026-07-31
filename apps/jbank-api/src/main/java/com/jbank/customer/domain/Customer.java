@@ -113,6 +113,12 @@ public class Customer {
     this.updatedAt = now;
   }
 
+  public void recordEddConfirmation(String transactionPurpose, String fundSource) {
+    this.transactionPurpose = transactionPurpose;
+    this.fundSource = fundSource;
+    this.updatedAt = OffsetDateTime.now();
+  }
+
   public Long getCustomerId() {
     return customerId;
   }

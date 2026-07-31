@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.jbank.common.crypto.HmacKeyHolder;
 import com.jbank.common.crypto.PiiEncryptionKeyHolder;
+import com.jbank.customer.domain.Customer;
 import com.jbank.customer.domain.CustomerException;
 import com.jbank.customer.domain.CustomerStatus;
 import com.jbank.customer.domain.IdentityVerificationMethod;
@@ -12,10 +13,14 @@ import com.jbank.customer.domain.KycGrade;
 import com.jbank.customer.domain.RiskLevel;
 import com.jbank.customer.dto.CustomerRegisterRequest;
 import com.jbank.customer.dto.CustomerRegisterResponse;
+import com.jbank.customer.dto.EddRegisterRequest;
+import com.jbank.customer.dto.EddRegisterResponse;
+import com.jbank.customer.repository.CustomerRepository;
 import com.jbank.customer.repository.CustomerRiskAssessmentHistoryRepository;
 import com.jbank.customer.service.CustomerService;
 import com.jbank.global.exception.ErrorCode;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.Base64;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -48,6 +53,7 @@ class CustomerServiceIntegrationTest {
   }
 
   @Autowired private CustomerService customerService;
+  @Autowired private CustomerRepository customerRepository;
   @Autowired private CustomerRiskAssessmentHistoryRepository historyRepository;
 
   private static CustomerRegisterRequest newRequest(String residentRegNo) {
@@ -93,5 +99,57 @@ class CustomerServiceIntegrationTest {
             ex ->
                 assertThat(((CustomerException) ex).getErrorCode())
                     .isEqualTo(ErrorCode.ACC_001_DUPLICATE_RESIDENT_REG_NO));
+  }
+
+  @Test
+  void 고위험_고객이_EDD를_등록하면_이력이_추가되고_완료시각이_반환된다() {
+    // given
+    Long customerId = saveHighRiskCustomer();
+    EddRegisterRequest request =
+        new EddRegisterRequest("해외거주 가족 생활비 송금", "부동산 임대소득", "DOC-2026-004521");
+
+    // when
+    EddRegisterResponse response = customerService.registerEdd(customerId, request);
+
+    // then
+    assertThat(response.customerId()).isEqualTo(String.valueOf(customerId));
+    assertThat(response.eddCompletedAt()).isNotNull();
+    assertThat(historyRepository.findByCustomerId(customerId)).hasSize(1);
+  }
+
+  @Test
+  void 고위험이_아닌_고객이_EDD를_등록하면_거절한다() {
+    // given
+    CustomerRegisterResponse registered = customerService.register(newRequest("900101-1111111"));
+    Long customerId = Long.valueOf(registered.customerId());
+    EddRegisterRequest request = new EddRegisterRequest("생활자금", "근로소득", "DOC-0001");
+
+    // when & then
+    assertThatThrownBy(() -> customerService.registerEdd(customerId, request))
+        .isInstanceOf(CustomerException.class)
+        .satisfies(
+            ex ->
+                assertThat(((CustomerException) ex).getErrorCode())
+                    .isEqualTo(ErrorCode.ACC_004_CUSTOMER_NOT_HIGH_RISK));
+  }
+
+  private Long saveHighRiskCustomer() {
+    Customer customer =
+        new Customer(
+            "정민성",
+            "900101-2222222",
+            "hash-" + System.nanoTime(),
+            LocalDate.of(1990, 1, 1),
+            "010-1234-5678",
+            "서울특별시 강남구",
+            "회사원",
+            IdentityVerificationMethod.NON_FACE_TO_FACE,
+            OffsetDateTime.now(),
+            KycGrade.EDD,
+            RiskLevel.HIGH,
+            null,
+            null,
+            CustomerStatus.ACTIVE);
+    return customerRepository.saveAndFlush(customer).getCustomerId();
   }
 }
