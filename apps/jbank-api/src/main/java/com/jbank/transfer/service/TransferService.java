@@ -15,6 +15,7 @@ import com.jbank.transfer.repository.TransactionRepository;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +42,11 @@ public class TransferService {
       BigDecimal amount,
       String idempotencyKey,
       String memo) {
+    Transaction existing = transactionRepository.findByIdempotencyKey(idempotencyKey).orElse(null);
+    if (existing != null) {
+      return existing;
+    }
+
     if (fromAccountNumber.equals(toAccountNumber)) {
       throw new TransactionException(ErrorCode.TXN_002_SAME_ACCOUNT_TRANSFER);
     }
@@ -69,7 +75,13 @@ public class TransferService {
             amount,
             idempotencyKey,
             memo);
-    transaction = transactionRepository.save(transaction);
+    try {
+      transaction = transactionRepository.save(transaction);
+    } catch (DataIntegrityViolationException e) {
+      // 사전 조회 통과 후 동시에 같은 키로 들어온 요청이 유니크 제약에 걸린 경우, 먼저
+      // 커밋된 원래 결과를 그대로 반환해 완전한 멱등을 보장한다.
+      return transactionRepository.findByIdempotencyKey(idempotencyKey).orElseThrow(() -> e);
+    }
 
     OffsetDateTime occurredAt = OffsetDateTime.now();
     from.debit(amount);

@@ -86,6 +86,33 @@ class TransferServiceIntegrationTest {
   }
 
   @Test
+  void 동일한_멱등성_키로_재요청하면_원래_결과를_그대로_반환한다() {
+    Account from = saveAccount(new BigDecimal("100000.00"), BigDecimal.ZERO, AccountStatus.ACTIVE);
+    Account to = saveAccount(new BigDecimal("5000.00"), BigDecimal.ZERO, AccountStatus.ACTIVE);
+    String idempotencyKey = UUID.randomUUID().toString();
+
+    Transaction first =
+        transferService.transfer(
+            from.getAccountNumber(),
+            to.getAccountNumber(),
+            new BigDecimal("30000.00"),
+            idempotencyKey,
+            null);
+    Transaction second =
+        transferService.transfer(
+            from.getAccountNumber(),
+            to.getAccountNumber(),
+            new BigDecimal("30000.00"),
+            idempotencyKey,
+            null);
+
+    assertThat(second.getTransactionId()).isEqualTo(first.getTransactionId());
+    Account updatedFrom = accountRepository.findById(from.getAccountId()).orElseThrow();
+    assertThat(updatedFrom.getCurrentBalanceCache()).isEqualByComparingTo("70000.00");
+    assertThat(ledgerEntryRepository.findByAccountId(from.getAccountId())).hasSize(1);
+  }
+
+  @Test
   void 출금계좌와_입금계좌가_같으면_거절한다() {
     Account account =
         saveAccount(new BigDecimal("10000.00"), BigDecimal.ZERO, AccountStatus.ACTIVE);
