@@ -22,6 +22,13 @@ public class GlobalExceptionHandler {
         .body(ApiResponse.error(errorCode.name(), message));
   }
 
+  @ExceptionHandler(DomainException.class)
+  public ResponseEntity<ApiResponse<Void>> handleDomainException(DomainException ex) {
+    ErrorCode errorCode = ex.getErrorCode();
+    return ResponseEntity.status(errorCode.getHttpStatus())
+        .body(ApiResponse.error(errorCode.name(), ex.getMessage()));
+  }
+
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ApiResponse<Void>> handleUnexpected(Exception ex) {
     ErrorCode errorCode = ErrorCode.COMMON_006_INTERNAL_ERROR;
