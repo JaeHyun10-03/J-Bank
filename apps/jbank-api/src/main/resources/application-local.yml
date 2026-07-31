@@ -10,6 +10,10 @@ spring:
   kafka:
     bootstrap-servers: localhost:9092
 
+jbank:
+  crypto:
+    pii-key: rEs9xA1c4JnQE3giHpqdSmhxY/r3DzbFx45Gn7NNv7o= # 로컬 전용, 운영 키와 무관
+
 logging:
   level:
     com.jbank: DEBUG

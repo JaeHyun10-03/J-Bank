@@ -10,6 +10,10 @@ spring:
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
 
+jbank:
+  crypto:
+    pii-key: ${PII_ENCRYPTION_KEY}
+
 logging:
   level:
     com.jbank: INFO
