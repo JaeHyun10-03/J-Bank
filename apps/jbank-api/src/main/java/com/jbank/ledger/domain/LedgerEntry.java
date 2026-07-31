@@ -2,6 +2,7 @@ package com.jbank.ledger.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
@@ -13,6 +14,7 @@ import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "ledger_entries")
+@EntityListeners(LedgerEntryImmutabilityGuard.class)
 public class LedgerEntry {
 
   @Id
