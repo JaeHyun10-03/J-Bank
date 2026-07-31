@@ -4,6 +4,7 @@ import com.jbank.account.domain.Account;
 import com.jbank.account.domain.AccountException;
 import com.jbank.account.domain.AccountNumberGenerator;
 import com.jbank.account.domain.AccountStatus;
+import com.jbank.account.dto.AccountDetailResponse;
 import com.jbank.account.dto.AccountOpenRequest;
 import com.jbank.account.dto.AccountOpenResponse;
 import com.jbank.account.repository.AccountRepository;
@@ -73,5 +74,26 @@ public class AccountService {
 
     return new AccountOpenResponse(
         String.valueOf(accountId), accountNumber, AccountStatus.ACTIVE, openedAt);
+  }
+
+  // ponytail: 인증 필터체인이 아직 없어(W3 예정) 소유자 확인용 customerId를 파라미터로
+  // 직접 받는다. W3에서 세션에서 추출한 값으로 교체한다.
+  @Transactional(readOnly = true)
+  public AccountDetailResponse getDetail(Long accountId, Long requestingCustomerId) {
+    Account account =
+        accountRepository
+            .findById(accountId)
+            .orElseThrow(() -> new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
+    if (!account.getCustomerId().equals(requestingCustomerId)) {
+      throw new AccountException(ErrorCode.COMMON_003_FORBIDDEN);
+    }
+    return new AccountDetailResponse(
+        String.valueOf(account.getAccountId()),
+        account.getAccountNumber(),
+        String.valueOf(account.getCustomerId()),
+        account.getAccountType(),
+        account.getStatus(),
+        account.getOpenedAt(),
+        account.getClosedAt());
   }
 }
