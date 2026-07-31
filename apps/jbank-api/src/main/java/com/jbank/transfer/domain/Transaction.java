@@ -68,6 +68,22 @@ public class Transaction {
     this.createdAt = OffsetDateTime.now();
   }
 
+  public void complete(OffsetDateTime processedAt) {
+    transitionTo(TransactionStatus.COMPLETED);
+    this.processedAt = processedAt;
+  }
+
+  public void fail() {
+    transitionTo(TransactionStatus.FAILED);
+  }
+
+  private void transitionTo(TransactionStatus target) {
+    if (!status.canTransitionTo(target)) {
+      throw new IllegalStateException("허용되지 않는 거래 상태 전이: " + status + " -> " + target);
+    }
+    this.status = target;
+  }
+
   public Long getTransactionId() {
     return transactionId;
   }
