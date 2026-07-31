@@ -1,0 +1,47 @@
+name: backend-cd
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/jbank-api/**"
+      - "infra/docker/jbank-api/**"
+      - ".github/workflows/backend-cd.yml"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-push:
+    # infra/terraform으로 ECR·OIDC 역할이 실제로 만들어지기 전까지는 이 job을 건너뛴다.
+    # 자리표시자 워크플로가 매 병합마다 실패해 CI 배지를 붉게 만드는 것을 막기 위함이다.
+    # 인프라가 준비되면 저장소 설정의 Variables에 ECR_DEPLOY_READY=true를 추가한다.
+    if: ${{ vars.ECR_DEPLOY_READY == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ECR_PUSH_ROLE_ARN }}
+          aws-region: ap-northeast-2
+
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          ECR_REPOSITORY: jbank-api
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build \
+            -f infra/docker/jbank-api/Dockerfile \
+            -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" \
+            -t "$ECR_REGISTRY/$ECR_REPOSITORY:latest" \
+            apps/jbank-api
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:latest"
