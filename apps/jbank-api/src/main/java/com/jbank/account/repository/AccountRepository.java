@@ -26,4 +26,9 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("select a from Account a where a.accountNumber = :accountNumber")
   Optional<Account> findByAccountNumberForUpdate(@Param("accountNumber") String accountNumber);
+
+  // 입금·출금은 단일 계좌만 잠그면 되므로 accountId 기준 락 조회를 별도로 둔다(FR-TXN-002).
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("select a from Account a where a.accountId = :accountId")
+  Optional<Account> findByIdForUpdate(@Param("accountId") Long accountId);
 }
