@@ -13,6 +13,7 @@ public class SecurityConfig {
 
   private static final String[] PUBLIC_PATHS = {
     "/v3/api-docs/**",
+    "/v3/api-docs.yaml",
     "/swagger-ui/**",
     "/swagger-ui.html",
     "/api/v1/customers",
