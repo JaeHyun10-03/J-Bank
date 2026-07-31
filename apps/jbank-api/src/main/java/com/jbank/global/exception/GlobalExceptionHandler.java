@@ -4,6 +4,7 @@ import com.jbank.global.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -20,6 +21,13 @@ public class GlobalExceptionHandler {
             .orElse(errorCode.getMessage());
     return ResponseEntity.status(errorCode.getHttpStatus())
         .body(ApiResponse.error(errorCode.name(), message));
+  }
+
+  @ExceptionHandler(MissingRequestHeaderException.class)
+  public ResponseEntity<ApiResponse<Void>> handleMissingHeader(MissingRequestHeaderException ex) {
+    ErrorCode errorCode = ErrorCode.COMMON_001_VALIDATION_FAILED;
+    return ResponseEntity.status(errorCode.getHttpStatus())
+        .body(ApiResponse.error(errorCode.name(), ex.getHeaderName() + " 헤더는 필수입니다"));
   }
 
   @ExceptionHandler(DomainException.class)
