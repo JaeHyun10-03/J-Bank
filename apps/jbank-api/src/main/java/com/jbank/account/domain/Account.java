@@ -79,6 +79,13 @@ public class Account {
     this.updatedAt = OffsetDateTime.now();
   }
 
+  public void close() {
+    OffsetDateTime now = OffsetDateTime.now();
+    this.status = AccountStatus.CLOSED;
+    this.closedAt = now;
+    this.updatedAt = now;
+  }
+
   public Long getAccountId() {
     return accountId;
   }

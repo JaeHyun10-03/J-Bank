@@ -3,15 +3,18 @@ package com.jbank.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.jbank.account.domain.Account;
 import com.jbank.account.domain.AccountException;
 import com.jbank.account.domain.AccountNumberGenerator;
 import com.jbank.account.domain.AccountStatus;
 import com.jbank.account.domain.AccountType;
+import com.jbank.account.dto.AccountCloseResponse;
 import com.jbank.account.dto.AccountDetailResponse;
 import com.jbank.account.dto.AccountOpenRequest;
 import com.jbank.account.dto.AccountOpenResponse;
 import com.jbank.account.dto.AccountStatusChangeRequest;
 import com.jbank.account.dto.AccountStatusChangeResponse;
+import com.jbank.account.repository.AccountRepository;
 import com.jbank.account.service.AccountService;
 import com.jbank.common.crypto.HmacKeyHolder;
 import com.jbank.common.crypto.PiiEncryptionKeyHolder;
@@ -61,7 +64,9 @@ class AccountServiceIntegrationTest {
   }
 
   @Autowired private CustomerRepository customerRepository;
+  @Autowired private AccountRepository accountRepository;
   @Autowired private AccountService accountService;
+  @Autowired private AccountNumberGenerator accountNumberGenerator;
 
   @Test
   void 정상_고객이면_잔액0원_계좌를_개설한다() {
@@ -227,6 +232,50 @@ class AccountServiceIntegrationTest {
             ex ->
                 assertThat(((AccountException) ex).getErrorCode())
                     .isEqualTo(ErrorCode.ACC_007_INVALID_STATUS_TRANSITION));
+  }
+
+  @Test
+  void 잔액과_지급정지금액이_0원이면_해지된다() {
+    // given
+    Long customerId = saveCustomer(KycGrade.GENERAL, RiskLevel.LOW, CustomerStatus.ACTIVE);
+    Long accountId =
+        Long.valueOf(
+            accountService
+                .open(
+                    new AccountOpenRequest(
+                        String.valueOf(customerId), AccountType.CHECKING, BigDecimal.ZERO))
+                .accountId());
+
+    // when
+    AccountCloseResponse response = accountService.close(accountId, customerId);
+
+    // then
+    assertThat(response.status()).isEqualTo(AccountStatus.CLOSED);
+    assertThat(response.closedAt()).isNotNull();
+  }
+
+  @Test
+  void 잔액이_0원이_아니면_해지를_거절한다() {
+    // given
+    Long customerId = saveCustomer(KycGrade.GENERAL, RiskLevel.LOW, CustomerStatus.ACTIVE);
+    Account account =
+        new Account(
+            accountNumberGenerator.generate(),
+            customerId,
+            AccountType.CHECKING,
+            AccountStatus.ACTIVE,
+            new BigDecimal("1000.00"),
+            BigDecimal.ZERO,
+            OffsetDateTime.now());
+    Long accountId = accountRepository.saveAndFlush(account).getAccountId();
+
+    // when & then
+    assertThatThrownBy(() -> accountService.close(accountId, customerId))
+        .isInstanceOf(AccountException.class)
+        .satisfies(
+            ex ->
+                assertThat(((AccountException) ex).getErrorCode())
+                    .isEqualTo(ErrorCode.ACC_008_BALANCE_NOT_ZERO));
   }
 
   private Long saveCustomer(KycGrade kycGrade, RiskLevel riskLevel, CustomerStatus status) {

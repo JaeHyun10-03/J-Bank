@@ -3,6 +3,7 @@ package com.jbank.account.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jbank.account.domain.AccountException;
 import com.jbank.account.domain.AccountStatus;
 import com.jbank.account.domain.AccountType;
+import com.jbank.account.dto.AccountCloseResponse;
 import com.jbank.account.dto.AccountDetailResponse;
 import com.jbank.account.dto.AccountOpenRequest;
 import com.jbank.account.dto.AccountOpenResponse;
@@ -147,5 +149,31 @@ class AccountControllerTest {
                         new AccountStatusChangeRequest(AccountStatus.CLOSED, "임의 해지 시도"))))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.error.code").value("ACC_007_INVALID_STATUS_TRANSITION"));
+  }
+
+  @Test
+  void 해지에_성공하면_200과_해지결과를_반환한다() throws Exception {
+    // given
+    given(accountService.close(eq(1L), eq(1L)))
+        .willReturn(new AccountCloseResponse("1", AccountStatus.CLOSED, OffsetDateTime.now()));
+
+    // when & then
+    mockMvc
+        .perform(delete("/api/v1/accounts/1").param("customerId", "1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data.status").value("CLOSED"));
+  }
+
+  @Test
+  void 잔액이_남아있으면_409를_반환한다() throws Exception {
+    // given
+    given(accountService.close(eq(1L), eq(1L)))
+        .willThrow(new AccountException(ErrorCode.ACC_008_BALANCE_NOT_ZERO));
+
+    // when & then
+    mockMvc
+        .perform(delete("/api/v1/accounts/1").param("customerId", "1"))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.error.code").value("ACC_008_BALANCE_NOT_ZERO"));
   }
 }

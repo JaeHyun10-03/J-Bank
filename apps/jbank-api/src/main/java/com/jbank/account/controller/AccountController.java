@@ -1,5 +1,6 @@
 package com.jbank.account.controller;
 
+import com.jbank.account.dto.AccountCloseResponse;
 import com.jbank.account.dto.AccountDetailResponse;
 import com.jbank.account.dto.AccountOpenRequest;
 import com.jbank.account.dto.AccountOpenResponse;
@@ -10,6 +11,7 @@ import com.jbank.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,6 +50,13 @@ public class AccountController {
   public ResponseEntity<ApiResponse<AccountStatusChangeResponse>> changeStatus(
       @PathVariable Long accountId, @Valid @RequestBody AccountStatusChangeRequest request) {
     AccountStatusChangeResponse response = accountService.changeStatus(accountId, request);
+    return ResponseEntity.ok(ApiResponse.success(response));
+  }
+
+  @DeleteMapping("/{accountId}")
+  public ResponseEntity<ApiResponse<AccountCloseResponse>> close(
+      @PathVariable Long accountId, @RequestParam Long customerId) {
+    AccountCloseResponse response = accountService.close(accountId, customerId);
     return ResponseEntity.ok(ApiResponse.success(response));
   }
 }
