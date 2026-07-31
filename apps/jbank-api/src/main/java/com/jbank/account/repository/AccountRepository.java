@@ -2,11 +2,15 @@ package com.jbank.account.repository;
 
 import com.jbank.account.domain.Account;
 import com.jbank.account.domain.AccountStatus;
+import jakarta.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
@@ -17,4 +21,9 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
   Page<Account> findByCustomerId(Long customerId, Pageable pageable);
 
   Page<Account> findByCustomerIdAndStatus(Long customerId, AccountStatus status, Pageable pageable);
+
+  // 이체 시 두 계좌번호를 오름차순 정렬한 뒤 이 메서드를 그 순서대로 호출해 교착상태를 막는다(FR-TXN-003).
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("select a from Account a where a.accountNumber = :accountNumber")
+  Optional<Account> findByAccountNumberForUpdate(@Param("accountNumber") String accountNumber);
 }

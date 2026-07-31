@@ -79,6 +79,20 @@ public class Account {
     this.updatedAt = OffsetDateTime.now();
   }
 
+  public BigDecimal getAvailableBalance() {
+    return currentBalanceCache.subtract(holdAmount);
+  }
+
+  public void debit(BigDecimal amount) {
+    this.currentBalanceCache = this.currentBalanceCache.subtract(amount);
+    this.updatedAt = OffsetDateTime.now();
+  }
+
+  public void credit(BigDecimal amount) {
+    this.currentBalanceCache = this.currentBalanceCache.add(amount);
+    this.updatedAt = OffsetDateTime.now();
+  }
+
   public void close() {
     OffsetDateTime now = OffsetDateTime.now();
     this.status = AccountStatus.CLOSED;

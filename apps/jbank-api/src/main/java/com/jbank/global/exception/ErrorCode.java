@@ -20,7 +20,12 @@ public enum ErrorCode {
   ACC_007_INVALID_STATUS_TRANSITION(HttpStatus.CONFLICT, "허용되지 않는 계좌 상태 전이입니다"),
   ACC_008_BALANCE_NOT_ZERO(HttpStatus.CONFLICT, "잔액이 0원이 아닌 계좌는 해지할 수 없습니다"),
   ACC_009_ACCOUNT_STATUS_INVALID(HttpStatus.CONFLICT, "정지 또는 해지된 계좌입니다"),
-  ACC_010_HOLD_AMOUNT_REMAINS(HttpStatus.CONFLICT, "지급정지 금액이 남아있어 해지할 수 없습니다");
+  ACC_010_HOLD_AMOUNT_REMAINS(HttpStatus.CONFLICT, "지급정지 금액이 남아있어 해지할 수 없습니다"),
+
+  TXN_001_INSUFFICIENT_BALANCE(HttpStatus.CONFLICT, "출금 가능 금액을 초과했습니다"),
+  TXN_002_SAME_ACCOUNT_TRANSFER(HttpStatus.BAD_REQUEST, "출금계좌와 입금계좌가 동일합니다"),
+  TXN_003_COUNTERPARTY_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "입금계좌 번호가 존재하지 않습니다"),
+  TXN_004_COUNTERPARTY_ACCOUNT_INVALID(HttpStatus.CONFLICT, "입금계좌가 정지 또는 해지 상태입니다");
 
   private final HttpStatus httpStatus;
   private final String message;
