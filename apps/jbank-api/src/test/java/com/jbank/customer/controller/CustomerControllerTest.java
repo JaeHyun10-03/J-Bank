@@ -1,6 +1,7 @@
 package com.jbank.customer.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -14,10 +15,13 @@ import com.jbank.customer.domain.KycGrade;
 import com.jbank.customer.domain.RiskLevel;
 import com.jbank.customer.dto.CustomerRegisterRequest;
 import com.jbank.customer.dto.CustomerRegisterResponse;
+import com.jbank.customer.dto.EddRegisterRequest;
+import com.jbank.customer.dto.EddRegisterResponse;
 import com.jbank.customer.service.CustomerService;
 import com.jbank.global.config.SecurityConfig;
 import com.jbank.global.exception.ErrorCode;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -107,5 +111,41 @@ class CustomerControllerTest {
                 .content(objectMapper.writeValueAsString(validRequest())))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.error.code").value("ACC_001_DUPLICATE_RESIDENT_REG_NO"));
+  }
+
+  @Test
+  void EDD_등록에_성공하면_200과_결과를_반환한다() throws Exception {
+    // given
+    given(customerService.registerEdd(eq(1L), any()))
+        .willReturn(new EddRegisterResponse("1", RiskLevel.HIGH, OffsetDateTime.now()));
+
+    // when & then
+    mockMvc
+        .perform(
+            post("/api/v1/customers/1/edd")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        new EddRegisterRequest("해외 송금", "임대소득", "DOC-1"))))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data.amlRiskLevel").value("HIGH"));
+  }
+
+  @Test
+  void 고위험이_아닌_고객이면_409를_반환한다() throws Exception {
+    // given
+    given(customerService.registerEdd(eq(1L), any()))
+        .willThrow(new CustomerException(ErrorCode.ACC_004_CUSTOMER_NOT_HIGH_RISK));
+
+    // when & then
+    mockMvc
+        .perform(
+            post("/api/v1/customers/1/edd")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        new EddRegisterRequest("해외 송금", "임대소득", "DOC-1"))))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.error.code").value("ACC_004_CUSTOMER_NOT_HIGH_RISK"));
   }
 }

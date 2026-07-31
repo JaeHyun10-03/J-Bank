@@ -16,6 +16,7 @@ public class SecurityConfig {
     "/swagger-ui/**",
     "/swagger-ui.html",
     "/api/v1/customers",
+    "/api/v1/customers/*/edd",
     "/api/v1/accounts/**"
   };
 
