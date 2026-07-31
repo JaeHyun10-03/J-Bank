@@ -13,6 +13,12 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * 고객 등록
+         * @description 신규 고객을 등록하고 CDD(고객확인)를 함께 수행합니다. 인증이 필요 없습니다.
+         *     같은 실명번호로 다시 등록하면 409(ACC_001)가 납니다.
+         *     응답의 eddRequired가 true면 계좌 개설 전에 /edd API를 먼저 호출해야 합니다.
+         */
         post: operations["register"];
         delete?: never;
         options?: never;
@@ -29,6 +35,11 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * 강화된 고객확인(EDD) 등록
+         * @description 고위험으로 분류된 고객만 호출할 수 있습니다. 고위험이 아닌 고객이면
+         *     409(ACC_004)가 납니다. 정상 처리되면 계좌 개설 게이트가 풀립니다.
+         */
         post: operations["registerEdd"];
         delete?: never;
         options?: never;
@@ -45,6 +56,11 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * 계좌 개설
+         * @description 고객의 CDD 완료 여부와 상태를 확인한 뒤 계좌를 개설합니다.
+         *     W1 기준 초기 입금은 0원만 지원합니다(그 외 금액은 400).
+         */
         post: operations["open"];
         delete?: never;
         options?: never;
@@ -65,6 +81,12 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /**
+         * 계좌 상태변경
+         * @description ACTIVE↔SUSPENDED, ACTIVE/SUSPENDED→DORMANT, DORMANT→ACTIVE만 허용합니다.
+         *     CLOSED로의 전환은 이 API로 할 수 없습니다(해지 API를 쓰세요). 허용되지 않는
+         *     전이는 409(ACC_007)가 납니다.
+         */
         patch: operations["changeStatus"];
         trace?: never;
     };
@@ -75,6 +97,12 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 고객별 계좌 목록 조회
+         * @description 한 고객이 보유한 계좌를 페이지 단위로 조회합니다. status 쿼리 파라미터로
+         *     특정 상태(ACTIVE, SUSPENDED 등)만 필터링할 수 있습니다. 원장이 아직 없어
+         *     balance·holdAmount·availableBalance는 항상 0입니다(W2에서 실제 값 반영).
+         */
         get: operations["list"];
         put?: never;
         post?: never;
@@ -91,9 +119,17 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 계좌 상세조회
+         * @description 인증이 아직 없어 소유자 확인용 customerId를 쿼리 파라미터로 함께 보내야 합니다. 소유자가 아니면 403.
+         */
         get: operations["getDetail"];
         put?: never;
         post?: never;
+        /**
+         * 계좌 해지
+         * @description 잔액과 지급정지 금액이 모두 0원이어야 해지할 수 있습니다. 소유자 확인용 customerId가 필요합니다.
+         */
         delete: operations["close"];
         options?: never;
         head?: never;
@@ -372,6 +408,7 @@ export interface operations {
     list: {
         parameters: {
             query: {
+                /** @description 필터링할 계좌 상태, 생략하면 전체 조회 */
                 status?: "ACTIVE" | "SUSPENDED" | "DORMANT" | "CLOSED";
                 pageable: components["schemas"]["Pageable"];
             };
@@ -397,6 +434,7 @@ export interface operations {
     getDetail: {
         parameters: {
             query: {
+                /** @description 임시 소유자 확인용 (W3에서 세션으로 대체 예정) */
                 customerId: number;
             };
             header?: never;
@@ -421,6 +459,7 @@ export interface operations {
     close: {
         parameters: {
             query: {
+                /** @description 임시 소유자 확인용 (W3에서 세션으로 대체 예정) */
                 customerId: number;
             };
             header?: never;
