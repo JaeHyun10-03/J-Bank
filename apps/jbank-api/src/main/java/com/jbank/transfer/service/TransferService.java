@@ -26,14 +26,17 @@ public class TransferService {
   private final AccountRepository accountRepository;
   private final TransactionRepository transactionRepository;
   private final LedgerEntryRepository ledgerEntryRepository;
+  private final IdempotencyRecovery idempotencyRecovery;
 
   public TransferService(
       AccountRepository accountRepository,
       TransactionRepository transactionRepository,
-      LedgerEntryRepository ledgerEntryRepository) {
+      LedgerEntryRepository ledgerEntryRepository,
+      IdempotencyRecovery idempotencyRecovery) {
     this.accountRepository = accountRepository;
     this.transactionRepository = transactionRepository;
     this.ledgerEntryRepository = ledgerEntryRepository;
+    this.idempotencyRecovery = idempotencyRecovery;
   }
 
   @Transactional
@@ -80,10 +83,15 @@ public class TransferService {
       transaction = transactionRepository.save(transaction);
     } catch (DataIntegrityViolationException e) {
       // 사전 조회 통과 후 동시에 같은 키로 들어온 요청이 유니크 제약에 걸린 경우, 먼저
-      // 커밋된 원래 결과를 그대로 반환해 완전한 멱등을 보장한다.
-      Transaction raced =
-          transactionRepository.findByIdempotencyKey(idempotencyKey).orElseThrow(() -> e);
-      return toResponse(raced, resolveFromBalance(raced));
+      // 커밋된 원래 결과를 그대로 반환해 완전한 멱등을 보장한다. PostgreSQL은 제약 위반
+      // 이후 현재 트랜잭션 전체를 포기 상태로 만들어 같은 세션으로는 조회조차 안 되므로
+      // 새 트랜잭션에서 조회한다(IdempotencyRecovery 참고).
+      return idempotencyRecovery.recoverInNewTransaction(
+          () -> {
+            Transaction raced =
+                transactionRepository.findByIdempotencyKey(idempotencyKey).orElseThrow(() -> e);
+            return toResponse(raced, resolveFromBalance(raced));
+          });
     }
 
     OffsetDateTime occurredAt = OffsetDateTime.now();

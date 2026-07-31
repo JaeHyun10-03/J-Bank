@@ -15,6 +15,7 @@ import com.jbank.customer.repository.CustomerRepository;
 import com.jbank.ledger.repository.LedgerEntryRepository;
 import com.jbank.transfer.repository.TransactionRepository;
 import com.jbank.transfer.service.DepositService;
+import com.jbank.transfer.service.IdempotencyRecovery;
 import com.jbank.transfer.service.TransferService;
 import com.jbank.transfer.service.WithdrawalService;
 import java.math.BigDecimal;
@@ -46,6 +47,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Import({
   PiiEncryptionKeyHolder.class,
   HmacKeyHolder.class,
+  IdempotencyRecovery.class,
   DepositService.class,
   WithdrawalService.class,
   TransferService.class

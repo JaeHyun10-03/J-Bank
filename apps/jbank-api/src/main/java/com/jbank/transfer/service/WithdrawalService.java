@@ -25,14 +25,17 @@ public class WithdrawalService {
   private final AccountRepository accountRepository;
   private final TransactionRepository transactionRepository;
   private final LedgerEntryRepository ledgerEntryRepository;
+  private final IdempotencyRecovery idempotencyRecovery;
 
   public WithdrawalService(
       AccountRepository accountRepository,
       TransactionRepository transactionRepository,
-      LedgerEntryRepository ledgerEntryRepository) {
+      LedgerEntryRepository ledgerEntryRepository,
+      IdempotencyRecovery idempotencyRecovery) {
     this.accountRepository = accountRepository;
     this.transactionRepository = transactionRepository;
     this.ledgerEntryRepository = ledgerEntryRepository;
+    this.idempotencyRecovery = idempotencyRecovery;
   }
 
   @Transactional
@@ -60,9 +63,12 @@ public class WithdrawalService {
     try {
       transaction = transactionRepository.save(transaction);
     } catch (DataIntegrityViolationException e) {
-      Transaction raced =
-          transactionRepository.findByIdempotencyKey(idempotencyKey).orElseThrow(() -> e);
-      return toResponse(raced, resolveBalanceAfter(raced));
+      return idempotencyRecovery.recoverInNewTransaction(
+          () -> {
+            Transaction raced =
+                transactionRepository.findByIdempotencyKey(idempotencyKey).orElseThrow(() -> e);
+            return toResponse(raced, resolveBalanceAfter(raced));
+          });
     }
 
     OffsetDateTime occurredAt = OffsetDateTime.now();

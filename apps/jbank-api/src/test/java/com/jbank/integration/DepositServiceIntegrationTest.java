@@ -21,6 +21,7 @@ import com.jbank.ledger.repository.LedgerEntryRepository;
 import com.jbank.transfer.dto.AccountTransactionResponse;
 import com.jbank.transfer.repository.TransactionRepository;
 import com.jbank.transfer.service.DepositService;
+import com.jbank.transfer.service.IdempotencyRecovery;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -40,7 +41,12 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @DataJpaTest
 @Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import({PiiEncryptionKeyHolder.class, HmacKeyHolder.class, DepositService.class})
+@Import({
+  PiiEncryptionKeyHolder.class,
+  HmacKeyHolder.class,
+  IdempotencyRecovery.class,
+  DepositService.class
+})
 class DepositServiceIntegrationTest {
 
   @Container

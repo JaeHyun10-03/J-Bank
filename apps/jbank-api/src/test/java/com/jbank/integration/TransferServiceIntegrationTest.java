@@ -22,6 +22,7 @@ import com.jbank.transfer.domain.TransactionException;
 import com.jbank.transfer.domain.TransactionStatus;
 import com.jbank.transfer.dto.TransferResponse;
 import com.jbank.transfer.repository.TransactionRepository;
+import com.jbank.transfer.service.IdempotencyRecovery;
 import com.jbank.transfer.service.TransferService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -42,7 +43,12 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @DataJpaTest
 @Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import({PiiEncryptionKeyHolder.class, HmacKeyHolder.class, TransferService.class})
+@Import({
+  PiiEncryptionKeyHolder.class,
+  HmacKeyHolder.class,
+  IdempotencyRecovery.class,
+  TransferService.class
+})
 class TransferServiceIntegrationTest {
 
   @Container
