@@ -10,6 +10,7 @@ import com.jbank.account.dto.AccountOpenRequest;
 import com.jbank.account.dto.AccountOpenResponse;
 import com.jbank.account.dto.AccountStatusChangeRequest;
 import com.jbank.account.dto.AccountStatusChangeResponse;
+import com.jbank.account.dto.BalanceResponse;
 import com.jbank.account.dto.CustomerAccountSummaryResponse;
 import com.jbank.account.repository.AccountRepository;
 import com.jbank.customer.domain.Customer;
@@ -145,6 +146,21 @@ public class AccountService {
     account.close();
     return new AccountCloseResponse(
         String.valueOf(accountId), account.getStatus(), account.getClosedAt());
+  }
+
+  // 잔액의 진실은 원장 합산이고 이 값은 캐시일 뿐이다(FR-TXN-004). 정합성 검증은 W5 배치가 맡는다.
+  @Transactional(readOnly = true)
+  public BalanceResponse getBalance(Long accountId) {
+    Account account =
+        accountRepository
+            .findById(accountId)
+            .orElseThrow(() -> new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
+    return new BalanceResponse(
+        String.valueOf(account.getAccountId()),
+        account.getCurrentBalanceCache(),
+        account.getHoldAmount(),
+        account.getAvailableBalance(),
+        OffsetDateTime.now());
   }
 
   @Transactional(readOnly = true)

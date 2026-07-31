@@ -20,6 +20,7 @@ import com.jbank.account.dto.AccountOpenRequest;
 import com.jbank.account.dto.AccountOpenResponse;
 import com.jbank.account.dto.AccountStatusChangeRequest;
 import com.jbank.account.dto.AccountStatusChangeResponse;
+import com.jbank.account.dto.BalanceResponse;
 import com.jbank.account.service.AccountService;
 import com.jbank.global.config.SecurityConfig;
 import com.jbank.global.exception.ErrorCode;
@@ -112,6 +113,25 @@ class AccountControllerTest {
         .perform(get("/api/v1/accounts/1").param("customerId", "2"))
         .andExpect(status().isForbidden())
         .andExpect(jsonPath("$.error.code").value("COMMON_003_FORBIDDEN"));
+  }
+
+  @Test
+  void 잔액조회에_성공하면_200과_잔액정보를_반환한다() throws Exception {
+    // given
+    given(accountService.getBalance(eq(1L)))
+        .willReturn(
+            new BalanceResponse(
+                "1",
+                new BigDecimal("1200000.00"),
+                BigDecimal.ZERO,
+                new BigDecimal("1200000.00"),
+                OffsetDateTime.now()));
+
+    // when & then
+    mockMvc
+        .perform(get("/api/v1/accounts/1/balance"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data.accountId").value("1"));
   }
 
   @Test

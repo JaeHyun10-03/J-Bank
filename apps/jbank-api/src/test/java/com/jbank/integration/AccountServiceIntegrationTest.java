@@ -190,6 +190,30 @@ class AccountServiceIntegrationTest {
   }
 
   @Test
+  void 잔액조회는_잔액에서_지급정지금액을_뺀_출금가능금액을_함께_반환한다() {
+    // given
+    Long customerId = saveCustomer(KycGrade.GENERAL, RiskLevel.LOW, CustomerStatus.ACTIVE);
+    Account account =
+        new Account(
+            accountNumberGenerator.generate(),
+            customerId,
+            AccountType.CHECKING,
+            AccountStatus.ACTIVE,
+            new BigDecimal("10000.00"),
+            new BigDecimal("3000.00"),
+            OffsetDateTime.now());
+    Long accountId = accountRepository.saveAndFlush(account).getAccountId();
+
+    // when
+    var response = accountService.getBalance(accountId);
+
+    // then
+    assertThat(response.balance()).isEqualByComparingTo("10000.00");
+    assertThat(response.holdAmount()).isEqualByComparingTo("3000.00");
+    assertThat(response.availableBalance()).isEqualByComparingTo("7000.00");
+  }
+
+  @Test
   void 정지로_전이하면_상태가_바뀐다() {
     // given
     Long customerId = saveCustomer(KycGrade.GENERAL, RiskLevel.LOW, CustomerStatus.ACTIVE);

@@ -6,6 +6,7 @@ import com.jbank.account.dto.AccountOpenRequest;
 import com.jbank.account.dto.AccountOpenResponse;
 import com.jbank.account.dto.AccountStatusChangeRequest;
 import com.jbank.account.dto.AccountStatusChangeResponse;
+import com.jbank.account.dto.BalanceResponse;
 import com.jbank.account.service.AccountService;
 import com.jbank.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -74,6 +75,14 @@ public class AccountController {
       @PathVariable Long accountId, @Valid @RequestBody AccountStatusChangeRequest request) {
     AccountStatusChangeResponse response = accountService.changeStatus(accountId, request);
     return ResponseEntity.ok(ApiResponse.success(response));
+  }
+
+  @Operation(
+      summary = "잔액 조회",
+      description = "balance는 잔액, availableBalance는 잔액에서 지급정지금액을 뺀 출금 가능 금액입니다.")
+  @GetMapping("/{accountId}/balance")
+  public ResponseEntity<ApiResponse<BalanceResponse>> getBalance(@PathVariable Long accountId) {
+    return ResponseEntity.ok(ApiResponse.success(accountService.getBalance(accountId)));
   }
 
   @Operation(
