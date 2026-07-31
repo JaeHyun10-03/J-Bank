@@ -25,7 +25,10 @@ jobs:
       - name: Compile
         run: ./gradlew compileJava compileTestJava
 
-      - name: Unit + ArchUnit test
+      # W2부터 src/test에 Testcontainers 기반 통합·동시성 테스트가 늘었다. 별도 source
+      # set이 없어 단위/ArchUnit 테스트와 같은 `test` 태스크로 함께 돈다. ubuntu-latest
+      # 러너는 Docker가 기본 설치되어 있어 Testcontainers가 추가 설정 없이 동작한다.
+      - name: Unit + ArchUnit + Testcontainers 통합·동시성 테스트
         run: ./gradlew test
 
       - name: Spotless check
