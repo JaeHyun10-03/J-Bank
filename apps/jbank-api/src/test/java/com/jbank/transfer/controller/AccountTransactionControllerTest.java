@@ -2,7 +2,9 @@ package com.jbank.transfer.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -10,13 +12,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jbank.global.config.JacksonConfig;
 import com.jbank.global.config.SecurityConfig;
+import com.jbank.global.response.PageResponse;
+import com.jbank.transfer.domain.TransactionStatus;
 import com.jbank.transfer.domain.TransactionType;
 import com.jbank.transfer.dto.AccountTransactionResponse;
 import com.jbank.transfer.dto.DepositRequest;
+import com.jbank.transfer.dto.TransactionSummaryResponse;
 import com.jbank.transfer.service.DepositService;
+import com.jbank.transfer.service.TransactionHistoryService;
 import com.jbank.transfer.service.WithdrawalService;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -34,6 +41,7 @@ class AccountTransactionControllerTest {
 
   @MockitoBean private DepositService depositService;
   @MockitoBean private WithdrawalService withdrawalService;
+  @MockitoBean private TransactionHistoryService transactionHistoryService;
 
   @Test
   void 유효한_요청이면_201과_입금결과를_반환한다() throws Exception {
@@ -83,6 +91,32 @@ class AccountTransactionControllerTest {
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.data.type").value("WITHDRAWAL"))
         .andExpect(jsonPath("$.data.balanceAfter").value("50000.00"));
+  }
+
+  @Test
+  void 거래내역조회에_성공하면_200과_페이지결과를_반환한다() throws Exception {
+    given(transactionHistoryService.getHistory(eq(1L), isNull(), isNull(), isNull(), any()))
+        .willReturn(
+            new PageResponse<>(
+                List.of(
+                    new TransactionSummaryResponse(
+                        "10",
+                        TransactionType.DEPOSIT,
+                        new BigDecimal("100000.00"),
+                        TransactionStatus.COMPLETED,
+                        null,
+                        OffsetDateTime.now(),
+                        OffsetDateTime.now())),
+                0,
+                20,
+                1,
+                1));
+
+    mockMvc
+        .perform(get("/api/v1/accounts/1/transactions"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data.totalElements").value(1))
+        .andExpect(jsonPath("$.data.content[0].transactionId").value("10"));
   }
 
   @Test
