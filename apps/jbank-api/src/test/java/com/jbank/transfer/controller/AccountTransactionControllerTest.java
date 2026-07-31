@@ -14,6 +14,7 @@ import com.jbank.transfer.domain.TransactionType;
 import com.jbank.transfer.dto.AccountTransactionResponse;
 import com.jbank.transfer.dto.DepositRequest;
 import com.jbank.transfer.service.DepositService;
+import com.jbank.transfer.service.WithdrawalService;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,7 @@ class AccountTransactionControllerTest {
   @Autowired private ObjectMapper objectMapper;
 
   @MockitoBean private DepositService depositService;
+  @MockitoBean private WithdrawalService withdrawalService;
 
   @Test
   void 유효한_요청이면_201과_입금결과를_반환한다() throws Exception {
@@ -56,6 +58,31 @@ class AccountTransactionControllerTest {
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.data.transactionId").value("10"))
         .andExpect(jsonPath("$.data.balanceAfter").value("150000.00"));
+  }
+
+  @Test
+  void 출금_유효한_요청이면_201과_출금결과를_반환한다() throws Exception {
+    given(withdrawalService.withdraw(eq(1L), any(), eq("idem-key-3")))
+        .willReturn(
+            new AccountTransactionResponse(
+                "11",
+                "1",
+                TransactionType.WITHDRAWAL,
+                new BigDecimal("50000.00"),
+                new BigDecimal("50000.00"),
+                OffsetDateTime.now()));
+
+    mockMvc
+        .perform(
+            post("/api/v1/accounts/1/withdraw")
+                .header("Idempotency-Key", "idem-key-3")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        new DepositRequest(new BigDecimal("50000.00"), "INTERNET_BANKING"))))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.data.type").value("WITHDRAWAL"))
+        .andExpect(jsonPath("$.data.balanceAfter").value("50000.00"));
   }
 
   @Test

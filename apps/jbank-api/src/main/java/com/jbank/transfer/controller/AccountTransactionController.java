@@ -4,6 +4,7 @@ import com.jbank.global.response.ApiResponse;
 import com.jbank.transfer.dto.AccountTransactionResponse;
 import com.jbank.transfer.dto.DepositRequest;
 import com.jbank.transfer.service.DepositService;
+import com.jbank.transfer.service.WithdrawalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,9 +24,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountTransactionController {
 
   private final DepositService depositService;
+  private final WithdrawalService withdrawalService;
 
-  public AccountTransactionController(DepositService depositService) {
+  public AccountTransactionController(
+      DepositService depositService, WithdrawalService withdrawalService) {
     this.depositService = depositService;
+    this.withdrawalService = withdrawalService;
   }
 
   @Operation(summary = "입금", description = "Idempotency-Key 헤더로 재요청을 멱등 처리합니다.")
@@ -37,6 +41,20 @@ public class AccountTransactionController {
       @Valid @RequestBody DepositRequest request) {
     AccountTransactionResponse response =
         depositService.deposit(accountId, request.amount(), idempotencyKey);
+    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
+  }
+
+  @Operation(
+      summary = "출금",
+      description = "출금 가능 금액(잔액-지급정지금액) 기준으로 검증합니다. Idempotency-Key 헤더가 필수입니다.")
+  @PostMapping("/withdraw")
+  public ResponseEntity<ApiResponse<AccountTransactionResponse>> withdraw(
+      @PathVariable Long accountId,
+      @Parameter(description = "클라이언트가 생성한 UUID") @RequestHeader("Idempotency-Key")
+          String idempotencyKey,
+      @Valid @RequestBody DepositRequest request) {
+    AccountTransactionResponse response =
+        withdrawalService.withdraw(accountId, request.amount(), idempotencyKey);
     return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
   }
 }
