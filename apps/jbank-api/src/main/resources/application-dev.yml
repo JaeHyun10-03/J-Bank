@@ -13,6 +13,7 @@ spring:
 jbank:
   crypto:
     pii-key: ${PII_ENCRYPTION_KEY}
+    hash-key: ${RESIDENT_REG_NO_HASH_KEY}
 
 logging:
   level:
