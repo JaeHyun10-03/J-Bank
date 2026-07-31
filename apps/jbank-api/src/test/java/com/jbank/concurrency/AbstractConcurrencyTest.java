@@ -32,16 +32,17 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
  * W2 동시성 시나리오 5종의 공통 기반. 인메모리 H2로는 비관적 락 동작이 실제와 달라 검증 의미가 없어 Testcontainers로 실제 PostgreSQL을
  * 띄운다(구현계획 4절 W2). {@code @DataJpaTest}의 기본 트랜잭션 롤백을 {@code NOT_SUPPORTED}로 꺼야 여러 스레드가 각자 커밋한 결과를
  * 실제로 관찰할 수 있다 — 켜둔 채로는 테스트 스레드의 트랜잭션 하나로 묶여 동시성 검증 자체가 성립하지 않는다.
+ *
+ * <p>컨테이너는 {@code @Container}/{@code @Testcontainers} 대신 싱글턴 패턴으로 직접 기동한다. {@code static} 필드를 상속받는
+ * 서브클래스 각각이 자기 {@code @Testcontainers} 생명주기를 가지면, 먼저 끝난 서브클래스가 공유 컨테이너를 종료시켜 다음 서브클래스가 연결하지 못하는 문제가
+ * 있었다.
  */
 @DataJpaTest
-@Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @Import({
@@ -54,8 +55,11 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 })
 abstract class AbstractConcurrencyTest {
 
-  @Container
   static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:16-alpine");
+
+  static {
+    POSTGRES.start();
+  }
 
   @DynamicPropertySource
   static void overrideProperties(DynamicPropertyRegistry registry) {
