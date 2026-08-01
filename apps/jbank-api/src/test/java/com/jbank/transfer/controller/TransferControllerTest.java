@@ -8,8 +8,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jbank.auth.config.SecurityConfig;
+import com.jbank.auth.jwt.JwtTokenProvider;
 import com.jbank.global.config.JacksonConfig;
-import com.jbank.global.config.SecurityConfig;
+import com.jbank.testsupport.AuthPostProcessors;
 import com.jbank.transfer.domain.TransactionStatus;
 import com.jbank.transfer.dto.TransferRequest;
 import com.jbank.transfer.dto.TransferResponse;
@@ -21,11 +23,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(TransferController.class)
-@Import({SecurityConfig.class, JacksonConfig.class})
+@Import({SecurityConfig.class, JacksonConfig.class, JwtTokenProvider.class})
+@TestPropertySource(
+    properties = "jbank.jwt.secret=test-secret-key-at-least-32-bytes-long-for-hs256")
 class TransferControllerTest {
 
   @Autowired private MockMvc mockMvc;
@@ -53,7 +58,9 @@ class TransferControllerTest {
                 .content(
                     objectMapper.writeValueAsString(
                         new TransferRequest(
-                            "110-000001-4", "110-000002-1", new BigDecimal("3000000.00"), "생활비"))))
+                            "110-000001-4", "110-000002-1", new BigDecimal("3000000.00"), "생활비")))
+                .with(AuthPostProcessors.asCustomer(1L))
+                .with(AuthPostProcessors.csrf()))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.data.status").value("COMPLETED"))
         .andExpect(jsonPath("$.data.fromAccountBalanceAfter").value("1200000.00"));
@@ -68,7 +75,9 @@ class TransferControllerTest {
                 .content(
                     objectMapper.writeValueAsString(
                         new TransferRequest(
-                            "110-000001-4", "110-000002-1", new BigDecimal("3000000.00"), null))))
+                            "110-000001-4", "110-000002-1", new BigDecimal("3000000.00"), null)))
+                .with(AuthPostProcessors.asCustomer(1L))
+                .with(AuthPostProcessors.csrf()))
         .andExpect(status().isBadRequest());
   }
 
@@ -82,7 +91,9 @@ class TransferControllerTest {
                 .content(
                     objectMapper.writeValueAsString(
                         new TransferRequest(
-                            "", "110-000002-1", new BigDecimal("3000000.00"), null))))
+                            "", "110-000002-1", new BigDecimal("3000000.00"), null)))
+                .with(AuthPostProcessors.asCustomer(1L))
+                .with(AuthPostProcessors.csrf()))
         .andExpect(status().isBadRequest());
   }
 }

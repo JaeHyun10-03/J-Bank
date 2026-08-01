@@ -22,8 +22,10 @@ import com.jbank.account.dto.AccountStatusChangeRequest;
 import com.jbank.account.dto.AccountStatusChangeResponse;
 import com.jbank.account.dto.BalanceResponse;
 import com.jbank.account.service.AccountService;
-import com.jbank.global.config.SecurityConfig;
+import com.jbank.auth.config.SecurityConfig;
+import com.jbank.auth.jwt.JwtTokenProvider;
 import com.jbank.global.exception.ErrorCode;
+import com.jbank.testsupport.AuthPostProcessors;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import org.junit.jupiter.api.Test;
@@ -31,11 +33,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(AccountController.class)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, JwtTokenProvider.class})
+@TestPropertySource(
+    properties = "jbank.jwt.secret=test-secret-key-at-least-32-bytes-long-for-hs256")
 class AccountControllerTest {
 
   @Autowired private MockMvc mockMvc;
@@ -58,7 +63,9 @@ class AccountControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     objectMapper.writeValueAsString(
-                        new AccountOpenRequest("1", AccountType.CHECKING, BigDecimal.ZERO))))
+                        new AccountOpenRequest("1", AccountType.CHECKING, BigDecimal.ZERO)))
+                .with(AuthPostProcessors.asCustomer(1L))
+                .with(AuthPostProcessors.csrf()))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.data.accountNumber").value("110-000001-4"));
   }
@@ -76,7 +83,9 @@ class AccountControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     objectMapper.writeValueAsString(
-                        new AccountOpenRequest("1", AccountType.CHECKING, BigDecimal.ZERO))))
+                        new AccountOpenRequest("1", AccountType.CHECKING, BigDecimal.ZERO)))
+                .with(AuthPostProcessors.asCustomer(1L))
+                .with(AuthPostProcessors.csrf()))
         .andExpect(status().isForbidden())
         .andExpect(jsonPath("$.error.code").value("ACC_005_CDD_NOT_COMPLETED"));
   }
@@ -97,7 +106,10 @@ class AccountControllerTest {
 
     // when & then
     mockMvc
-        .perform(get("/api/v1/accounts/1").param("customerId", "1"))
+        .perform(
+            get("/api/v1/accounts/1")
+                .param("customerId", "1")
+                .with(AuthPostProcessors.asCustomer(1L)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.data.accountNumber").value("110-000001-4"));
   }
@@ -110,7 +122,10 @@ class AccountControllerTest {
 
     // when & then
     mockMvc
-        .perform(get("/api/v1/accounts/1").param("customerId", "2"))
+        .perform(
+            get("/api/v1/accounts/1")
+                .param("customerId", "2")
+                .with(AuthPostProcessors.asCustomer(1L)))
         .andExpect(status().isForbidden())
         .andExpect(jsonPath("$.error.code").value("COMMON_003_FORBIDDEN"));
   }
@@ -129,7 +144,7 @@ class AccountControllerTest {
 
     // when & then
     mockMvc
-        .perform(get("/api/v1/accounts/1/balance"))
+        .perform(get("/api/v1/accounts/1/balance").with(AuthPostProcessors.asCustomer(1L)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.data.accountId").value("1"));
   }
@@ -148,7 +163,9 @@ class AccountControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     objectMapper.writeValueAsString(
-                        new AccountStatusChangeRequest(AccountStatus.SUSPENDED, "이상거래 의심"))))
+                        new AccountStatusChangeRequest(AccountStatus.SUSPENDED, "이상거래 의심")))
+                .with(AuthPostProcessors.asCustomer(1L))
+                .with(AuthPostProcessors.csrf()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.data.status").value("SUSPENDED"));
   }
@@ -166,7 +183,9 @@ class AccountControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     objectMapper.writeValueAsString(
-                        new AccountStatusChangeRequest(AccountStatus.CLOSED, "임의 해지 시도"))))
+                        new AccountStatusChangeRequest(AccountStatus.CLOSED, "임의 해지 시도")))
+                .with(AuthPostProcessors.asCustomer(1L))
+                .with(AuthPostProcessors.csrf()))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.error.code").value("ACC_007_INVALID_STATUS_TRANSITION"));
   }
@@ -179,7 +198,11 @@ class AccountControllerTest {
 
     // when & then
     mockMvc
-        .perform(delete("/api/v1/accounts/1").param("customerId", "1"))
+        .perform(
+            delete("/api/v1/accounts/1")
+                .param("customerId", "1")
+                .with(AuthPostProcessors.asCustomer(1L))
+                .with(AuthPostProcessors.csrf()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.data.status").value("CLOSED"));
   }
@@ -192,7 +215,11 @@ class AccountControllerTest {
 
     // when & then
     mockMvc
-        .perform(delete("/api/v1/accounts/1").param("customerId", "1"))
+        .perform(
+            delete("/api/v1/accounts/1")
+                .param("customerId", "1")
+                .with(AuthPostProcessors.asCustomer(1L))
+                .with(AuthPostProcessors.csrf()))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.error.code").value("ACC_008_BALANCE_NOT_ZERO"));
   }

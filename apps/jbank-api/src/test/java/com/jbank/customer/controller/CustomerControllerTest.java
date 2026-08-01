@@ -8,6 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jbank.auth.config.SecurityConfig;
+import com.jbank.auth.jwt.JwtTokenProvider;
 import com.jbank.customer.domain.CustomerException;
 import com.jbank.customer.domain.CustomerStatus;
 import com.jbank.customer.domain.IdentityVerificationMethod;
@@ -18,8 +20,8 @@ import com.jbank.customer.dto.CustomerRegisterResponse;
 import com.jbank.customer.dto.EddRegisterRequest;
 import com.jbank.customer.dto.EddRegisterResponse;
 import com.jbank.customer.service.CustomerService;
-import com.jbank.global.config.SecurityConfig;
 import com.jbank.global.exception.ErrorCode;
+import com.jbank.testsupport.AuthPostProcessors;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import org.junit.jupiter.api.Test;
@@ -27,11 +29,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(CustomerController.class)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, JwtTokenProvider.class})
+@TestPropertySource(
+    properties = "jbank.jwt.secret=test-secret-key-at-least-32-bytes-long-for-hs256")
 class CustomerControllerTest {
 
   @Autowired private MockMvc mockMvc;
@@ -130,7 +135,9 @@ class CustomerControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     objectMapper.writeValueAsString(
-                        new EddRegisterRequest("해외 송금", "임대소득", "DOC-1"))))
+                        new EddRegisterRequest("해외 송금", "임대소득", "DOC-1")))
+                .with(AuthPostProcessors.asCustomer(1L))
+                .with(AuthPostProcessors.csrf()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.data.amlRiskLevel").value("HIGH"));
   }
@@ -148,7 +155,9 @@ class CustomerControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     objectMapper.writeValueAsString(
-                        new EddRegisterRequest("해외 송금", "임대소득", "DOC-1"))))
+                        new EddRegisterRequest("해외 송금", "임대소득", "DOC-1")))
+                .with(AuthPostProcessors.asCustomer(1L))
+                .with(AuthPostProcessors.csrf()))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.error.code").value("ACC_004_CUSTOMER_NOT_HIGH_RISK"));
   }

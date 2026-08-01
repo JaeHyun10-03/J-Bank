@@ -12,8 +12,10 @@ import com.jbank.account.domain.AccountStatus;
 import com.jbank.account.domain.AccountType;
 import com.jbank.account.dto.CustomerAccountSummaryResponse;
 import com.jbank.account.service.AccountService;
-import com.jbank.global.config.SecurityConfig;
+import com.jbank.auth.config.SecurityConfig;
+import com.jbank.auth.jwt.JwtTokenProvider;
 import com.jbank.global.response.PageResponse;
+import com.jbank.testsupport.AuthPostProcessors;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -21,11 +23,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(CustomerAccountController.class)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, JwtTokenProvider.class})
+@TestPropertySource(
+    properties = "jbank.jwt.secret=test-secret-key-at-least-32-bytes-long-for-hs256")
 class CustomerAccountControllerTest {
 
   @Autowired private MockMvc mockMvc;
@@ -53,7 +58,7 @@ class CustomerAccountControllerTest {
 
     // when & then
     mockMvc
-        .perform(get("/api/v1/customers/1/accounts"))
+        .perform(get("/api/v1/customers/1/accounts").with(AuthPostProcessors.asCustomer(1L)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.data.content[0].accountNumber").value("110-000001-4"))
         .andExpect(jsonPath("$.data.totalElements").value(1));

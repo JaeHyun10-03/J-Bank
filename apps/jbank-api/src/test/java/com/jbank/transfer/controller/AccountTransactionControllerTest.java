@@ -10,9 +10,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jbank.auth.config.SecurityConfig;
+import com.jbank.auth.jwt.JwtTokenProvider;
 import com.jbank.global.config.JacksonConfig;
-import com.jbank.global.config.SecurityConfig;
 import com.jbank.global.response.PageResponse;
+import com.jbank.testsupport.AuthPostProcessors;
 import com.jbank.transfer.domain.TransactionStatus;
 import com.jbank.transfer.domain.TransactionType;
 import com.jbank.transfer.dto.AccountTransactionResponse;
@@ -29,11 +31,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(AccountTransactionController.class)
-@Import({SecurityConfig.class, JacksonConfig.class})
+@Import({SecurityConfig.class, JacksonConfig.class, JwtTokenProvider.class})
+@TestPropertySource(
+    properties = "jbank.jwt.secret=test-secret-key-at-least-32-bytes-long-for-hs256")
 class AccountTransactionControllerTest {
 
   @Autowired private MockMvc mockMvc;
@@ -62,7 +67,9 @@ class AccountTransactionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     objectMapper.writeValueAsString(
-                        new DepositRequest(new BigDecimal("100000.00"), "INTERNET_BANKING"))))
+                        new DepositRequest(new BigDecimal("100000.00"), "INTERNET_BANKING")))
+                .with(AuthPostProcessors.asCustomer(1L))
+                .with(AuthPostProcessors.csrf()))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.data.transactionId").value("10"))
         .andExpect(jsonPath("$.data.balanceAfter").value("150000.00"));
@@ -87,7 +94,9 @@ class AccountTransactionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     objectMapper.writeValueAsString(
-                        new DepositRequest(new BigDecimal("50000.00"), "INTERNET_BANKING"))))
+                        new DepositRequest(new BigDecimal("50000.00"), "INTERNET_BANKING")))
+                .with(AuthPostProcessors.asCustomer(1L))
+                .with(AuthPostProcessors.csrf()))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.data.type").value("WITHDRAWAL"))
         .andExpect(jsonPath("$.data.balanceAfter").value("50000.00"));
@@ -113,7 +122,7 @@ class AccountTransactionControllerTest {
                 1));
 
     mockMvc
-        .perform(get("/api/v1/accounts/1/transactions"))
+        .perform(get("/api/v1/accounts/1/transactions").with(AuthPostProcessors.asCustomer(1L)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.data.totalElements").value(1))
         .andExpect(jsonPath("$.data.content[0].transactionId").value("10"));
@@ -127,7 +136,9 @@ class AccountTransactionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     objectMapper.writeValueAsString(
-                        new DepositRequest(new BigDecimal("100000.00"), "INTERNET_BANKING"))))
+                        new DepositRequest(new BigDecimal("100000.00"), "INTERNET_BANKING")))
+                .with(AuthPostProcessors.asCustomer(1L))
+                .with(AuthPostProcessors.csrf()))
         .andExpect(status().isBadRequest());
   }
 
@@ -140,7 +151,9 @@ class AccountTransactionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     objectMapper.writeValueAsString(
-                        new DepositRequest(BigDecimal.ZERO, "INTERNET_BANKING"))))
+                        new DepositRequest(BigDecimal.ZERO, "INTERNET_BANKING")))
+                .with(AuthPostProcessors.asCustomer(1L))
+                .with(AuthPostProcessors.csrf()))
         .andExpect(status().isBadRequest());
   }
 }
