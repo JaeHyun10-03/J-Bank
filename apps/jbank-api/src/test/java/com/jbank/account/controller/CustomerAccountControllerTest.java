@@ -63,4 +63,12 @@ class CustomerAccountControllerTest {
         .andExpect(jsonPath("$.data.content[0].accountNumber").value("110-000001-4"))
         .andExpect(jsonPath("$.data.totalElements").value(1));
   }
+
+  @Test
+  void 다른_고객의_계좌목록을_조회하면_403이다() throws Exception {
+    mockMvc
+        .perform(get("/api/v1/customers/1/accounts").with(AuthPostProcessors.asCustomer(2L)))
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.error.code").value("COMMON_003_FORBIDDEN"));
+  }
 }

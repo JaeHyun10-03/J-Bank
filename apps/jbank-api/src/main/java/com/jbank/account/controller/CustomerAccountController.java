@@ -1,8 +1,11 @@
 package com.jbank.account.controller;
 
+import com.jbank.account.domain.AccountException;
 import com.jbank.account.domain.AccountStatus;
 import com.jbank.account.dto.CustomerAccountSummaryResponse;
 import com.jbank.account.service.AccountService;
+import com.jbank.auth.config.CurrentCustomerId;
+import com.jbank.global.exception.ErrorCode;
 import com.jbank.global.response.ApiResponse;
 import com.jbank.global.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,9 +44,13 @@ public class CustomerAccountController {
   @GetMapping
   public ResponseEntity<ApiResponse<PageResponse<CustomerAccountSummaryResponse>>> list(
       @PathVariable Long customerId,
+      @CurrentCustomerId Long requestingCustomerId,
       @Parameter(description = "필터링할 계좌 상태, 생략하면 전체 조회") @RequestParam(required = false)
           AccountStatus status,
       Pageable pageable) {
+    if (!customerId.equals(requestingCustomerId)) {
+      throw new AccountException(ErrorCode.COMMON_003_FORBIDDEN);
+    }
     PageResponse<CustomerAccountSummaryResponse> response =
         accountService.listByCustomer(customerId, status, pageable);
     return ResponseEntity.ok(ApiResponse.success(response));
