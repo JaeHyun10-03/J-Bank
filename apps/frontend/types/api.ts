@@ -4,6 +4,48 @@
  */
 
 export interface paths {
+    "/api/v1/transfers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 계좌 이체
+         * @description 두 계좌번호를 오름차순 정렬한 순서로 락을 획득해 교착상태를 막고,
+         *     출금 가능 금액 기준으로 검증한 뒤 단일 트랜잭션으로 커밋합니다.
+         *     W2 기준 임계금액 초과에 따른 2차 인증 분기는 아직 없어 항상 즉시 완료됩니다(W5 예정).
+         */
+        post: operations["transfer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products/{productCode}/subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 상품 가입
+         * @description 최소 가입금액 미달(PRD_001) 또는 판매중지 상품(PRD_002)이면 거절합니다.
+         */
+        post: operations["subscribe"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/customers": {
         parameters: {
             query?: never;
@@ -47,6 +89,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 토큰 재발급
+         * @description 갱신 쿠키로 세 쿠키를 모두 새 값으로 교체합니다. X-CSRF-TOKEN 헤더가 필요합니다.
+         */
+        post: operations["refresh"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 로그아웃
+         * @description 갱신 토큰 화이트리스트를 비우고 세 쿠키를 모두 만료시킵니다.
+         */
+        post: operations["logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 로그인
+         * @description bcrypt 검증 후 인증·갱신·위조방지 쿠키 세 개를 발급합니다.
+         */
+        post: operations["login"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/accounts": {
         parameters: {
             query?: never;
@@ -62,6 +164,46 @@ export interface paths {
          *     W1 기준 초기 입금은 0원만 지원합니다(그 외 금액은 400).
          */
         post: operations["open"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/accounts/{accountId}/withdraw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 출금
+         * @description 출금 가능 금액(잔액-지급정지금액) 기준으로 검증합니다. Idempotency-Key 헤더가 필수입니다.
+         */
+        post: operations["withdraw"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/accounts/{accountId}/deposit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 입금
+         * @description Idempotency-Key 헤더로 재요청을 멱등 처리합니다.
+         */
+        post: operations["deposit"];
         delete?: never;
         options?: never;
         head?: never;
@@ -85,9 +227,50 @@ export interface paths {
          * 계좌 상태변경
          * @description ACTIVE↔SUSPENDED, ACTIVE/SUSPENDED→DORMANT, DORMANT→ACTIVE만 허용합니다.
          *     CLOSED로의 전환은 이 API로 할 수 없습니다(해지 API를 쓰세요). 허용되지 않는
-         *     전이는 409(ACC_007)가 납니다.
+         *     전이는 409(ACC_007)가 납니다. 운영자 전용이지만 운영자 역할 모델이 아직 없어
+         *     인증된 사용자면 누구나 호출할 수 있습니다.
          */
         patch: operations["changeStatus"];
+        trace?: never;
+    };
+    "/api/v1/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 상품 목록 조회
+         * @description 판매중인 상품만 반환합니다. 인증이 필요 없습니다.
+         */
+        get: operations["list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customers/{customerId}/contracts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 고객별 가입 계약 조회
+         * @description 한 고객이 가입한 상품 계약을 페이지 단위로 조회합니다.
+         */
+        get: operations["list_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/customers/{customerId}/accounts": {
@@ -103,7 +286,7 @@ export interface paths {
          *     특정 상태(ACTIVE, SUSPENDED 등)만 필터링할 수 있습니다. 원장이 아직 없어
          *     balance·holdAmount·availableBalance는 항상 0입니다(W2에서 실제 값 반영).
          */
-        get: operations["list"];
+        get: operations["list_2"];
         put?: never;
         post?: never;
         delete?: never;
@@ -121,16 +304,56 @@ export interface paths {
         };
         /**
          * 계좌 상세조회
-         * @description 인증이 아직 없어 소유자 확인용 customerId를 쿼리 파라미터로 함께 보내야 합니다. 소유자가 아니면 403.
+         * @description 소유자가 아니면 403.
          */
         get: operations["getDetail"];
         put?: never;
         post?: never;
         /**
          * 계좌 해지
-         * @description 잔액과 지급정지 금액이 모두 0원이어야 해지할 수 있습니다. 소유자 확인용 customerId가 필요합니다.
+         * @description 잔액과 지급정지 금액이 모두 0원이어야 해지할 수 있습니다.
          */
         delete: operations["close"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/accounts/{accountId}/transactions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 거래내역 조회
+         * @description type, from, to는 선택입니다. 목록 조회 공통 페이지 규칙을 따릅니다.
+         */
+        get: operations["getHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/accounts/{accountId}/balance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 잔액 조회
+         * @description balance는 잔액, availableBalance는 잔액에서 지급정지금액을 뺀 출금 가능 금액입니다.
+         */
+        get: operations["getBalance"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -140,8 +363,50 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        TransferRequest: {
+            fromAccountNumber: string;
+            toAccountNumber: string;
+            amount: number;
+            memo?: string;
+        };
+        ApiResponseTransferResponse: {
+            success?: boolean;
+            data?: components["schemas"]["TransferResponse"];
+            error?: components["schemas"]["ErrorDetail"];
+        };
+        ErrorDetail: {
+            code?: string;
+            message?: string;
+        };
+        TransferResponse: {
+            transactionId?: string;
+            /** @enum {string} */
+            status?: "PENDING" | "PENDING_OTP" | "COMPLETED" | "FAILED" | "CANCELLED";
+            fromAccountBalanceAfter?: number;
+            /** Format: date-time */
+            processedAt?: string;
+        };
+        ProductSubscribeRequest: {
+            accountNumber: string;
+            subscriptionAmount: number;
+        };
+        ApiResponseProductSubscribeResponse: {
+            success?: boolean;
+            data?: components["schemas"]["ProductSubscribeResponse"];
+            error?: components["schemas"]["ErrorDetail"];
+        };
+        ProductSubscribeResponse: {
+            contractNumber?: string;
+            productCode?: string;
+            /** Format: date-time */
+            subscribedAt?: string;
+            /** Format: date-time */
+            maturityAt?: string;
+        };
         CustomerRegisterRequest: {
             name: string;
+            loginId: string;
+            password: string;
             residentRegNo: string;
             /** Format: date */
             birthDate: string;
@@ -168,10 +433,6 @@ export interface components {
             status?: "ACTIVE" | "DORMANT" | "CLOSED";
             eddRequired?: boolean;
         };
-        ErrorDetail: {
-            code?: string;
-            message?: string;
-        };
         EddRegisterRequest: {
             transactionPurpose: string;
             fundSource: string;
@@ -189,8 +450,33 @@ export interface components {
             /** Format: date-time */
             eddCompletedAt?: string;
         };
+        ApiResponseRefreshResponse: {
+            success?: boolean;
+            data?: components["schemas"]["RefreshResponse"];
+            error?: components["schemas"]["ErrorDetail"];
+        };
+        RefreshResponse: {
+            /** Format: date-time */
+            accessTokenExpiresAt?: string;
+            csrfToken?: string;
+        };
+        LoginRequest: {
+            loginId: string;
+            password: string;
+        };
+        ApiResponseLoginResponse: {
+            success?: boolean;
+            data?: components["schemas"]["LoginResponse"];
+            error?: components["schemas"]["ErrorDetail"];
+        };
+        LoginResponse: {
+            customerId?: string;
+            name?: string;
+            /** Format: date-time */
+            accessTokenExpiresAt?: string;
+            csrfToken?: string;
+        };
         AccountOpenRequest: {
-            customerId: string;
             /** @enum {string} */
             productType: "CHECKING";
             initialDeposit: number;
@@ -206,6 +492,25 @@ export interface components {
         ApiResponseAccountOpenResponse: {
             success?: boolean;
             data?: components["schemas"]["AccountOpenResponse"];
+            error?: components["schemas"]["ErrorDetail"];
+        };
+        DepositRequest: {
+            amount: number;
+            channel: string;
+        };
+        AccountTransactionResponse: {
+            transactionId?: string;
+            accountId?: string;
+            /** @enum {string} */
+            type?: "DEPOSIT" | "WITHDRAWAL" | "TRANSFER";
+            amount?: number;
+            balanceAfter?: number;
+            /** Format: date-time */
+            processedAt?: string;
+        };
+        ApiResponseAccountTransactionResponse: {
+            success?: boolean;
+            data?: components["schemas"]["AccountTransactionResponse"];
             error?: components["schemas"]["ErrorDetail"];
         };
         AccountStatusChangeRequest: {
@@ -231,6 +536,57 @@ export interface components {
             /** Format: int32 */
             size?: number;
             sort?: string[];
+        };
+        ApiResponsePageResponseProductSummaryResponse: {
+            success?: boolean;
+            data?: components["schemas"]["PageResponseProductSummaryResponse"];
+            error?: components["schemas"]["ErrorDetail"];
+        };
+        PageResponseProductSummaryResponse: {
+            content?: components["schemas"]["ProductSummaryResponse"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+        };
+        ProductSummaryResponse: {
+            productCode?: string;
+            productName?: string;
+            interestRate?: number;
+            minSubscriptionAmount?: number;
+            /** Format: int32 */
+            contractPeriodMonths?: number;
+        };
+        ApiResponsePageResponseContractSummaryResponse: {
+            success?: boolean;
+            data?: components["schemas"]["PageResponseContractSummaryResponse"];
+            error?: components["schemas"]["ErrorDetail"];
+        };
+        ContractSummaryResponse: {
+            contractNumber?: string;
+            productCode?: string;
+            subscriptionAmount?: number;
+            /** Format: date-time */
+            subscribedAt?: string;
+            /** Format: date-time */
+            maturityAt?: string;
+            /** @enum {string} */
+            status?: "ACTIVE" | "MATURED" | "TERMINATED";
+        };
+        PageResponseContractSummaryResponse: {
+            content?: components["schemas"]["ContractSummaryResponse"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
         };
         ApiResponsePageResponseCustomerAccountSummaryResponse: {
             success?: boolean;
@@ -284,6 +640,48 @@ export interface components {
             data?: components["schemas"]["AccountDetailResponse"];
             error?: components["schemas"]["ErrorDetail"];
         };
+        ApiResponsePageResponseTransactionSummaryResponse: {
+            success?: boolean;
+            data?: components["schemas"]["PageResponseTransactionSummaryResponse"];
+            error?: components["schemas"]["ErrorDetail"];
+        };
+        PageResponseTransactionSummaryResponse: {
+            content?: components["schemas"]["TransactionSummaryResponse"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+        };
+        TransactionSummaryResponse: {
+            transactionId?: string;
+            /** @enum {string} */
+            type?: "DEPOSIT" | "WITHDRAWAL" | "TRANSFER";
+            amount?: number;
+            /** @enum {string} */
+            status?: "PENDING" | "PENDING_OTP" | "COMPLETED" | "FAILED" | "CANCELLED";
+            memo?: string;
+            /** Format: date-time */
+            processedAt?: string;
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        ApiResponseBalanceResponse: {
+            success?: boolean;
+            data?: components["schemas"]["BalanceResponse"];
+            error?: components["schemas"]["ErrorDetail"];
+        };
+        BalanceResponse: {
+            accountId?: string;
+            balance?: number;
+            holdAmount?: number;
+            availableBalance?: number;
+            /** Format: date-time */
+            asOf?: string;
+        };
         AccountCloseResponse: {
             accountId?: string;
             /** @enum {string} */
@@ -305,6 +703,59 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    transfer: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 클라이언트가 생성한 UUID */
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TransferRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseTransferResponse"];
+                };
+            };
+        };
+    };
+    subscribe: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                productCode: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductSubscribeRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseProductSubscribeResponse"];
+                };
+            };
+        };
+    };
     register: {
         parameters: {
             query?: never;
@@ -355,6 +806,70 @@ export interface operations {
             };
         };
     };
+    refresh: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                refresh_token?: string;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseRefreshResponse"];
+                };
+            };
+        };
+    };
+    logout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    login: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseLoginResponse"];
+                };
+            };
+        };
+    };
     open: {
         parameters: {
             query?: never;
@@ -375,6 +890,64 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseAccountOpenResponse"];
+                };
+            };
+        };
+    };
+    withdraw: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 클라이언트가 생성한 UUID */
+                "Idempotency-Key": string;
+            };
+            path: {
+                accountId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DepositRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseAccountTransactionResponse"];
+                };
+            };
+        };
+    };
+    deposit: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 클라이언트가 생성한 UUID */
+                "Idempotency-Key": string;
+            };
+            path: {
+                accountId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DepositRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseAccountTransactionResponse"];
                 };
             };
         };
@@ -408,6 +981,52 @@ export interface operations {
     list: {
         parameters: {
             query: {
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePageResponseProductSummaryResponse"];
+                };
+            };
+        };
+    };
+    list_1: {
+        parameters: {
+            query: {
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path: {
+                customerId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePageResponseContractSummaryResponse"];
+                };
+            };
+        };
+    };
+    list_2: {
+        parameters: {
+            query: {
                 /** @description 필터링할 계좌 상태, 생략하면 전체 조회 */
                 status?: "ACTIVE" | "SUSPENDED" | "DORMANT" | "CLOSED";
                 pageable: components["schemas"]["Pageable"];
@@ -433,10 +1052,7 @@ export interface operations {
     };
     getDetail: {
         parameters: {
-            query: {
-                /** @description 임시 소유자 확인용 (W3에서 세션으로 대체 예정) */
-                customerId: number;
-            };
+            query?: never;
             header?: never;
             path: {
                 accountId: number;
@@ -458,10 +1074,7 @@ export interface operations {
     };
     close: {
         parameters: {
-            query: {
-                /** @description 임시 소유자 확인용 (W3에서 세션으로 대체 예정) */
-                customerId: number;
-            };
+            query?: never;
             header?: never;
             path: {
                 accountId: number;
@@ -477,6 +1090,55 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseAccountCloseResponse"];
+                };
+            };
+        };
+    };
+    getHistory: {
+        parameters: {
+            query: {
+                type?: "DEPOSIT" | "WITHDRAWAL" | "TRANSFER_IN" | "TRANSFER_OUT";
+                from?: string;
+                to?: string;
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path: {
+                accountId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePageResponseTransactionSummaryResponse"];
+                };
+            };
+        };
+    };
+    getBalance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                accountId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseBalanceResponse"];
                 };
             };
         };
