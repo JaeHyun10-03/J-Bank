@@ -39,16 +39,19 @@ public class DepositService {
 
   @Transactional
   public AccountTransactionResponse deposit(
-      Long accountId, BigDecimal amount, String idempotencyKey) {
+      Long accountId, BigDecimal amount, String idempotencyKey, Long requestingCustomerId) {
     Transaction existing = transactionRepository.findByIdempotencyKey(idempotencyKey).orElse(null);
     if (existing != null) {
-      return toResponse(existing, resolveBalanceAfter(existing));
+      return toResponse(existing, resolveBalanceAfter(existing, requestingCustomerId));
     }
 
     Account account =
         accountRepository
             .findByIdForUpdate(accountId)
             .orElseThrow(() -> new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
+    if (!account.getCustomerId().equals(requestingCustomerId)) {
+      throw new AccountException(ErrorCode.COMMON_003_FORBIDDEN);
+    }
     if (account.getStatus() != AccountStatus.ACTIVE) {
       throw new AccountException(ErrorCode.ACC_009_ACCOUNT_STATUS_INVALID);
     }
@@ -63,7 +66,7 @@ public class DepositService {
           () -> {
             Transaction raced =
                 transactionRepository.findByIdempotencyKey(idempotencyKey).orElseThrow(() -> e);
-            return toResponse(raced, resolveBalanceAfter(raced));
+            return toResponse(raced, resolveBalanceAfter(raced, requestingCustomerId));
           });
     }
 
@@ -82,11 +85,15 @@ public class DepositService {
     return toResponse(transaction, account.getCurrentBalanceCache());
   }
 
-  private BigDecimal resolveBalanceAfter(Transaction transaction) {
-    return accountRepository
-        .findById(transaction.getToAccountId())
-        .map(Account::getCurrentBalanceCache)
-        .orElseThrow(() -> new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
+  private BigDecimal resolveBalanceAfter(Transaction transaction, Long requestingCustomerId) {
+    Account account =
+        accountRepository
+            .findById(transaction.getToAccountId())
+            .orElseThrow(() -> new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
+    if (!account.getCustomerId().equals(requestingCustomerId)) {
+      throw new AccountException(ErrorCode.COMMON_003_FORBIDDEN);
+    }
+    return account.getCurrentBalanceCache();
   }
 
   private AccountTransactionResponse toResponse(Transaction transaction, BigDecimal balanceAfter) {

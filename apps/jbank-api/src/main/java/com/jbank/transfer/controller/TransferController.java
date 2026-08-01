@@ -1,5 +1,6 @@
 package com.jbank.transfer.controller;
 
+import com.jbank.auth.config.CurrentCustomerId;
 import com.jbank.global.response.ApiResponse;
 import com.jbank.transfer.dto.TransferRequest;
 import com.jbank.transfer.dto.TransferResponse;
@@ -39,14 +40,16 @@ public class TransferController {
   public ResponseEntity<ApiResponse<TransferResponse>> transfer(
       @Parameter(description = "클라이언트가 생성한 UUID") @RequestHeader("Idempotency-Key")
           String idempotencyKey,
-      @Valid @RequestBody TransferRequest request) {
+      @Valid @RequestBody TransferRequest request,
+      @CurrentCustomerId Long customerId) {
     TransferResponse response =
         transferService.transfer(
             request.fromAccountNumber(),
             request.toAccountNumber(),
             request.amount(),
             idempotencyKey,
-            request.memo());
+            request.memo(),
+            customerId);
     return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
   }
 }

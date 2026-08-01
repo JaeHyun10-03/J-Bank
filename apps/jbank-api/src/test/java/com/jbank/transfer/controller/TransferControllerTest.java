@@ -42,7 +42,7 @@ class TransferControllerTest {
   void 유효한_요청이면_201과_이체결과를_반환한다() throws Exception {
     given(
             transferService.transfer(
-                eq("110-000001-4"), eq("110-000002-1"), any(), eq("idem-key-1"), any()))
+                eq("110-000001-4"), eq("110-000002-1"), any(), eq("idem-key-1"), any(), eq(1L)))
         .willReturn(
             new TransferResponse(
                 "20",

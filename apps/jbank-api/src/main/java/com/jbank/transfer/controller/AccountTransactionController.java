@@ -1,5 +1,6 @@
 package com.jbank.transfer.controller;
 
+import com.jbank.auth.config.CurrentCustomerId;
 import com.jbank.global.response.ApiResponse;
 import com.jbank.global.response.PageResponse;
 import com.jbank.transfer.dto.AccountTransactionResponse;
@@ -51,9 +52,10 @@ public class AccountTransactionController {
       @PathVariable Long accountId,
       @Parameter(description = "클라이언트가 생성한 UUID") @RequestHeader("Idempotency-Key")
           String idempotencyKey,
-      @Valid @RequestBody DepositRequest request) {
+      @Valid @RequestBody DepositRequest request,
+      @CurrentCustomerId Long customerId) {
     AccountTransactionResponse response =
-        depositService.deposit(accountId, request.amount(), idempotencyKey);
+        depositService.deposit(accountId, request.amount(), idempotencyKey, customerId);
     return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
   }
 
@@ -65,9 +67,10 @@ public class AccountTransactionController {
       @PathVariable Long accountId,
       @Parameter(description = "클라이언트가 생성한 UUID") @RequestHeader("Idempotency-Key")
           String idempotencyKey,
-      @Valid @RequestBody DepositRequest request) {
+      @Valid @RequestBody DepositRequest request,
+      @CurrentCustomerId Long customerId) {
     AccountTransactionResponse response =
-        withdrawalService.withdraw(accountId, request.amount(), idempotencyKey);
+        withdrawalService.withdraw(accountId, request.amount(), idempotencyKey, customerId);
     return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
   }
 
@@ -80,9 +83,10 @@ public class AccountTransactionController {
           OffsetDateTime from,
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
           OffsetDateTime to,
-      Pageable pageable) {
+      Pageable pageable,
+      @CurrentCustomerId Long customerId) {
     PageResponse<TransactionSummaryResponse> response =
-        transactionHistoryService.getHistory(accountId, type, from, to, pageable);
+        transactionHistoryService.getHistory(accountId, type, from, to, pageable, customerId);
     return ResponseEntity.ok(ApiResponse.success(response));
   }
 }

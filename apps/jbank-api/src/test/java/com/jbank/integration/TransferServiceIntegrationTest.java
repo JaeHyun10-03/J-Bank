@@ -80,7 +80,8 @@ class TransferServiceIntegrationTest {
             to.getAccountNumber(),
             new BigDecimal("30000.00"),
             UUID.randomUUID().toString(),
-            "생활비");
+            "생활비",
+            from.getCustomerId());
 
     assertThat(response.status()).isEqualTo(TransactionStatus.COMPLETED);
     assertThat(response.fromAccountBalanceAfter()).isEqualByComparingTo("70000.00");
@@ -104,19 +105,43 @@ class TransferServiceIntegrationTest {
             to.getAccountNumber(),
             new BigDecimal("30000.00"),
             idempotencyKey,
-            null);
+            null,
+            from.getCustomerId());
     TransferResponse second =
         transferService.transfer(
             from.getAccountNumber(),
             to.getAccountNumber(),
             new BigDecimal("30000.00"),
             idempotencyKey,
-            null);
+            null,
+            from.getCustomerId());
 
     assertThat(second.transactionId()).isEqualTo(first.transactionId());
     Account updatedFrom = accountRepository.findById(from.getAccountId()).orElseThrow();
     assertThat(updatedFrom.getCurrentBalanceCache()).isEqualByComparingTo("70000.00");
     assertThat(ledgerEntryRepository.findByAccountId(from.getAccountId())).hasSize(1);
+  }
+
+  @Test
+  void 소유자가_아니면_이체를_거절한다() {
+    Account from = saveAccount(new BigDecimal("100000.00"), BigDecimal.ZERO, AccountStatus.ACTIVE);
+    Account to = saveAccount(new BigDecimal("0.00"), BigDecimal.ZERO, AccountStatus.ACTIVE);
+    Long strangerId = saveCustomer();
+
+    assertThatThrownBy(
+            () ->
+                transferService.transfer(
+                    from.getAccountNumber(),
+                    to.getAccountNumber(),
+                    BigDecimal.TEN,
+                    UUID.randomUUID().toString(),
+                    null,
+                    strangerId))
+        .isInstanceOf(AccountException.class)
+        .satisfies(
+            ex ->
+                assertThat(((AccountException) ex).getErrorCode())
+                    .isEqualTo(ErrorCode.COMMON_003_FORBIDDEN));
   }
 
   @Test
@@ -131,7 +156,8 @@ class TransferServiceIntegrationTest {
                     account.getAccountNumber(),
                     BigDecimal.TEN,
                     UUID.randomUUID().toString(),
-                    null))
+                    null,
+                    account.getCustomerId()))
         .isInstanceOf(TransactionException.class)
         .satisfies(
             ex ->
@@ -151,7 +177,8 @@ class TransferServiceIntegrationTest {
                     to.getAccountNumber(),
                     new BigDecimal("2000.00"),
                     UUID.randomUUID().toString(),
-                    null))
+                    null,
+                    from.getCustomerId()))
         .isInstanceOf(TransactionException.class)
         .satisfies(
             ex ->
@@ -172,7 +199,8 @@ class TransferServiceIntegrationTest {
                     to.getAccountNumber(),
                     new BigDecimal("1000.00"),
                     UUID.randomUUID().toString(),
-                    null))
+                    null,
+                    from.getCustomerId()))
         .isInstanceOf(TransactionException.class)
         .satisfies(
             ex ->
@@ -193,7 +221,8 @@ class TransferServiceIntegrationTest {
                     to.getAccountNumber(),
                     BigDecimal.TEN,
                     UUID.randomUUID().toString(),
-                    null))
+                    null,
+                    from.getCustomerId()))
         .isInstanceOf(AccountException.class)
         .satisfies(
             ex ->
@@ -213,7 +242,8 @@ class TransferServiceIntegrationTest {
                     to.getAccountNumber(),
                     BigDecimal.TEN,
                     UUID.randomUUID().toString(),
-                    null))
+                    null,
+                    from.getCustomerId()))
         .isInstanceOf(TransactionException.class)
         .satisfies(
             ex ->
@@ -232,7 +262,8 @@ class TransferServiceIntegrationTest {
                     "999-999-999999",
                     BigDecimal.TEN,
                     UUID.randomUUID().toString(),
-                    null))
+                    null,
+                    from.getCustomerId()))
         .isInstanceOf(TransactionException.class)
         .satisfies(
             ex ->

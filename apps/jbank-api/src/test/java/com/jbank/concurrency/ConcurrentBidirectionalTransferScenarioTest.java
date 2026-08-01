@@ -34,9 +34,21 @@ class ConcurrentBidirectionalTransferScenarioTest extends AbstractConcurrencyTes
       List<Future<?>> futures = new ArrayList<>();
       for (int i = 0; i < perDirection; i++) {
         futures.add(
-            submitTransfer(executor, ready, start, a.getAccountNumber(), b.getAccountNumber()));
+            submitTransfer(
+                executor,
+                ready,
+                start,
+                a.getAccountNumber(),
+                b.getAccountNumber(),
+                a.getCustomerId()));
         futures.add(
-            submitTransfer(executor, ready, start, b.getAccountNumber(), a.getAccountNumber()));
+            submitTransfer(
+                executor,
+                ready,
+                start,
+                b.getAccountNumber(),
+                a.getAccountNumber(),
+                b.getCustomerId()));
       }
 
       ready.await(10, TimeUnit.SECONDS);
@@ -64,7 +76,8 @@ class ConcurrentBidirectionalTransferScenarioTest extends AbstractConcurrencyTes
       CountDownLatch ready,
       CountDownLatch start,
       String fromAccountNumber,
-      String toAccountNumber) {
+      String toAccountNumber,
+      Long requestingCustomerId) {
     return executor.submit(
         () -> {
           ready.countDown();
@@ -74,7 +87,8 @@ class ConcurrentBidirectionalTransferScenarioTest extends AbstractConcurrencyTes
               toAccountNumber,
               new BigDecimal("1000.00"),
               UUID.randomUUID().toString(),
-              null);
+              null,
+              requestingCustomerId);
         });
   }
 

@@ -45,10 +45,11 @@ public class TransferService {
       String toAccountNumber,
       BigDecimal amount,
       String idempotencyKey,
-      String memo) {
+      String memo,
+      Long requestingCustomerId) {
     Transaction existing = transactionRepository.findByIdempotencyKey(idempotencyKey).orElse(null);
     if (existing != null) {
-      return toResponse(existing, resolveFromBalance(existing));
+      return toResponse(existing, resolveFromBalance(existing, requestingCustomerId));
     }
 
     if (fromAccountNumber.equals(toAccountNumber)) {
@@ -61,6 +62,9 @@ public class TransferService {
     Account from = fromAccountNumber.equals(first.getAccountNumber()) ? first : second;
     Account to = fromAccountNumber.equals(first.getAccountNumber()) ? second : first;
 
+    if (!from.getCustomerId().equals(requestingCustomerId)) {
+      throw new AccountException(ErrorCode.COMMON_003_FORBIDDEN);
+    }
     if (from.getStatus() != AccountStatus.ACTIVE) {
       throw new AccountException(ErrorCode.ACC_009_ACCOUNT_STATUS_INVALID);
     }
@@ -90,7 +94,7 @@ public class TransferService {
           () -> {
             Transaction raced =
                 transactionRepository.findByIdempotencyKey(idempotencyKey).orElseThrow(() -> e);
-            return toResponse(raced, resolveFromBalance(raced));
+            return toResponse(raced, resolveFromBalance(raced, requestingCustomerId));
           });
     }
 
@@ -128,11 +132,15 @@ public class TransferService {
                     : new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
   }
 
-  private BigDecimal resolveFromBalance(Transaction transaction) {
-    return accountRepository
-        .findById(transaction.getFromAccountId())
-        .map(Account::getCurrentBalanceCache)
-        .orElseThrow(() -> new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
+  private BigDecimal resolveFromBalance(Transaction transaction, Long requestingCustomerId) {
+    Account account =
+        accountRepository
+            .findById(transaction.getFromAccountId())
+            .orElseThrow(() -> new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
+    if (!account.getCustomerId().equals(requestingCustomerId)) {
+      throw new AccountException(ErrorCode.COMMON_003_FORBIDDEN);
+    }
+    return account.getCurrentBalanceCache();
   }
 
   private TransferResponse toResponse(Transaction transaction, BigDecimal fromAccountBalanceAfter) {

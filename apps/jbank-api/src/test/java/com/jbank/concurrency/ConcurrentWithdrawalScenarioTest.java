@@ -46,7 +46,8 @@ class ConcurrentWithdrawalScenarioTest extends AbstractConcurrencyTest {
                               withdrawalService.withdraw(
                                   account.getAccountId(),
                                   new BigDecimal("10000.00"),
-                                  UUID.randomUUID().toString());
+                                  UUID.randomUUID().toString(),
+                                  account.getCustomerId());
                               successCount.incrementAndGet();
                             } catch (TransactionException e) {
                               if (e.getErrorCode() == ErrorCode.TXN_001_INSUFFICIENT_BALANCE) {

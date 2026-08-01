@@ -50,7 +50,7 @@ class AccountTransactionControllerTest {
 
   @Test
   void 유효한_요청이면_201과_입금결과를_반환한다() throws Exception {
-    given(depositService.deposit(eq(1L), any(), eq("idem-key-1")))
+    given(depositService.deposit(eq(1L), any(), eq("idem-key-1"), eq(1L)))
         .willReturn(
             new AccountTransactionResponse(
                 "10",
@@ -77,7 +77,7 @@ class AccountTransactionControllerTest {
 
   @Test
   void 출금_유효한_요청이면_201과_출금결과를_반환한다() throws Exception {
-    given(withdrawalService.withdraw(eq(1L), any(), eq("idem-key-3")))
+    given(withdrawalService.withdraw(eq(1L), any(), eq("idem-key-3"), eq(1L)))
         .willReturn(
             new AccountTransactionResponse(
                 "11",
@@ -104,7 +104,7 @@ class AccountTransactionControllerTest {
 
   @Test
   void 거래내역조회에_성공하면_200과_페이지결과를_반환한다() throws Exception {
-    given(transactionHistoryService.getHistory(eq(1L), isNull(), isNull(), isNull(), any()))
+    given(transactionHistoryService.getHistory(eq(1L), isNull(), isNull(), isNull(), any(), eq(1L)))
         .willReturn(
             new PageResponse<>(
                 List.of(

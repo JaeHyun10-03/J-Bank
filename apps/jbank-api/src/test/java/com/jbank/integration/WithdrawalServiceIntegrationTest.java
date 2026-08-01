@@ -74,7 +74,10 @@ class WithdrawalServiceIntegrationTest {
 
     AccountTransactionResponse response =
         withdrawalService.withdraw(
-            account.getAccountId(), new BigDecimal("300.00"), UUID.randomUUID().toString());
+            account.getAccountId(),
+            new BigDecimal("300.00"),
+            UUID.randomUUID().toString(),
+            account.getCustomerId());
 
     assertThat(response.balanceAfter()).isEqualByComparingTo("700.00");
     Account updated = accountRepository.findById(account.getAccountId()).orElseThrow();
@@ -90,7 +93,10 @@ class WithdrawalServiceIntegrationTest {
     assertThatThrownBy(
             () ->
                 withdrawalService.withdraw(
-                    account.getAccountId(), new BigDecimal("300.00"), UUID.randomUUID().toString()))
+                    account.getAccountId(),
+                    new BigDecimal("300.00"),
+                    UUID.randomUUID().toString(),
+                    account.getCustomerId()))
         .isInstanceOf(TransactionException.class)
         .satisfies(
             ex ->
@@ -106,12 +112,34 @@ class WithdrawalServiceIntegrationTest {
     assertThatThrownBy(
             () ->
                 withdrawalService.withdraw(
-                    account.getAccountId(), new BigDecimal("300.00"), UUID.randomUUID().toString()))
+                    account.getAccountId(),
+                    new BigDecimal("300.00"),
+                    UUID.randomUUID().toString(),
+                    account.getCustomerId()))
         .isInstanceOf(AccountException.class)
         .satisfies(
             ex ->
                 assertThat(((AccountException) ex).getErrorCode())
                     .isEqualTo(ErrorCode.ACC_009_ACCOUNT_STATUS_INVALID));
+  }
+
+  @Test
+  void 소유자가_아니면_출금을_거절한다() {
+    Account account = saveAccount(new BigDecimal("1000.00"), BigDecimal.ZERO, AccountStatus.ACTIVE);
+    Long strangerId = saveCustomer();
+
+    assertThatThrownBy(
+            () ->
+                withdrawalService.withdraw(
+                    account.getAccountId(),
+                    new BigDecimal("300.00"),
+                    UUID.randomUUID().toString(),
+                    strangerId))
+        .isInstanceOf(AccountException.class)
+        .satisfies(
+            ex ->
+                assertThat(((AccountException) ex).getErrorCode())
+                    .isEqualTo(ErrorCode.COMMON_003_FORBIDDEN));
   }
 
   private Account saveAccount(BigDecimal balance, BigDecimal holdAmount, AccountStatus status) {

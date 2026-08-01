@@ -1,5 +1,9 @@
 package com.jbank.transfer.service;
 
+import com.jbank.account.domain.Account;
+import com.jbank.account.domain.AccountException;
+import com.jbank.account.repository.AccountRepository;
+import com.jbank.global.exception.ErrorCode;
 import com.jbank.global.response.PageResponse;
 import com.jbank.transfer.domain.Transaction;
 import com.jbank.transfer.domain.TransactionType;
@@ -19,9 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class TransactionHistoryService {
 
+  private final AccountRepository accountRepository;
   private final TransactionRepository transactionRepository;
 
-  public TransactionHistoryService(TransactionRepository transactionRepository) {
+  public TransactionHistoryService(
+      AccountRepository accountRepository, TransactionRepository transactionRepository) {
+    this.accountRepository = accountRepository;
     this.transactionRepository = transactionRepository;
   }
 
@@ -31,7 +38,16 @@ public class TransactionHistoryService {
       TransactionHistoryFilter filter,
       OffsetDateTime from,
       OffsetDateTime to,
-      Pageable pageable) {
+      Pageable pageable,
+      Long requestingCustomerId) {
+    Account account =
+        accountRepository
+            .findById(accountId)
+            .orElseThrow(() -> new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
+    if (!account.getCustomerId().equals(requestingCustomerId)) {
+      throw new AccountException(ErrorCode.COMMON_003_FORBIDDEN);
+    }
+
     Page<Transaction> page =
         transactionRepository.findAll(buildSpecification(accountId, filter, from, to), pageable);
     return PageResponse.from(page.map(TransactionHistoryService::toSummary));

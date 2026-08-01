@@ -82,19 +82,26 @@ class TransactionHistoryServiceIntegrationTest {
     Account a = saveAccount(new BigDecimal("100000.00"));
     Account b = saveAccount(new BigDecimal("100000.00"));
     depositService.deposit(
-        a.getAccountId(), new BigDecimal("1000.00"), UUID.randomUUID().toString());
+        a.getAccountId(),
+        new BigDecimal("1000.00"),
+        UUID.randomUUID().toString(),
+        a.getCustomerId());
     withdrawalService.withdraw(
-        a.getAccountId(), new BigDecimal("500.00"), UUID.randomUUID().toString());
+        a.getAccountId(),
+        new BigDecimal("500.00"),
+        UUID.randomUUID().toString(),
+        a.getCustomerId());
     transferService.transfer(
         a.getAccountNumber(),
         b.getAccountNumber(),
         new BigDecimal("2000.00"),
         UUID.randomUUID().toString(),
-        null);
+        null,
+        a.getCustomerId());
 
     PageResponse<TransactionSummaryResponse> history =
         transactionHistoryService.getHistory(
-            a.getAccountId(), null, null, null, PageRequest.of(0, 20));
+            a.getAccountId(), null, null, null, PageRequest.of(0, 20), a.getCustomerId());
 
     assertThat(history.totalElements()).isEqualTo(3);
   }
@@ -103,13 +110,24 @@ class TransactionHistoryServiceIntegrationTest {
   void DEPOSIT_필터는_입금만_반환한다() {
     Account a = saveAccount(new BigDecimal("100000.00"));
     depositService.deposit(
-        a.getAccountId(), new BigDecimal("1000.00"), UUID.randomUUID().toString());
+        a.getAccountId(),
+        new BigDecimal("1000.00"),
+        UUID.randomUUID().toString(),
+        a.getCustomerId());
     withdrawalService.withdraw(
-        a.getAccountId(), new BigDecimal("500.00"), UUID.randomUUID().toString());
+        a.getAccountId(),
+        new BigDecimal("500.00"),
+        UUID.randomUUID().toString(),
+        a.getCustomerId());
 
     PageResponse<TransactionSummaryResponse> history =
         transactionHistoryService.getHistory(
-            a.getAccountId(), TransactionHistoryFilter.DEPOSIT, null, null, PageRequest.of(0, 20));
+            a.getAccountId(),
+            TransactionHistoryFilter.DEPOSIT,
+            null,
+            null,
+            PageRequest.of(0, 20),
+            a.getCustomerId());
 
     assertThat(history.totalElements()).isEqualTo(1);
     assertThat(history.content().get(0).type()).isEqualTo(TransactionType.DEPOSIT);
@@ -124,7 +142,8 @@ class TransactionHistoryServiceIntegrationTest {
         b.getAccountNumber(),
         new BigDecimal("2000.00"),
         UUID.randomUUID().toString(),
-        null);
+        null,
+        a.getCustomerId());
 
     PageResponse<TransactionSummaryResponse> aOut =
         transactionHistoryService.getHistory(
@@ -132,21 +151,24 @@ class TransactionHistoryServiceIntegrationTest {
             TransactionHistoryFilter.TRANSFER_OUT,
             null,
             null,
-            PageRequest.of(0, 20));
+            PageRequest.of(0, 20),
+            a.getCustomerId());
     PageResponse<TransactionSummaryResponse> aIn =
         transactionHistoryService.getHistory(
             a.getAccountId(),
             TransactionHistoryFilter.TRANSFER_IN,
             null,
             null,
-            PageRequest.of(0, 20));
+            PageRequest.of(0, 20),
+            a.getCustomerId());
     PageResponse<TransactionSummaryResponse> bIn =
         transactionHistoryService.getHistory(
             b.getAccountId(),
             TransactionHistoryFilter.TRANSFER_IN,
             null,
             null,
-            PageRequest.of(0, 20));
+            PageRequest.of(0, 20),
+            b.getCustomerId());
 
     assertThat(aOut.totalElements()).isEqualTo(1);
     assertThat(aIn.totalElements()).isEqualTo(0);

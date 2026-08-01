@@ -47,7 +47,8 @@ class ConcurrentIdempotencyKeyScenarioTest extends AbstractConcurrencyTest {
                             to.getAccountNumber(),
                             new BigDecimal("10000.00"),
                             idempotencyKey,
-                            null);
+                            null,
+                            from.getCustomerId());
                       })
               .map(executor::submit)
               .toList();

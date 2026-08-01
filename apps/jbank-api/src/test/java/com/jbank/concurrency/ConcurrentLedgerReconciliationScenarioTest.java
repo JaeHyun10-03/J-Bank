@@ -45,6 +45,7 @@ class ConcurrentLedgerReconciliationScenarioTest extends AbstractConcurrencyTest
                     } while (toIdx == fromIdx);
                     String fromAccountNumber = accounts.get(fromIdx).getAccountNumber();
                     String toAccountNumber = accounts.get(toIdx).getAccountNumber();
+                    Long fromCustomerId = accounts.get(fromIdx).getCustomerId();
                     return executor.submit(
                         () ->
                             transferService.transfer(
@@ -52,7 +53,8 @@ class ConcurrentLedgerReconciliationScenarioTest extends AbstractConcurrencyTest
                                 toAccountNumber,
                                 new BigDecimal("100.00"),
                                 UUID.randomUUID().toString(),
-                                null));
+                                null,
+                                fromCustomerId));
                   })
               .toList();
 
