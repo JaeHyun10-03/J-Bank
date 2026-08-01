@@ -26,7 +26,11 @@ public enum ErrorCode {
   TXN_001_INSUFFICIENT_BALANCE(HttpStatus.CONFLICT, "출금 가능 금액을 초과했습니다"),
   TXN_002_SAME_ACCOUNT_TRANSFER(HttpStatus.BAD_REQUEST, "출금계좌와 입금계좌가 동일합니다"),
   TXN_003_COUNTERPARTY_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "입금계좌 번호가 존재하지 않습니다"),
-  TXN_004_COUNTERPARTY_ACCOUNT_INVALID(HttpStatus.CONFLICT, "입금계좌가 정지 또는 해지 상태입니다");
+  TXN_004_COUNTERPARTY_ACCOUNT_INVALID(HttpStatus.CONFLICT, "입금계좌가 정지 또는 해지 상태입니다"),
+
+  AUTH_001_INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "로그인ID 또는 비밀번호가 일치하지 않습니다"),
+  AUTH_002_ACCOUNT_LOCKED(HttpStatus.LOCKED, "비밀번호 연속 실패로 계정이 잠겼습니다"),
+  AUTH_003_REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "갱신 쿠키가 만료, 위조 또는 이미 사용되어 폐기되었습니다");
 
   private final HttpStatus httpStatus;
   private final String message;
