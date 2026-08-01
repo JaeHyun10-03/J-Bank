@@ -30,7 +30,10 @@ public enum ErrorCode {
 
   AUTH_001_INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "로그인ID 또는 비밀번호가 일치하지 않습니다"),
   AUTH_002_ACCOUNT_LOCKED(HttpStatus.LOCKED, "비밀번호 연속 실패로 계정이 잠겼습니다"),
-  AUTH_003_REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "갱신 쿠키가 만료, 위조 또는 이미 사용되어 폐기되었습니다");
+  AUTH_003_REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "갱신 쿠키가 만료, 위조 또는 이미 사용되어 폐기되었습니다"),
+
+  PRD_001_MIN_AMOUNT_NOT_MET(HttpStatus.BAD_REQUEST, "최소 가입금액에 미달합니다"),
+  PRD_002_PRODUCT_NOT_AVAILABLE(HttpStatus.CONFLICT, "판매 중지된 상품입니다");
 
   private final HttpStatus httpStatus;
   private final String message;
