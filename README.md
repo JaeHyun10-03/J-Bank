@@ -178,10 +178,14 @@ stateDiagram-v2
 
 ```bash
 scripts/bootstrap.sh      # 도구 확인 + 의존성 설치 + 로컬 인프라 기동
-scripts/dev.sh core       # PostgreSQL 16 + Redis 7
+scripts/dev.sh core       # PostgreSQL 16 + Redis 7 (한 줄로 docker compose 기동)
 
 cd apps/jbank-api && ./gradlew bootRun --args='--spring.profiles.active=local'
 # http://localhost:8080/swagger-ui.html
+
+# 시연용 고객 2명·계좌 2개·상품 4종이 필요하면 seed 프로파일을 추가한다
+# (이미 데이터가 있으면 아무 것도 하지 않아 반복 실행해도 안전하다)
+cd apps/jbank-api && ./gradlew bootRun --args='--spring.profiles.active=local,seed'
 
 cd apps/frontend && npm run dev
 # http://localhost:3000
@@ -214,9 +218,9 @@ cd apps/frontend && npm run dev
 
 ## 진행 상황
 
-Phase 1(코어 도메인 확립) 1주차가 진행 중입니다. 공통 응답 포맷, 전역 예외 처리, 요청추적ID, 금액 직렬화, Springdoc 노출 등 공통 기반을 마쳤고, 계좌번호 체크디지트 검증기와 CDD/KYC 등급 산정 로직을 단위테스트와 함께 구현했습니다. 계좌·거래 도메인 엔티티와 API는 진행 중입니다.
+Phase 1(코어 도메인 확립)이 `v0.1.0`로 마감되었습니다. 계좌·원장·거래(입출금·이체) 코어와 동시성·멱등성 검증, JWT 쿠키 인증·CSRF 이중제출·로그인 잠금, 예적금 상품 가입 도메인까지 구현했고, 회원가입부터 상품가입까지 전체 흐름을 HTTP 통합 테스트로 검증합니다. 다음 단계는 감사 로그·이벤트 알림·배치 처리를 다루는 Phase 2(W4~W5)입니다.
 
-주차별 체크리스트는 [`todo/W1.md`](todo/W1.md), 작업 과정은 [`docs/devlog/`](docs/devlog/)에서 확인하실 수 있습니다.
+주차별 체크리스트는 [`todo/`](todo/), 작업 과정은 [`docs/devlog/`](docs/devlog/)에서 확인하실 수 있습니다.
 
 ## 문서
 
