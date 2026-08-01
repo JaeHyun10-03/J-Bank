@@ -18,6 +18,7 @@ import com.jbank.customer.dto.EddRegisterResponse;
 import com.jbank.customer.repository.CustomerRepository;
 import com.jbank.customer.repository.CustomerRiskAssessmentHistoryRepository;
 import com.jbank.customer.service.CustomerService;
+import com.jbank.global.config.PasswordEncoderConfig;
 import com.jbank.global.exception.ErrorCode;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -37,7 +38,12 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @DataJpaTest
 @Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import({PiiEncryptionKeyHolder.class, HmacKeyHolder.class, CustomerService.class})
+@Import({
+  PiiEncryptionKeyHolder.class,
+  HmacKeyHolder.class,
+  PasswordEncoderConfig.class,
+  CustomerService.class
+})
 class CustomerServiceIntegrationTest {
 
   @Container
@@ -57,8 +63,14 @@ class CustomerServiceIntegrationTest {
   @Autowired private CustomerRiskAssessmentHistoryRepository historyRepository;
 
   private static CustomerRegisterRequest newRequest(String residentRegNo) {
+    return newRequest(residentRegNo, "user-" + java.util.UUID.randomUUID());
+  }
+
+  private static CustomerRegisterRequest newRequest(String residentRegNo, String loginId) {
     return new CustomerRegisterRequest(
         "정민성",
+        loginId,
+        "password123!",
         residentRegNo,
         LocalDate.of(1990, 1, 1),
         "010-1234-5678",
@@ -102,6 +114,33 @@ class CustomerServiceIntegrationTest {
   }
 
   @Test
+  void 이미_사용중인_로그인ID로_등록하면_예외가_발생한다() {
+    // given
+    customerService.register(newRequest("900101-3333333", "dup-login-id"));
+
+    // when & then
+    assertThatThrownBy(() -> customerService.register(newRequest("900101-4444444", "dup-login-id")))
+        .isInstanceOf(CustomerException.class)
+        .satisfies(
+            ex ->
+                assertThat(((CustomerException) ex).getErrorCode())
+                    .isEqualTo(ErrorCode.ACC_011_DUPLICATE_LOGIN_ID));
+  }
+
+  @Test
+  void 등록된_비밀번호는_평문이_아니라_bcrypt_해시로_저장된다() {
+    // given
+    CustomerRegisterResponse response = customerService.register(newRequest("900101-5555555"));
+
+    // when
+    Customer saved = customerRepository.findById(Long.valueOf(response.customerId())).orElseThrow();
+
+    // then
+    assertThat(saved.getPasswordHash()).isNotEqualTo("password123!");
+    assertThat(saved.getPasswordHash()).startsWith("$2");
+  }
+
+  @Test
   void 고위험_고객이_EDD를_등록하면_이력이_추가되고_완료시각이_반환된다() {
     // given
     Long customerId = saveHighRiskCustomer();
@@ -137,6 +176,8 @@ class CustomerServiceIntegrationTest {
     Customer customer =
         new Customer(
             "정민성",
+            "user-" + System.nanoTime(),
+            "hash-" + System.nanoTime(),
             "900101-2222222",
             "hash-" + System.nanoTime(),
             LocalDate.of(1990, 1, 1),

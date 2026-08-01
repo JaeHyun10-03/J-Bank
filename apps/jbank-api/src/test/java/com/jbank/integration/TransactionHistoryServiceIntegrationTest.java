@@ -171,6 +171,8 @@ class TransactionHistoryServiceIntegrationTest {
     Customer customer =
         new Customer(
             "정민성",
+            "user-" + System.nanoTime(),
+            "hash-" + System.nanoTime(),
             "900101-1234567",
             "hash-" + System.nanoTime(),
             LocalDate.of(1990, 1, 1),

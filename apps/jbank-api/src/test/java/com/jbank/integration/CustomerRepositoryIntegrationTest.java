@@ -14,6 +14,7 @@ import com.jbank.customer.repository.CustomerRepository;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Base64;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -77,6 +78,8 @@ class CustomerRepositoryIntegrationTest {
   private static Customer newCustomer(String name, String residentRegNo, String residentRegNoHash) {
     return new Customer(
         name,
+        "user-" + UUID.randomUUID(),
+        "pwhash-" + UUID.randomUUID(),
         residentRegNo,
         residentRegNoHash,
         LocalDate.of(1990, 1, 1),

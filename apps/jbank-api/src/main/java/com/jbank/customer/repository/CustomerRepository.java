@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
   Optional<Customer> findByResidentRegNoHash(String residentRegNoHash);
+
+  Optional<Customer> findByLoginId(String loginId);
 }

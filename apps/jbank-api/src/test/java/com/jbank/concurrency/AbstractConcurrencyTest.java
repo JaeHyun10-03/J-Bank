@@ -96,6 +96,8 @@ abstract class AbstractConcurrencyTest {
     Customer customer =
         new Customer(
             "정민성",
+            "user-" + UUID.randomUUID(),
+            "pwhash-" + UUID.randomUUID(),
             "900101-1234567",
             "hash-" + UUID.randomUUID(),
             LocalDate.of(1990, 1, 1),

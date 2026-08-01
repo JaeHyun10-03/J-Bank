@@ -17,6 +17,7 @@ import com.jbank.customer.repository.CustomerRepository;
 import com.jbank.customer.repository.CustomerRiskAssessmentHistoryRepository;
 import com.jbank.global.exception.ErrorCode;
 import java.time.OffsetDateTime;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,12 +28,15 @@ public class CustomerService {
 
   private final CustomerRepository customerRepository;
   private final CustomerRiskAssessmentHistoryRepository historyRepository;
+  private final PasswordEncoder passwordEncoder;
 
   public CustomerService(
       CustomerRepository customerRepository,
-      CustomerRiskAssessmentHistoryRepository historyRepository) {
+      CustomerRiskAssessmentHistoryRepository historyRepository,
+      PasswordEncoder passwordEncoder) {
     this.customerRepository = customerRepository;
     this.historyRepository = historyRepository;
+    this.passwordEncoder = passwordEncoder;
   }
 
   @Transactional
@@ -40,6 +44,9 @@ public class CustomerService {
     String residentRegNoHash = ResidentRegNoHasher.hash(request.residentRegNo());
     if (customerRepository.findByResidentRegNoHash(residentRegNoHash).isPresent()) {
       throw new CustomerException(ErrorCode.ACC_001_DUPLICATE_RESIDENT_REG_NO);
+    }
+    if (customerRepository.findByLoginId(request.loginId()).isPresent()) {
+      throw new CustomerException(ErrorCode.ACC_011_DUPLICATE_LOGIN_ID);
     }
 
     // ponytail: 직업/거래목적 원문을 위험도로 분류하는 규칙표가 없어 항상 LOW로 넘긴다.
@@ -51,6 +58,8 @@ public class CustomerService {
     Customer customer =
         new Customer(
             request.name(),
+            request.loginId(),
+            passwordEncoder.encode(request.password()),
             request.residentRegNo(),
             residentRegNoHash,
             request.birthDate(),

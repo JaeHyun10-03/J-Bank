@@ -7,6 +7,8 @@ import java.time.LocalDate;
 
 public record CustomerRegisterRequest(
     @NotBlank String name,
+    @NotBlank String loginId,
+    @NotBlank String password,
     @NotBlank String residentRegNo,
     @NotNull LocalDate birthDate,
     @NotBlank String phone,

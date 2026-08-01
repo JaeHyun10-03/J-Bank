@@ -42,6 +42,8 @@ class CustomerControllerTest {
   private static CustomerRegisterRequest validRequest() {
     return new CustomerRegisterRequest(
         "정민성",
+        "jungminsung01",
+        "password123!",
         "900101-1234567",
         LocalDate.of(1990, 1, 1),
         "010-1234-5678",
@@ -78,6 +80,8 @@ class CustomerControllerTest {
     CustomerRegisterRequest invalid =
         new CustomerRegisterRequest(
             "",
+            "jungminsung01",
+            "password123!",
             "900101-1234567",
             LocalDate.of(1990, 1, 1),
             "010-1234-5678",

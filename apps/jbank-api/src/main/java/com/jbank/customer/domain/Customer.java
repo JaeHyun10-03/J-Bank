@@ -25,6 +25,12 @@ public class Customer {
   @Column(name = "name", nullable = false, length = 100)
   private String name;
 
+  @Column(name = "login_id", nullable = false, unique = true, length = 50)
+  private String loginId;
+
+  @Column(name = "password_hash", nullable = false, length = 255)
+  private String passwordHash;
+
   @Convert(converter = AesGcmAttributeConverter.class)
   @Column(name = "resident_reg_no_encrypted", nullable = false, length = 255)
   private String residentRegNo;
@@ -81,6 +87,8 @@ public class Customer {
 
   public Customer(
       String name,
+      String loginId,
+      String passwordHash,
       String residentRegNo,
       String residentRegNoHash,
       LocalDate birthDate,
@@ -95,6 +103,8 @@ public class Customer {
       String fundSource,
       CustomerStatus status) {
     this.name = name;
+    this.loginId = loginId;
+    this.passwordHash = passwordHash;
     this.residentRegNo = residentRegNo;
     this.residentRegNoHash = residentRegNoHash;
     this.birthDate = birthDate;
@@ -125,6 +135,14 @@ public class Customer {
 
   public String getName() {
     return name;
+  }
+
+  public String getLoginId() {
+    return loginId;
+  }
+
+  public String getPasswordHash() {
+    return passwordHash;
   }
 
   public String getResidentRegNo() {
