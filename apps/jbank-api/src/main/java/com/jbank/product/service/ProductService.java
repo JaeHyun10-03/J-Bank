@@ -11,6 +11,7 @@ import com.jbank.product.domain.Product;
 import com.jbank.product.domain.ProductContract;
 import com.jbank.product.domain.ProductException;
 import com.jbank.product.domain.ProductStatus;
+import com.jbank.product.dto.ContractSummaryResponse;
 import com.jbank.product.dto.ProductSubscribeRequest;
 import com.jbank.product.dto.ProductSubscribeResponse;
 import com.jbank.product.dto.ProductSummaryResponse;
@@ -84,6 +85,22 @@ public class ProductService {
 
     return new ProductSubscribeResponse(
         String.valueOf(contractId), productCode, subscribedAt, maturityAt);
+  }
+
+  @Transactional(readOnly = true)
+  public PageResponse<ContractSummaryResponse> listContracts(Long customerId, Pageable pageable) {
+    Page<ProductContract> page = productContractRepository.findByCustomerId(customerId, pageable);
+    return PageResponse.from(page.map(ProductService::toContractSummary));
+  }
+
+  private static ContractSummaryResponse toContractSummary(ProductContract contract) {
+    return new ContractSummaryResponse(
+        String.valueOf(contract.getContractId()),
+        contract.getProductCode(),
+        contract.getSubscriptionAmount(),
+        contract.getSubscribedAt(),
+        contract.getMaturityAt(),
+        contract.getStatus());
   }
 
   private static ProductSummaryResponse toSummary(Product product) {

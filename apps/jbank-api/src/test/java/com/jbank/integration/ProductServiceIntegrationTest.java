@@ -190,6 +190,26 @@ class ProductServiceIntegrationTest {
                     .isEqualTo(ErrorCode.ACC_009_ACCOUNT_STATUS_INVALID));
   }
 
+  @Test
+  void 고객별_가입계약을_조회한다() {
+    Product product = saveProduct("SAV-12M-006", 12, ProductStatus.ON_SALE);
+    Long customerId = saveCustomer();
+    Long otherCustomerId = saveCustomer();
+    Account account = saveAccount(customerId, AccountStatus.ACTIVE);
+    productService.subscribe(
+        product.getProductCode(),
+        new ProductSubscribeRequest(account.getAccountNumber(), new BigDecimal("100000.00")),
+        customerId);
+
+    PageResponse<com.jbank.product.dto.ContractSummaryResponse> response =
+        productService.listContracts(customerId, PageRequest.of(0, 20));
+
+    assertThat(response.totalElements()).isEqualTo(1);
+    assertThat(response.content().get(0).productCode()).isEqualTo(product.getProductCode());
+    assertThat(productService.listContracts(otherCustomerId, PageRequest.of(0, 20)).totalElements())
+        .isEqualTo(0);
+  }
+
   private Product saveProduct(String productCode, int contractPeriodMonths, ProductStatus status) {
     Product product =
         new Product(
