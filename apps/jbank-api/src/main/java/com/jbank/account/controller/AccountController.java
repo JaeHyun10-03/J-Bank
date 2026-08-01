@@ -8,9 +8,9 @@ import com.jbank.account.dto.AccountStatusChangeRequest;
 import com.jbank.account.dto.AccountStatusChangeResponse;
 import com.jbank.account.dto.BalanceResponse;
 import com.jbank.account.service.AccountService;
+import com.jbank.auth.config.CurrentCustomerId;
 import com.jbank.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "계좌", description = "계좌 개설·조회·상태변경·해지 API")
@@ -45,30 +44,30 @@ public class AccountController {
           """)
   @PostMapping
   public ResponseEntity<ApiResponse<AccountOpenResponse>> open(
-      @Valid @RequestBody AccountOpenRequest request) {
-    AccountOpenResponse response = accountService.open(request);
+      @Valid @RequestBody AccountOpenRequest request, @CurrentCustomerId Long customerId) {
+    AccountOpenResponse response = accountService.open(request, customerId);
     return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
   }
 
-  // ponytail: 세션 인증이 없어(W3 예정) 소유자 확인용 customerId를 쿼리 파라미터로 받는다.
-  @Operation(
-      summary = "계좌 상세조회",
-      description = "인증이 아직 없어 소유자 확인용 customerId를 쿼리 파라미터로 함께 보내야 합니다. 소유자가 아니면 403.")
+  @Operation(summary = "계좌 상세조회", description = "소유자가 아니면 403.")
   @GetMapping("/{accountId}")
   public ResponseEntity<ApiResponse<AccountDetailResponse>> getDetail(
-      @PathVariable Long accountId,
-      @Parameter(description = "임시 소유자 확인용 (W3에서 세션으로 대체 예정)") @RequestParam Long customerId) {
+      @PathVariable Long accountId, @CurrentCustomerId Long customerId) {
     AccountDetailResponse response = accountService.getDetail(accountId, customerId);
     return ResponseEntity.ok(ApiResponse.success(response));
   }
 
+  // ponytail: 운영자 계정·역할 모델이 아직 없어(구현계획 문서 어디에도 W3 범위로 명시되지
+  // 않음) 인증된 사용자면 누구나 호출 가능하다. 운영자 로그인이 생기면 hasRole('OPERATOR')로
+  // 좁힌다.
   @Operation(
       summary = "계좌 상태변경",
       description =
           """
           ACTIVE↔SUSPENDED, ACTIVE/SUSPENDED→DORMANT, DORMANT→ACTIVE만 허용합니다.
           CLOSED로의 전환은 이 API로 할 수 없습니다(해지 API를 쓰세요). 허용되지 않는
-          전이는 409(ACC_007)가 납니다.
+          전이는 409(ACC_007)가 납니다. 운영자 전용이지만 운영자 역할 모델이 아직 없어
+          인증된 사용자면 누구나 호출할 수 있습니다.
           """)
   @PatchMapping("/{accountId}/status")
   public ResponseEntity<ApiResponse<AccountStatusChangeResponse>> changeStatus(
@@ -81,17 +80,15 @@ public class AccountController {
       summary = "잔액 조회",
       description = "balance는 잔액, availableBalance는 잔액에서 지급정지금액을 뺀 출금 가능 금액입니다.")
   @GetMapping("/{accountId}/balance")
-  public ResponseEntity<ApiResponse<BalanceResponse>> getBalance(@PathVariable Long accountId) {
-    return ResponseEntity.ok(ApiResponse.success(accountService.getBalance(accountId)));
+  public ResponseEntity<ApiResponse<BalanceResponse>> getBalance(
+      @PathVariable Long accountId, @CurrentCustomerId Long customerId) {
+    return ResponseEntity.ok(ApiResponse.success(accountService.getBalance(accountId, customerId)));
   }
 
-  @Operation(
-      summary = "계좌 해지",
-      description = "잔액과 지급정지 금액이 모두 0원이어야 해지할 수 있습니다. 소유자 확인용 customerId가 필요합니다.")
+  @Operation(summary = "계좌 해지", description = "잔액과 지급정지 금액이 모두 0원이어야 해지할 수 있습니다.")
   @DeleteMapping("/{accountId}")
   public ResponseEntity<ApiResponse<AccountCloseResponse>> close(
-      @PathVariable Long accountId,
-      @Parameter(description = "임시 소유자 확인용 (W3에서 세션으로 대체 예정)") @RequestParam Long customerId) {
+      @PathVariable Long accountId, @CurrentCustomerId Long customerId) {
     AccountCloseResponse response = accountService.close(accountId, customerId);
     return ResponseEntity.ok(ApiResponse.success(response));
   }

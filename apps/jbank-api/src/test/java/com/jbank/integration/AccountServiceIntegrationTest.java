@@ -75,11 +75,10 @@ class AccountServiceIntegrationTest {
   void 정상_고객이면_잔액0원_계좌를_개설한다() {
     // given
     Long customerId = saveCustomer(KycGrade.GENERAL, RiskLevel.LOW, CustomerStatus.ACTIVE);
-    AccountOpenRequest request =
-        new AccountOpenRequest(String.valueOf(customerId), AccountType.CHECKING, BigDecimal.ZERO);
+    AccountOpenRequest request = new AccountOpenRequest(AccountType.CHECKING, BigDecimal.ZERO);
 
     // when
-    AccountOpenResponse response = accountService.open(request);
+    AccountOpenResponse response = accountService.open(request, customerId);
 
     // then
     assertThat(response.status()).isEqualTo(AccountStatus.ACTIVE);
@@ -91,11 +90,10 @@ class AccountServiceIntegrationTest {
     // given
     Long customerId = saveCustomer(KycGrade.GENERAL, RiskLevel.LOW, CustomerStatus.ACTIVE);
     AccountOpenRequest request =
-        new AccountOpenRequest(
-            String.valueOf(customerId), AccountType.CHECKING, new BigDecimal("1000"));
+        new AccountOpenRequest(AccountType.CHECKING, new BigDecimal("1000"));
 
     // when & then
-    assertThatThrownBy(() -> accountService.open(request))
+    assertThatThrownBy(() -> accountService.open(request, customerId))
         .isInstanceOf(AccountException.class)
         .satisfies(
             ex ->
@@ -107,11 +105,10 @@ class AccountServiceIntegrationTest {
   void EDD_대상_고객은_추가확인_전에는_계좌를_개설할_수_없다() {
     // given
     Long customerId = saveCustomer(KycGrade.EDD, RiskLevel.HIGH, CustomerStatus.ACTIVE);
-    AccountOpenRequest request =
-        new AccountOpenRequest(String.valueOf(customerId), AccountType.CHECKING, BigDecimal.ZERO);
+    AccountOpenRequest request = new AccountOpenRequest(AccountType.CHECKING, BigDecimal.ZERO);
 
     // when & then
-    assertThatThrownBy(() -> accountService.open(request))
+    assertThatThrownBy(() -> accountService.open(request, customerId))
         .isInstanceOf(AccountException.class)
         .satisfies(
             ex ->
@@ -123,11 +120,10 @@ class AccountServiceIntegrationTest {
   void 해지된_고객은_계좌를_개설할_수_없다() {
     // given
     Long customerId = saveCustomer(KycGrade.GENERAL, RiskLevel.LOW, CustomerStatus.CLOSED);
-    AccountOpenRequest request =
-        new AccountOpenRequest(String.valueOf(customerId), AccountType.CHECKING, BigDecimal.ZERO);
+    AccountOpenRequest request = new AccountOpenRequest(AccountType.CHECKING, BigDecimal.ZERO);
 
     // when & then
-    assertThatThrownBy(() -> accountService.open(request))
+    assertThatThrownBy(() -> accountService.open(request, customerId))
         .isInstanceOf(AccountException.class)
         .satisfies(
             ex ->
@@ -142,9 +138,7 @@ class AccountServiceIntegrationTest {
     Long accountId =
         Long.valueOf(
             accountService
-                .open(
-                    new AccountOpenRequest(
-                        String.valueOf(customerId), AccountType.CHECKING, BigDecimal.ZERO))
+                .open(new AccountOpenRequest(AccountType.CHECKING, BigDecimal.ZERO), customerId)
                 .accountId());
 
     // when
@@ -164,9 +158,7 @@ class AccountServiceIntegrationTest {
     Long accountId =
         Long.valueOf(
             accountService
-                .open(
-                    new AccountOpenRequest(
-                        String.valueOf(ownerId), AccountType.CHECKING, BigDecimal.ZERO))
+                .open(new AccountOpenRequest(AccountType.CHECKING, BigDecimal.ZERO), ownerId)
                 .accountId());
 
     // when & then
@@ -205,7 +197,7 @@ class AccountServiceIntegrationTest {
     Long accountId = accountRepository.saveAndFlush(account).getAccountId();
 
     // when
-    var response = accountService.getBalance(accountId);
+    var response = accountService.getBalance(accountId, customerId);
 
     // then
     assertThat(response.balance()).isEqualByComparingTo("10000.00");
@@ -220,9 +212,7 @@ class AccountServiceIntegrationTest {
     Long accountId =
         Long.valueOf(
             accountService
-                .open(
-                    new AccountOpenRequest(
-                        String.valueOf(customerId), AccountType.CHECKING, BigDecimal.ZERO))
+                .open(new AccountOpenRequest(AccountType.CHECKING, BigDecimal.ZERO), customerId)
                 .accountId());
 
     // when
@@ -244,9 +234,7 @@ class AccountServiceIntegrationTest {
     Long accountId =
         Long.valueOf(
             accountService
-                .open(
-                    new AccountOpenRequest(
-                        String.valueOf(customerId), AccountType.CHECKING, BigDecimal.ZERO))
+                .open(new AccountOpenRequest(AccountType.CHECKING, BigDecimal.ZERO), customerId)
                 .accountId());
 
     // when & then
@@ -268,9 +256,7 @@ class AccountServiceIntegrationTest {
     Long accountId =
         Long.valueOf(
             accountService
-                .open(
-                    new AccountOpenRequest(
-                        String.valueOf(customerId), AccountType.CHECKING, BigDecimal.ZERO))
+                .open(new AccountOpenRequest(AccountType.CHECKING, BigDecimal.ZERO), customerId)
                 .accountId());
 
     // when
@@ -309,10 +295,8 @@ class AccountServiceIntegrationTest {
   void 고객의_계좌목록을_페이지로_조회한다() {
     // given
     Long customerId = saveCustomer(KycGrade.GENERAL, RiskLevel.LOW, CustomerStatus.ACTIVE);
-    accountService.open(
-        new AccountOpenRequest(String.valueOf(customerId), AccountType.CHECKING, BigDecimal.ZERO));
-    accountService.open(
-        new AccountOpenRequest(String.valueOf(customerId), AccountType.CHECKING, BigDecimal.ZERO));
+    accountService.open(new AccountOpenRequest(AccountType.CHECKING, BigDecimal.ZERO), customerId);
+    accountService.open(new AccountOpenRequest(AccountType.CHECKING, BigDecimal.ZERO), customerId);
 
     // when
     PageResponse<CustomerAccountSummaryResponse> response =
@@ -331,16 +315,12 @@ class AccountServiceIntegrationTest {
     Long activeAccountId =
         Long.valueOf(
             accountService
-                .open(
-                    new AccountOpenRequest(
-                        String.valueOf(customerId), AccountType.CHECKING, BigDecimal.ZERO))
+                .open(new AccountOpenRequest(AccountType.CHECKING, BigDecimal.ZERO), customerId)
                 .accountId());
     Long toSuspendId =
         Long.valueOf(
             accountService
-                .open(
-                    new AccountOpenRequest(
-                        String.valueOf(customerId), AccountType.CHECKING, BigDecimal.ZERO))
+                .open(new AccountOpenRequest(AccountType.CHECKING, BigDecimal.ZERO), customerId)
                 .accountId());
     accountService.changeStatus(
         toSuspendId, new AccountStatusChangeRequest(AccountStatus.SUSPENDED, "테스트"));

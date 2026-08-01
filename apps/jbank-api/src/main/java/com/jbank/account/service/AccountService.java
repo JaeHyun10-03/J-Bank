@@ -47,8 +47,7 @@ public class AccountService {
   }
 
   @Transactional
-  public AccountOpenResponse open(AccountOpenRequest request) {
-    Long customerId = Long.valueOf(request.customerId());
+  public AccountOpenResponse open(AccountOpenRequest request, Long customerId) {
     Customer customer =
         customerRepository
             .findById(customerId)
@@ -150,11 +149,14 @@ public class AccountService {
 
   // 잔액의 진실은 원장 합산이고 이 값은 캐시일 뿐이다(FR-TXN-004). 정합성 검증은 W5 배치가 맡는다.
   @Transactional(readOnly = true)
-  public BalanceResponse getBalance(Long accountId) {
+  public BalanceResponse getBalance(Long accountId, Long requestingCustomerId) {
     Account account =
         accountRepository
             .findById(accountId)
             .orElseThrow(() -> new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
+    if (!account.getCustomerId().equals(requestingCustomerId)) {
+      throw new AccountException(ErrorCode.COMMON_003_FORBIDDEN);
+    }
     return new BalanceResponse(
         String.valueOf(account.getAccountId()),
         account.getCurrentBalanceCache(),

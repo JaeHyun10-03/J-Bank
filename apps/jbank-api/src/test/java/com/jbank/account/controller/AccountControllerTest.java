@@ -51,7 +51,7 @@ class AccountControllerTest {
   @Test
   void 유효한_요청이면_201과_개설결과를_반환한다() throws Exception {
     // given
-    given(accountService.open(any()))
+    given(accountService.open(any(), eq(1L)))
         .willReturn(
             new AccountOpenResponse(
                 "1", "110-000001-4", AccountStatus.ACTIVE, OffsetDateTime.now()));
@@ -63,7 +63,7 @@ class AccountControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     objectMapper.writeValueAsString(
-                        new AccountOpenRequest("1", AccountType.CHECKING, BigDecimal.ZERO)))
+                        new AccountOpenRequest(AccountType.CHECKING, BigDecimal.ZERO)))
                 .with(AuthPostProcessors.asCustomer(1L))
                 .with(AuthPostProcessors.csrf()))
         .andExpect(status().isCreated())
@@ -73,7 +73,7 @@ class AccountControllerTest {
   @Test
   void CDD_미완료면_403을_반환한다() throws Exception {
     // given
-    given(accountService.open(any()))
+    given(accountService.open(any(), eq(1L)))
         .willThrow(new AccountException(ErrorCode.ACC_005_CDD_NOT_COMPLETED));
 
     // when & then
@@ -83,7 +83,7 @@ class AccountControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     objectMapper.writeValueAsString(
-                        new AccountOpenRequest("1", AccountType.CHECKING, BigDecimal.ZERO)))
+                        new AccountOpenRequest(AccountType.CHECKING, BigDecimal.ZERO)))
                 .with(AuthPostProcessors.asCustomer(1L))
                 .with(AuthPostProcessors.csrf()))
         .andExpect(status().isForbidden())
@@ -106,10 +106,7 @@ class AccountControllerTest {
 
     // when & then
     mockMvc
-        .perform(
-            get("/api/v1/accounts/1")
-                .param("customerId", "1")
-                .with(AuthPostProcessors.asCustomer(1L)))
+        .perform(get("/api/v1/accounts/1").with(AuthPostProcessors.asCustomer(1L)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.data.accountNumber").value("110-000001-4"));
   }
@@ -122,10 +119,7 @@ class AccountControllerTest {
 
     // when & then
     mockMvc
-        .perform(
-            get("/api/v1/accounts/1")
-                .param("customerId", "2")
-                .with(AuthPostProcessors.asCustomer(1L)))
+        .perform(get("/api/v1/accounts/1").with(AuthPostProcessors.asCustomer(2L)))
         .andExpect(status().isForbidden())
         .andExpect(jsonPath("$.error.code").value("COMMON_003_FORBIDDEN"));
   }
@@ -133,7 +127,7 @@ class AccountControllerTest {
   @Test
   void 잔액조회에_성공하면_200과_잔액정보를_반환한다() throws Exception {
     // given
-    given(accountService.getBalance(eq(1L)))
+    given(accountService.getBalance(eq(1L), eq(1L)))
         .willReturn(
             new BalanceResponse(
                 "1",
@@ -200,7 +194,6 @@ class AccountControllerTest {
     mockMvc
         .perform(
             delete("/api/v1/accounts/1")
-                .param("customerId", "1")
                 .with(AuthPostProcessors.asCustomer(1L))
                 .with(AuthPostProcessors.csrf()))
         .andExpect(status().isOk())
@@ -217,7 +210,6 @@ class AccountControllerTest {
     mockMvc
         .perform(
             delete("/api/v1/accounts/1")
-                .param("customerId", "1")
                 .with(AuthPostProcessors.asCustomer(1L))
                 .with(AuthPostProcessors.csrf()))
         .andExpect(status().isConflict())
