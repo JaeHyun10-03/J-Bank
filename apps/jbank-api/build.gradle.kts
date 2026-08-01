@@ -28,6 +28,7 @@ extra["testcontainersVersion"] = "1.20.4"
 extra["archunitVersion"] = "1.3.0"
 extra["springdocVersion"] = "2.7.0"
 extra["redissonVersion"] = "3.41.0"
+extra["jjwtVersion"] = "0.12.6"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -41,6 +42,9 @@ dependencies {
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("org.redisson:redisson-spring-boot-starter:${property("redissonVersion")}")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${property("springdocVersion")}")
+    implementation("io.jsonwebtoken:jjwt-api:${property("jjwtVersion")}")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:${property("jjwtVersion")}")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:${property("jjwtVersion")}")
 
     runtimeOnly("org.postgresql:postgresql")
 
@@ -49,6 +53,7 @@ dependencies {
     testImplementation("org.springframework.batch:spring-batch-test")
     testImplementation("org.springframework.kafka:spring-kafka-test")
     testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:testcontainers")
     testImplementation("org.testcontainers:postgresql")
     testImplementation("org.testcontainers:kafka")
     testImplementation("com.tngtech.archunit:archunit-junit5:${property("archunitVersion")}")
