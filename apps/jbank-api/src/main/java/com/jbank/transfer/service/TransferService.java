@@ -4,6 +4,7 @@ import com.jbank.account.domain.Account;
 import com.jbank.account.domain.AccountException;
 import com.jbank.account.domain.AccountStatus;
 import com.jbank.account.repository.AccountRepository;
+import com.jbank.common.event.TransferCompletedEvent;
 import com.jbank.global.exception.ErrorCode;
 import com.jbank.ledger.domain.EntryType;
 import com.jbank.ledger.domain.LedgerEntry;
@@ -16,6 +17,7 @@ import com.jbank.transfer.repository.TransactionRepository;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,16 +29,19 @@ public class TransferService {
   private final TransactionRepository transactionRepository;
   private final LedgerEntryRepository ledgerEntryRepository;
   private final IdempotencyRecovery idempotencyRecovery;
+  private final ApplicationEventPublisher eventPublisher;
 
   public TransferService(
       AccountRepository accountRepository,
       TransactionRepository transactionRepository,
       LedgerEntryRepository ledgerEntryRepository,
-      IdempotencyRecovery idempotencyRecovery) {
+      IdempotencyRecovery idempotencyRecovery,
+      ApplicationEventPublisher eventPublisher) {
     this.accountRepository = accountRepository;
     this.transactionRepository = transactionRepository;
     this.ledgerEntryRepository = ledgerEntryRepository;
     this.idempotencyRecovery = idempotencyRecovery;
+    this.eventPublisher = eventPublisher;
   }
 
   @Transactional
@@ -118,6 +123,13 @@ public class TransferService {
             to.getCurrentBalanceCache(),
             occurredAt));
     transaction.complete(occurredAt);
+    eventPublisher.publishEvent(
+        new TransferCompletedEvent(
+            transaction.getTransactionId(),
+            from.getAccountId(),
+            to.getAccountId(),
+            amount,
+            occurredAt));
 
     return toResponse(transaction, from.getCurrentBalanceCache());
   }
