@@ -1,6 +1,7 @@
 package com.jbank.customer.service;
 
 import com.jbank.common.crypto.ResidentRegNoHasher;
+import com.jbank.common.event.CustomerGradeChangedEvent;
 import com.jbank.customer.domain.CddAssessmentResult;
 import com.jbank.customer.domain.CddGradeCalculator;
 import com.jbank.customer.domain.Customer;
@@ -17,6 +18,7 @@ import com.jbank.customer.repository.CustomerRepository;
 import com.jbank.customer.repository.CustomerRiskAssessmentHistoryRepository;
 import com.jbank.global.exception.ErrorCode;
 import java.time.OffsetDateTime;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,14 +31,17 @@ public class CustomerService {
   private final CustomerRepository customerRepository;
   private final CustomerRiskAssessmentHistoryRepository historyRepository;
   private final PasswordEncoder passwordEncoder;
+  private final ApplicationEventPublisher eventPublisher;
 
   public CustomerService(
       CustomerRepository customerRepository,
       CustomerRiskAssessmentHistoryRepository historyRepository,
-      PasswordEncoder passwordEncoder) {
+      PasswordEncoder passwordEncoder,
+      ApplicationEventPublisher eventPublisher) {
     this.customerRepository = customerRepository;
     this.historyRepository = historyRepository;
     this.passwordEncoder = passwordEncoder;
+    this.eventPublisher = eventPublisher;
   }
 
   @Transactional
@@ -77,7 +82,8 @@ public class CustomerService {
     Long customerId = customer.getCustomerId();
 
     recordRiskAssessment(
-        customer, request.transactionPurpose(), request.fundSource(), ASSESSED_BY_SYSTEM);
+        customer, null, null, request.transactionPurpose(), request.fundSource(),
+        ASSESSED_BY_SYSTEM);
 
     return new CustomerRegisterResponse(
         String.valueOf(customerId),
@@ -99,18 +105,32 @@ public class CustomerService {
       throw new CustomerException(ErrorCode.ACC_004_CUSTOMER_NOT_HIGH_RISK);
     }
 
+    KycGrade previousKycGrade = customer.getKycGrade();
+    RiskLevel previousAmlRiskLevel = customer.getAmlRiskLevel();
     customer.recordEddConfirmation(request.transactionPurpose(), request.fundSource());
 
     OffsetDateTime completedAt = OffsetDateTime.now();
-    recordRiskAssessment(customer, request.transactionPurpose(), request.fundSource(), "OPERATOR");
+    recordRiskAssessment(
+        customer,
+        previousKycGrade,
+        previousAmlRiskLevel,
+        request.transactionPurpose(),
+        request.fundSource(),
+        "OPERATOR");
 
     return new EddRegisterResponse(
         String.valueOf(customerId), customer.getAmlRiskLevel(), completedAt);
   }
 
   // 등급을 바꾸는 모든 경로가 이 메서드 하나를 거치도록 모아, 이력 누락 없이 스냅샷을 남긴다.
+  // previousKycGrade가 null이면 최초 등록(변경이 아님)이라 이벤트를 발행하지 않는다.
   private void recordRiskAssessment(
-      Customer customer, String transactionPurpose, String fundSource, String assessedBy) {
+      Customer customer,
+      KycGrade previousKycGrade,
+      RiskLevel previousAmlRiskLevel,
+      String transactionPurpose,
+      String fundSource,
+      String assessedBy) {
     historyRepository.save(
         new CustomerRiskAssessmentHistory(
             customer.getCustomerId(),
@@ -119,5 +139,19 @@ public class CustomerService {
             transactionPurpose,
             fundSource,
             assessedBy));
+
+    if (previousKycGrade != null
+        && (previousKycGrade != customer.getKycGrade()
+            || previousAmlRiskLevel != customer.getAmlRiskLevel())) {
+      eventPublisher.publishEvent(
+          new CustomerGradeChangedEvent(
+              customer.getCustomerId(),
+              previousKycGrade.name(),
+              customer.getKycGrade().name(),
+              previousAmlRiskLevel.name(),
+              customer.getAmlRiskLevel().name(),
+              assessedBy,
+              OffsetDateTime.now()));
+    }
   }
 }
