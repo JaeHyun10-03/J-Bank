@@ -27,10 +27,14 @@ import com.jbank.customer.domain.RiskLevel;
 import com.jbank.customer.repository.CustomerRepository;
 import com.jbank.global.exception.ErrorCode;
 import com.jbank.global.response.PageResponse;
+import com.jbank.support.audit.AuditLogListener;
+import com.jbank.support.audit.domain.AuditLog;
+import com.jbank.support.audit.repository.AuditLogRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Base64;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -50,7 +54,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
   PiiEncryptionKeyHolder.class,
   HmacKeyHolder.class,
   AccountNumberGenerator.class,
-  AccountService.class
+  AccountService.class,
+  AuditLogListener.class
 })
 class AccountServiceIntegrationTest {
 
@@ -70,6 +75,7 @@ class AccountServiceIntegrationTest {
   @Autowired private AccountRepository accountRepository;
   @Autowired private AccountService accountService;
   @Autowired private AccountNumberGenerator accountNumberGenerator;
+  @Autowired private AuditLogRepository auditLogRepository;
 
   @Test
   void 정상_고객이면_잔액0원_계좌를_개설한다() {
@@ -225,6 +231,8 @@ class AccountServiceIntegrationTest {
     assertThat(response.status()).isEqualTo(AccountStatus.SUSPENDED);
     assertThat(accountService.getDetail(accountId, customerId).status())
         .isEqualTo(AccountStatus.SUSPENDED);
+    assertThat(auditLogsFor(accountId))
+        .anySatisfy(log -> assertThat(log.getEventType()).isEqualTo("ACCOUNT_STATUS_CHANGED"));
   }
 
   @Test
@@ -265,6 +273,8 @@ class AccountServiceIntegrationTest {
     // then
     assertThat(response.status()).isEqualTo(AccountStatus.CLOSED);
     assertThat(response.closedAt()).isNotNull();
+    assertThat(auditLogsFor(accountId))
+        .anySatisfy(log -> assertThat(log.getEventType()).isEqualTo("ACCOUNT_STATUS_CHANGED"));
   }
 
   @Test
@@ -355,5 +365,11 @@ class AccountServiceIntegrationTest {
             null,
             status);
     return customerRepository.saveAndFlush(customer).getCustomerId();
+  }
+
+  private List<AuditLog> auditLogsFor(Long accountId) {
+    return auditLogRepository.findAll().stream()
+        .filter(log -> log.getTargetId().equals(String.valueOf(accountId)))
+        .toList();
   }
 }
