@@ -73,16 +73,11 @@ public class CustomerService {
             request.transactionPurpose(),
             request.fundSource(),
             CustomerStatus.ACTIVE);
-    Long customerId = customerRepository.save(customer).getCustomerId();
+    customer = customerRepository.save(customer);
+    Long customerId = customer.getCustomerId();
 
-    historyRepository.save(
-        new CustomerRiskAssessmentHistory(
-            customerId,
-            assessment.kycGrade(),
-            assessment.amlRiskLevel(),
-            request.transactionPurpose(),
-            request.fundSource(),
-            ASSESSED_BY_SYSTEM));
+    recordRiskAssessment(
+        customer, request.transactionPurpose(), request.fundSource(), ASSESSED_BY_SYSTEM);
 
     return new CustomerRegisterResponse(
         String.valueOf(customerId),
@@ -107,16 +102,22 @@ public class CustomerService {
     customer.recordEddConfirmation(request.transactionPurpose(), request.fundSource());
 
     OffsetDateTime completedAt = OffsetDateTime.now();
-    historyRepository.save(
-        new CustomerRiskAssessmentHistory(
-            customerId,
-            customer.getKycGrade(),
-            customer.getAmlRiskLevel(),
-            request.transactionPurpose(),
-            request.fundSource(),
-            "OPERATOR"));
+    recordRiskAssessment(customer, request.transactionPurpose(), request.fundSource(), "OPERATOR");
 
     return new EddRegisterResponse(
         String.valueOf(customerId), customer.getAmlRiskLevel(), completedAt);
+  }
+
+  // 등급을 바꾸는 모든 경로가 이 메서드 하나를 거치도록 모아, 이력 누락 없이 스냅샷을 남긴다.
+  private void recordRiskAssessment(
+      Customer customer, String transactionPurpose, String fundSource, String assessedBy) {
+    historyRepository.save(
+        new CustomerRiskAssessmentHistory(
+            customer.getCustomerId(),
+            customer.getKycGrade(),
+            customer.getAmlRiskLevel(),
+            transactionPurpose,
+            fundSource,
+            assessedBy));
   }
 }
