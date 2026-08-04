@@ -124,7 +124,8 @@ public class CustomerService {
 
   // 등급을 바꾸는 모든 경로가 이 메서드 하나를 거치도록 모아, 이력 누락 없이 스냅샷을 남긴다.
   // previousKycGrade가 null이면 최초 등록(변경이 아님)이라 이벤트를 발행하지 않는다.
-  private void recordRiskAssessment(
+  // 테스트에서 변경 전/후 비교 분기를 직접 검증할 수 있도록 package-private으로 둔다.
+  void recordRiskAssessment(
       Customer customer,
       KycGrade previousKycGrade,
       RiskLevel previousAmlRiskLevel,
