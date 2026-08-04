@@ -13,6 +13,7 @@ import com.jbank.account.dto.AccountStatusChangeResponse;
 import com.jbank.account.dto.BalanceResponse;
 import com.jbank.account.dto.CustomerAccountSummaryResponse;
 import com.jbank.account.repository.AccountRepository;
+import com.jbank.common.event.AccountStatusChangedEvent;
 import com.jbank.customer.domain.Customer;
 import com.jbank.customer.domain.CustomerStatus;
 import com.jbank.customer.domain.KycGrade;
@@ -22,6 +23,7 @@ import com.jbank.global.exception.ErrorCode;
 import com.jbank.global.response.PageResponse;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -34,16 +36,19 @@ public class AccountService {
   private final CustomerRepository customerRepository;
   private final CustomerRiskAssessmentHistoryRepository historyRepository;
   private final AccountNumberGenerator accountNumberGenerator;
+  private final ApplicationEventPublisher eventPublisher;
 
   public AccountService(
       AccountRepository accountRepository,
       CustomerRepository customerRepository,
       CustomerRiskAssessmentHistoryRepository historyRepository,
-      AccountNumberGenerator accountNumberGenerator) {
+      AccountNumberGenerator accountNumberGenerator,
+      ApplicationEventPublisher eventPublisher) {
     this.accountRepository = accountRepository;
     this.customerRepository = customerRepository;
     this.historyRepository = historyRepository;
     this.accountNumberGenerator = accountNumberGenerator;
+    this.eventPublisher = eventPublisher;
   }
 
   @Transactional
@@ -117,6 +122,9 @@ public class AccountService {
       throw new AccountException(ErrorCode.ACC_007_INVALID_STATUS_TRANSITION);
     }
     account.changeStatus(request.targetStatus());
+    eventPublisher.publishEvent(
+        new AccountStatusChangedEvent(
+            accountId, previousStatus.name(), request.targetStatus().name(), OffsetDateTime.now()));
 
     return new AccountStatusChangeResponse(
         String.valueOf(accountId), previousStatus, request.targetStatus());
@@ -142,7 +150,14 @@ public class AccountService {
       throw new AccountException(ErrorCode.ACC_010_HOLD_AMOUNT_REMAINS);
     }
 
+    AccountStatus previousStatus = account.getStatus();
     account.close();
+    eventPublisher.publishEvent(
+        new AccountStatusChangedEvent(
+            accountId,
+            previousStatus.name(),
+            account.getStatus().name(),
+            OffsetDateTime.now()));
     return new AccountCloseResponse(
         String.valueOf(accountId), account.getStatus(), account.getClosedAt());
   }
