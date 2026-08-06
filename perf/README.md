@@ -47,3 +47,30 @@
 NFR-PERF-001 기준(200ms, 초당 100건)을 큰 여유로 통과했다. 인덱스도 캐시도 없는 초기
 구현치고 이미 여유가 큰 이유는 계좌 2개, 거래내역 0건인 최소 데이터 규모 때문이다. 이후
 주차에 데이터 건수를 늘려가며 같은 조건으로 재측정해야 실제 병목이 드러난다.
+
+## W4 거래내역 조회 EXPLAIN 벤치마크 (실행 대기)
+
+구현계획 문서 182행: 거래내역 조회(API-010)에 10만 건을 채운 뒤, 인덱스를 걸기
+전 상태의 응답 시간과 실행 계획을 W6 최적화 근거로 기록만 해둔다. 이 세션은
+로컬에 Postgres가 없어 아래 절차만 준비하고 실행·기록은 다음에 로컬에서 한다.
+
+### 실행 절차
+
+1. 로컬 인프라 core 프로파일 기동, 백엔드 기동(위 실행 방법과 동일)
+2. `psql "$DATABASE_URL" -f perf/sql/seed-100k-transactions.sql` — 트랜잭션 10만 건 적재
+   (계좌는 `SeedDataRunner`가 만든 2개를 그대로 씀)
+3. 응답 시간: `curl -w '%{time_total}\n' -o /dev/null -s -H "Cookie: ..." \
+   'http://localhost:8080/api/v1/accounts/{accountId}/transactions?page=0&size=20'` 반복 실행
+4. 실행 계획: `psql`에서 아래 EXPLAIN ANALYZE 실행 후 결과를 이 파일에 붙여넣는다.
+
+```sql
+EXPLAIN ANALYZE
+SELECT *
+FROM transactions
+WHERE from_account_id = :accountId OR to_account_id = :accountId
+ORDER BY transaction_id DESC
+LIMIT 20;
+```
+
+인덱스 없는 상태이므로 Seq Scan이 나오는 게 기대값이다. 실제 반영은 W6에서
+측정치와 함께 인덱스를 설계한다.
