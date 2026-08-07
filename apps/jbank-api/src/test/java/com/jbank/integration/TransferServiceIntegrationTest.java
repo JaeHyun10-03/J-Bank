@@ -20,6 +20,9 @@ import com.jbank.global.exception.ErrorCode;
 import com.jbank.ledger.repository.LedgerEntryRepository;
 import com.jbank.support.audit.AuditLogListener;
 import com.jbank.support.audit.repository.AuditLogRepository;
+import com.jbank.support.outbox.OutboxEventListener;
+import com.jbank.support.outbox.domain.OutboxEventStatus;
+import com.jbank.support.outbox.repository.OutboxEventRepository;
 import com.jbank.transfer.domain.TransactionException;
 import com.jbank.transfer.domain.TransactionStatus;
 import com.jbank.transfer.dto.TransferResponse;
@@ -50,7 +53,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
   HmacKeyHolder.class,
   IdempotencyRecovery.class,
   TransferService.class,
-  AuditLogListener.class
+  AuditLogListener.class,
+  OutboxEventListener.class
 })
 class TransferServiceIntegrationTest {
 
@@ -72,6 +76,7 @@ class TransferServiceIntegrationTest {
   @Autowired private LedgerEntryRepository ledgerEntryRepository;
   @Autowired private TransferService transferService;
   @Autowired private AuditLogRepository auditLogRepository;
+  @Autowired private OutboxEventRepository outboxEventRepository;
 
   @Test
   void 정상_이체는_잔액을_옮기고_원장_두_건을_남긴다() {
@@ -100,6 +105,14 @@ class TransferServiceIntegrationTest {
             log -> {
               assertThat(log.getEventType()).isEqualTo("TRANSFER_COMPLETED");
               assertThat(log.getTargetId()).isEqualTo(String.valueOf(response.transactionId()));
+            });
+    assertThat(outboxEventRepository.findAll())
+        .anySatisfy(
+            outboxEvent -> {
+              assertThat(outboxEvent.getEventType()).isEqualTo("TRANSFER_COMPLETED");
+              assertThat(outboxEvent.getAggregateId())
+                  .isEqualTo(String.valueOf(response.transactionId()));
+              assertThat(outboxEvent.getStatus()).isEqualTo(OutboxEventStatus.PENDING);
             });
   }
 
