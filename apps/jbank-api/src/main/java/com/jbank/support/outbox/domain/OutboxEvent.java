@@ -68,6 +68,20 @@ public class OutboxEvent {
     this.occurredAt = occurredAt;
   }
 
+  public void markPublished(OffsetDateTime publishedAt) {
+    this.status = OutboxEventStatus.PUBLISHED;
+    this.publishedAt = publishedAt;
+  }
+
+  // ponytail: 발행 실패는 PENDING을 유지해 다음 폴링 주기에 재시도한다(최소 한 번 전달 보장).
+  // 재시도 상한을 넘겨 FAILED로 terminate하는 로직은 아직 없음 — 필요해지면 추가.
+  public void markFailed(String errorMessage) {
+    this.retryCount++;
+    this.lastError = errorMessage != null && errorMessage.length() > 500
+        ? errorMessage.substring(0, 500)
+        : errorMessage;
+  }
+
   public Long getEventId() {
     return eventId;
   }
