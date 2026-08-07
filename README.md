@@ -179,6 +179,7 @@ stateDiagram-v2
 ```bash
 scripts/bootstrap.sh      # 도구 확인 + 의존성 설치 + 로컬 인프라 기동
 scripts/dev.sh core       # PostgreSQL 16 + Redis 7 (한 줄로 docker compose 기동)
+scripts/dev.sh core messaging   # 위 두 개 + Kafka (발신함 폴링 발행기 구동에 필요)
 
 cd apps/jbank-api && ./gradlew bootRun --args='--spring.profiles.active=local'
 # http://localhost:8080/swagger-ui.html
