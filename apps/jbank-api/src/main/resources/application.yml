@@ -22,6 +22,11 @@ jbank:
     topic: jbank.events
     poll-interval-ms: 1000
     batch-size: 100
+  kafka:
+    consumer:
+      retry:
+        max-attempts: 3
+        backoff-ms: 1000
 
 management:
   endpoints:
