@@ -7,6 +7,7 @@ import com.jbank.support.outbox.domain.OutboxEventStatus;
 import com.jbank.support.outbox.repository.OutboxEventRepository;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +61,13 @@ public class OutboxPublisher {
   @Transactional
   void publishOne(OutboxEvent event) {
     try {
-      String payload = objectMapper.writeValueAsString(event.getPayload());
+      Map<String, Object> envelope =
+          Map.of(
+              "eventType", event.getEventType(),
+              "aggregateType", event.getAggregateType(),
+              "aggregateId", event.getAggregateId(),
+              "data", event.getPayload());
+      String payload = objectMapper.writeValueAsString(envelope);
       kafkaTemplate
           .send(topic, event.getAggregateId(), payload)
           .get(SEND_TIMEOUT_SECONDS, TimeUnit.SECONDS);

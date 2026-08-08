@@ -7,6 +7,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jbank.support.outbox.domain.OutboxEvent;
 import com.jbank.support.outbox.domain.OutboxEventStatus;
@@ -17,6 +18,7 @@ import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -47,6 +49,22 @@ class OutboxPublisherTest {
 
     assertThat(event.getStatus()).isEqualTo(OutboxEventStatus.PUBLISHED);
     verify(outboxEventRepository).save(event);
+  }
+
+  @Test
+  void 발행_메시지는_eventType을_포함한_envelope이다() throws Exception {
+    OutboxEvent event = newEvent();
+    given(kafkaTemplate.send(eq("jbank.events"), eq("1"), anyString()))
+        .willReturn(CompletableFuture.completedFuture(mock(SendResult.class)));
+    ArgumentCaptor<String> payloadCaptor = ArgumentCaptor.forClass(String.class);
+
+    outboxPublisher.publishOne(event);
+
+    verify(kafkaTemplate).send(eq("jbank.events"), eq("1"), payloadCaptor.capture());
+    JsonNode envelope = new ObjectMapper().readTree(payloadCaptor.getValue());
+    assertThat(envelope.get("eventType").asText()).isEqualTo("TRANSFER_COMPLETED");
+    assertThat(envelope.get("aggregateType").asText()).isEqualTo("TRANSACTION");
+    assertThat(envelope.get("data").get("amount").asText()).isEqualTo("1000");
   }
 
   @Test
