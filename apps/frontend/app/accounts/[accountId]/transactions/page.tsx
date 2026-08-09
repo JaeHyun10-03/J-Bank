@@ -99,7 +99,11 @@ export default function TransactionsPage() {
           <FieldLabel>거래유형</FieldLabel>
           <Select value={type} onValueChange={(value) => setType(value as string)}>
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue>
+                {(value: string) =>
+                  TYPE_OPTIONS.find((option) => option.value === value)?.label ?? value
+                }
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {TYPE_OPTIONS.map((option) => (
