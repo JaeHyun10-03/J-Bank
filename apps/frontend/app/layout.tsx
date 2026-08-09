@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Gothic_A1 } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { Providers } from "@/components/providers";
 
 const gothicA1 = Gothic_A1({
   subsets: ["latin"],
@@ -21,7 +22,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={cn("font-sans", gothicA1.variable)}>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
