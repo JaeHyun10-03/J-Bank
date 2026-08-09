@@ -57,9 +57,11 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const config = error.config as RetryableConfig | undefined;
-    const isRefreshCall = config?.url === "/auth/refresh";
+    // 로그인 자체가 401이면 자격증명이 틀린 것이지 인증 쿠키 만료가 아니다 — 재발급을
+    // 시도하면 안 되고, 호출한 화면이 AUTH_001/AUTH_002로 직접 처리하게 그대로 흘려보낸다.
+    const skipRefresh = config?.url === "/auth/refresh" || config?.url === "/auth/login";
 
-    if (error.response?.status !== 401 || !config || config._retried || isRefreshCall) {
+    if (error.response?.status !== 401 || !config || config._retried || skipRefresh) {
       return Promise.reject(error);
     }
 

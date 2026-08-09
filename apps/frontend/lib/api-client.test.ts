@@ -48,3 +48,29 @@ describe("apiClient 요청 인터셉터", () => {
     expect(config.headers.get("X-CSRF-TOKEN")).toBe("test-csrf-value");
   });
 });
+
+describe("apiClient 응답 인터셉터", () => {
+  it("로그인 자체가 401이면 재발급을 시도하지 않고 그대로 흘려보낸다", async () => {
+    const calledUrls: string[] = [];
+    apiClient.defaults.adapter = async (config: InternalAxiosRequestConfig) => {
+      calledUrls.push(config.url ?? "");
+      const error = Object.assign(new Error("Request failed with status code 401"), {
+        isAxiosError: true,
+        config,
+        response: {
+          data: { success: false, error: { code: "AUTH_001_INVALID_CREDENTIALS" } },
+          status: 401,
+          statusText: "Unauthorized",
+          headers: {},
+          config,
+        },
+      });
+      throw error;
+    };
+
+    await expect(apiClient.post("/auth/login", {})).rejects.toMatchObject({
+      response: { status: 401 },
+    });
+    expect(calledUrls).toEqual(["/auth/login"]);
+  });
+});
