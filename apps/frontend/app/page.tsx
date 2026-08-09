@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
 import { useAuthStore } from "@/lib/auth-store";
-import { formatWon } from "@/lib/format";
+import { formatWon, isPositiveAmount } from "@/lib/format";
 import type { components } from "@/types/api";
 import { AppHeader } from "@/components/app-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -60,7 +60,7 @@ export default function HomePage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-lg font-semibold">{formatWon(account.balance)}</p>
-                  {account.holdAmount ? (
+                  {isPositiveAmount(account.holdAmount) ? (
                     <p className="text-xs text-muted-foreground">
                       출금 가능 {formatWon(account.availableBalance)} (지급정지{" "}
                       {formatWon(account.holdAmount)})

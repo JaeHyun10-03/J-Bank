@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
 import { getApiError } from "@/lib/api-error";
-import { formatWon, formatDateTime } from "@/lib/format";
+import { formatWon, formatDateTime, isPositiveAmount } from "@/lib/format";
 import type { components } from "@/types/api";
 import { AppHeader } from "@/components/app-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -74,7 +74,7 @@ export default function AccountDetailPage() {
           <CardContent className="flex flex-col gap-4">
             <div>
               <p className="text-2xl font-semibold">{formatWon(balanceQuery.data?.balance)}</p>
-              {balanceQuery.data?.holdAmount ? (
+              {isPositiveAmount(balanceQuery.data?.holdAmount) ? (
                 <p className="text-sm text-muted-foreground">
                   출금 가능 {formatWon(balanceQuery.data?.availableBalance)} (지급정지{" "}
                   {formatWon(balanceQuery.data?.holdAmount)})
