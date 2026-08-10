@@ -8,6 +8,7 @@ import { maskSsnBack } from "@/lib/resident-reg-no";
 import { formatPhoneNumber } from "@/lib/format";
 
 const OTP_SECONDS = 7 * 60 - 4; // 06:56, 피그마 타이머 표기와 동일한 시작값
+const RESEND_COOLDOWN_SECONDS = 10;
 
 function formatTimer(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -20,6 +21,7 @@ export default function SignupOtpPage() {
   const { name, ssnFront, ssnBack, carrier, phone, setOtpVerified } = useSignupWizardStore((s) => s);
   const [otp, setOtp] = useState("");
   const [seconds, setSeconds] = useState(OTP_SECONDS);
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   useEffect(() => {
     if (!phone) router.replace("/signup/phone");
@@ -30,6 +32,18 @@ export default function SignupOtpPage() {
     const timer = setInterval(() => setSeconds((s) => Math.max(0, s - 1)), 1000);
     return () => clearInterval(timer);
   }, [seconds]);
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setInterval(() => setResendCooldown((s) => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
+
+  function handleResend() {
+    if (resendCooldown > 0) return;
+    setSeconds(OTP_SECONDS);
+    setResendCooldown(RESEND_COOLDOWN_SECONDS);
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -67,10 +81,23 @@ export default function SignupOtpPage() {
             />
             <button
               type="button"
-              onClick={() => setSeconds(OTP_SECONDS)}
-              className="rounded-[10px] bg-[#edeff3] px-[14px] py-[8px]"
+              onClick={handleResend}
+              disabled={resendCooldown > 0}
+              className={
+                resendCooldown > 0
+                  ? "rounded-[10px] bg-[#edeff3] px-[14px] py-[8px]"
+                  : "rounded-[10px] bg-[#edf3ff] px-[14px] py-[8px]"
+              }
             >
-              <p className="text-[13px] font-semibold leading-[18px] text-[#b0b8c1]">재요청</p>
+              <p
+                className={
+                  resendCooldown > 0
+                    ? "text-[13px] font-semibold leading-[18px] text-[#b0b8c1]"
+                    : "text-[13px] font-semibold leading-[18px] text-[#3b5bff]"
+                }
+              >
+                {resendCooldown > 0 ? `재요청 ${resendCooldown}s` : "재요청"}
+              </p>
             </button>
           </div>
           <div className="flex w-full items-center justify-end gap-[5px] pb-[4px] pr-[6px] pt-[2px]">
