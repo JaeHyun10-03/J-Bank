@@ -22,6 +22,8 @@ export default function SignupPinPage() {
   const router = useRouter();
   const { name, ssnFront, ssnBack, phone, otpVerified } = useSignupWizardStore((s) => s);
   const login = useAuthStore((s) => s.login);
+  const [phase, setPhase] = useState<"set" | "confirm">("set");
+  const [firstPin, setFirstPin] = useState("");
   const [pin, setPin] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,8 +35,29 @@ export default function SignupPinPage() {
     if (!ready) router.replace("/signup/otp");
   }, [ready, router]);
 
+  function resetPin() {
+    setPhase("set");
+    setFirstPin("");
+    setPin("");
+  }
+
   useEffect(() => {
     if (pin.length !== 6 || submitting) return;
+
+    if (phase === "set") {
+      setFirstPin(pin);
+      setPin("");
+      setPhase("confirm");
+      setError(null);
+      return;
+    }
+
+    if (pin !== firstPin) {
+      setError("비밀번호가 일치하지 않습니다. 처음부터 다시 입력해주세요.");
+      resetPin();
+      return;
+    }
+
     submit();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pin]);
@@ -104,6 +127,9 @@ export default function SignupPinPage() {
       </div>
       <div className="flex w-full flex-col items-center pt-[16px]">
         <p className="text-[20px] font-medium leading-[28px] text-[#191f28]">간편비밀번호</p>
+        <p className="pt-[8px] text-[13px] text-[#8b95a1]">
+          {phase === "set" ? "사용하실 비밀번호 6자리를 입력해주세요" : "다시 한 번 입력해주세요"}
+        </p>
       </div>
       <PinDots value={pin} />
       {error ? (
@@ -111,7 +137,16 @@ export default function SignupPinPage() {
       ) : null}
       <div className="min-h-px w-full flex-1" />
       <div className="flex w-full items-center justify-center pb-[63px]">
-        <p className="text-[13px] text-[#b0b8c1]">비밀번호 다시 설정하기</p>
+        <button
+          type="button"
+          onClick={() => {
+            resetPin();
+            setError(null);
+          }}
+          className="text-[13px] text-[#b0b8c1]"
+        >
+          비밀번호 다시 설정하기
+        </button>
       </div>
       <PinKeypad
         onDigit={(d) => !submitting && pin.length < 6 && setPin(pin + d)}
