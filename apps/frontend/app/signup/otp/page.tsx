@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { MobileScreen } from "@/components/mobile-screen";
 import { useSignupWizardStore } from "@/lib/signup-wizard-store";
 import { maskSsnBack } from "@/lib/resident-reg-no";
+import { formatPhoneNumber } from "@/lib/format";
 
 const OTP_SECONDS = 7 * 60 - 4; // 06:56, 피그마 타이머 표기와 동일한 시작값
 
@@ -83,7 +84,7 @@ export default function SignupOtpPage() {
           <div className="flex w-full flex-col gap-[6px] rounded-[16px] bg-[#f7f8fb] px-[20px] py-[14px]">
             <p className="text-[13px] font-medium text-[#8b95a1]">휴대폰번호</p>
             <p className="text-[18px] font-medium leading-[26px] text-[#191f28]">
-              {carrier} {phone}
+              {carrier} {formatPhoneNumber(phone)}
             </p>
           </div>
           <div className="flex w-full gap-[10px]">

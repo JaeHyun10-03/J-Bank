@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { MobileScreen } from "@/components/mobile-screen";
 import { useSignupWizardStore } from "@/lib/signup-wizard-store";
 import { maskSsnBack } from "@/lib/resident-reg-no";
+import { formatPhoneNumber } from "@/lib/format";
 
 const CARRIERS = ["SKT", "KT", "LGU+", "알뜰폰"];
 
@@ -62,10 +63,9 @@ export default function SignupPhonePage() {
               <input
                 autoFocus
                 inputMode="numeric"
-                maxLength={11}
-                value={phone}
-                onChange={(e) => setLocalPhone(e.target.value.replace(/\D/g, ""))}
-                placeholder="01012345678"
+                value={formatPhoneNumber(phone)}
+                onChange={(e) => setLocalPhone(e.target.value.replace(/\D/g, "").slice(0, 11))}
+                placeholder="010-1234-5678"
                 className="flex-1 bg-transparent text-[18px] font-medium leading-[26px] text-[#191f28] placeholder:text-[#b0b8c1] focus:outline-none"
               />
             </div>

@@ -21,3 +21,10 @@ export function formatDateTime(value: string | null | undefined): string {
 export function isPositiveAmount(value: number | string | null | undefined): boolean {
   return Number(value ?? 0) > 0;
 }
+
+/** "01012341234" -> "010-1234-1234". 입력 중에도 자릿수에 맞춰 그때그때 하이픈을 넣는다. */
+export function formatPhoneNumber(digits: string): string {
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
+}
