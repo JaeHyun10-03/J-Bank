@@ -6,7 +6,7 @@ import { Providers } from "@/components/providers";
 
 const gothicA1 = Gothic_A1({
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  weight: ["400", "500", "600", "700", "800"],
   variable: "--font-sans",
 });
 

@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
  * 호출에서 조용히 재발급을 시도한다(이중으로 처리할 필요 없음). 둘 다 없을 때만 로그인으로
  * 보낸다.
  */
-const PUBLIC_PATHS = ["/login", "/signup"];
+const PUBLIC_PATHS = ["/welcome", "/login", "/signup"];
 
 export function middleware(request: NextRequest) {
   if (PUBLIC_PATHS.includes(request.nextUrl.pathname)) {
@@ -18,7 +18,7 @@ export function middleware(request: NextRequest) {
   const hasAuthCookie =
     request.cookies.has("access_token") || request.cookies.has("refresh_token");
   if (!hasAuthCookie) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(new URL("/welcome", request.url));
   }
 
   return NextResponse.next();
