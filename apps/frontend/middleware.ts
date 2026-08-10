@@ -8,7 +8,18 @@ import { NextRequest, NextResponse } from "next/server";
  * 호출에서 조용히 재발급을 시도한다(이중으로 처리할 필요 없음). 둘 다 없을 때만 로그인으로
  * 보낸다.
  */
-const PUBLIC_PATHS = ["/welcome", "/login", "/signup", "/signup/onboard"];
+const PUBLIC_PATHS = [
+  "/welcome",
+  "/login",
+  "/signup",
+  "/signup/onboard",
+  "/signup/name",
+  "/signup/ssn",
+  "/signup/phone",
+  "/signup/otp",
+  "/signup/device-done",
+  "/signup/pin",
+];
 
 export function middleware(request: NextRequest) {
   if (PUBLIC_PATHS.includes(request.nextUrl.pathname)) {
