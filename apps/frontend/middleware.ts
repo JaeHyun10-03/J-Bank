@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from "next/server";
 const PUBLIC_PATHS = [
   "/welcome",
   "/login",
+  "/login/id",
   "/signup",
   "/signup/onboard",
   "/signup/name",
