@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { X } from "lucide-react";
 import { MobileScreen } from "@/components/mobile-screen";
+import { StepProgress } from "@/components/step-progress";
 import { PinDots, PinKeypad } from "@/components/pin-keypad";
 import { useSignupWizardStore } from "@/lib/signup-wizard-store";
 import { useAuthStore } from "@/lib/auth-store";
@@ -120,6 +121,7 @@ export default function SignupPinPage() {
 
   return (
     <MobileScreen>
+      <StepProgress step={6} total={6} />
       <div className="flex w-full items-center justify-end px-[20px] py-[13px]">
         <button type="button" onClick={() => router.push("/welcome")}>
           <X className="size-[24px] text-[#191f28]" />

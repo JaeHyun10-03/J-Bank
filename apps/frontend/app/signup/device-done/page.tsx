@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
 import { MobileScreen } from "@/components/mobile-screen";
+import { StepProgress } from "@/components/step-progress";
 import { useSignupWizardStore } from "@/lib/signup-wizard-store";
 
 export default function SignupDeviceDonePage() {
@@ -18,7 +19,8 @@ export default function SignupDeviceDonePage() {
 
   return (
     <MobileScreen className="items-start pb-[28px]">
-      <div className="h-[158px] w-full" />
+      <StepProgress step={5} total={6} />
+      <div className="h-[130px] w-full" />
       <div className="flex w-full flex-col items-center px-[24px]">
         <Check className="size-[58px] text-[#2539e9]" strokeWidth={3} />
         <p className="pt-[19px] text-[20px] font-bold leading-[30px] text-[#191f28]">

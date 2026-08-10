@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MobileScreen } from "@/components/mobile-screen";
+import { StepProgress } from "@/components/step-progress";
 import { useSignupWizardStore } from "@/lib/signup-wizard-store";
 import { maskSsnBack } from "@/lib/resident-reg-no";
 
@@ -31,15 +32,7 @@ export default function SignupSsnPage() {
 
   return (
     <MobileScreen className="items-start pb-[32px]">
-      <div className="flex w-full items-center justify-end px-[24px] py-[14px]">
-        <button
-          type="button"
-          onClick={() => router.push("/signup/name")}
-          className="text-[16px] font-medium leading-[22px] text-[#191f28]"
-        >
-          취소
-        </button>
-      </div>
+      <StepProgress step={2} total={6} />
       <form onSubmit={handleSubmit} className="flex w-full flex-1 flex-col px-[24px] pt-[30px]">
         <p className="w-full text-[24px] font-bold leading-[34px] text-[#191f28]">
           주민등록번호를 입력해주세요
