@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MobileScreen } from "@/components/mobile-screen";
 import { useSignupWizardStore } from "@/lib/signup-wizard-store";
+import { maskSsnBack } from "@/lib/resident-reg-no";
 
 export default function SignupSsnPage() {
   const router = useRouter();
@@ -61,9 +62,20 @@ export default function SignupSsnPage() {
             <input
               ref={backRef}
               inputMode="numeric"
-              maxLength={7}
-              value={back}
-              onChange={(e) => setBack(e.target.value.replace(/\D/g, "").slice(0, 7))}
+              value={maskSsnBack(back)}
+              onChange={() => {}}
+              onKeyDown={(e) => {
+                if (/^[0-9]$/.test(e.key)) {
+                  e.preventDefault();
+                  if (back.length < 7) setBack(back + e.key);
+                } else if (e.key === "Backspace") {
+                  e.preventDefault();
+                  setBack(back.slice(0, -1));
+                } else if (e.key.length === 1) {
+                  e.preventDefault();
+                }
+              }}
+              onPaste={(e) => e.preventDefault()}
               placeholder="뒷자리"
               className="min-w-0 flex-[7] rounded-[16px] border border-[#e5e8ef] bg-white px-[14px] py-[20px] text-center text-[18px] font-medium leading-[26px] text-[#191f28] placeholder:text-[#b0b8c1] focus:outline-none"
             />
