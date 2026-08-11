@@ -1,6 +1,9 @@
 spring:
   application:
     name: jbank-api
+  batch:
+    job:
+      enabled: false
   jpa:
     hibernate:
       ddl-auto: validate
