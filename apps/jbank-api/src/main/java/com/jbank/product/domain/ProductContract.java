@@ -47,6 +47,14 @@ public class ProductContract {
 
   protected ProductContract() {}
 
+  public void markMatured() {
+    if (status != ContractStatus.ACTIVE) {
+      throw new IllegalStateException(
+          "허용되지 않는 계약 상태 전이: " + status + " -> " + ContractStatus.MATURED);
+    }
+    this.status = ContractStatus.MATURED;
+  }
+
   public ProductContract(
       Long customerId,
       String productCode,

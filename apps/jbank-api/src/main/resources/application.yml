@@ -21,6 +21,9 @@ spring:
       auto-offset-reset: earliest
 
 jbank:
+  batch:
+    interest:
+      rounding-mode: DOWN
   outbox:
     topic: jbank.events
     poll-interval-ms: 1000
