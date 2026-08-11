@@ -125,7 +125,7 @@ class InterestMaturityJobIntegrationTest {
             OffsetDateTime.parse("2026-09-01T00:00:00+09:00"));
 
     jobLauncherTestUtils.launchJob(
-        new JobParametersBuilder().addString("runDate", "2026-08-11").toJobParameters());
+        new JobParametersBuilder().addString("runDate", "2026-01-01").toJobParameters());
 
     Account untouchedAccount = accountRepository.findById(account.getAccountId()).orElseThrow();
     assertThat(untouchedAccount.getCurrentBalanceCache()).isEqualByComparingTo("0.00");
@@ -148,7 +148,7 @@ class InterestMaturityJobIntegrationTest {
         OffsetDateTime.parse("2026-08-11T00:00:00+09:00"));
 
     JobParameters parameters =
-        new JobParametersBuilder().addString("runDate", "2026-08-12").toJobParameters();
+        new JobParametersBuilder().addString("runDate", "2026-03-01").toJobParameters();
     jobLauncherTestUtils.launchJob(parameters);
 
     assertThatThrownBy(
