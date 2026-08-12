@@ -26,8 +26,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Base64;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -35,6 +37,7 @@ import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteExcep
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -68,11 +71,23 @@ class InterestMaturityJobIntegrationTest {
   }
 
   @Autowired private JobLauncherTestUtils jobLauncherTestUtils;
+
+  @Autowired
+  @Qualifier("interestMaturityJob")
+  private Job interestMaturityJob;
+
   @Autowired private ProductRepository productRepository;
   @Autowired private ProductContractRepository productContractRepository;
   @Autowired private CustomerRepository customerRepository;
   @Autowired private AccountRepository accountRepository;
   @Autowired private TransactionRepository transactionRepository;
+
+  // 잡이 여러 개 등록된 애플리케이션 컨텍스트에서는 JobLauncherTestUtils가 잡을 자동으로
+  // 못 찾으므로 명시적으로 지정한다.
+  @BeforeEach
+  void setJob() {
+    jobLauncherTestUtils.setJob(interestMaturityJob);
+  }
 
   @Test
   void 만기_도래한_계약에_이자를_지급하고_계약을_만기로_전환한다() throws Exception {
