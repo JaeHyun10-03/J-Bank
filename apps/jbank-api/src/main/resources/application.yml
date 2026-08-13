@@ -26,6 +26,9 @@ jbank:
       rounding-mode: DOWN
     ctr:
       threshold-amount: 10000000
+  transfer:
+    otp:
+      threshold-amount: 10000000
   outbox:
     topic: jbank.events
     poll-interval-ms: 1000

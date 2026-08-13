@@ -17,6 +17,7 @@ import com.jbank.transfer.repository.TransactionRepository;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -30,18 +31,21 @@ public class TransferService {
   private final LedgerEntryRepository ledgerEntryRepository;
   private final IdempotencyRecovery idempotencyRecovery;
   private final ApplicationEventPublisher eventPublisher;
+  private final BigDecimal otpThresholdAmount;
 
   public TransferService(
       AccountRepository accountRepository,
       TransactionRepository transactionRepository,
       LedgerEntryRepository ledgerEntryRepository,
       IdempotencyRecovery idempotencyRecovery,
-      ApplicationEventPublisher eventPublisher) {
+      ApplicationEventPublisher eventPublisher,
+      @Value("${jbank.transfer.otp.threshold-amount:10000000}") BigDecimal otpThresholdAmount) {
     this.accountRepository = accountRepository;
     this.transactionRepository = transactionRepository;
     this.ledgerEntryRepository = ledgerEntryRepository;
     this.idempotencyRecovery = idempotencyRecovery;
     this.eventPublisher = eventPublisher;
+    this.otpThresholdAmount = otpThresholdAmount;
   }
 
   @Transactional
@@ -101,6 +105,13 @@ public class TransferService {
                 transactionRepository.findByIdempotencyKey(idempotencyKey).orElseThrow(() -> e);
             return toResponse(raced, resolveFromBalance(raced, requestingCustomerId));
           });
+    }
+
+    if (amount.compareTo(otpThresholdAmount) > 0) {
+      // 임계금액 초과는 즉시 원장에 반영하지 않고 인증 대기로 남긴다(FR-AUTH-003). 지급정지 반영과
+      // OTP 발급은 W5 금요일분에서 이어서 구현한다.
+      transaction.markPendingOtp();
+      return toResponse(transaction, from.getCurrentBalanceCache());
     }
 
     OffsetDateTime occurredAt = OffsetDateTime.now();

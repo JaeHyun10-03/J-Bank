@@ -77,6 +77,10 @@ public class Transaction {
     transitionTo(TransactionStatus.FAILED);
   }
 
+  public void markPendingOtp() {
+    transitionTo(TransactionStatus.PENDING_OTP);
+  }
+
   private void transitionTo(TransactionStatus target) {
     if (!status.canTransitionTo(target)) {
       throw new IllegalStateException("허용되지 않는 거래 상태 전이: " + status + " -> " + target);
