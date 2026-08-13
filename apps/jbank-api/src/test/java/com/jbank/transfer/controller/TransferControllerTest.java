@@ -67,6 +67,30 @@ class TransferControllerTest {
   }
 
   @Test
+  void 임계금액을_초과하면_202와_인증대기_상태를_반환한다() throws Exception {
+    given(
+            transferService.transfer(
+                eq("110-000001-4"), eq("110-000002-1"), any(), eq("idem-key-otp"), any(), eq(1L)))
+        .willReturn(
+            new TransferResponse(
+                "21", TransactionStatus.PENDING_OTP, new BigDecimal("1200000.00"), null));
+
+    mockMvc
+        .perform(
+            post("/api/v1/transfers")
+                .header("Idempotency-Key", "idem-key-otp")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        new TransferRequest(
+                            "110-000001-4", "110-000002-1", new BigDecimal("15000000.00"), "생활비")))
+                .with(AuthPostProcessors.asCustomer(1L))
+                .with(AuthPostProcessors.csrf()))
+        .andExpect(status().isAccepted())
+        .andExpect(jsonPath("$.data.status").value("PENDING_OTP"));
+  }
+
+  @Test
   void Idempotency_Key_헤더가_없으면_400이다() throws Exception {
     mockMvc
         .perform(

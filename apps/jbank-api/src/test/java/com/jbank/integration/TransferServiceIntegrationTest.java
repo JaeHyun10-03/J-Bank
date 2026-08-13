@@ -117,6 +117,80 @@ class TransferServiceIntegrationTest {
   }
 
   @Test
+  void 임계금액을_초과하면_인증_대기_상태로_전환하고_원장을_남기지_않는다() {
+    Account from =
+        saveAccount(new BigDecimal("20000000.00"), BigDecimal.ZERO, AccountStatus.ACTIVE);
+    Account to = saveAccount(BigDecimal.ZERO, BigDecimal.ZERO, AccountStatus.ACTIVE);
+
+    TransferResponse response =
+        transferService.transfer(
+            from.getAccountNumber(),
+            to.getAccountNumber(),
+            new BigDecimal("15000000.00"),
+            UUID.randomUUID().toString(),
+            null,
+            from.getCustomerId());
+
+    assertThat(response.status()).isEqualTo(TransactionStatus.PENDING_OTP);
+    assertThat(response.processedAt()).isNull();
+    assertThat(response.fromAccountBalanceAfter()).isEqualByComparingTo("20000000.00");
+    Account unchangedFrom = accountRepository.findById(from.getAccountId()).orElseThrow();
+    Account unchangedTo = accountRepository.findById(to.getAccountId()).orElseThrow();
+    assertThat(unchangedFrom.getCurrentBalanceCache()).isEqualByComparingTo("20000000.00");
+    assertThat(unchangedTo.getCurrentBalanceCache()).isEqualByComparingTo("0.00");
+    assertThat(ledgerEntryRepository.findByAccountId(from.getAccountId())).isEmpty();
+    assertThat(ledgerEntryRepository.findByAccountId(to.getAccountId())).isEmpty();
+  }
+
+  @Test
+  void 임계금액과_같으면_즉시_완료한다() {
+    Account from =
+        saveAccount(new BigDecimal("20000000.00"), BigDecimal.ZERO, AccountStatus.ACTIVE);
+    Account to = saveAccount(BigDecimal.ZERO, BigDecimal.ZERO, AccountStatus.ACTIVE);
+
+    TransferResponse response =
+        transferService.transfer(
+            from.getAccountNumber(),
+            to.getAccountNumber(),
+            new BigDecimal("10000000.00"),
+            UUID.randomUUID().toString(),
+            null,
+            from.getCustomerId());
+
+    assertThat(response.status()).isEqualTo(TransactionStatus.COMPLETED);
+  }
+
+  @Test
+  void 임계금액_초과_거래도_같은_멱등성_키로_재요청하면_같은_결과를_반환한다() {
+    Account from =
+        saveAccount(new BigDecimal("20000000.00"), BigDecimal.ZERO, AccountStatus.ACTIVE);
+    Account to = saveAccount(BigDecimal.ZERO, BigDecimal.ZERO, AccountStatus.ACTIVE);
+    String idempotencyKey = UUID.randomUUID().toString();
+
+    TransferResponse first =
+        transferService.transfer(
+            from.getAccountNumber(),
+            to.getAccountNumber(),
+            new BigDecimal("15000000.00"),
+            idempotencyKey,
+            null,
+            from.getCustomerId());
+    TransferResponse second =
+        transferService.transfer(
+            from.getAccountNumber(),
+            to.getAccountNumber(),
+            new BigDecimal("15000000.00"),
+            idempotencyKey,
+            null,
+            from.getCustomerId());
+
+    assertThat(second.transactionId()).isEqualTo(first.transactionId());
+    assertThat(second.status()).isEqualTo(TransactionStatus.PENDING_OTP);
+    Account unchangedFrom = accountRepository.findById(from.getAccountId()).orElseThrow();
+    assertThat(unchangedFrom.getCurrentBalanceCache()).isEqualByComparingTo("20000000.00");
+  }
+
+  @Test
   void 동일한_멱등성_키로_재요청하면_원래_결과를_그대로_반환한다() {
     Account from = saveAccount(new BigDecimal("100000.00"), BigDecimal.ZERO, AccountStatus.ACTIVE);
     Account to = saveAccount(new BigDecimal("5000.00"), BigDecimal.ZERO, AccountStatus.ACTIVE);

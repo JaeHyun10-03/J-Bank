@@ -36,6 +36,23 @@ class TransactionTest {
         .isInstanceOf(IllegalStateException.class);
   }
 
+  @Test
+  void markPendingOtp를_호출하면_PENDING_OTP로_바뀐다() {
+    Transaction transaction = newTransaction();
+
+    transaction.markPendingOtp();
+
+    assertThat(transaction.getStatus()).isEqualTo(TransactionStatus.PENDING_OTP);
+  }
+
+  @Test
+  void 완료된_거래는_인증_대기로_전이할_수_없다() {
+    Transaction transaction = newTransaction();
+    transaction.complete(OffsetDateTime.now());
+
+    assertThatThrownBy(transaction::markPendingOtp).isInstanceOf(IllegalStateException.class);
+  }
+
   private Transaction newTransaction() {
     return new Transaction(
         TransactionType.TRANSFER,
