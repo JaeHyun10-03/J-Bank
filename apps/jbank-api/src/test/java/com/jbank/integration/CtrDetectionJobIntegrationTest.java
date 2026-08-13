@@ -1,6 +1,7 @@
 package com.jbank.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.jbank.account.domain.Account;
 import com.jbank.account.domain.AccountStatus;
@@ -26,7 +27,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,6 +133,23 @@ class CtrDetectionJobIntegrationTest {
         .isTrue();
     assertThat(ctrReportQueueRepository.findAll())
         .allMatch(report -> report.getStatus() == CtrReportStatus.LOGGED);
+  }
+
+  @Test
+  void 같은_기준일_파라미터로_두번_실행하면_두번째_실행을_막는다() throws Exception {
+    Long customerId = saveCustomer();
+    saveAccount(customerId);
+
+    JobParameters parameters =
+        new JobParametersBuilder().addString("runDate", "2026-08-16").toJobParameters();
+    jobLauncherTestUtils.launchJob(parameters);
+
+    assertThatThrownBy(
+            () ->
+                jobLauncherTestUtils
+                    .getJobLauncher()
+                    .run(jobLauncherTestUtils.getJob(), parameters))
+        .isInstanceOf(JobInstanceAlreadyCompleteException.class);
   }
 
   @Test

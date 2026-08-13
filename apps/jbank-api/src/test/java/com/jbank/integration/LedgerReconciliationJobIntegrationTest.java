@@ -1,6 +1,7 @@
 package com.jbank.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -34,7 +35,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,6 +127,23 @@ class LedgerReconciliationJobIntegrationTest {
                 event.getLevel() == Level.WARN
                     && event.getFormattedMessage().contains("계좌 잔액 불일치")
                     && event.getFormattedMessage().contains("accountId=" + account.getAccountId()));
+  }
+
+  @Test
+  void 같은_기준일로_두번_실행하면_두번째_실행을_막는다() throws Exception {
+    Long customerId = saveCustomer();
+    saveAccount(customerId, BigDecimal.ZERO);
+
+    JobParameters parameters =
+        new JobParametersBuilder().addString("runDate", "2026-08-15").toJobParameters();
+    jobLauncherTestUtils.launchJob(parameters);
+
+    assertThatThrownBy(
+            () ->
+                jobLauncherTestUtils
+                    .getJobLauncher()
+                    .run(jobLauncherTestUtils.getJob(), parameters))
+        .isInstanceOf(JobInstanceAlreadyCompleteException.class);
   }
 
   @Test
