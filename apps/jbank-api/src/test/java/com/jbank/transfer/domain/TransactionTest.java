@@ -53,6 +53,23 @@ class TransactionTest {
     assertThatThrownBy(transaction::markPendingOtp).isInstanceOf(IllegalStateException.class);
   }
 
+  @Test
+  void 인증_대기_거래는_cancel을_호출하면_CANCELLED로_바뀐다() {
+    Transaction transaction = newTransaction();
+    transaction.markPendingOtp();
+
+    transaction.cancel();
+
+    assertThat(transaction.getStatus()).isEqualTo(TransactionStatus.CANCELLED);
+  }
+
+  @Test
+  void PENDING_상태에서는_cancel할_수_없다() {
+    Transaction transaction = newTransaction();
+
+    assertThatThrownBy(transaction::cancel).isInstanceOf(IllegalStateException.class);
+  }
+
   private Transaction newTransaction() {
     return new Transaction(
         TransactionType.TRANSFER,
