@@ -29,6 +29,8 @@ jbank:
   transfer:
     otp:
       threshold-amount: 10000000
+      expiry-minutes: 3
+      max-attempts: 5
   outbox:
     topic: jbank.events
     poll-interval-ms: 1000
