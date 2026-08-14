@@ -35,8 +35,9 @@ public class TransferController {
           """
           두 계좌번호를 오름차순 정렬한 순서로 락을 획득해 교착상태를 막고,
           출금 가능 금액 기준으로 검증한 뒤 단일 트랜잭션으로 커밋합니다.
-          임계금액을 초과하면 즉시 완료하지 않고 인증 대기(PENDING_OTP) 상태로 202를
-          반환합니다(FR-AUTH-003). 지급정지 반영과 OTP 검증은 W5 금요일분에서 이어집니다.
+          임계금액을 초과하면 즉시 완료하지 않고 출금계좌에 지급정지를 반영한 뒤
+          인증 대기(PENDING_OTP) 상태로 202를 반환합니다(FR-AUTH-003). OTP 검증(API-016)은
+          별도 엔드포인트에서 처리합니다.
           """)
   @PostMapping
   public ResponseEntity<ApiResponse<TransferResponse>> transfer(

@@ -16,6 +16,7 @@ import com.jbank.ledger.repository.LedgerEntryRepository;
 import com.jbank.transfer.repository.TransactionRepository;
 import com.jbank.transfer.service.DepositService;
 import com.jbank.transfer.service.IdempotencyRecovery;
+import com.jbank.transfer.service.OtpService;
 import com.jbank.transfer.service.TransferService;
 import com.jbank.transfer.service.WithdrawalService;
 import java.math.BigDecimal;
@@ -23,14 +24,20 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Base64;
 import java.util.UUID;
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 /**
@@ -49,16 +56,33 @@ import org.testcontainers.containers.PostgreSQLContainer;
   PiiEncryptionKeyHolder.class,
   HmacKeyHolder.class,
   IdempotencyRecovery.class,
+  OtpService.class,
   DepositService.class,
   WithdrawalService.class,
-  TransferService.class
+  TransferService.class,
+  AbstractConcurrencyTest.RedisTestConfig.class
 })
 abstract class AbstractConcurrencyTest {
 
   static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:16-alpine");
+  static final GenericContainer<?> REDIS =
+      new GenericContainer<>("redis:7-alpine").withExposedPorts(6379);
 
   static {
     POSTGRES.start();
+    REDIS.start();
+  }
+
+  @TestConfiguration
+  static class RedisTestConfig {
+    @Bean
+    RedissonClient redissonClient() {
+      Config config = new Config();
+      config
+          .useSingleServer()
+          .setAddress("redis://" + REDIS.getHost() + ":" + REDIS.getMappedPort(6379));
+      return Redisson.create(config);
+    }
   }
 
   @DynamicPropertySource

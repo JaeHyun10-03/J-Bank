@@ -22,6 +22,7 @@ import com.jbank.transfer.dto.TransactionSummaryResponse;
 import com.jbank.transfer.repository.TransactionRepository;
 import com.jbank.transfer.service.DepositService;
 import com.jbank.transfer.service.IdempotencyRecovery;
+import com.jbank.transfer.service.OtpService;
 import com.jbank.transfer.service.TransactionHistoryService;
 import com.jbank.transfer.service.TransferService;
 import com.jbank.transfer.service.WithdrawalService;
@@ -31,13 +32,19 @@ import java.time.OffsetDateTime;
 import java.util.Base64;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -49,15 +56,33 @@ import org.testcontainers.junit.jupiter.Testcontainers;
   PiiEncryptionKeyHolder.class,
   HmacKeyHolder.class,
   IdempotencyRecovery.class,
+  OtpService.class,
   DepositService.class,
   WithdrawalService.class,
   TransferService.class,
-  TransactionHistoryService.class
+  TransactionHistoryService.class,
+  TransactionHistoryServiceIntegrationTest.RedisTestConfig.class
 })
 class TransactionHistoryServiceIntegrationTest {
 
   @Container
   static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:16-alpine");
+
+  @Container
+  static final GenericContainer<?> REDIS =
+      new GenericContainer<>("redis:7-alpine").withExposedPorts(6379);
+
+  @TestConfiguration
+  static class RedisTestConfig {
+    @Bean
+    RedissonClient redissonClient() {
+      Config config = new Config();
+      config
+          .useSingleServer()
+          .setAddress("redis://" + REDIS.getHost() + ":" + REDIS.getMappedPort(6379));
+      return Redisson.create(config);
+    }
+  }
 
   @DynamicPropertySource
   static void overrideProperties(DynamicPropertyRegistry registry) {

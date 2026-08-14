@@ -31,6 +31,7 @@ public class TransferService {
   private final LedgerEntryRepository ledgerEntryRepository;
   private final IdempotencyRecovery idempotencyRecovery;
   private final ApplicationEventPublisher eventPublisher;
+  private final OtpService otpService;
   private final BigDecimal otpThresholdAmount;
 
   public TransferService(
@@ -39,12 +40,14 @@ public class TransferService {
       LedgerEntryRepository ledgerEntryRepository,
       IdempotencyRecovery idempotencyRecovery,
       ApplicationEventPublisher eventPublisher,
+      OtpService otpService,
       @Value("${jbank.transfer.otp.threshold-amount:10000000}") BigDecimal otpThresholdAmount) {
     this.accountRepository = accountRepository;
     this.transactionRepository = transactionRepository;
     this.ledgerEntryRepository = ledgerEntryRepository;
     this.idempotencyRecovery = idempotencyRecovery;
     this.eventPublisher = eventPublisher;
+    this.otpService = otpService;
     this.otpThresholdAmount = otpThresholdAmount;
   }
 
@@ -108,9 +111,11 @@ public class TransferService {
     }
 
     if (amount.compareTo(otpThresholdAmount) > 0) {
-      // 임계금액 초과는 즉시 원장에 반영하지 않고 인증 대기로 남긴다(FR-AUTH-003). 지급정지 반영과
-      // OTP 발급은 W5 금요일분에서 이어서 구현한다.
+      // 임계금액 초과는 즉시 원장에 반영하지 않고 인증 대기로 남긴다(FR-AUTH-003). 대기 중인
+      // 금액을 지급정지로 잡아두지 않으면 같은 잔액으로 여러 건의 대기 거래를 만들 수 있다.
+      from.hold(amount);
       transaction.markPendingOtp();
+      otpService.issue(transaction.getTransactionId());
       return toResponse(transaction, from.getCurrentBalanceCache());
     }
 
