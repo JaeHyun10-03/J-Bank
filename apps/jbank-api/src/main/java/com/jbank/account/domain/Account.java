@@ -93,6 +93,18 @@ public class Account {
     this.updatedAt = OffsetDateTime.now();
   }
 
+  // 임계금액 초과 이체가 인증 대기로 들어갈 때 호출한다(FR-AUTH-003). 원장은 건드리지 않고 출금 가능
+  // 금액만 줄인다.
+  public void hold(BigDecimal amount) {
+    this.holdAmount = this.holdAmount.add(amount);
+    this.updatedAt = OffsetDateTime.now();
+  }
+
+  public void release(BigDecimal amount) {
+    this.holdAmount = this.holdAmount.subtract(amount);
+    this.updatedAt = OffsetDateTime.now();
+  }
+
   public void close() {
     OffsetDateTime now = OffsetDateTime.now();
     this.status = AccountStatus.CLOSED;
