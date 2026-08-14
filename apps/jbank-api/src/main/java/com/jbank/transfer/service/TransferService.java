@@ -11,6 +11,7 @@ import com.jbank.ledger.domain.LedgerEntry;
 import com.jbank.ledger.repository.LedgerEntryRepository;
 import com.jbank.transfer.domain.Transaction;
 import com.jbank.transfer.domain.TransactionException;
+import com.jbank.transfer.domain.TransactionStatus;
 import com.jbank.transfer.domain.TransactionType;
 import com.jbank.transfer.dto.TransferResponse;
 import com.jbank.transfer.repository.TransactionRepository;
@@ -119,6 +120,40 @@ public class TransferService {
       return toResponse(transaction, from.getCurrentBalanceCache());
     }
 
+    executeTransfer(transaction, from, to);
+    return toResponse(transaction, from.getCurrentBalanceCache());
+  }
+
+  /**
+   * OTP 검증 성공(API-016) 후 대기 중이던 이체를 마무리한다. 지급정지를 해제하고 원장 두 건을
+   * 남겨 완료 전이하는 로직은 임계금액 이하 즉시 완료 경로와 동일해 executeTransfer로 공유한다.
+   */
+  @Transactional
+  public TransferResponse completeAfterOtp(Long transactionId) {
+    Transaction transaction =
+        transactionRepository
+            .findByIdForUpdate(transactionId)
+            .orElseThrow(() -> new TransactionException(ErrorCode.COMMON_004_NOT_FOUND));
+    if (transaction.getStatus() != TransactionStatus.PENDING_OTP) {
+      throw new TransactionException(ErrorCode.TXN_005_TRANSACTION_NOT_PENDING);
+    }
+
+    List<Long> lockOrder =
+        List.of(transaction.getFromAccountId(), transaction.getToAccountId()).stream()
+            .sorted()
+            .toList();
+    Account first =
+        accountRepository
+            .findByIdForUpdate(lockOrder.get(0))
+            .orElseThrow(() -> new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
+    Account second =
+        accountRepository
+            .findByIdForUpdate(lockOrder.get(1))
+            .orElseThrow(() -> new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
+    Account from = transaction.getFromAccountId().equals(first.getAccountId()) ? first : second;
+    Account to = transaction.getFromAccountId().equals(first.getAccountId()) ? second : first;
+
+    from.release(transaction.getAmount());
     executeTransfer(transaction, from, to);
     return toResponse(transaction, from.getCurrentBalanceCache());
   }
