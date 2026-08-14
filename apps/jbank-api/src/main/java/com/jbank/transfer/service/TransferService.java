@@ -119,6 +119,12 @@ public class TransferService {
       return toResponse(transaction, from.getCurrentBalanceCache());
     }
 
+    executeTransfer(transaction, from, to);
+    return toResponse(transaction, from.getCurrentBalanceCache());
+  }
+
+  private void executeTransfer(Transaction transaction, Account from, Account to) {
+    BigDecimal amount = transaction.getAmount();
     OffsetDateTime occurredAt = OffsetDateTime.now();
     from.debit(amount);
     to.credit(amount);
@@ -146,8 +152,6 @@ public class TransferService {
             to.getAccountId(),
             amount,
             occurredAt));
-
-    return toResponse(transaction, from.getCurrentBalanceCache());
   }
 
   private Account lockAccount(String accountNumber, String toAccountNumber) {
