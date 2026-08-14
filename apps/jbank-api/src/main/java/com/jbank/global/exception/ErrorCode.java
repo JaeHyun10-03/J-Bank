@@ -27,10 +27,13 @@ public enum ErrorCode {
   TXN_002_SAME_ACCOUNT_TRANSFER(HttpStatus.BAD_REQUEST, "출금계좌와 입금계좌가 동일합니다"),
   TXN_003_COUNTERPARTY_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "입금계좌 번호가 존재하지 않습니다"),
   TXN_004_COUNTERPARTY_ACCOUNT_INVALID(HttpStatus.CONFLICT, "입금계좌가 정지 또는 해지 상태입니다"),
+  TXN_005_TRANSACTION_NOT_PENDING(HttpStatus.CONFLICT, "이미 완료되었거나 만료되어 취소된 거래입니다"),
 
   AUTH_001_INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "로그인ID 또는 비밀번호가 일치하지 않습니다"),
   AUTH_002_ACCOUNT_LOCKED(HttpStatus.LOCKED, "비밀번호 연속 실패로 계정이 잠겼습니다"),
   AUTH_003_REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "갱신 쿠키가 만료, 위조 또는 이미 사용되어 폐기되었습니다"),
+  AUTH_004_OTP_MISMATCH(HttpStatus.BAD_REQUEST, "입력한 OTP가 발급된 값과 다릅니다"),
+  AUTH_005_OTP_EXPIRED(HttpStatus.GONE, "OTP 유효시간(3분)이 지났습니다"),
 
   PRD_001_MIN_AMOUNT_NOT_MET(HttpStatus.BAD_REQUEST, "최소 가입금액에 미달합니다"),
   PRD_002_PRODUCT_NOT_AVAILABLE(HttpStatus.CONFLICT, "판매 중지된 상품입니다");
