@@ -102,6 +102,7 @@ class TransferServiceIntegrationTest {
   @Autowired private TransferService transferService;
   @Autowired private AuditLogRepository auditLogRepository;
   @Autowired private OutboxEventRepository outboxEventRepository;
+  @Autowired private OtpService otpService;
 
   @Test
   void 정상_이체는_잔액을_옮기고_원장_두_건을_남긴다() {
@@ -162,9 +163,14 @@ class TransferServiceIntegrationTest {
     Account unchangedFrom = accountRepository.findById(from.getAccountId()).orElseThrow();
     Account unchangedTo = accountRepository.findById(to.getAccountId()).orElseThrow();
     assertThat(unchangedFrom.getCurrentBalanceCache()).isEqualByComparingTo("20000000.00");
+    assertThat(unchangedFrom.getHoldAmount()).isEqualByComparingTo("15000000.00");
+    assertThat(unchangedFrom.getAvailableBalance()).isEqualByComparingTo("5000000.00");
     assertThat(unchangedTo.getCurrentBalanceCache()).isEqualByComparingTo("0.00");
     assertThat(ledgerEntryRepository.findByAccountId(from.getAccountId())).isEmpty();
     assertThat(ledgerEntryRepository.findByAccountId(to.getAccountId())).isEmpty();
+    Long transactionId = Long.valueOf(response.transactionId());
+    assertThat(otpService.verify(transactionId, "wrong-code"))
+        .isEqualTo(OtpService.VerifyResult.MISMATCH);
   }
 
   @Test
@@ -213,6 +219,7 @@ class TransferServiceIntegrationTest {
     assertThat(second.status()).isEqualTo(TransactionStatus.PENDING_OTP);
     Account unchangedFrom = accountRepository.findById(from.getAccountId()).orElseThrow();
     assertThat(unchangedFrom.getCurrentBalanceCache()).isEqualByComparingTo("20000000.00");
+    assertThat(unchangedFrom.getHoldAmount()).isEqualByComparingTo("15000000.00");
   }
 
   @Test
