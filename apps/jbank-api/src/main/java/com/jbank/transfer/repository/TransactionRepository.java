@@ -1,6 +1,7 @@
 package com.jbank.transfer.repository;
 
 import com.jbank.transfer.domain.Transaction;
+import com.jbank.transfer.domain.TransactionStatus;
 import jakarta.persistence.LockModeType;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -16,6 +17,10 @@ public interface TransactionRepository
     extends JpaRepository<Transaction, Long>, JpaSpecificationExecutor<Transaction> {
 
   Optional<Transaction> findByIdempotencyKey(String idempotencyKey);
+
+  // 만료 대기 거래 정리 스케줄러가 쓰는 조회다. ERD 3절 부분 인덱스(status, created_at)와
+  // 조건이 일치한다.
+  List<Transaction> findByStatusAndCreatedAtBefore(TransactionStatus status, OffsetDateTime cutoff);
 
   // OTP 검증·만료 대기 거래 정리가 같은 거래를 동시에 취소하지 않도록 잠근다(FR-AUTH-003).
   @Lock(LockModeType.PESSIMISTIC_WRITE)
