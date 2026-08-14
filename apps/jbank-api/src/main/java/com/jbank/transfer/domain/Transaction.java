@@ -81,6 +81,10 @@ public class Transaction {
     transitionTo(TransactionStatus.PENDING_OTP);
   }
 
+  public void cancel() {
+    transitionTo(TransactionStatus.CANCELLED);
+  }
+
   private void transitionTo(TransactionStatus target) {
     if (!status.canTransitionTo(target)) {
       throw new IllegalStateException("허용되지 않는 거래 상태 전이: " + status + " -> " + target);
