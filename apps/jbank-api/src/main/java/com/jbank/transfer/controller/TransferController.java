@@ -3,8 +3,10 @@ package com.jbank.transfer.controller;
 import com.jbank.auth.config.CurrentCustomerId;
 import com.jbank.global.response.ApiResponse;
 import com.jbank.transfer.domain.TransactionStatus;
+import com.jbank.transfer.dto.OtpVerificationRequest;
 import com.jbank.transfer.dto.TransferRequest;
 import com.jbank.transfer.dto.TransferResponse;
+import com.jbank.transfer.service.OtpVerificationService;
 import com.jbank.transfer.service.TransferService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -12,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -24,9 +27,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class TransferController {
 
   private final TransferService transferService;
+  private final OtpVerificationService otpVerificationService;
 
-  public TransferController(TransferService transferService) {
+  public TransferController(
+      TransferService transferService, OtpVerificationService otpVerificationService) {
     this.transferService = transferService;
+    this.otpVerificationService = otpVerificationService;
   }
 
   @Operation(
@@ -58,5 +64,23 @@ public class TransferController {
             ? HttpStatus.ACCEPTED
             : HttpStatus.CREATED;
     return ResponseEntity.status(status).body(ApiResponse.success(response));
+  }
+
+  @Operation(
+      summary = "고액이체 2차 인증(OTP) 검증",
+      description =
+          """
+          임계금액 초과로 인증 대기(PENDING_OTP) 상태인 이체 건의 OTP를 검증합니다(FR-AUTH-003).
+          성공하면 지급정지가 확정 출금으로 전환되며 이체가 완료됩니다. 실패 횟수가 한도를
+          넘거나 유효시간(3분)이 지나면 거래가 취소되고 지급정지가 해제됩니다.
+          """)
+  @PostMapping("/{transactionId}/otp-verifications")
+  public ResponseEntity<ApiResponse<TransferResponse>> verifyOtp(
+      @PathVariable Long transactionId,
+      @Valid @RequestBody OtpVerificationRequest request,
+      @CurrentCustomerId Long customerId) {
+    TransferResponse response =
+        otpVerificationService.verify(transactionId, request.otpCode(), customerId);
+    return ResponseEntity.ok(ApiResponse.success(response));
   }
 }
