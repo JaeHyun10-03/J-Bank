@@ -11,10 +11,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jbank.auth.config.SecurityConfig;
 import com.jbank.auth.jwt.JwtTokenProvider;
 import com.jbank.global.config.JacksonConfig;
+import com.jbank.global.exception.ErrorCode;
 import com.jbank.testsupport.AuthPostProcessors;
+import com.jbank.transfer.domain.TransactionException;
 import com.jbank.transfer.domain.TransactionStatus;
+import com.jbank.transfer.dto.OtpVerificationRequest;
 import com.jbank.transfer.dto.TransferRequest;
 import com.jbank.transfer.dto.TransferResponse;
+import com.jbank.transfer.service.OtpVerificationService;
 import com.jbank.transfer.service.TransferService;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -37,6 +41,7 @@ class TransferControllerTest {
   @Autowired private ObjectMapper objectMapper;
 
   @MockitoBean private TransferService transferService;
+  @MockitoBean private OtpVerificationService otpVerificationService;
 
   @Test
   void 유효한_요청이면_201과_이체결과를_반환한다() throws Exception {
@@ -116,6 +121,71 @@ class TransferControllerTest {
                     objectMapper.writeValueAsString(
                         new TransferRequest(
                             "", "110-000002-1", new BigDecimal("3000000.00"), null)))
+                .with(AuthPostProcessors.asCustomer(1L))
+                .with(AuthPostProcessors.csrf()))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void OTP가_일치하면_200과_완료상태를_반환한다() throws Exception {
+    given(otpVerificationService.verify(eq(21L), eq("482910"), eq(1L)))
+        .willReturn(
+            new TransferResponse(
+                "21",
+                TransactionStatus.COMPLETED,
+                new BigDecimal("1200000.00"),
+                OffsetDateTime.now()));
+
+    mockMvc
+        .perform(
+            post("/api/v1/transfers/21/otp-verifications")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new OtpVerificationRequest("482910")))
+                .with(AuthPostProcessors.asCustomer(1L))
+                .with(AuthPostProcessors.csrf()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data.status").value("COMPLETED"));
+  }
+
+  @Test
+  void OTP가_불일치하면_400이다() throws Exception {
+    given(otpVerificationService.verify(eq(21L), eq("000000"), eq(1L)))
+        .willThrow(new TransactionException(ErrorCode.AUTH_004_OTP_MISMATCH));
+
+    mockMvc
+        .perform(
+            post("/api/v1/transfers/21/otp-verifications")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new OtpVerificationRequest("000000")))
+                .with(AuthPostProcessors.asCustomer(1L))
+                .with(AuthPostProcessors.csrf()))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error.code").value("AUTH_004_OTP_MISMATCH"));
+  }
+
+  @Test
+  void OTP가_만료되었으면_410이다() throws Exception {
+    given(otpVerificationService.verify(eq(21L), eq("482910"), eq(1L)))
+        .willThrow(new TransactionException(ErrorCode.AUTH_005_OTP_EXPIRED));
+
+    mockMvc
+        .perform(
+            post("/api/v1/transfers/21/otp-verifications")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new OtpVerificationRequest("482910")))
+                .with(AuthPostProcessors.asCustomer(1L))
+                .with(AuthPostProcessors.csrf()))
+        .andExpect(status().isGone())
+        .andExpect(jsonPath("$.error.code").value("AUTH_005_OTP_EXPIRED"));
+  }
+
+  @Test
+  void OTP코드_형식이_아니면_400이다() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/v1/transfers/21/otp-verifications")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new OtpVerificationRequest("12ab")))
                 .with(AuthPostProcessors.asCustomer(1L))
                 .with(AuthPostProcessors.csrf()))
         .andExpect(status().isBadRequest());
