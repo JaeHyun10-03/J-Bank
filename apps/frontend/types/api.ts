@@ -17,9 +17,33 @@ export interface paths {
          * 계좌 이체
          * @description 두 계좌번호를 오름차순 정렬한 순서로 락을 획득해 교착상태를 막고,
          *     출금 가능 금액 기준으로 검증한 뒤 단일 트랜잭션으로 커밋합니다.
-         *     W2 기준 임계금액 초과에 따른 2차 인증 분기는 아직 없어 항상 즉시 완료됩니다(W5 예정).
+         *     임계금액을 초과하면 즉시 완료하지 않고 출금계좌에 지급정지를 반영한 뒤
+         *     인증 대기(PENDING_OTP) 상태로 202를 반환합니다(FR-AUTH-003). OTP 검증(API-016)은
+         *     별도 엔드포인트에서 처리합니다.
          */
         post: operations["transfer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/transfers/{transactionId}/otp-verifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 고액이체 2차 인증(OTP) 검증
+         * @description 임계금액 초과로 인증 대기(PENDING_OTP) 상태인 이체 건의 OTP를 검증합니다(FR-AUTH-003).
+         *     성공하면 지급정지가 확정 출금으로 전환되며 이체가 완료됩니다. 실패 횟수가 한도를
+         *     넘거나 유효시간(3분)이 지나면 거래가 취소되고 지급정지가 해제됩니다.
+         */
+        post: operations["verifyOtp"];
         delete?: never;
         options?: never;
         head?: never;
@@ -295,6 +319,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/audit-logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 감사 로그 조회
+         * @description eventType, actorId, from, to는 선택입니다. 운영자 전용이지만 운영자 역할
+         *     모델이 아직 없어 인증된 사용자면 누구나 호출할 수 있습니다.
+         */
+        get: operations["getAuditLogs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/accounts/{accountId}": {
         parameters: {
             query?: never;
@@ -385,6 +430,9 @@ export interface components {
             fromAccountBalanceAfter?: number;
             /** Format: date-time */
             processedAt?: string;
+        };
+        OtpVerificationRequest: {
+            otpCode: string;
         };
         ProductSubscribeRequest: {
             accountNumber: string;
@@ -502,7 +550,7 @@ export interface components {
             transactionId?: string;
             accountId?: string;
             /** @enum {string} */
-            type?: "DEPOSIT" | "WITHDRAWAL" | "TRANSFER";
+            type?: "DEPOSIT" | "WITHDRAWAL" | "TRANSFER" | "INTEREST";
             amount?: number;
             balanceAfter?: number;
             /** Format: date-time */
@@ -622,6 +670,37 @@ export interface components {
             /** Format: int32 */
             totalPages?: number;
         };
+        ApiResponsePageResponseAuditLogResponse: {
+            success?: boolean;
+            data?: components["schemas"]["PageResponseAuditLogResponse"];
+            error?: components["schemas"]["ErrorDetail"];
+        };
+        AuditLogResponse: {
+            /** Format: int64 */
+            logId?: number;
+            eventType?: string;
+            /** @enum {string} */
+            actorType?: "CUSTOMER" | "SYSTEM" | "OPERATOR";
+            actorId?: string;
+            targetType?: string;
+            targetId?: string;
+            detail?: {
+                [key: string]: Record<string, never>;
+            };
+            /** Format: date-time */
+            occurredAt?: string;
+        };
+        PageResponseAuditLogResponse: {
+            content?: components["schemas"]["AuditLogResponse"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+        };
         AccountDetailResponse: {
             accountId?: string;
             accountNumber?: string;
@@ -659,7 +738,7 @@ export interface components {
         TransactionSummaryResponse: {
             transactionId?: string;
             /** @enum {string} */
-            type?: "DEPOSIT" | "WITHDRAWAL" | "TRANSFER";
+            type?: "DEPOSIT" | "WITHDRAWAL" | "TRANSFER" | "INTEREST";
             amount?: number;
             /** @enum {string} */
             status?: "PENDING" | "PENDING_OTP" | "COMPLETED" | "FAILED" | "CANCELLED";
@@ -716,6 +795,32 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["TransferRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseTransferResponse"];
+                };
+            };
+        };
+    };
+    verifyOtp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                transactionId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OtpVerificationRequest"];
             };
         };
         responses: {
@@ -1046,6 +1151,32 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponsePageResponseCustomerAccountSummaryResponse"];
+                };
+            };
+        };
+    };
+    getAuditLogs: {
+        parameters: {
+            query: {
+                eventType?: string;
+                actorId?: string;
+                from?: string;
+                to?: string;
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePageResponseAuditLogResponse"];
                 };
             };
         };

@@ -34,6 +34,8 @@ servers:
 tags:
 - name: 고객
   description: 고객 등록(CDD)과 강화된 고객확인(EDD) API
+- name: 감사 로그
+  description: 운영자용 감사 로그 조회 API
 - name: 이체
   description: 계좌 이체 API
 - name: 인증
@@ -53,7 +55,9 @@ paths:
       description: |
         두 계좌번호를 오름차순 정렬한 순서로 락을 획득해 교착상태를 막고,
         출금 가능 금액 기준으로 검증한 뒤 단일 트랜잭션으로 커밋합니다.
-        W2 기준 임계금액 초과에 따른 2차 인증 분기는 아직 없어 항상 즉시 완료됩니다(W5 예정).
+        임계금액을 초과하면 즉시 완료하지 않고 출금계좌에 지급정지를 반영한 뒤
+        인증 대기(PENDING_OTP) 상태로 202를 반환합니다(FR-AUTH-003). OTP 검증(API-016)은
+        별도 엔드포인트에서 처리합니다.
       operationId: transfer
       parameters:
       - name: Idempotency-Key
@@ -67,6 +71,36 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/TransferRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseTransferResponse"
+  /api/v1/transfers/{transactionId}/otp-verifications:
+    post:
+      tags:
+      - 이체
+      summary: 고액이체 2차 인증(OTP) 검증
+      description: |
+        임계금액 초과로 인증 대기(PENDING_OTP) 상태인 이체 건의 OTP를 검증합니다(FR-AUTH-003).
+        성공하면 지급정지가 확정 출금으로 전환되며 이체가 완료됩니다. 실패 횟수가 한도를
+        넘거나 유효시간(3분)이 지나면 거래가 취소되고 지급정지가 해제됩니다.
+      operationId: verifyOtp
+      parameters:
+      - name: transactionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OtpVerificationRequest"
         required: true
       responses:
         "200":
@@ -408,6 +442,50 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ApiResponsePageResponseCustomerAccountSummaryResponse"
+  /api/v1/admin/audit-logs:
+    get:
+      tags:
+      - 감사 로그
+      summary: 감사 로그 조회
+      description: |
+        eventType, actorId, from, to는 선택입니다. 운영자 전용이지만 운영자 역할
+        모델이 아직 없어 인증된 사용자면 누구나 호출할 수 있습니다.
+      operationId: getAuditLogs
+      parameters:
+      - name: eventType
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: actorId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: from
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: to
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: pageable
+        in: query
+        required: true
+        schema:
+          $ref: "#/components/schemas/Pageable"
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponsePageResponseAuditLogResponse"
   /api/v1/accounts/{accountId}:
     get:
       tags:
@@ -573,6 +651,14 @@ components:
         processedAt:
           type: string
           format: date-time
+    OtpVerificationRequest:
+      required:
+      - otpCode
+      type: object
+      properties:
+        otpCode:
+          pattern: "\\d{6}"
+          type: string
     ProductSubscribeRequest:
       required:
       - accountNumber
@@ -825,6 +911,7 @@ components:
           - DEPOSIT
           - WITHDRAWAL
           - TRANSFER
+          - INTEREST
         amount:
           type: number
         balanceAfter:
@@ -1052,6 +1139,61 @@ components:
         totalPages:
           type: integer
           format: int32
+    ApiResponsePageResponseAuditLogResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/PageResponseAuditLogResponse"
+        error:
+          $ref: "#/components/schemas/ErrorDetail"
+    AuditLogResponse:
+      type: object
+      properties:
+        logId:
+          type: integer
+          format: int64
+        eventType:
+          type: string
+        actorType:
+          type: string
+          enum:
+          - CUSTOMER
+          - SYSTEM
+          - OPERATOR
+        actorId:
+          type: string
+        targetType:
+          type: string
+        targetId:
+          type: string
+        detail:
+          type: object
+          additionalProperties:
+            type: object
+        occurredAt:
+          type: string
+          format: date-time
+    PageResponseAuditLogResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/AuditLogResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
     AccountDetailResponse:
       type: object
       properties:
@@ -1126,6 +1268,7 @@ components:
           - DEPOSIT
           - WITHDRAWAL
           - TRANSFER
+          - INTEREST
         amount:
           type: number
         status:
