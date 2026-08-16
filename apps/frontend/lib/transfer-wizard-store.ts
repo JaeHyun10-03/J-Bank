@@ -10,21 +10,15 @@ type TransferWizardState = {
   amount: number;
   memo: string;
   transactionId: string;
-  otpSentTo: string;
+  /** API-008 응답에는 만료 시각이 없다 — 202를 받는 시점에 클라이언트가 3분 뒤로 직접 계산해 넣는다. */
   otpExpiresAt: string;
-  holdAmount: number;
   setInput: (input: {
     fromAccountNumber: string;
     toAccountNumber: string;
     amount: number;
     memo: string;
   }) => void;
-  setPendingOtp: (otp: {
-    transactionId: string;
-    otpSentTo: string;
-    otpExpiresAt: string;
-    holdAmount: number;
-  }) => void;
+  setPendingOtp: (otp: { transactionId: string; otpExpiresAt: string }) => void;
   reset: () => void;
 };
 
@@ -34,9 +28,7 @@ const initialState = {
   amount: 0,
   memo: "",
   transactionId: "",
-  otpSentTo: "",
   otpExpiresAt: "",
-  holdAmount: 0,
 };
 
 export const useTransferWizardStore = create<TransferWizardState>()((set) => ({
