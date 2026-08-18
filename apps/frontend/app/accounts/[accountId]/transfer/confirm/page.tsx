@@ -76,7 +76,7 @@ export default function TransferConfirmPage() {
       <TransferCompleteCard
         toAccountNumber={result.toAccountNumber}
         amount={result.amount}
-        onConfirm={() => router.replace(`/accounts/${accountId}`)}
+        onConfirm={() => router.replace("/")}
       />
     );
   }

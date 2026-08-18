@@ -101,7 +101,7 @@ export default function TransferOtpPage() {
       <TransferCompleteCard
         toAccountNumber={result.toAccountNumber}
         amount={result.amount}
-        onConfirm={() => router.replace(`/accounts/${accountId}`)}
+        onConfirm={() => router.replace("/")}
       />
     );
   }
