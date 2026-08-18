@@ -45,8 +45,8 @@ export default function TransferOtpPage() {
   const [result, setResult] = useState<{ toAccountNumber: string; amount: number } | null>(null);
 
   useEffect(() => {
-    if (!transactionId) router.replace(`/accounts/${accountId}/transfer`);
-  }, [transactionId, accountId, router]);
+    if (!transactionId && !result) router.replace(`/accounts/${accountId}/transfer`);
+  }, [transactionId, result, accountId, router]);
 
   useEffect(() => {
     if (!otpExpiresAt) return;

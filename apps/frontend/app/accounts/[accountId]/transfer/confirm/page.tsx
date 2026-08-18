@@ -34,8 +34,8 @@ export default function TransferConfirmPage() {
   const [result, setResult] = useState<{ toAccountNumber: string; amount: number } | null>(null);
 
   useEffect(() => {
-    if (!toAccountNumber) router.replace(`/accounts/${accountId}/transfer`);
-  }, [toAccountNumber, accountId, router]);
+    if (!toAccountNumber && !result) router.replace(`/accounts/${accountId}/transfer`);
+  }, [toAccountNumber, result, accountId, router]);
 
   async function handleSend() {
     setSubmitting(true);
