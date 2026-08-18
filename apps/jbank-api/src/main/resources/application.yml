@@ -43,6 +43,11 @@ jbank:
         max-attempts: 3
         backoff-ms: 1000
 
+logging:
+  structured:
+    format:
+      console: ecs
+
 management:
   endpoints:
     web:
