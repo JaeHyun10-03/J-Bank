@@ -30,6 +30,9 @@ infra/terraform/**/.terraform.lock.hcl
 .env
 .env.local
 
+# 로컬 통합 실행 로그
+.local-logs/
+
 
 # 성능 측정 원본 로그(요약만 커밋)
 perf/results/**/*.raw
