@@ -43,3 +43,22 @@ export function removeLastAmountDigit(current: string): string {
   const next = current.slice(0, -1);
   return next === "" ? "0" : next;
 }
+
+const ACCOUNT_DIGITS_LENGTH = 10;
+
+/** 계좌번호 키패드 입력. 지점코드 3 + 일련번호 6 + 체크디지트 1 = 10자리를 넘으면 무시한다. */
+export function appendAccountDigit(current: string, digit: string): string {
+  const next = current + digit;
+  return next.length > ACCOUNT_DIGITS_LENGTH ? current : next;
+}
+
+export function removeLastAccountDigit(current: string): string {
+  return current.slice(0, -1);
+}
+
+/** "1100001234" -> "110-000123-4". 자릿수가 찰 때까지 부분 입력도 그대로 하이픈을 넣는다. */
+export function formatAccountNumber(digits: string): string {
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 9) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 9)}-${digits.slice(9)}`;
+}

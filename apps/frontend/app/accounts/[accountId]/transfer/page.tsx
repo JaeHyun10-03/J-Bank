@@ -1,12 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
-import { appendAmountDigit, removeLastAmountDigit, formatWon } from "@/lib/format";
+import {
+  appendAccountDigit,
+  removeLastAccountDigit,
+  formatAccountNumber,
+  appendAmountDigit,
+  removeLastAmountDigit,
+  formatWon,
+} from "@/lib/format";
 import { useTransferWizardStore } from "@/lib/transfer-wizard-store";
 import type { components } from "@/types/api";
 import { MobileScreen } from "@/components/mobile-screen";
@@ -17,14 +22,7 @@ type ApiResponseAccountDetailResponse = components["schemas"]["ApiResponseAccoun
 
 const ACCOUNT_NUMBER_PATTERN = /^\d{3}-\d{6}-\d$/;
 
-const transferInputSchema = z.object({
-  toAccountNumber: z
-    .string()
-    .regex(ACCOUNT_NUMBER_PATTERN, "계좌번호 형식이 올바르지 않습니다 (예: 110-000123-4)"),
-  amount: z.string().regex(/^[1-9]\d*$/, "금액을 입력하세요"),
-  memo: z.string().max(200, "메모는 200자 이내로 입력하세요").optional(),
-});
-type TransferInputForm = z.infer<typeof transferInputSchema>;
+type Step = "account" | "amount" | "memo";
 
 export default function TransferInputPage() {
   const { accountId } = useParams<{ accountId: string }>();
@@ -39,90 +37,150 @@ export default function TransferInputPage() {
     },
   });
 
-  const {
-    register,
-    setValue,
-    watch,
-    handleSubmit,
-    setError,
-    formState: { errors },
-  } = useForm<TransferInputForm>({
-    resolver: zodResolver(transferInputSchema),
-    defaultValues: { toAccountNumber: "", amount: "0", memo: "" },
-  });
-  const amount = watch("amount");
+  const [step, setStep] = useState<Step>("account");
+  const [accountDigits, setAccountDigits] = useState("");
+  const [accountError, setAccountError] = useState<string | null>(null);
+  const [amount, setAmount] = useState("0");
+  const [memo, setMemo] = useState("");
+
+  const toAccountNumber = formatAccountNumber(accountDigits);
+  const accountValid = ACCOUNT_NUMBER_PATTERN.test(toAccountNumber);
   const amountValue = Number(amount);
 
-  function handleDigit(digit: string) {
-    setValue("amount", appendAmountDigit(amount, digit), { shouldValidate: true });
-  }
-
-  function handleBackspace() {
-    setValue("amount", removeLastAmountDigit(amount), { shouldValidate: true });
-  }
-
-  function onSubmit(values: TransferInputForm) {
-    if (values.toAccountNumber === accountQuery.data?.accountNumber) {
-      setError("toAccountNumber", { message: "출금 계좌와 동일한 계좌로는 이체할 수 없습니다." });
+  function goToAmountStep() {
+    if (!accountValid) return;
+    if (toAccountNumber === accountQuery.data?.accountNumber) {
+      setAccountError("출금 계좌와 동일한 계좌로는 이체할 수 없습니다.");
       return;
     }
+    setAccountError(null);
+    setStep("amount");
+  }
+
+  function handleBack() {
+    if (step === "amount") setStep("account");
+    else if (step === "memo") setStep("amount");
+    else router.back();
+  }
+
+  function submit() {
     setInput({
       fromAccountNumber: accountQuery.data?.accountNumber ?? "",
-      toAccountNumber: values.toAccountNumber,
-      amount: Number(values.amount),
-      memo: values.memo ?? "",
+      toAccountNumber,
+      amount: amountValue,
+      memo,
     });
     router.push(`/accounts/${accountId}/transfer/confirm`);
   }
 
   return (
     <MobileScreen className="items-start">
-      <MobileNavBar onBack={() => router.back()} onCancel={() => router.push(`/accounts/${accountId}`)} />
-      <form onSubmit={handleSubmit(onSubmit)} className="flex w-full flex-1 flex-col">
-        <div className="flex flex-col gap-[8px] px-[24px] pb-[20px] pt-[16px]">
-          <p className="text-[24px] font-bold leading-[34px] text-[#191f28]">어디로 보낼까요?</p>
-        </div>
-        <div className="flex flex-col gap-[6px] px-[24px] pb-[24px]">
-          <input
-            {...register("toAccountNumber")}
-            placeholder="계좌번호 입력 (예: 110-000123-4)"
-            className="w-full rounded-[14px] border border-[#e0e6f1] px-[20px] py-[20px] text-[16px] text-[#191f28] placeholder:text-[#b0b8c1] focus:outline-none"
-          />
-          {errors.toAccountNumber ? (
-            <p className="text-[13px] text-[#f04452]">{errors.toAccountNumber.message}</p>
+      <MobileNavBar onBack={handleBack} onCancel={() => router.push(`/accounts/${accountId}`)} />
+
+      {step !== "account" ? (
+        <div className="flex w-full flex-col gap-[4px] px-[24px] pb-[16px]">
+          <p className="text-[13px] text-[#8b95a1]">받는 계좌 {toAccountNumber}</p>
+          {step === "memo" ? (
+            <p className="text-[13px] text-[#8b95a1]">보낼 금액 {formatWon(amountValue)}</p>
           ) : null}
         </div>
-        <div className="flex flex-col gap-[8px] px-[24px] pb-[8px]">
-          <p className="text-[20px] font-bold leading-[normal] text-[#191f28]">얼마를 보낼까요?</p>
-          {errors.amount ? <p className="text-[13px] text-[#f04452]">{errors.amount.message}</p> : null}
-        </div>
-        <div className="flex h-[70px] items-center px-[24px]">
-          <p className="text-[28px] font-bold leading-[normal] text-[#191f28]">{formatWon(amountValue)}</p>
-        </div>
-        <div className="flex flex-col gap-[6px] px-[24px] pb-[16px] pt-[8px]">
-          <input
-            {...register("memo")}
-            placeholder="받는 분에게 표시할 메모(선택)"
-            className="w-full rounded-[14px] border border-[#e0e6f1] px-[20px] py-[16px] text-[15px] text-[#191f28] placeholder:text-[#b0b8c1] focus:outline-none"
+      ) : null}
+
+      {step === "account" ? (
+        <>
+          <div className="flex flex-col gap-[8px] px-[24px] pb-[20px] pt-[16px]">
+            <p className="text-[24px] font-bold leading-[34px] text-[#191f28]">어디로 보낼까요?</p>
+          </div>
+          <div className="flex flex-col gap-[6px] px-[24px] pb-[16px]">
+            <p
+              className={
+                accountDigits
+                  ? "border-b-2 border-[#4262ff] pb-[10px] text-[24px] font-bold text-[#191f28]"
+                  : "border-b-2 border-[#e0e6f1] pb-[10px] text-[24px] font-bold text-[#b0b8c1]"
+              }
+            >
+              {accountDigits ? toAccountNumber : "계좌번호 입력"}
+            </p>
+            {accountError ? <p className="text-[13px] text-[#f04452]">{accountError}</p> : null}
+          </div>
+          <div className="min-h-px flex-1" />
+          <AmountKeypad
+            onDigit={(d) => setAccountDigits((cur) => appendAccountDigit(cur, d === "00" ? "0" : d))}
+            onBackspace={() => setAccountDigits((cur) => removeLastAccountDigit(cur))}
           />
-          {errors.memo ? <p className="text-[13px] text-[#f04452]">{errors.memo.message}</p> : null}
-        </div>
-        <div className="min-h-px flex-1" />
-        <AmountKeypad onDigit={handleDigit} onBackspace={handleBackspace} />
-        <div className="px-[16px] pb-[16px] pt-[8px]">
-          <button
-            type="submit"
-            disabled={amountValue <= 0}
-            className={
-              amountValue > 0
-                ? "w-full rounded-[14px] bg-[#0114a7] py-[17px] text-[17px] font-semibold text-white"
-                : "w-full rounded-[14px] bg-[#f2f4f6] py-[17px] text-[17px] font-semibold text-[#b0b8c1]"
-            }
-          >
-            다음
-          </button>
-        </div>
-      </form>
+          <div className="px-[16px] pb-[16px] pt-[8px]">
+            <button
+              type="button"
+              disabled={!accountValid}
+              onClick={goToAmountStep}
+              className={
+                accountValid
+                  ? "w-full rounded-[14px] bg-[#0114a7] py-[17px] text-[17px] font-semibold text-white"
+                  : "w-full rounded-[14px] bg-[#f2f4f6] py-[17px] text-[17px] font-semibold text-[#b0b8c1]"
+              }
+            >
+              다음
+            </button>
+          </div>
+        </>
+      ) : step === "amount" ? (
+        <>
+          <div className="flex flex-col gap-[8px] px-[24px] pb-[8px]">
+            <p className="text-[24px] font-bold leading-[34px] text-[#191f28]">얼마를 보낼까요?</p>
+          </div>
+          <div className="flex h-[70px] items-center px-[24px]">
+            <p className="text-[28px] font-bold leading-[normal] text-[#191f28]">{formatWon(amountValue)}</p>
+          </div>
+          <div className="min-h-px flex-1" />
+          <AmountKeypad
+            onDigit={(d) => setAmount((cur) => appendAmountDigit(cur, d))}
+            onBackspace={() => setAmount((cur) => removeLastAmountDigit(cur))}
+          />
+          <div className="px-[16px] pb-[16px] pt-[8px]">
+            <button
+              type="button"
+              disabled={amountValue <= 0}
+              onClick={() => setStep("memo")}
+              className={
+                amountValue > 0
+                  ? "w-full rounded-[14px] bg-[#0114a7] py-[17px] text-[17px] font-semibold text-white"
+                  : "w-full rounded-[14px] bg-[#f2f4f6] py-[17px] text-[17px] font-semibold text-[#b0b8c1]"
+              }
+            >
+              다음
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="flex flex-col gap-[8px] px-[24px] pb-[8px] pt-[8px]">
+            <p className="text-[24px] font-bold leading-[34px] text-[#191f28]">
+              받는 분에게 표시할
+              <br />
+              메모를 남겨보세요
+            </p>
+          </div>
+          <div className="flex flex-col gap-[6px] px-[24px] pb-[16px] pt-[8px]">
+            <input
+              autoFocus
+              value={memo}
+              onChange={(e) => setMemo(e.target.value.slice(0, 200))}
+              placeholder="메모(선택)"
+              className="w-full rounded-[14px] border border-[#e0e6f1] px-[20px] py-[16px] text-[15px] text-[#191f28] placeholder:text-[#b0b8c1] focus:outline-none"
+            />
+          </div>
+          <div className="min-h-px flex-1" />
+          <div className="px-[16px] pb-[16px] pt-[8px]">
+            <button
+              type="button"
+              onClick={submit}
+              className="w-full rounded-[14px] bg-[#0114a7] py-[17px] text-[17px] font-semibold text-white"
+            >
+              다음
+            </button>
+          </div>
+        </>
+      )}
     </MobileScreen>
   );
 }
