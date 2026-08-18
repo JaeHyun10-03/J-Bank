@@ -59,7 +59,7 @@ export default function ProductListPage() {
             type="button"
             onClick={() => setCategory(tab)}
             className={cn(
-              "rounded-full px-[16px] py-[9px] text-[14px]",
+              "inline-flex items-center justify-center rounded-full px-[16px] py-[9px] text-[14px] leading-none",
               tab === category
                 ? "bg-[#4262ff] font-semibold text-white"
                 : "bg-[#edf1f7] font-medium text-[#6b7684]",
@@ -127,7 +127,7 @@ export default function ProductListPage() {
                 <div className="flex items-center gap-[6px]">
                   <p className="text-[16px] font-bold text-[#191f28]">{LOAN_PRODUCT.name}</p>
                   <span className="size-[6px] rounded-full bg-[#4262ff]" />
-                  <span className="rounded-[4px] bg-[#eef0ff] px-[6px] py-[2px] text-[10px] font-bold text-[#4262ff]">
+                  <span className="inline-flex items-center rounded-[4px] bg-[#eef0ff] px-[6px] py-[2px] text-[10px] leading-none font-bold text-[#4262ff]">
                     {LOAN_PRODUCT.badge}
                   </span>
                 </div>
