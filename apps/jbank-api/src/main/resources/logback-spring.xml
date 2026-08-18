@@ -10,6 +10,28 @@
     </encoder>
   </appender>
 
+  <!-- local/dev에서만 Loki로 직접 push한다. Promtail 컨테이너·공유 볼륨보다 단순하다. -->
+  <springProfile name="local,dev">
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+      <http>
+        <url>http://localhost:3100/loki/api/v1/push</url>
+      </http>
+      <format>
+        <label>
+          <pattern>app=jbank-api,level=%level</pattern>
+        </label>
+        <message>
+          <pattern>level=%level traceId=%X{traceId} logger=%logger{36} - %message%n%ex</pattern>
+        </message>
+        <sortByTime>true</sortByTime>
+      </format>
+    </appender>
+
+    <root level="INFO">
+      <appender-ref ref="LOKI" />
+    </root>
+  </springProfile>
+
   <root level="INFO">
     <appender-ref ref="CONSOLE" />
   </root>
