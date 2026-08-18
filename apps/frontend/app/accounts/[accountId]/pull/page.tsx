@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronDown, ChevronRight, Landmark, Plus, Zap, Check, X } from "lucide-react";
@@ -28,10 +28,30 @@ const CHIPS = [
 type Sheet = "none" | "account" | "amount";
 
 function BottomSheet({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
+  const [shown, setShown] = useState(false);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setShown(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative flex w-full max-w-[430px] flex-col rounded-t-[24px] bg-white pb-[40px] pt-[30px]">
+      <div
+        className={
+          shown
+            ? "absolute inset-0 bg-black/40 transition-opacity duration-200 ease-out"
+            : "absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-200 ease-out"
+        }
+        onClick={onClose}
+      />
+      <div
+        className={
+          shown
+            ? "relative flex w-full max-w-[430px] translate-y-0 flex-col rounded-t-[24px] bg-white pb-[40px] pt-[30px] transition-transform duration-200 ease-out"
+            : "relative flex w-full max-w-[430px] translate-y-full flex-col rounded-t-[24px] bg-white pb-[40px] pt-[30px] transition-transform duration-200 ease-out"
+        }
+      >
         {children}
       </div>
     </div>
