@@ -200,7 +200,7 @@ export default function PullMoneyPage() {
           <button
             type="button"
             onClick={() => setSheet("account")}
-            className="flex h-[70px] w-full items-center rounded-[14px] border border-[#e4e8f0] px-[18px]"
+            className="flex h-[70px] w-full items-center rounded-[14px] border border-[#e4e8f0] px-[18px] transition-colors hover:border-[#3b5bff]"
           >
             <div className="flex flex-1 flex-col items-start gap-[2px]">
               {source ? (
@@ -223,7 +223,7 @@ export default function PullMoneyPage() {
           <button
             type="button"
             onClick={openAmountSheet}
-            className="flex h-[70px] w-full flex-col items-start gap-[3px] rounded-[14px] border border-[#e4e8f0] px-[18px] pt-[13px]"
+            className="flex h-[70px] w-full flex-col items-start gap-[3px] rounded-[14px] border border-[#e4e8f0] px-[18px] pt-[13px] transition-colors hover:border-[#3b5bff]"
           >
             <p className="text-[12px] text-[#b0b8c1]">금액</p>
             <div className="flex w-full items-center">
