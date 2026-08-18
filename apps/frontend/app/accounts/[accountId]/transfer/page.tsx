@@ -190,7 +190,7 @@ export default function TransferInputPage() {
           <p className="text-[30px] font-bold text-[#191f28]">{formatWon(phoneAmountValue)}</p>
         </div>
         <div className="min-h-px flex-1" />
-        <div className="flex gap-[8px] px-[24px] pb-[16px]">
+        <div className="flex w-full gap-[8px] px-[24px] pb-[16px]">
           {CHIPS.map((chip) => (
             <button
               key={chip.label}
@@ -261,7 +261,7 @@ export default function TransferInputPage() {
           <p className="text-[30px] font-bold text-[#191f28]">{formatWon(amountValue)}</p>
         </div>
         <div className="min-h-px flex-1" />
-        <div className="flex gap-[8px] px-[24px] pb-[16px]">
+        <div className="flex w-full gap-[8px] px-[24px] pb-[16px]">
           {CHIPS.map((chip) => (
             <button
               key={chip.label}
