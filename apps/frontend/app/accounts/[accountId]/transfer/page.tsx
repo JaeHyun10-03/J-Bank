@@ -138,7 +138,7 @@ export default function TransferInputPage() {
 
   if (mode === "phone" && phoneStep === "complete" && selectedContact) {
     return (
-      <MobileScreen className="items-center px-[24px] pb-[24px] pt-[104px]">
+      <MobileScreen className="items-center px-[24px] pb-[24px] pt-[104px] animate-in slide-in-from-right fade-in duration-250">
         <Check className="size-[36px] text-[#0114a7]" strokeWidth={3} />
         <p className="mt-[24px] text-center text-[22px] font-bold text-[#191f28]">
           <span className="text-[#4262ff]">{selectedContact.name}</span>님에게
@@ -160,7 +160,7 @@ export default function TransferInputPage() {
 
   if (mode === "phone" && phoneStep === "amount" && selectedContact) {
     return (
-      <MobileScreen className="items-start">
+      <MobileScreen className="items-start animate-in slide-in-from-right fade-in duration-250">
         <MobileNavBar
           onBack={() => setPhoneStep("contacts")}
           onCancel={() => router.push(`/accounts/${accountId}`)}
@@ -233,7 +233,7 @@ export default function TransferInputPage() {
 
   if (accountStep === "amount") {
     return (
-      <MobileScreen className="items-start">
+      <MobileScreen className="items-start animate-in slide-in-from-right fade-in duration-250">
         <MobileNavBar
           onBack={() => setAccountStep("account")}
           onCancel={() => router.push(`/accounts/${accountId}`)}
@@ -303,7 +303,7 @@ export default function TransferInputPage() {
   }
 
   return (
-    <MobileScreen className="items-start">
+    <MobileScreen className="items-start animate-in slide-in-from-right fade-in duration-250">
       <MobileNavBar onBack={() => router.back()} onCancel={() => router.push(`/accounts/${accountId}`)} />
       <div className="flex w-full flex-col px-[24px] pb-[24px] pt-[16px]">
         <p className="text-[24px] font-bold leading-[30px] text-[#191f28]">어디로 돈을 보낼까요?</p>
