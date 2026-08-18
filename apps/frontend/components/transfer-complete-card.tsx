@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ChevronDown, ChevronRight, MessageSquare } from "lucide-react";
+import { Check, ChevronRight, MessageSquare } from "lucide-react";
 import { formatWon } from "@/lib/format";
 import { useAuthStore } from "@/lib/auth-store";
 import { MobileScreen } from "@/components/mobile-screen";
@@ -23,7 +23,7 @@ export function TransferCompleteCard({
 
   return (
     <MobileScreen className="items-center px-[24px] pb-[24px] pt-[80px]">
-      <ChevronDown className="size-[22px] text-[#8b95a5]" strokeWidth={2.5} />
+      <Check className="size-[36px] text-[#0114a7]" strokeWidth={3} />
       <p className="mt-[24px] text-center text-[24px] font-bold leading-[34px] text-[#191f28]">
         {formatWon(amount)}을
         <br />

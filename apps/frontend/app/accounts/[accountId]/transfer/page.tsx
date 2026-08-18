@@ -199,7 +199,7 @@ export default function TransferInputPage() {
               onClick={() => setPhoneAmount(String(Math.min(phoneAmountValue + chip.delta, availableBalance)))}
               className="flex-1 rounded-[10px] bg-[#edf1f7] py-[12px]"
             >
-              <p className="text-[14px] font-semibold text-[#4262ff]">{chip.label}</p>
+              <p className="whitespace-nowrap text-[14px] font-semibold text-[#4262ff]">{chip.label}</p>
             </button>
           ))}
           <button
@@ -207,7 +207,7 @@ export default function TransferInputPage() {
             onClick={() => setPhoneAmount(String(availableBalance))}
             className="flex-1 rounded-[10px] bg-[#edf1f7] py-[12px]"
           >
-            <p className="text-[14px] font-semibold text-[#4262ff]">전액</p>
+            <p className="whitespace-nowrap text-[14px] font-semibold text-[#4262ff]">전액</p>
           </button>
         </div>
         <AmountKeypad
@@ -270,7 +270,7 @@ export default function TransferInputPage() {
               onClick={() => setAmount(String(Math.min(amountValue + chip.delta, availableBalance)))}
               className="flex-1 rounded-[10px] bg-[#edf1f7] py-[12px]"
             >
-              <p className="text-[14px] font-semibold text-[#4262ff]">{chip.label}</p>
+              <p className="whitespace-nowrap text-[14px] font-semibold text-[#4262ff]">{chip.label}</p>
             </button>
           ))}
           <button
@@ -278,7 +278,7 @@ export default function TransferInputPage() {
             onClick={() => setAmount(String(availableBalance))}
             className="flex-1 rounded-[10px] bg-[#edf1f7] py-[12px]"
           >
-            <p className="text-[14px] font-semibold text-[#4262ff]">전액</p>
+            <p className="whitespace-nowrap text-[14px] font-semibold text-[#4262ff]">전액</p>
           </button>
         </div>
         <AmountKeypad
@@ -353,17 +353,6 @@ export default function TransferInputPage() {
           {accountError ? (
             <p className="w-full px-[24px] pb-[12px] text-[13px] text-[#f04452]">{accountError}</p>
           ) : null}
-          {accountValid ? (
-            <div className="w-full px-[24px] pb-[24px]">
-              <button
-                type="button"
-                onClick={goToAmountStep}
-                className="w-full rounded-[14px] bg-[#0114a7] py-[16px] text-[17px] font-semibold text-white"
-              >
-                다음
-              </button>
-            </div>
-          ) : null}
 
           <div className="w-full px-[24px] pb-[12px]">
             <p className="text-[15px] font-bold text-[#191f28]">내 계좌</p>
@@ -394,6 +383,19 @@ export default function TransferInputPage() {
               <p className="text-[14px] font-semibold text-[#191f28]">한 글자만 쳐도 찾아줘요</p>
             </div>
           </div>
+
+          <div className="min-h-px flex-1" />
+          {accountValid ? (
+            <div className="w-full px-[16px] pb-[16px] pt-[8px]">
+              <button
+                type="button"
+                onClick={goToAmountStep}
+                className="w-full rounded-[14px] bg-[#0114a7] py-[16px] text-[17px] font-semibold text-white"
+              >
+                다음
+              </button>
+            </div>
+          ) : null}
         </>
       ) : (
         <div className="flex w-full flex-col">
