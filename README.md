@@ -177,6 +177,12 @@ stateDiagram-v2
 ## 실행 방법
 
 ```bash
+scripts/up.sh              # 한 번에 전체 기동: Docker(core+messaging+observability) + 백엔드 + 프론트엔드
+```
+
+세부적으로 나눠서 켜고 싶다면:
+
+```bash
 scripts/bootstrap.sh      # 도구 확인 + 의존성 설치 + 로컬 인프라 기동
 scripts/dev.sh core       # PostgreSQL 16 + Redis 7 (한 줄로 docker compose 기동)
 scripts/dev.sh core messaging   # 위 두 개 + Kafka (발신함 폴링 발행기 구동에 필요)
