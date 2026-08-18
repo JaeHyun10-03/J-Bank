@@ -125,12 +125,12 @@ export default function HomePage() {
                 </p>
               ) : null}
               <div className="flex w-full gap-[8px]">
-                <button
-                  type="button"
+                <Link
+                  href={`/accounts/${primary.accountId}/pull`}
                   className="flex flex-1 items-center justify-center rounded-[10px] bg-[#edf1f7] py-[13px]"
                 >
                   <p className="text-[15px] font-semibold text-[#4262ff]">가져오기</p>
-                </button>
+                </Link>
                 <Link
                   href={`/accounts/${primary.accountId}/transfer`}
                   className="flex flex-1 items-center justify-center rounded-[10px] bg-[#edf1f7] py-[13px]"
