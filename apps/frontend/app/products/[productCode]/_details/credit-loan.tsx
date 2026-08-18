@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
 
 const LOAN_TYPES = [
   "신용대출",
@@ -19,8 +18,13 @@ export function CreditLoanDetail() {
   return (
     <div className="flex min-h-screen w-full flex-col items-center bg-white pb-[100px]">
       <div className="flex h-[56px] w-full items-center px-[16px]">
-        <button type="button" onClick={() => router.back()} aria-label="뒤로가기">
-          <ChevronLeft className="size-[26px] text-[#191f28]" strokeWidth={2} />
+        <button
+          type="button"
+          onClick={() => router.back()}
+          aria-label="뒤로가기"
+          className="block h-[28px] w-[41px]"
+        >
+          <img alt="" className="size-full" src="/products/credit-loan/back.svg" />
         </button>
       </div>
 
@@ -37,17 +41,16 @@ export function CreditLoanDetail() {
         {LOAN_TYPES.map((type) => (
           <span
             key={type}
-            className="rounded-full bg-[#edf1f7] px-[14px] py-[8px] text-[13px] font-medium text-[#6b7684]"
+            className="inline-flex items-center rounded-full bg-[#edf1f7] px-[14px] py-[8px] text-[13px] leading-none font-medium text-[#6b7684]"
           >
             {type}
           </span>
         ))}
       </div>
 
-      <div className="flex h-[130px] items-center justify-center">
-        <div className="flex size-[90px] items-center justify-center rounded-full bg-[#4262ff]">
-          <p className="text-[34px] font-bold text-white">₩</p>
-        </div>
+      <div className="relative flex h-[130px] items-center justify-center">
+        <img alt="" className="size-[90px]" src="/products/credit-loan/ellipse.svg" />
+        <p className="absolute text-[34px] font-bold text-white">₩</p>
       </div>
 
       <div className="flex w-full items-center px-[24px] pb-[20px] pt-[16px]">

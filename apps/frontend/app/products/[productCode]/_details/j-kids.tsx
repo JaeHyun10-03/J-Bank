@@ -1,20 +1,22 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronDown, Share2, Phone, MessageCircle } from "lucide-react";
 
 const ACCORDION_ROWS = ["상품 상세", "금리안내", "이용안내", "약관 및 상품설명서"];
 
-// ponytail: 피그마 원본의 손그림풍 일러스트(아기·카드탑·동전·휴대폰)는 좌표 기반 도형 수십 개로
-// 구성돼 있어 이모지로 단순화했다. 실제 일러스트 에셋이 필요해지면 피그마 익스포트로 교체한다.
 export function JKidsDetail() {
   const router = useRouter();
 
   return (
     <div className="flex w-full flex-col items-center bg-white pb-[100px]">
       <div className="flex h-[56px] w-full items-center px-[12px]">
-        <button type="button" onClick={() => router.back()} aria-label="뒤로가기">
-          <ChevronLeft className="size-[26px] text-[#191f28]" strokeWidth={2} />
+        <button
+          type="button"
+          onClick={() => router.back()}
+          aria-label="뒤로가기"
+          className="block size-[26px]"
+        >
+          <img alt="" className="size-full" src="/products/j-kids/back.svg" />
         </button>
       </div>
 
@@ -26,9 +28,23 @@ export function JKidsDetail() {
         <p className="text-center text-[26px] font-extrabold leading-[36px] text-[#4262ff]">
           J키즈 적금
         </p>
-        <div className="mt-[34px] flex h-[190px] w-[240px] items-center justify-center rounded-full bg-[#eef2ff]">
-          <span className="text-[80px] leading-none">👶</span>
+
+        <div className="relative mt-[34px] h-[190px] w-[240px]">
+          <div className="absolute left-[18px] top-[22px] h-[64px] w-[96px] rounded-[12px] bg-[#7b9cff]" />
+          <div className="absolute left-[30px] top-[66px] h-[7px] w-[26px] rounded-[4px] bg-[#d6e2ff]" />
+          <img alt="" className="absolute left-[62px] top-[52px] h-[112px] w-[118px]" src="/products/j-kids/ellipse-1.svg" />
+          <img alt="" className="absolute left-[76px] top-[44px] h-[58px] w-[90px]" src="/products/j-kids/ellipse-2.svg" />
+          <img alt="" className="absolute left-[140px] top-[100px] size-[11px]" src="/products/j-kids/ellipse-3.svg" />
+          <img alt="" className="absolute left-[104px] top-[118px] h-[24px] w-[30px]" src="/products/j-kids/ellipse-4.svg" />
+          <img alt="" className="absolute left-[150px] top-[112px] h-[72px] w-[78px]" src="/products/j-kids/vector-1.svg" />
+          <p className="absolute left-[176px] top-[126px] text-[30px] font-extrabold text-[#b57be8]">₩</p>
+          <img alt="" className="absolute left-[24px] top-[118px] size-[11px]" src="/products/j-kids/ellipse-5.svg" />
+          <img alt="" className="absolute left-[44px] top-[146px] size-[9px]" src="/products/j-kids/ellipse-6.svg" />
+          <div className="absolute left-[198px] top-[56px] flex size-[16px] rotate-45 items-center justify-center">
+            <div className="size-[11px] bg-[#f5a623]" />
+          </div>
         </div>
+
         <div className="mt-[40px] flex w-full items-start">
           <div className="flex flex-1 flex-col items-center gap-[6px] text-center">
             <p className="text-[13px] text-[#8b95a1]">금리(5년,세전)</p>
@@ -52,8 +68,15 @@ export function JKidsDetail() {
         <p className="text-center text-[25px] font-extrabold leading-[35px] text-[#4262ff]">
           자동으로 재가입할 수 있어요
         </p>
-        <div className="mt-[34px] flex h-[210px] w-[150px] items-center justify-center rounded-[12px] bg-[#dde7ff]">
-          <span className="text-[64px] leading-none">🗂️</span>
+        <div className="relative mt-[34px] h-[210px] w-[150px]">
+          <div className="absolute left-[30px] top-0 h-[52px] w-[90px] rounded-[12px] bg-[#d8e3ff] opacity-50" />
+          <div className="absolute left-[42px] top-[34px] h-[6px] w-[24px] rounded-[3px] bg-white opacity-[.43]" />
+          <div className="absolute left-[18px] top-[52px] h-[66px] w-[114px] rounded-[12px] bg-[#7b9cff]" />
+          <div className="absolute left-[30px] top-[100px] h-[6px] w-[24px] rounded-[3px] bg-white opacity-85" />
+          <div className="absolute left-[22px] top-[124px] h-[62px] w-[106px] rounded-[12px] bg-[#a8bef5]" />
+          <div className="absolute left-[34px] top-[168px] h-[6px] w-[24px] rounded-[3px] bg-white opacity-85" />
+          <div className="absolute left-[34px] top-[196px] h-[48px] w-[82px] rounded-[12px] bg-[#dde7ff] opacity-45" />
+          <div className="absolute left-[46px] top-[226px] h-[6px] w-[24px] rounded-[3px] bg-white opacity-[.38]" />
         </div>
       </div>
 
@@ -65,8 +88,17 @@ export function JKidsDetail() {
         <p className="text-center text-[25px] font-extrabold leading-[35px] text-[#191f28]">
           성공하면 우대금리 드려요
         </p>
-        <div className="mt-[30px] flex h-[200px] w-[220px] items-center justify-center">
-          <span className="text-[80px] leading-none">🪙</span>
+        <div className="relative mt-[30px] h-[200px] w-[220px]">
+          <div className="absolute left-[62px] top-[112px] h-[13px] w-[96px] rounded-[6px] bg-[#fce38a]" />
+          <div className="absolute left-[66px] top-[129px] h-[13px] w-[96px] rounded-[6px] bg-[#fce38a]" />
+          <div className="absolute left-[62px] top-[146px] h-[13px] w-[96px] rounded-[6px] bg-[#fce38a]" />
+          <div className="absolute left-[66px] top-[163px] h-[13px] w-[96px] rounded-[6px] bg-[#fce38a]" />
+          <div className="absolute left-[62px] top-[180px] h-[13px] w-[96px] rounded-[6px] bg-[#fce38a]" />
+          <img alt="" className="absolute left-[76px] top-[40px] size-[74px]" src="/products/j-kids/ellipse-7.svg" />
+          <p className="absolute left-[101px] top-[59px] text-[30px] font-extrabold text-[#e0a21b]">₩</p>
+          <img alt="" className="absolute left-[24px] top-[88px] h-[52px] w-[22px]" src="/products/j-kids/vector-2.svg" />
+          <img alt="" className="absolute left-0 top-[132px] h-[44px] w-[22px]" src="/products/j-kids/vector-3.svg" />
+          <img alt="" className="absolute left-[186px] top-[120px] h-[44px] w-[22px]" src="/products/j-kids/vector-4.svg" />
         </div>
       </div>
 
@@ -78,9 +110,7 @@ export function JKidsDetail() {
         <p className="text-center text-[25px] font-extrabold leading-[35px] text-[#4262ff]">
           같이 볼 수 있어요
         </p>
-        <div className="mt-[34px] flex h-[190px] w-[230px] items-center justify-center">
-          <span className="text-[72px] leading-none">📱👨‍👩‍👧</span>
-        </div>
+        <img alt="" className="mt-[34px] h-[190px] w-[230px]" src="/products/j-kids/illo-phones.svg" />
       </div>
 
       <div className="flex w-full flex-col items-start px-[20px] pt-[28px]">
@@ -93,7 +123,7 @@ export function JKidsDetail() {
               className="flex h-[56px] w-full items-center justify-between"
             >
               <p className="text-[16px] font-bold text-[#191f28]">{row}</p>
-              <ChevronDown className="size-[22px] text-[#191f28]" strokeWidth={1.8} />
+              <img alt="" className="size-[22px]" src="/products/j-kids/icon-chevron-down.svg" />
             </button>
           ))}
         </div>
@@ -103,17 +133,17 @@ export function JKidsDetail() {
         </div>
         <div className="mt-[26px] flex w-full items-start">
           <div className="flex flex-1 flex-col items-center gap-[8px] py-[6px]">
-            <Share2 className="size-[28px] text-[#191f28]" strokeWidth={1.8} />
+            <img alt="" className="size-[28px]" src="/products/j-kids/icon-share.svg" />
             <p className="text-[14px] font-bold text-[#191f28]">공유하기</p>
           </div>
           <div className="h-[44px] w-px shrink-0 bg-[#eff2f7]" />
           <div className="flex flex-1 flex-col items-center gap-[8px] py-[6px]">
-            <Phone className="size-[28px] text-[#191f28]" strokeWidth={1.8} />
+            <img alt="" className="size-[28px]" src="/products/j-kids/icon-phone.svg" />
             <p className="text-[14px] font-bold text-[#191f28]">전화상담</p>
           </div>
           <div className="h-[44px] w-px shrink-0 bg-[#eff2f7]" />
           <div className="flex flex-1 flex-col items-center gap-[8px] py-[6px]">
-            <MessageCircle className="size-[28px] text-[#191f28]" strokeWidth={1.8} />
+            <img alt="" className="size-[28px]" src="/products/j-kids/icon-chat.svg" />
             <p className="text-[14px] font-bold text-[#191f28]">톡상담</p>
           </div>
         </div>

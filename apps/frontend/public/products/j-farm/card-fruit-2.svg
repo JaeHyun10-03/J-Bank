@@ -1,0 +1,10 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="105" height="110" viewBox="0 0 105 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="card/fruit">
+<rect width="105" height="110" rx="20" fill="#9BE05A"/>
+<ellipse id="Ellipse" cx="53" cy="55" rx="24" ry="33" fill="#2E7D32"/>
+<ellipse id="Ellipse_2" cx="53" cy="56" rx="18" ry="26" fill="#DDF3A8"/>
+<ellipse id="Ellipse_3" cx="53" cy="62" rx="11" ry="12" fill="#8A5A2B"/>
+<circle id="Ellipse_4" cx="42" cy="47" r="3" fill="#2E4B1F"/>
+<circle id="Ellipse_5" cx="62" cy="47" r="3" fill="#2E4B1F"/>
+</g>
+</svg>

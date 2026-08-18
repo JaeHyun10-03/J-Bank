@@ -1,12 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ChevronLeft, Bus, Coffee, Tv } from "lucide-react";
 
 const BENEFITS = [
-  { Icon: Bus, name: "대중교통 그린패스", desc: "교통비 최대 53% 환급" },
-  { Icon: Coffee, name: "카페·편의점", desc: "건당 최대 10% 캐시백" },
-  { Icon: Tv, name: "OTT·구독", desc: "정기결제 5% 캐시백" },
+  { icon: "/products/checkcard/glyph-bus.svg", name: "대중교통 그린패스", desc: "교통비 최대 53% 환급" },
+  { icon: "/products/checkcard/glyph-coffee.svg", name: "카페·편의점", desc: "건당 최대 10% 캐시백" },
+  { icon: "/products/checkcard/glyph-tv.svg", name: "OTT·구독", desc: "정기결제 5% 캐시백" },
 ];
 
 export function CheckCardDetail() {
@@ -15,8 +14,13 @@ export function CheckCardDetail() {
   return (
     <div className="flex min-h-screen w-full flex-col items-center bg-white pb-[100px]">
       <div className="flex h-[56px] w-full items-center px-[16px]">
-        <button type="button" onClick={() => router.back()} aria-label="뒤로가기">
-          <ChevronLeft className="size-[26px] text-[#191f28]" strokeWidth={2} />
+        <button
+          type="button"
+          onClick={() => router.back()}
+          aria-label="뒤로가기"
+          className="block h-[28px] w-[41px]"
+        >
+          <img alt="" className="size-full" src="/products/checkcard/back.svg" />
         </button>
       </div>
 
@@ -38,13 +42,13 @@ export function CheckCardDetail() {
       </div>
 
       <div className="flex w-full flex-col px-[24px] pb-[8px]">
-        {BENEFITS.map(({ Icon, name, desc }, i) => (
+        {BENEFITS.map(({ icon, name, desc }, i) => (
           <div
             key={name}
             className={i > 0 ? "flex items-center gap-[14px] border-t border-[#f2f4f6] py-[16px]" : "flex items-center gap-[14px] py-[16px]"}
           >
             <div className="flex size-[44px] shrink-0 items-center justify-center rounded-full bg-[#eef0f6]">
-              <Icon className="size-[24px] text-[#4262ff]" strokeWidth={1.8} />
+              <img alt="" className="size-[24px]" src={icon} />
             </div>
             <div className="flex flex-col gap-[4px]">
               <p className="text-[16px] font-bold text-[#191f28]">{name}</p>
