@@ -117,7 +117,15 @@ export default function HomePage() {
             </div>
           ))
         ) : (
-          <p className="text-[14px] text-[#6b7684]">보유한 계좌가 없습니다.</p>
+          <div className="flex w-full flex-col items-center gap-[16px] rounded-[20px] bg-white p-[20px]">
+            <p className="text-[14px] text-[#6b7684]">보유한 계좌가 없습니다.</p>
+            <Link
+              href="/accounts/open"
+              className="flex w-full items-center justify-center rounded-[10px] bg-[#4262ff] py-[13px]"
+            >
+              <p className="text-[15px] font-semibold text-white">계좌 개설하기</p>
+            </Link>
+          </div>
         )}
       </div>
 

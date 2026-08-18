@@ -33,6 +33,8 @@ const DOMAIN_ERROR_MAP: Record<string, DomainErrorEntry> = {
   AUTH_005_OTP_EXPIRED: {
     message: "인증 시간이 만료되어 지급정지가 해제됐습니다. 이체를 다시 시도해주세요.",
   },
+  ACC_005_CDD_NOT_COMPLETED: { message: "고객확인 절차가 끝나지 않아 계좌를 개설할 수 없습니다." },
+  ACC_006_CUSTOMER_STATUS_INVALID: { message: "정지 또는 해지된 고객은 계좌를 개설할 수 없습니다." },
 };
 
 export function resolveDomainError(error: ErrorDetail | undefined): DomainErrorEntry {
