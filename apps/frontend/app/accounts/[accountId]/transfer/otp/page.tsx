@@ -112,7 +112,7 @@ export default function TransferOtpPage() {
   const expired = remainingSeconds <= 0;
 
   return (
-    <MobileScreen className="items-start">
+    <MobileScreen className="items-start animate-in slide-in-from-right fade-in duration-250">
       <MobileNavBar onBack={() => router.back()} onCancel={() => router.push(`/accounts/${accountId}`)} />
       <div className="flex w-full flex-1 flex-col px-[24px] pt-[30px]">
         <p className="text-[24px] font-bold leading-[34px] text-[#191f28]">

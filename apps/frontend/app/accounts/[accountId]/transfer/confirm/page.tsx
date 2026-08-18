@@ -101,7 +101,7 @@ export default function TransferConfirmPage() {
   if (!toAccountNumber) return null;
 
   return (
-    <MobileScreen className="items-start">
+    <MobileScreen className="items-start animate-in slide-in-from-right fade-in duration-250">
       <MobileNavBar onBack={() => router.back()} onCancel={() => router.push(`/accounts/${accountId}`)} />
 
       <div className="flex w-full flex-col items-center pb-[24px] pt-[60px]">
