@@ -28,6 +28,28 @@ cleanup() {
 }
 trap cleanup INT TERM
 
-echo "== 모두 기동됨. 로그: tail -f $LOG_DIR/backend.log $LOG_DIR/frontend.log =="
-echo "== Ctrl+C로 백엔드/프론트엔드 종료 =="
+wait_for() {
+  local url="$1" tries=60
+  until curl -s -o /dev/null "$url"; do
+    tries=$((tries - 1))
+    [ "$tries" -le 0 ] && return 1
+    sleep 2
+  done
+}
+
+echo "== 백엔드/프론트엔드 준비 대기 중 =="
+wait_for "http://localhost:8080/actuator/health" || echo "  (백엔드 응답 지연 — $LOG_DIR/backend.log 확인)"
+wait_for "http://localhost:3000" || echo "  (프론트엔드 응답 지연 — $LOG_DIR/frontend.log 확인)"
+
+cat <<LINKS
+
+== 준비됨 ==
+프론트엔드     http://localhost:3000
+백엔드         http://localhost:8080
+스웨거 UI      http://localhost:8080/swagger-ui.html
+로그           tail -f $LOG_DIR/backend.log $LOG_DIR/frontend.log
+
+Ctrl+C로 백엔드/프론트엔드 종료 (Docker는 유지, 내리려면 scripts/clean.sh)
+LINKS
+
 wait "$BACKEND_PID" "$FRONTEND_PID"
