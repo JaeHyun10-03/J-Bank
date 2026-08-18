@@ -10,28 +10,16 @@ import {
   ChevronRight,
   Landmark,
   Receipt,
-  Home,
-  ShoppingBag,
-  Gift,
-  Star,
-  Menu,
 } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import { useAuthStore } from "@/lib/auth-store";
 import { formatWon, isPositiveAmount } from "@/lib/format";
 import type { components } from "@/types/api";
 import { MobileScreen } from "@/components/mobile-screen";
+import { BottomTabBar } from "@/components/bottom-tab-bar";
 
 type ApiResponsePage =
   components["schemas"]["ApiResponsePageResponseCustomerAccountSummaryResponse"];
-
-const TABS = [
-  { label: "홈", href: "/", active: true, Icon: Home },
-  { label: "상품", href: "/products", active: false, Icon: ShoppingBag },
-  { label: "혜택", href: null, active: false, Icon: Gift },
-  { label: "서비스", href: null, active: false, Icon: Star },
-  { label: "전체", href: null, active: false, Icon: Menu },
-];
 
 export default function HomePage() {
   const router = useRouter();
@@ -241,40 +229,7 @@ export default function HomePage() {
         )}
       </div>
 
-      <div className="sticky bottom-0 flex h-[83px] w-full items-center justify-between border-t border-[#edf1f7] bg-white px-[8px] pb-[24px] pt-[10px]">
-        {TABS.map(({ label, href, active, Icon }) => {
-          const content = (
-            <>
-              <Icon
-                className={active ? "size-[23px] text-[#4262ff]" : "size-[23px] text-[#8b95a5]"}
-                strokeWidth={1.8}
-              />
-              <p
-                className={
-                  active
-                    ? "text-[11px] font-semibold text-[#4262ff]"
-                    : "text-[11px] text-[#8b95a5]"
-                }
-              >
-                {label}
-              </p>
-            </>
-          );
-          return href ? (
-            <Link
-              key={label}
-              href={href}
-              className="flex flex-1 flex-col items-center justify-center gap-[5px]"
-            >
-              {content}
-            </Link>
-          ) : (
-            <div key={label} className="flex flex-1 flex-col items-center justify-center gap-[5px]">
-              {content}
-            </div>
-          );
-        })}
-      </div>
+      <BottomTabBar active="홈" />
     </MobileScreen>
   );
 }
