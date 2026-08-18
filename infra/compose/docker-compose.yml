@@ -54,6 +54,7 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: jbank
     volumes:
       - grafana-data:/var/lib/grafana
+      - ./observability/provisioning:/etc/grafana/provisioning:ro
 
   loki:
     image: grafana/loki:3.2.1
