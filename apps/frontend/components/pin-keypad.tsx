@@ -55,7 +55,7 @@ export function PinKeypad({ onDigit, onBackspace }: { onDigit: (d: string) => vo
                 else if (key === "back") onBackspace();
                 else onDigit(key);
               }}
-              className="flex h-[58px] flex-1 items-center justify-center"
+              className="flex h-[58px] flex-1 items-center justify-center rounded-[12px] transition-colors active:bg-[#f2f4f6]"
             >
               {key === "재배열" ? (
                 <span className="text-[14px] font-medium leading-[20px] text-[#6b7684]">재배열</span>

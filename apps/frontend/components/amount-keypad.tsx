@@ -21,7 +21,7 @@ export function AmountKeypad({
               key={`${row}-${i}`}
               type="button"
               onClick={() => (key === "back" ? onBackspace() : onDigit(key))}
-              className="flex h-[58px] flex-1 items-center justify-center"
+              className="flex h-[58px] flex-1 items-center justify-center rounded-[12px] transition-colors active:bg-[#f2f4f6]"
             >
               {key === "back" ? (
                 <Delete className="size-[24px] text-[#191f28]" strokeWidth={1.6} />
