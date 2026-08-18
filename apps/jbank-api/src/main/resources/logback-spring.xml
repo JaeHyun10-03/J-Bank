@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+
+  <!-- 표준 console-appender.xml을 include하면 구조화 로깅 프로퍼티가 반영되지 않아
+       StructuredLogEncoder로 직접 정의한다(Spring Boot 3.4+). -->
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="org.springframework.boot.logging.logback.StructuredLogEncoder">
+      <format>ecs</format>
+    </encoder>
+  </appender>
+
+  <root level="INFO">
+    <appender-ref ref="CONSOLE" />
+  </root>
+</configuration>
