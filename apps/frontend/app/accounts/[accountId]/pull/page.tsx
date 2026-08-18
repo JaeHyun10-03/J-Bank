@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronDown, ChevronRight, Landmark, Plus, Zap, Check } from "lucide-react";
+import { ChevronLeft, ChevronDown, ChevronRight, Landmark, Plus, Zap, Check, X } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import { getApiError } from "@/lib/api-error";
 import { resolveDomainError } from "@/lib/domain-error-map";
@@ -297,7 +297,22 @@ export default function PullMoneyPage() {
             <div className="flex flex-col px-[20px]">
               <div className="flex h-[34px] items-center gap-[6px]">
                 <div className="h-[30px] w-[3px] shrink-0 bg-[#3b5bff]" />
-                <p className="text-[24px] font-bold text-[#8b95a1]">얼마를 가져오시겠어요?</p>
+                {draftValue > 0 ? (
+                  <>
+                    <p className="text-[24px] font-bold text-[#191f28]">{formatWon(draftValue)}</p>
+                    <div className="flex-1" />
+                    <button
+                      type="button"
+                      onClick={() => setDraftAmount("0")}
+                      aria-label="금액 지우기"
+                      className="flex size-[22px] items-center justify-center rounded-full bg-[#f2f4f6]"
+                    >
+                      <X className="size-[14px] text-[#8b95a1]" strokeWidth={2} />
+                    </button>
+                  </>
+                ) : (
+                  <p className="text-[24px] font-bold text-[#8b95a1]">얼마를 가져오시겠어요?</p>
+                )}
               </div>
               <div className="h-[9px]" />
               <p className="text-[14px]">
