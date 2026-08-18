@@ -13,6 +13,7 @@ const PUBLIC_PATHS = [
   "/login",
   "/login/id",
   "/signup",
+  "/signup/permissions",
   "/signup/onboard",
   "/signup/name",
   "/signup/ssn",

@@ -12,7 +12,7 @@ export default function WelcomePage() {
       </div>
       <div className="min-h-px w-full flex-1" />
       <Link
-        href="/signup/onboard"
+        href="/signup/permissions"
         className="flex w-full items-center justify-center rounded-[14px] bg-[#0414a7] py-[16px]"
       >
         <p className="text-[17px] font-bold leading-[24px] text-white">제이뱅크 시작하기</p>
