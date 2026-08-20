@@ -8,7 +8,7 @@ const TABS = [
   { label: "상품", href: "/products", Icon: ShoppingBag },
   { label: "혜택", href: "/benefits", Icon: Gift },
   { label: "서비스", href: "/services", Icon: Star },
-  { label: "전체", href: null, Icon: Menu },
+  { label: "전체", href: "/menu", Icon: Menu },
 ] as const;
 
 /** 앱 전역 하단 탭바. 피그마 TabBar 컴포넌트, 홈/상품 화면에서 공유한다. */
