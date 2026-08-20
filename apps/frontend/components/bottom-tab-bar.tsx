@@ -7,7 +7,7 @@ const TABS = [
   { label: "홈", href: "/", Icon: Home },
   { label: "상품", href: "/products", Icon: ShoppingBag },
   { label: "혜택", href: "/benefits", Icon: Gift },
-  { label: "서비스", href: null, Icon: Star },
+  { label: "서비스", href: "/services", Icon: Star },
   { label: "전체", href: null, Icon: Menu },
 ] as const;
 
