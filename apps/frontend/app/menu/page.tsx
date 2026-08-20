@@ -13,6 +13,7 @@ import {
   EyeOff,
   ChevronRight,
 } from "lucide-react";
+import Link from "next/link";
 import { MobileScreen } from "@/components/mobile-screen";
 import { BottomTabBar } from "@/components/bottom-tab-bar";
 
@@ -50,7 +51,9 @@ export default function MenuPage() {
     <MobileScreen className="bg-[#f7f9fd]">
       <div className="flex w-full items-center justify-between bg-[#f7f9fd] px-[24px] pb-[16px] pt-[20px]">
         <p className="text-[24px] font-bold text-[#191f28]">전체</p>
-        <Settings className="size-[24px] text-[#191f28]" strokeWidth={1.8} />
+        <Link href="/menu/settings" aria-label="설정">
+          <Settings className="size-[24px] text-[#191f28]" strokeWidth={1.8} />
+        </Link>
       </div>
 
       <div className="flex w-full items-start bg-white px-[16px] pb-[16px]">
