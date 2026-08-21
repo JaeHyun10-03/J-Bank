@@ -187,3 +187,60 @@ DESC LIMIT 20`이 있어서 옵티마이저가 "PK 역순으로 훑다가 필터
 3. 매칭률이 낮은 계좌(예: 새로 만든 거래내역 0~1건 계좌)에서도 비교 — 현재
    측정은 매칭률 42%로 유리한 조건이라 인덱스 유무 차이가 작게 나올 수 있음
 4. 트레이드오프 포함해 결정 기록 (인덱스 쓰기 비용, 저장공간)
+
+## 복합 인덱스 반영 후 재측정 (V13 마이그레이션)
+
+`V13__add_transaction_account_composite_indexes.sql` — `idx_transactions_from_account_id_transaction_id`,
+`idx_transactions_to_account_id_transaction_id` 두 개를 `(계좌id, transaction_id DESC)`로 추가했다.
+`ANALYZE transactions` 실행 후 동일 계좌(`account_id=2`)·동일 조건으로 EXPLAIN ANALYZE 재실행.
+
+```
+Limit  (cost=0.42..4.05 rows=20 width=95) (actual time=0.032..0.036 rows=20 loops=1)
+  ->  Index Scan Backward using transactions_pkey on transactions
+        (cost=0.42..7544.51 rows=41535 width=95) (actual time=0.031..0.035 rows=20 loops=1)
+        Filter: ((from_account_id = 2) OR (to_account_id = 2))
+        Rows Removed by Filter: 22
+Planning Time: 0.536 ms
+Execution Time: 0.069 ms
+```
+
+**결과: 계획이 그대로다.** 새 인덱스가 존재해도 옵티마이저는 여전히 `transactions_pkey`
+역순 스캔+필터를 고른다 — 실행시간도 이전(0.055ms)과 오차범위 안(0.069ms)이다. 예상과
+다른 결과라 원인을 추가로 확인했다.
+
+### UNION 재작성도 시도해봤는데 더 느려졌다
+
+새 인덱스를 실제로 타게 하려면 `OR` 조건을 두 개의 `SELECT ... WHERE 계좌id = ? ORDER BY
+transaction_id DESC LIMIT 20`로 쪼개 `UNION`으로 합치는 재작성이 필요하다고 판단했었다.
+실제로 그렇게 쿼리를 짜서 psql로 직접 실행해봤다:
+
+```
+Limit (cost=15.94..15.99 rows=20 width=740) (actual time=0.319..0.322 rows=20 loops=1)
+  -> Sort (cost=15.94..16.04 rows=40 width=740) (actual time=0.318..0.320 rows=20 loops=1)
+    -> HashAggregate (UNION 중복제거, actual time=0.237..0.243 rows=38 loops=1)
+      -> Append (actual time=0.086..0.158 rows=40 loops=1)
+        -> Limit -> Index Scan Backward using transactions_pkey  Filter: (from_account_id = 2)  (actual 0.085..0.097, rows=20)
+        -> Limit -> Index Scan Backward using transactions_pkey transactions_1  Filter: (to_account_id = 2)  (actual 0.020..0.056, rows=20)
+Execution Time: 1.222 ms
+```
+
+여기서도 옵티마이저가 새 복합 인덱스를 안 쓰고 각 절반 쿼리마다 PK 역순 스캔을 골랐다 —
+`from_account_id=2` 단독 매칭률도 여전히 약 20%(23454/103003)라 PK 스캔이 더 싸다고 판단한
+것. 게다가 `UNION`의 중복제거(HashAggregate)와 병합 정렬(Sort) 오버헤드가 더해져 원래
+쿼리(0.069ms)보다 18배 느린 1.222ms가 나왔다.
+
+### 결정
+
+- **인덱스는 남긴다, 쿼리는 안 바꾼다.** 복합 인덱스는 지금 당장 아무것도 개선 안 하지만
+  쓰기 비용도 이 데이터 규모(10만 건)에서 무시할 만하고, 계좌당 매칭률이 실제로 낮아지는
+  시점(계좌 수가 훨씬 많아지는 시점)엔 옵티마이저가 자동으로 선택지에 넣을 후보가 된다 —
+  인덱스가 없으면 그 시점에 골라 쓸 방법 자체가 없다.
+- **UNION 재작성은 반려한다.** 코드 복잡도(Specification 기반 동적 필터 조합을 native
+  UNION 쿼리로 다시 짜야 함)를 늘리면서 지금 데이터 규모에서는 오히려 18배 느려지는 걸
+  실측으로 확인했다. `todo/W6.md` 애초 후보 정리에서 "계좌 수가 늘어 매칭률이 낮아지면"을
+  전제로 삼았는데, 로컬 계좌 3개로는 그 전제 자체를 재현할 수 없다 — 실제 검증하려면
+  계좌를 수백~수천 개로 늘린 별도 시나리오가 필요하고, 지금 근거 없이 반영하지 않는다는
+  원칙(구현계획 7.5절)에 따라 보류한다.
+- **다음에 재검토할 조건**: 실 서비스 계좌 수가 늘어난 스테이징/운영 데이터로 같은
+  EXPLAIN을 다시 돌렸을 때 PK 역순 스캔의 `Rows Removed by Filter`가 지금(22건)보다
+  훨씬 커지는 게 확인되면 그때 UNION 재작성을 다시 꺼낸다.
