@@ -77,20 +77,19 @@ W3에서 JWT 인증과 CSRF 이중제출 검증이 이체 API에 추가됐는데
 계좌 2개·거래내역 0건 규모라 실질적인 병목 측정은 W6에 10만 건 데이터로 재실행해야
 의미가 생긴다(`perf/README.md`의 W4 EXPLAIN 벤치마크 절차, `todo/W6.md` 화요일분).
 
-## W4 거래내역 조회 EXPLAIN 벤치마크 (실행 대기)
+## W4 거래내역 조회 EXPLAIN 벤치마크 (W6 화요일 실행 완료)
 
 구현계획 문서 182행: 거래내역 조회(API-010)에 10만 건을 채운 뒤, 인덱스를 걸기
-전 상태의 응답 시간과 실행 계획을 W6 최적화 근거로 기록만 해둔다. 이 세션은
-로컬에 Postgres가 없어 아래 절차만 준비하고 실행·기록은 다음에 로컬에서 한다.
+전 상태의 응답 시간과 실행 계획을 W6 최적화 근거로 기록한다.
 
 ### 실행 절차
 
 1. 로컬 인프라 core 프로파일 기동, 백엔드 기동(위 실행 방법과 동일)
 2. `psql "$DATABASE_URL" -f perf/sql/seed-100k-transactions.sql` — 트랜잭션 10만 건 적재
-   (계좌는 `SeedDataRunner`가 만든 2개를 그대로 씀)
-3. 응답 시간: `curl -w '%{time_total}\n' -o /dev/null -s -H "Cookie: ..." \
+   (계좌는 시연용 1개 + 로그인 계정 소유 2개, 총 3개 계좌 풀에서 무작위 배정)
+3. 응답 시간: `curl -w '%{time_total}\n' -o /dev/null -s -b cookies.txt \
    'http://localhost:8080/api/v1/accounts/{accountId}/transactions?page=0&size=20'` 반복 실행
-4. 실행 계획: `psql`에서 아래 EXPLAIN ANALYZE 실행 후 결과를 이 파일에 붙여넣는다.
+4. 실행 계획: `psql`에서 아래 EXPLAIN ANALYZE 실행
 
 ```sql
 EXPLAIN ANALYZE
@@ -101,5 +100,38 @@ ORDER BY transaction_id DESC
 LIMIT 20;
 ```
 
-인덱스 없는 상태이므로 Seq Scan이 나오는 게 기대값이다. 실제 반영은 W6에서
-측정치와 함께 인덱스를 설계한다.
+### 시드 스크립트 버그와 수정
+
+최초 실행 결과 10만 행 전부가 동일한 (거래유형, 계좌쌍) 값으로 들어갔다. 원인은
+`perf/sql/seed-100k-transactions.sql`의 `LATERAL` 서브쿼리가 바깥 `generate_series`의
+`g`를 전혀 참조하지 않는다는 것 — PostgreSQL은 상관관계 없는 `LATERAL` 서브쿼리를
+행마다가 아니라 한 번만 평가해 재사용한다(VOLATILE 함수인 `random()`도 예외 없음).
+`WHERE g >= 1`(항상 참, `g` 참조만이 목적)을 추가해 매 행 재평가를 강제하도록
+고쳤다. 잘못 적재된 10만 행을 지우고 수정한 스크립트로 재적재해 아래 결과를 얻었다.
+
+### 결과
+
+계좌 3개 풀(시연용 1개 + 이번 벤치마크용 로그인 계정 소유 2개)에 10만 건 적재 후
+`account_id=2` 기준 거래유형 분포: TRANSFER 36470, WITHDRAWAL 33244, DEPOSIT 33289,
+`account_id=2`가 걸리는 행 43545건(약 42%).
+
+응답 시간(연속 5회, `page=0&size=20`): 40.6ms(첫 요청, 캐시 워밍업 포함), 이후
+12.8~15.4ms로 안정.
+
+```
+Limit  (cost=0.42..4.02 rows=20 width=95) (actual time=0.022..0.028 rows=20 loops=1)
+  ->  Index Scan Backward using transactions_pkey on transactions
+        (cost=0.42..7544.51 rows=41940 width=95) (actual time=0.020..0.026 rows=20 loops=1)
+        Filter: ((from_account_id = 2) OR (to_account_id = 2))
+        Rows Removed by Filter: 22
+Planning Time: 0.285 ms
+Execution Time: 0.055 ms
+```
+
+인덱스가 하나도 없는데 `transactions_pkey`(PK, `transaction_id`)를 역순으로 훑으며
+필터를 거는 계획이 나왔다 — Seq Scan을 기대했는데 아니다. `ORDER BY transaction_id
+DESC LIMIT 20`이 있어서 옵티마이저가 "PK 역순으로 훑다가 필터에 맞는 20건 채우면
+멈춘다"는 전략을 Seq Scan+정렬보다 싸다고 판단한 것. 이 계좌 풀에서는 계좌당 매칭률이
+약 42%로 높아 22건만 더 보고 멈췄으니 빠르다(0.055ms). 이 전략의 위험은 매칭률이
+낮아질 때 드러난다 — 계좌 수가 늘어 계좌당 매칭률이 1% 근처로 떨어지면 20건을 채우기
+위해 PK 역순으로 수천~수만 건을 훑어야 할 수 있다(아래 병목 후보 참고).
