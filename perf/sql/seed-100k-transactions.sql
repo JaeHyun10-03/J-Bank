@@ -6,6 +6,11 @@
 -- ponytail: 계좌 id가 연속적이라고 가정한다(로컬 개발 DB 기준 삭제된 행이 없어
 -- 성립). 중간에 빠진 id가 생기면 FK 위반이 나므로, 그때는 min/max 범위 계산
 -- 대신 `OFFSET floor(random()*cnt) FROM accounts` 방식으로 바꾼다.
+--
+-- W6 화요일 몫에서 발견한 버그 수정: LATERAL 서브쿼리가 바깥 `g`를 전혀 참조하지
+-- 않으면 PostgreSQL이 상관관계 없는 서브쿼리로 보고 무작위값을 딱 한 번만 계산해
+-- 10만 행 전부에 같은 (거래유형, 계좌쌍)이 박히는 결과가 나온다. `WHERE g >= 1`은
+-- 항상 참이라 결과에 영향은 없지만 `g`를 참조시켜 매 행 재평가를 강제한다.
 WITH bounds AS (
     SELECT min(account_id) AS min_id, max(account_id) AS max_id, count(*) AS cnt
     FROM accounts
@@ -33,4 +38,5 @@ FROM bounds,
              bounds.min_id + floor(random() * bounds.cnt)::bigint AS acc1,
              bounds.min_id + floor(random() * bounds.cnt)::bigint AS acc2,
              now() - (random() * interval '365 days') AS ts
+         WHERE g >= 1
      ) AS t;
