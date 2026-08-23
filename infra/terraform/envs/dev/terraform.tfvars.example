@@ -1,2 +1,6 @@
 # terraform.tfvars로 복사해서 실제 값 채운 뒤 사용한다(gitignore 대상이라 커밋 안 됨).
 db_master_password = "change-me-min-12-chars"
+
+# bootstrap을 먼저 apply한 뒤 아래 명령으로 값을 얻는다:
+#   terraform -chdir=../../bootstrap output -raw github_oidc_provider_arn
+github_oidc_provider_arn = "arn:aws:iam::<account-id>:oidc-provider/token.actions.githubusercontent.com"

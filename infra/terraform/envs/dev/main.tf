@@ -44,14 +44,15 @@ module "data" {
 module "compute" {
   source = "../../modules/compute"
 
-  environment           = local.environment
-  github_repository     = var.github_repository
-  vpc_id                = module.network.vpc_id
-  was_subnet_ids        = module.network.was_subnet_ids
-  public_subnet_ids     = module.network.public_subnet_ids
-  was_security_group_id = module.security.was_sg_id
-  alb_security_group_id = module.security.alb_sg_id
-  tags                  = local.common_tags
+  environment              = local.environment
+  github_repository        = var.github_repository
+  github_oidc_provider_arn = var.github_oidc_provider_arn
+  vpc_id                   = module.network.vpc_id
+  was_subnet_ids           = module.network.was_subnet_ids
+  public_subnet_ids        = module.network.public_subnet_ids
+  was_security_group_id    = module.security.was_sg_id
+  alb_security_group_id    = module.security.alb_sg_id
+  tags                     = local.common_tags
 }
 
 # WAF 웹 ACL을 여기서 ALB에 붙인다 — security 모듈은 ALB를 모르고 compute 모듈은

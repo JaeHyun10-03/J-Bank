@@ -8,16 +8,9 @@ variable "github_repository" {
   type        = string
 }
 
-variable "create_github_oidc_provider" {
-  description = "GitHub Actions OIDC provider를 이 스택에서 새로 만들지 여부. AWS 계정에 이미 다른 프로젝트가 만들어둔 provider가 있으면 false로 두고 github_oidc_provider_arn을 넘긴다(계정당 provider는 하나만 있어야 함)."
-  type        = bool
-  default     = true
-}
-
 variable "github_oidc_provider_arn" {
-  description = "create_github_oidc_provider=false일 때 기존 provider ARN."
+  description = "GitHub Actions OIDC provider ARN. bootstrap 스택 출력값(계정당 provider는 하나만 있어야 해서 여기서 새로 안 만듦)."
   type        = string
-  default     = null
 }
 
 variable "ecr_untagged_image_expiry_days" {

@@ -44,30 +44,8 @@ resource "aws_ecr_lifecycle_policy" "jbank_api" {
 }
 
 # ---- GitHub Actions OIDC — ECR 푸시 전용 역할 ----
-
-data "tls_certificate" "github_actions" {
-  count = var.create_github_oidc_provider ? 1 : 0
-
-  url = "https://token.actions.githubusercontent.com/.well-known/openid-configuration"
-}
-
-resource "aws_iam_openid_connect_provider" "github_actions" {
-  count = var.create_github_oidc_provider ? 1 : 0
-
-  url             = "https://token.actions.githubusercontent.com"
-  client_id_list  = ["sts.amazonaws.com"]
-  thumbprint_list = [data.tls_certificate.github_actions[0].certificates[0].sha1_fingerprint]
-
-  tags = merge(var.tags, { Name = "jbank-${var.environment}-github-oidc" })
-}
-
-locals {
-  github_oidc_provider_arn = (
-    var.create_github_oidc_provider
-    ? aws_iam_openid_connect_provider.github_actions[0].arn
-    : var.github_oidc_provider_arn
-  )
-}
+# OIDC provider 자체는 여기서 안 만든다 — 계정당 하나만 있어야 하는 리소스라
+# bootstrap 스택에서 만들고, 그 ARN을 var.github_oidc_provider_arn으로 받는다.
 
 data "aws_iam_policy_document" "ecr_push_assume_role" {
   statement {
@@ -76,7 +54,7 @@ data "aws_iam_policy_document" "ecr_push_assume_role" {
 
     principals {
       type        = "Federated"
-      identifiers = [local.github_oidc_provider_arn]
+      identifiers = [var.github_oidc_provider_arn]
     }
 
     condition {
