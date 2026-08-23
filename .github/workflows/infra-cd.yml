@@ -1,0 +1,92 @@
+name: infra-cd
+
+on:
+  pull_request:
+    paths:
+      - "infra/terraform/envs/**"
+      - "infra/terraform/modules/**"
+      - ".github/workflows/infra-cd.yml"
+  push:
+    branches: [main]
+    paths:
+      - "infra/terraform/envs/**"
+      - "infra/terraform/modules/**"
+      - ".github/workflows/infra-cd.yml"
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  TF_VERSION: "1.9.8"
+  TF_IN_AUTOMATION: "true"
+
+jobs:
+  plan:
+    # bootstrap 스택(상태 버킷, OIDC provider, plan/apply 역할)이 실제로 만들어지고
+    # 그 출력값들을 아래 vars/secrets에 채워 넣기 전까지는 이 워크플로 전체를 건너뛴다.
+    # backend-cd.yml의 ECR_DEPLOY_READY와 같은 패턴 — 인프라 준비되면
+    # 저장소 설정의 Variables에 TERRAFORM_CI_READY=true를 추가한다.
+    if: ${{ vars.TERRAFORM_CI_READY == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/terraform/envs/dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure AWS credentials (plan — 읽기 전용)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_TERRAFORM_PLAN_ROLE_ARN }}
+          aws-region: ap-northeast-2
+
+      - name: Terraform Init
+        run: terraform init -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}"
+
+      - name: Terraform Plan
+        run: terraform plan -no-color -input=false
+        env:
+          TF_VAR_db_master_password: ${{ secrets.TF_VAR_DB_MASTER_PASSWORD }}
+          TF_VAR_github_oidc_provider_arn: ${{ secrets.AWS_GITHUB_OIDC_PROVIDER_ARN }}
+
+  apply:
+    needs: plan
+    # main 브랜치 push에서만, plan이 먼저 성공해야 돈다. environment: infra-apply를
+    # GitHub 저장소 설정 > Environments에 만들고 필수 리뷰어를 걸어두면, 이 job은
+    # 트리거는 자동이지만 실제 실행 직전에 사람 승인을 기다린다 — 이게 "apply는
+    # 수동 승인 단계" 요구사항을 만족하는 지점이다(인프라아키텍처 문서 10절).
+    if: >-
+      ${{ vars.TERRAFORM_CI_READY == 'true' &&
+          github.event_name == 'push' &&
+          github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    environment: infra-apply
+    defaults:
+      run:
+        working-directory: infra/terraform/envs/dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure AWS credentials (apply — PowerUserAccess)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_TERRAFORM_APPLY_ROLE_ARN }}
+          aws-region: ap-northeast-2
+
+      - name: Terraform Init
+        run: terraform init -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}"
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -input=false
+        env:
+          TF_VAR_db_master_password: ${{ secrets.TF_VAR_DB_MASTER_PASSWORD }}
+          TF_VAR_github_oidc_provider_arn: ${{ secrets.AWS_GITHUB_OIDC_PROVIDER_ARN }}
