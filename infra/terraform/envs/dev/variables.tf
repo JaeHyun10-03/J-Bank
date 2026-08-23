@@ -20,3 +20,9 @@ variable "db_master_password" {
   type        = string
   sensitive   = true
 }
+
+variable "github_repository" {
+  description = "GitHub Actions OIDC 신뢰 정책에 쓸 \"owner/repo\"."
+  type        = string
+  default     = "JaeHyun10-03/J-Bank"
+}
