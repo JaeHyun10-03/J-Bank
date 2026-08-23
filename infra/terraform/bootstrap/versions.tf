@@ -6,6 +6,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
+    tls = {
+      source  = "hashicorp/tls"
+      version = "~> 4.0"
+    }
   }
 
   # 이 스택 자체는 로컬 상태로 관리한다 — envs/*가 쓸 원격 상태 저장소(S3+DynamoDB)를
