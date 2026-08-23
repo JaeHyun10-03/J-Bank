@@ -8,9 +8,16 @@ terraform {
     }
   }
 
-  # 상태 파일은 지금은 로컬. 원격 상태(S3+DynamoDB 잠금)는 W6 금요일분에서
-  # 이 backend 블록을 "s3"로 교체한다(인프라아키텍처 문서 10절).
-  # backend "local" {}
+  # 원격 상태(S3+DynamoDB 잠금, 인프라아키텍처 문서 10절). bucket은 계정 ID가 들어가
+  # 하드코딩하지 않는다 — backend 블록은 변수 보간이 안 되므로, bootstrap 스택을 먼저
+  # apply한 뒤 그 출력값으로 init 시점에 채운다:
+  #   terraform init -backend-config="bucket=$(terraform -chdir=../../bootstrap output -raw state_bucket)"
+  backend "s3" {
+    key            = "envs/dev/terraform.tfstate"
+    region         = "ap-northeast-2"
+    dynamodb_table = "jbank-terraform-locks"
+    encrypt        = true
+  }
 }
 
 provider "aws" {
