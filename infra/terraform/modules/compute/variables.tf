@@ -32,6 +32,54 @@ variable "ecr_max_image_count" {
   default     = 20
 }
 
+variable "vpc_id" {
+  description = "EKS를 배치할 VPC id."
+  type        = string
+}
+
+variable "was_subnet_ids" {
+  description = "EKS 워커노드를 배치할 WAS(private) 서브넷 id 목록."
+  type        = list(string)
+}
+
+variable "was_security_group_id" {
+  description = "EKS 워커노드에 붙일 보안그룹 id(security 모듈의 was_sg_id)."
+  type        = string
+}
+
+variable "eks_cluster_version" {
+  description = "EKS 쿠버네티스 버전."
+  type        = string
+  default     = "1.30"
+}
+
+variable "eks_endpoint_public_access" {
+  description = "EKS API 서버 퍼블릭 엔드포인트 허용 여부. 시연 목적상 기본 true — 실제 운영이면 false로 두고 관리 서브넷의 SSM 경유나 VPN으로 좁힌다(인프라아키텍처 문서 5.2절 관리존 취지)."
+  type        = bool
+  default     = true
+}
+
+variable "node_instance_types" {
+  description = "EKS 관리형 노드그룹 인스턴스 타입."
+  type        = list(string)
+  default     = ["t3.medium"]
+}
+
+variable "node_group_min_size" {
+  type    = number
+  default = 2
+}
+
+variable "node_group_max_size" {
+  type    = number
+  default = 4
+}
+
+variable "node_group_desired_size" {
+  type    = number
+  default = 2
+}
+
 variable "tags" {
   description = "모든 리소스에 공통으로 붙일 태그."
   type        = map(string)
