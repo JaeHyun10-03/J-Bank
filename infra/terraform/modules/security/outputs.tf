@@ -17,3 +17,7 @@ output "redis_sg_id" {
 output "mgmt_sg_id" {
   value = aws_security_group.mgmt.id
 }
+
+output "waf_web_acl_arn" {
+  value = aws_wafv2_web_acl.alb.arn
+}
