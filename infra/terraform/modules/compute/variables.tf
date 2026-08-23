@@ -80,6 +80,22 @@ variable "node_group_desired_size" {
   default = 2
 }
 
+variable "public_subnet_ids" {
+  description = "ALB를 배치할 public 서브넷 id 목록."
+  type        = list(string)
+}
+
+variable "alb_security_group_id" {
+  description = "ALB에 붙일 보안그룹 id(security 모듈의 alb_sg_id)."
+  type        = string
+}
+
+variable "app_port" {
+  description = "타깃그룹이 바라볼 애플리케이션 포트."
+  type        = number
+  default     = 8080
+}
+
 variable "tags" {
   description = "모든 리소스에 공통으로 붙일 태그."
   type        = map(string)

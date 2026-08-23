@@ -19,3 +19,15 @@ output "eks_oidc_provider_arn" {
   description = "IRSA(파드용 IAM 역할)에 쓸 클러스터 OIDC provider ARN."
   value       = module.eks.oidc_provider_arn
 }
+
+output "alb_arn" {
+  value = aws_lb.this.arn
+}
+
+output "alb_dns_name" {
+  value = aws_lb.this.dns_name
+}
+
+output "alb_placeholder_target_group_arn" {
+  value = aws_lb_target_group.placeholder.arn
+}
