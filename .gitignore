@@ -38,3 +38,5 @@ infra/terraform/**/*.auto.tfvars
 
 # 성능 측정 원본 로그(요약만 커밋)
 perf/results/**/*.raw
+.vercel
+.env*
