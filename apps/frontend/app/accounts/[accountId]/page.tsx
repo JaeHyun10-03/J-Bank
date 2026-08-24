@@ -97,6 +97,32 @@ export default function AccountDetailPage() {
             >
               <p className="text-[15px] font-semibold text-[#4262ff]">거래내역 조회</p>
             </Link>
+            <div className="flex w-full items-center gap-[8px]">
+              <Link
+                href={`/accounts/${accountId}/deposit`}
+                className="flex flex-1 items-center justify-center rounded-[10px] bg-[#edf1f7] py-[13px]"
+              >
+                <p className="text-[15px] font-semibold text-[#4262ff]">입금</p>
+              </Link>
+              <Link
+                href={`/accounts/${accountId}/withdraw`}
+                className="flex flex-1 items-center justify-center rounded-[10px] bg-[#edf1f7] py-[13px]"
+              >
+                <p className="text-[15px] font-semibold text-[#4262ff]">출금</p>
+              </Link>
+              <Link
+                href={`/accounts/${accountId}/transfer`}
+                className="flex flex-1 items-center justify-center rounded-[10px] bg-[#edf1f7] py-[13px]"
+              >
+                <p className="text-[15px] font-semibold text-[#4262ff]">이체</p>
+              </Link>
+            </div>
+            <Link
+              href={`/accounts/${accountId}/close`}
+              className="flex w-full items-center justify-center py-[8px]"
+            >
+              <p className="text-[13px] text-[#8b95a5]">계좌해지</p>
+            </Link>
           </div>
         )}
       </div>
