@@ -35,6 +35,11 @@ const DOMAIN_ERROR_MAP: Record<string, DomainErrorEntry> = {
   },
   ACC_005_CDD_NOT_COMPLETED: { message: "고객확인 절차가 끝나지 않아 계좌를 개설할 수 없습니다." },
   ACC_006_CUSTOMER_STATUS_INVALID: { message: "정지 또는 해지된 고객은 계좌를 개설할 수 없습니다." },
+  PRD_001_MIN_AMOUNT_NOT_MET: {
+    field: "subscriptionAmount",
+    message: "최소 가입금액에 미달합니다.",
+  },
+  PRD_002_PRODUCT_NOT_AVAILABLE: { message: "판매가 중지된 상품입니다." },
 };
 
 export function resolveDomainError(error: ErrorDetail | undefined): DomainErrorEntry {
