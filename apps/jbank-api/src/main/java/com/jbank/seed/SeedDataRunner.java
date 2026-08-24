@@ -50,37 +50,23 @@ public class SeedDataRunner implements ApplicationRunner {
     accountService.open(new AccountOpenRequest(AccountType.CHECKING, BigDecimal.ZERO), customer1);
     accountService.open(new AccountOpenRequest(AccountType.CHECKING, BigDecimal.ZERO), customer2);
 
+    // 프론트 상품 화면(피그마 시안)이 기대하는 productCode로 맞춘다. 금리는 08_앱디자인노트
+    // 문서의 표시값 중 기본금리만 반영(우대금리는 단일 필드로 표현할 수 없어 제외).
     productRepository.save(
         new Product(
-            "SAV-6M-001",
-            "정기적금 6개월",
-            new BigDecimal("0.0250"),
-            new BigDecimal("50000.00"),
-            6,
+            "j-kids",
+            "J키즈 적금",
+            new BigDecimal("0.0350"),
+            new BigDecimal("10000.00"),
+            60,
             ProductStatus.ON_SALE));
     productRepository.save(
         new Product(
-            "SAV-12M-001",
-            "정기적금 12개월",
-            new BigDecimal("0.0320"),
-            new BigDecimal("100000.00"),
+            "j-farm",
+            "J팜 농장",
+            new BigDecimal("0.0300"),
+            new BigDecimal("10000.00"),
             12,
-            ProductStatus.ON_SALE));
-    productRepository.save(
-        new Product(
-            "SAV-24M-001",
-            "정기적금 24개월",
-            new BigDecimal("0.0380"),
-            new BigDecimal("100000.00"),
-            24,
-            ProductStatus.ON_SALE));
-    productRepository.save(
-        new Product(
-            "SAV-36M-001",
-            "정기예금 36개월",
-            new BigDecimal("0.0410"),
-            new BigDecimal("1000000.00"),
-            36,
             ProductStatus.ON_SALE));
   }
 
