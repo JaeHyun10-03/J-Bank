@@ -41,9 +41,9 @@ variable "was_security_group_id" {
 }
 
 variable "eks_cluster_version" {
-  description = "EKS 쿠버네티스 버전."
+  description = "EKS 쿠버네티스 버전. AWS 표준지원 버전만 기본값으로 둔다(1.30은 표준지원 종료로 AMI 생성 불가 확인, 2026-08-24)."
   type        = string
-  default     = "1.30"
+  default     = "1.34"
 }
 
 variable "eks_endpoint_public_access" {

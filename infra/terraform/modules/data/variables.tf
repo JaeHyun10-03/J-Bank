@@ -19,9 +19,9 @@ variable "redis_security_group_id" {
 }
 
 variable "db_engine_version" {
-  description = "RDS PostgreSQL 엔진 버전."
+  description = "RDS PostgreSQL 엔진 버전. 16.4는 AWS에서 더 이상 제공하지 않아(2026-08-24 확인) 16.x 최신 패치로 둔다."
   type        = string
-  default     = "16.4"
+  default     = "16.15"
 }
 
 variable "db_instance_class" {
