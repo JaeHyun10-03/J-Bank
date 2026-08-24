@@ -2,31 +2,26 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api-client";
 import { MobileScreen } from "@/components/mobile-screen";
 import { BottomTabBar } from "@/components/bottom-tab-bar";
 import { cn } from "@/lib/utils";
+import type { components } from "@/types/api";
+
+type ApiResponsePageResponseProductSummaryResponse =
+  components["schemas"]["ApiResponsePageResponseProductSummaryResponse"];
 
 type Category = "예적금" | "대출" | "카드";
 
+// 마케팅 카피는 GET /api/v1/products 응답에 없어 productCode 기준으로 프론트에서만 붙인다.
+const SAVINGS_COPY: Record<string, string> = {
+  "j-kids": "우리 아이 든든한 미래 준비",
+  "j-farm": "매달 이자가 굴러오는 적금",
+};
+
 // ponytail: 대출·카드는 아직 도메인/API가 없어(README 핵심 기능 표 참고) 피그마 시안 그대로의
-// 고정 텍스트로만 채운다. 실제 상품 데이터가 생기면 예적금처럼 GET /api/v1/products로 교체한다.
-const SAVINGS_PRODUCTS = [
-  {
-    code: "j-kids",
-    name: "J키즈 적금",
-    desc: "우리 아이 든든한 미래 준비",
-    topRate: "8.50%",
-    baseRate: "3.50%",
-    period: "(60개월, 세전)",
-  },
-  {
-    code: "j-farm",
-    name: "J팜 농장",
-    desc: "매달 이자가 굴러오는 적금",
-    rate: "3.00%",
-    period: "(12개월, 세전)",
-  },
-];
+// 고정 텍스트로만 채운다.
 
 const LOAN_PRODUCT = {
   code: "credit-loan",
@@ -45,6 +40,17 @@ const CARD_PRODUCT = {
 
 export default function ProductListPage() {
   const [category, setCategory] = useState<Category>("예적금");
+
+  const productsQuery = useQuery({
+    queryKey: ["products"],
+    queryFn: async () => {
+      const response = await apiClient.get<ApiResponsePageResponseProductSummaryResponse>(
+        "/products",
+        { params: { page: 0, size: 20 } },
+      );
+      return response.data.data?.content ?? [];
+    },
+  });
 
   return (
     <MobileScreen>
@@ -76,38 +82,31 @@ export default function ProductListPage() {
             <p className="text-[20px] font-bold text-[#191f28]">저축</p>
           </div>
           <div className="flex w-full flex-col px-[24px]">
-            {SAVINGS_PRODUCTS.map((product, i) => (
+            {(productsQuery.data ?? []).map((product, i) => (
               <Link
-                key={product.code}
-                href={`/products/${product.code}`}
+                key={product.productCode}
+                href={`/products/${product.productCode}`}
                 className={cn(
                   "flex w-full items-start justify-between py-[20px]",
                   i > 0 && "border-t border-[#edf1f7]",
                 )}
               >
                 <div className="flex flex-1 flex-col gap-[6px]">
-                  <p className="text-[16px] font-bold text-[#191f28]">{product.name}</p>
-                  <p className="text-[13px] text-[#8b95a5]">{product.desc}</p>
+                  <p className="text-[16px] font-bold text-[#191f28]">{product.productName}</p>
+                  <p className="text-[13px] text-[#8b95a5]">
+                    {SAVINGS_COPY[product.productCode ?? ""] ?? ""}
+                  </p>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-[2px]">
-                  {product.topRate ? (
-                    <div className="flex items-center gap-[4px]">
-                      <p className="text-[12px] text-[#8b95a5]">최고 연</p>
-                      <p className="text-[18px] font-bold text-[#4262ff]">{product.topRate}</p>
-                    </div>
-                  ) : null}
                   <div className="flex items-center gap-[4px]">
-                    <p className="text-[12px] text-[#8b95a5]">{product.topRate ? "기본 연" : "연"}</p>
-                    <p
-                      className={cn(
-                        "font-bold text-[#4262ff]",
-                        product.topRate ? "text-[15px]" : "text-[18px]",
-                      )}
-                    >
-                      {product.baseRate ?? product.rate}
+                    <p className="text-[12px] text-[#8b95a5]">연</p>
+                    <p className="text-[18px] font-bold text-[#4262ff]">
+                      {(Number(product.interestRate ?? 0) * 100).toFixed(2)}%
                     </p>
                   </div>
-                  <p className="text-[11px] text-[#b0b8c4]">{product.period}</p>
+                  <p className="text-[11px] text-[#b0b8c4]">
+                    ({product.contractPeriodMonths}개월, 세전)
+                  </p>
                 </div>
               </Link>
             ))}
