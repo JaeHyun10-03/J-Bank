@@ -191,6 +191,7 @@ export function JFarmDetail() {
       <div className="fixed bottom-0 left-1/2 w-full max-w-[430px] -translate-x-1/2 bg-white px-[20px] pb-[24px] pt-[8px]">
         <button
           type="button"
+          onClick={() => router.push("/products/j-farm/subscribe")}
           className="flex h-[56px] w-full items-center justify-center rounded-[14px] bg-[#0114a7]"
         >
           <p className="text-[17px] font-bold text-white">농장 만들기</p>
