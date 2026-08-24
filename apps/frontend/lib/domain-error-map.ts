@@ -40,6 +40,10 @@ const DOMAIN_ERROR_MAP: Record<string, DomainErrorEntry> = {
     message: "최소 가입금액에 미달합니다.",
   },
   PRD_002_PRODUCT_NOT_AVAILABLE: { message: "판매가 중지된 상품입니다." },
+  ACC_008_BALANCE_NOT_ZERO: { message: "잔액을 0원으로 만든 후 다시 시도해주세요." },
+  ACC_010_HOLD_AMOUNT_REMAINS: {
+    message: "인증 대기 중인 이체가 있습니다. 완료하거나 취소한 후 다시 시도해주세요.",
+  },
 };
 
 export function resolveDomainError(error: ErrorDetail | undefined): DomainErrorEntry {
