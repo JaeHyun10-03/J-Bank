@@ -1,5 +1,11 @@
+# 비용 통제용 워크스페이스 분리(인프라아키텍처 문서 12절).
+#   terraform workspace new always-on   # 상시구동 — Multi-AZ RDS, EKS 노드 2대
+#   terraform workspace new demo        # 시연 — 단일 AZ RDS, EKS 노드 1대로 축소
+#   terraform workspace select demo
+# default 워크스페이스는 always-on과 동일하게 취급한다.
 locals {
   environment = "dev"
+  is_demo     = terraform.workspace == "demo"
 
   common_tags = {
     Project     = "j-bank"
@@ -35,7 +41,7 @@ module "data" {
   db_security_group_id    = module.security.db_sg_id
   redis_security_group_id = module.security.redis_sg_id
   db_master_password      = var.db_master_password
-  multi_az                = true
+  multi_az                = !local.is_demo
   deletion_protection     = false # dev는 파괴·재생성을 반복하므로(토요일분 검증) false 유지
   skip_final_snapshot     = true
   tags                    = local.common_tags
@@ -52,6 +58,8 @@ module "compute" {
   public_subnet_ids        = module.network.public_subnet_ids
   was_security_group_id    = module.security.was_sg_id
   alb_security_group_id    = module.security.alb_sg_id
+  node_group_desired_size  = local.is_demo ? 1 : 2
+  node_group_min_size      = local.is_demo ? 1 : 2
   tags                     = local.common_tags
 }
 
