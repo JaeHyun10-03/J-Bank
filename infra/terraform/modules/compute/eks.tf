@@ -13,6 +13,11 @@ module "eks" {
   cluster_endpoint_public_access  = var.eks_endpoint_public_access
   cluster_endpoint_private_access = true
 
+  # 모듈 기본값은 false라 terraform을 실행한 IAM 주체가 kubectl 접근 권한이 없는 채로
+  # 클러스터가 생성된다(파괴·재생성 검증 중 실측). 시연 목적상 클러스터를 만든 사람이
+  # 바로 kubectl을 쓸 수 있어야 하므로 true로 켠다.
+  enable_cluster_creator_admin_permissions = true
+
   # 워커노드는 security 모듈에서 만든 was_sg(ALB로부터만 인바운드)를 그대로 추가로 붙인다.
   # 모듈이 클러스터 통신용 보안그룹은 자체 생성하고, 이건 애플리케이션 계층 규칙만 더한다.
   cluster_additional_security_group_ids = [var.was_security_group_id]
