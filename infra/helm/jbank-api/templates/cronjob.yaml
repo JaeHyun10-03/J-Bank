@@ -1,0 +1,51 @@
+{{- range .Values.batchJobs }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "jbank-api.fullname" $ }}-{{ .name | lower }}
+  labels:
+    {{- include "jbank-api.labels" $ | nindent 4 }}
+spec:
+  schedule: {{ .schedule | quote }}
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            {{- include "jbank-api.labels" $ | nindent 12 }}
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: {{ .name | lower }}
+              image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+              imagePullPolicy: {{ $.Values.image.pullPolicy }}
+              # 같은 API 이미지를 실행 인자만 바꿔 배치 잡으로 띄운다
+              # (docs/10_J-Bank_폴더구조.md 5절). runDate가 필요한 잡은
+              # 컨테이너 기동 시각 기준 오늘 날짜를 넘긴다.
+              command:
+                - sh
+                - -c
+                {{- if .requiresRunDate }}
+                - >-
+                  java -jar /app/app.jar
+                  --spring.profiles.active={{ $.Values.springProfilesActive }},batch
+                  --spring.batch.job.name={{ .name }}
+                  runDate=$(date +%F)
+                {{- else }}
+                - >-
+                  java -jar /app/app.jar
+                  --spring.profiles.active={{ $.Values.springProfilesActive }},batch
+                  --spring.batch.job.name={{ .name }}
+                {{- end }}
+              envFrom:
+                - secretRef:
+                    name: {{ $.Values.secretName }}
+              resources:
+                {{- toYaml $.Values.batchResources | nindent 16 }}
+          {{- with $.Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+---
+{{- end }}

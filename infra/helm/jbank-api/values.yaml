@@ -27,3 +27,23 @@ resources:
     memory: 1Gi
 
 nodeSelector: {}
+
+# API 서버와 같은 이미지, 실행 인자와 스케줄만 다르게 준 배치 잡.
+# runDate가 필요한 잡(만기이자/CTR)은 requiresRunDate: true로 표시한다.
+batchJobs:
+  - name: interestMaturityJob
+    schedule: "0 1 * * *"
+    requiresRunDate: true
+  - name: ctrDetectionJob
+    schedule: "0 2 * * *"
+    requiresRunDate: true
+  - name: ledgerReconciliationJob
+    schedule: "0 3 * * *"
+    requiresRunDate: false
+
+batchResources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    memory: 1Gi
