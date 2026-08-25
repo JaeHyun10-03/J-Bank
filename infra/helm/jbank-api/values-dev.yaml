@@ -1,0 +1,23 @@
+# dev 환경. image.repository/tag는 이 파일에 두지 않는다 — ECR 레지스트리
+# URL(계정ID 포함)과 커밋 SHA 태그는 backend-cd.yml이 --set으로 배포 시점에
+# 넘긴다(.github/workflows/backend-cd.yml 참고).
+
+replicaCount: 1
+
+springProfilesActive: dev
+
+secretName: jbank-api-secrets-dev
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 384Mi
+  limits:
+    memory: 768Mi
+
+batchResources:
+  requests:
+    cpu: 100m
+    memory: 384Mi
+  limits:
+    memory: 768Mi
