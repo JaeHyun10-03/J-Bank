@@ -32,7 +32,8 @@ public class SecurityConfig {
     "/api/v1/customers",
     "/api/v1/products",
     "/api/v1/auth/login",
-    "/api/v1/auth/refresh"
+    "/api/v1/auth/refresh",
+    "/actuator/health/**" // kubelet이 인증 없이 readiness/liveness probe를 호출해야 함
   };
 
   private final JwtTokenProvider jwtTokenProvider;
