@@ -1,0 +1,9 @@
+apiVersion: v2
+name: jbank-api
+description: >-
+  J-Bank API 서버(Deployment)와 배치 잡(CronJob)을 한 차트로 배포한다.
+  두 워크로드는 같은 이미지 태그를 참조하고 실행 인자만 다르다
+  (docs/06_J-Bank_인프라아키텍처.md 6절, docs/10_J-Bank_폴더구조.md 5절).
+type: application
+version: 0.1.0
+appVersion: "0.0.1-SNAPSHOT"

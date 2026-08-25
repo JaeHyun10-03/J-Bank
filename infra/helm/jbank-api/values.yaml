@@ -1,0 +1,29 @@
+# 기본값. 환경별 값은 values-dev.yaml / values-prod.yaml에서 덮어쓴다.
+
+image:
+  repository: jbank-api
+  tag: latest
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+springProfilesActive: local
+
+# jbank-api가 필요로 하는 시크릿(DB_URL, DB_USERNAME, DB_PASSWORD,
+# REDIS_HOST, REDIS_PORT, KAFKA_BOOTSTRAP_SERVERS, PII_ENCRYPTION_KEY,
+# RESIDENT_REG_NO_HASH_KEY, JWT_SECRET)이 담긴 Secret 이름.
+# 이번 주 목요일 External Secrets Operator 도입 전까지는 클러스터에
+# 수동으로 생성해둔 Secret을 가리킨다.
+secretName: jbank-api-secrets
+
+service:
+  port: 8080
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    memory: 1Gi
+
+nodeSelector: {}
