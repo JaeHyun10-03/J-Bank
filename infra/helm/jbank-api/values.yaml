@@ -34,6 +34,16 @@ resources:
 podDisruptionBudget:
   maxUnavailable: 1
 
+# CPU 기준만 우선 적용. 초당 요청수(RPS) 기준은 custom.metrics.k8s.io를
+# 채워줄 Prometheus Adapter를 EKS에 별도로 배포해야 가능한데, 지금
+# observability 스택은 docker-compose에만 있고 클러스터엔 없다 —
+# 후속 작업으로 남겨둔다.
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+
 nodeSelector: {}
 
 # API 서버와 같은 이미지, 실행 인자와 스케줄만 다르게 준 배치 잡.

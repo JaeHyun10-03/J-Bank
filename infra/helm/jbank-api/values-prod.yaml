@@ -4,6 +4,9 @@
 
 replicaCount: 2
 
+autoscaling:
+  enabled: true
+
 springProfilesActive: prod
 
 secretName: jbank-api-secrets-prod
