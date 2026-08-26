@@ -14,6 +14,7 @@ spec:
       labels:
         {{- include "jbank-api.labels" . | nindent 8 }}
     spec:
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
       containers:
         - name: jbank-api
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

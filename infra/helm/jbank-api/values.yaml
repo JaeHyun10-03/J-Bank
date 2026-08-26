@@ -7,6 +7,11 @@ image:
 
 replicaCount: 1
 
+# 애플리케이션 쪽 graceful shutdown(timeout-per-shutdown-phase: 20s)보다
+# 여유를 둬서, SIGTERM 이후 강제 종료(SIGKILL) 전에 진행중 요청이 먼저
+# 정리될 시간을 준다.
+terminationGracePeriodSeconds: 30
+
 springProfilesActive: local
 
 # jbank-api가 필요로 하는 시크릿(DB_URL, DB_USERNAME, DB_PASSWORD,
