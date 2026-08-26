@@ -1,0 +1,13 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "jbank-api.fullname" . }}
+  labels:
+    {{- include "jbank-api.labels" . | nindent 4 }}
+spec:
+  # minAvailable 대신 maxUnavailable을 쓴다 — replicaCount가 1인 dev
+  # 환경에서 minAvailable: 1은 자발적 축출을 영구히 막아버린다.
+  maxUnavailable: {{ .Values.podDisruptionBudget.maxUnavailable }}
+  selector:
+    matchLabels:
+      {{- include "jbank-api.labels" . | nindent 6 }}

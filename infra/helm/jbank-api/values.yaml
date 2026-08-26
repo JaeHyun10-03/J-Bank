@@ -31,6 +31,9 @@ resources:
   limits:
     memory: 1Gi
 
+podDisruptionBudget:
+  maxUnavailable: 1
+
 nodeSelector: {}
 
 # API 서버와 같은 이미지, 실행 인자와 스케줄만 다르게 준 배치 잡.
