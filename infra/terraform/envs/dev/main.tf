@@ -63,6 +63,12 @@ module "compute" {
   tags                     = local.common_tags
 }
 
+module "gitops" {
+  source = "../../modules/gitops"
+
+  repo_url = "https://github.com/${var.github_repository}.git"
+}
+
 # WAF 웹 ACL을 여기서 ALB에 붙인다 — security 모듈은 ALB를 모르고 compute 모듈은
 # WAF를 모르는 채로 각자 만들어두고, 둘 다 아는 루트에서만 연결한다(순환참조 회피).
 resource "aws_wafv2_web_acl_association" "alb" {
