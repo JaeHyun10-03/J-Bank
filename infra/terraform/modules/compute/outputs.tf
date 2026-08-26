@@ -15,6 +15,11 @@ output "eks_cluster_endpoint" {
   value = module.eks.cluster_endpoint
 }
 
+output "eks_cluster_ca_certificate" {
+  description = "helm/kubectl provider가 클러스터 TLS 검증에 쓰는 base64 CA 인증서(gitops 모듈)."
+  value       = module.eks.cluster_certificate_authority_data
+}
+
 output "eks_oidc_provider_arn" {
   description = "IRSA(파드용 IAM 역할)에 쓸 클러스터 OIDC provider ARN."
   value       = module.eks.oidc_provider_arn
