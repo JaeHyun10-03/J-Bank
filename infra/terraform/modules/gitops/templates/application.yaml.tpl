@@ -13,6 +13,7 @@ spec:
       valueFiles:
         - values.yaml
         - ${values_file}
+        - values-image.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: ${namespace}

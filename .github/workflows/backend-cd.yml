@@ -10,7 +10,7 @@ on:
 
 permissions:
   id-token: write
-  contents: read
+  contents: write # values-image.yaml에 이미지 태그를 커밋하려면 필요
 
 jobs:
   build-and-push:
@@ -45,3 +45,27 @@ jobs:
             apps/jbank-api
           docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
           docker push "$ECR_REGISTRY/$ECR_REPOSITORY:latest"
+
+      # ArgoCD(GitOps)는 클러스터가 아니라 Git을 진실의 원천으로 본다 — 여기서
+      # helm upgrade --set으로 클러스터에 직접 값을 넣으면 jbank-api-dev
+      # Application의 selfHeal이 "Git과 다르다"고 보고 원래 값으로 되돌려버린다
+      # (ADR 0006). 그래서 이미지 태그는 이 파일에 커밋해서 Git 쪽 desired
+      # state를 갱신하고, ArgoCD가 그 변경을 스스로 끌어가게 한다.
+      - name: Commit new image tag for ArgoCD to sync
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          ECR_REPOSITORY: jbank-api
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          cat > infra/helm/jbank-api/values-image.yaml <<EOF
+          # ArgoCD가 지켜보는 실제 배포 이미지 — 이 파일은 이 CI 잡이 자동으로
+          # 갱신한다. 직접 고치지 말 것(다음 배포에서 덮어쓴다).
+          image:
+            repository: $ECR_REGISTRY/$ECR_REPOSITORY
+            tag: $IMAGE_TAG
+          EOF
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add infra/helm/jbank-api/values-image.yaml
+          git commit -m "chore(infra): jbank-api 이미지 태그를 $IMAGE_TAG(으)로 갱신 [skip ci]"
+          git push
