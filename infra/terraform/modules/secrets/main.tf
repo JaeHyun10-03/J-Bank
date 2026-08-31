@@ -39,6 +39,10 @@ resource "aws_secretsmanager_secret" "jbank_api" {
   tags = merge(var.tags, { Name = "jbank-${var.environment}-${each.key}-api-secrets" })
 }
 
+# 위 이름은 "jbank-dev-dev-api-secrets"/"jbank-dev-prod-api-secrets"처럼
+# 보인다 — 앞의 dev는 이 Terraform 환경(envs/dev), 뒤의 dev/prod는
+# ArgoCD가 배포하는 애플리케이션 네임스페이스로 서로 다른 축이다.
+
 resource "aws_secretsmanager_secret_version" "jbank_api" {
   for_each = var.namespaces
 

@@ -52,7 +52,7 @@ resource "kubectl_manifest" "namespace" {
     apiVersion: v1
     kind: Namespace
     metadata:
-      name: ${each.key}
+      name: ${each.value.namespace}
   YAML
 }
 
@@ -68,13 +68,13 @@ resource "kubectl_manifest" "external_secret" {
     kind: ExternalSecret
     metadata:
       name: jbank-api-secrets
-      namespace: ${each.key}
+      namespace: ${each.value.namespace}
     spec:
       secretStoreRef:
         name: aws-secrets-manager
         kind: ClusterSecretStore
       target:
-        name: ${each.value}
+        name: ${each.value.secret_name}
         creationPolicy: Owner
       refreshInterval: 1h
       dataFrom:

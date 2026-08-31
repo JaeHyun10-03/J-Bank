@@ -69,12 +69,24 @@ variable "kafka_bootstrap_servers" {
   default = "kafka-not-provisioned:9092"
 }
 
+# 짧은 키(dev/prod)로 AWS Secrets Manager 시크릿 이름을, namespace로
+# ArgoCD Application이 실제 배포하는 K8s 네임스페이스를 결정한다.
+# secret_name은 jbank-api Helm 차트의 values-{dev,prod}.yaml에 있는
+# secretName 값과 정확히 일치해야 한다.
 variable "namespaces" {
-  description = "ExternalSecret을 만들 (네임스페이스 => K8s Secret 이름) 매핑. jbank-api Helm 차트의 secretName 값과 일치해야 한다."
-  type        = map(string)
+  type = map(object({
+    namespace   = string
+    secret_name = string
+  }))
   default = {
-    jbank-dev  = "jbank-api-secrets-dev"
-    jbank-prod = "jbank-api-secrets-prod"
+    dev = {
+      namespace   = "jbank-dev"
+      secret_name = "jbank-api-secrets-dev"
+    }
+    prod = {
+      namespace   = "jbank-prod"
+      secret_name = "jbank-api-secrets-prod"
+    }
   }
 }
 
