@@ -46,21 +46,33 @@ Figma에서 디자인 토큰부터 41개 화면, 81개 프로토타입 배선까
 flowchart TB
     User([고객 클라이언트]) --> CF["CloudFront · WAF · Shield"]
     CF --> ALB["ALB · Public Subnet"]
+    Git[("GitHub<br/>main 브랜치")] -.동기화.-> Argo
 
-    subgraph VPC["운영 VPC · ap-northeast-2"]
-        ALB --> API["Spring Boot API<br/>EKS · Private Subnet"]
-        Batch["배치 CronJob<br/>이자·정합성대사·CTR판별"]
-        API --> RDS[("PostgreSQL<br/>Multi-AZ · Isolated Subnet")]
-        API --> Redis[("Redis<br/>분산락·세션·OTP")]
-        API -.발신함.-> Kafka[("Kafka · MSK<br/>거래·감사 이벤트")]
-        Batch --> RDS
-        Batch -.-> Kafka
+    subgraph VPC["EKS · ap-northeast-2 · Private Subnet"]
+        Argo["ArgoCD<br/>(GitOps 동기화)"] -.배포.-> API
+        Argo -.배포.-> Product
+        ALB --> API["jbank-api<br/>계좌·거래·원장·인증"]
+        ALB --> Product["jbank-product<br/>상품·계약(독립 배포)"]
+        Batch["배치 CronJob<br/>이자·정합성대사·CTR·FDS판별"]
+        API -->|"내부 API<br/>(출금/입금)"| Product
+        Product -->|"내부 API<br/>(출금/보상)"| API
+        Batch --> API
+        ESO["External Secrets<br/>Operator"] -.주입.-> API
+        ESO -.주입.-> Product
     end
+
+    SM[("Secrets Manager")] -.-> ESO
+    API --> RDS[("PostgreSQL<br/>Multi-AZ · Isolated Subnet")]
+    Product --> RDS
+    API --> Redis[("Redis<br/>분산락·세션·OTP")]
+    API -.발신함.-> Kafka[("Kafka · MSK<br/>거래·감사 이벤트")]
+    Batch --> RDS
+    Batch -.-> Kafka
 
     Web["Next.js 프론트엔드<br/>Vercel"] -->|same-site 프록시| ALB
 ```
 
-프론트엔드(Vercel)와 백엔드(AWS)를 분리 배포하되, 원장·개인정보를 다루는 컴포넌트는 전부 AWS 안에 둡니다. 계정 구조, 망분리, 키 관리까지 포함한 전체 설계는 [인프라아키텍처 문서](docs/06_J-Bank_인프라아키텍처.md)에서 확인하실 수 있습니다.
+프론트엔드(Vercel)와 백엔드(AWS)를 분리 배포하되, 원장·개인정보를 다루는 컴포넌트는 전부 AWS 안에 둡니다. W7에서 상품·계약 도메인(`jbank-product`)을 독립 배포 단위로 떼어내고, 상품가입을 오케스트레이션 사가(계약 생성 → 출금 → 확정, 실패 시 보상 거래)로 구현했습니다 — 근거는 [ADR 0007](docs/adr/0007-w7-product-module-separation.md). 계정 구조, 망분리, 키 관리까지 포함한 전체 설계는 [인프라아키텍처 문서](docs/06_J-Bank_인프라아키텍처.md)에서 확인하실 수 있습니다.
 
 ## 기술 스택
 
@@ -71,20 +83,21 @@ flowchart TB
 | 백엔드 테스트 | JUnit5, ArchUnit(의존 방향 강제), Testcontainers, Spotless(Google Java Format) |
 | 프론트엔드 | React 18, Next.js 14(App Router), TypeScript, TanStack Query, Zustand, React Hook Form + Zod, Tailwind v4 + shadcn/ui, Axios, openapi-typescript |
 | 프론트엔드 테스트 | Jest, React Testing Library, Playwright(E2E) |
-| 인프라 | AWS EKS/RDS/ElastiCache/MSK/WAF, Terraform, GitHub Actions, ArgoCD(GitOps), Vercel |
+| 인프라 | AWS EKS/RDS/ElastiCache/MSK/WAF/Secrets Manager, Terraform, GitHub Actions, ArgoCD(GitOps), External Secrets Operator, Vercel |
 
 ## 프로젝트 구조
 
 ```
-apps/jbank-api/   Spring Boot 단일 모듈, 도메인 패키지 경계 + ArchUnit
-apps/frontend/    Next.js 14 App Router
-infra/            Docker Compose, Dockerfile, Terraform, Helm
-contracts/        OpenAPI 스냅샷, 수동 호출 컬렉션
-perf/             k6 스크립트와 주차별 결과
-docs/             설계 문서, ADR, 런북
+apps/jbank-api/       Spring Boot, 계좌·거래·원장·인증·감사·FDS/CTR 배치 — 도메인 패키지 경계 + ArchUnit
+apps/jbank-product/   Spring Boot, 상품·계약 도메인 — 별도 Gradle 프로젝트·독립 배포 단위(W7)
+apps/frontend/        Next.js 14 App Router
+infra/                Docker Compose, Dockerfile(서비스별), Terraform, Helm(서비스별)
+contracts/            OpenAPI 스냅샷, 수동 호출 컬렉션
+perf/                 k6 스크립트와 주차별 결과
+docs/                 설계 문서, ADR, 런북
 ```
 
-단일 모듈에서 도메인 패키지(`account`, `customer`, `ledger`, `transfer`, `product` 등)로 나누고 ArchUnit으로 의존 방향을 강제합니다. 경계가 실제로 지켜졌음이 확인되는 Phase 3에 한 도메인만 분리할 계획이며, 처음부터 MSA로 시작하지 않습니다. 근거는 [폴더구조 문서](docs/10_J-Bank_폴더구조.md)에 있습니다.
+W1~W6은 단일 모듈에서 도메인 패키지(`account`, `customer`, `ledger`, `transfer`, `product` 등)로 나누고 ArchUnit으로 의존 방향을 강제했습니다. W7에 그 경계 중 하나(상품·계약)가 실제로 정당화되는지 검증한 뒤 `apps/jbank-product`로 독립 배포 단위로 떼어냈고, 그 과정에서 ArchUnit이 놓치고 있던 역방향 의존(이자 지급 배치)을 실제로 발견해 해소했습니다. 전면 MSA 전환이 아니라 경계 하나만 떼어낸 것이며, 근거와 트레이드오프는 [폴더구조 문서](docs/10_J-Bank_폴더구조.md)와 [ADR 0007](docs/adr/0007-w7-product-module-separation.md)에 있습니다.
 
 ## ERD
 
@@ -157,8 +170,8 @@ stateDiagram-v2
 
 - **락 순서 고정.** 이체 시 두 계좌번호를 오름차순 정렬한 뒤 순서대로 비관적 락을 획득해 교착상태를 원천 차단합니다.
 - **Idempotency-Key.** 클라이언트가 제공한 키에 DB 유니크 제약을 걸어, 애플리케이션 레벨 중복 확인과 이중으로 방어합니다. 동일 키로 동시에 들어온 두 번째 요청은 유니크 제약 위반으로 막힙니다.
-- **분산락.** OTP·세션처럼 여러 인스턴스가 공유하는 휘발성 상태는 Redisson 기반 분산락과 Redis TTL로 관리합니다(W5).
-- **검증 계획.** 동시성 시나리오 5종(동시 출금, 동시 이체, 락 순서 역전 등)을 Testcontainers 기반 통합 테스트로 검증하는 것이 W2 목표입니다.
+- **분산락.** OTP·세션처럼 여러 인스턴스가 공유하는 휘발성 상태는 Redisson 기반 분산락과 Redis TTL로 관리합니다. 배치 잡(이자·정합성대사·CTR·FDS)도 인스턴스를 여러 개로 늘린 W7부터 같은 방식으로 단일 실행을 보장합니다 — DB 행 락만으로 충분했던 W2 시점엔 굳이 도입하지 않은 이유가 [ADR 0003](docs/adr/0003-w2-no-distributed-lock.md)에, W7에 실제로 필요해진 이유가 [ADR 0005](docs/adr/0005-w7-batch-job-distributed-lock.md)에 있습니다.
+- **검증.** 동시성 시나리오 5종(잔액 부족 동시 출금, 양방향 이체, 멱등성 키 동시 요청, 랜덤 이체, 강제 롤백)을 Testcontainers 기반 실제 PostgreSQL로 검증합니다.
 
 ## 테스트 전략
 
@@ -172,7 +185,27 @@ stateDiagram-v2
 | API 테스트 | 공통 응답 포맷·에러코드 계약 검증 | MockMvc |
 | E2E 테스트 | 실제 브라우저 흐름 | Playwright |
 
-커버리지 수치를 일괄 목표로 삼지 않고, 원장·이체·인증 세 패키지에만 분기 커버리지 80%를 기준선으로 두어 파이프라인에서 강제합니다. 현재는 체크디지트 검증기와 CDD/KYC 등급 산정 로직에 단위 테스트가 있으며, 통합·동시성 테스트는 W2에 추가할 예정입니다. 상세 방침은 [구현계획 10절](docs/07_J-Bank_구현계획.md)에 있습니다.
+커버리지 수치를 일괄 목표로 삼지 않고, 원장·이체·인증 세 패키지에만 분기 커버리지 80%를 기준선으로 두어 파이프라인에서 강제합니다. 동시성 시나리오 5종(동시 출금·양방향 이체·멱등성 키 경합 등)과 배치 잡 재실행 안전성, 상품가입 사가의 보상 트랜잭션까지 Testcontainers 기반 통합 테스트로 검증합니다. 상세 방침은 [구현계획 10절](docs/07_J-Bank_구현계획.md)에 있습니다.
+
+## 성능 추이
+
+W2부터 매주 같은 조건(이체 API, `constant-arrival-rate` 100 iterations/s, 30초)으로 k6 부하 테스트를 돌려 회귀를 감지합니다. NFR-PERF-001 기준은 200ms 이내·초당 100건입니다.
+
+```mermaid
+xychart-beta
+    title "이체 API p95 지연시간(ms) 추이"
+    x-axis [W2, W5, W6]
+    y-axis "p95 (ms)" 0 --> 20
+    bar [15.3, 7.74, 8.34]
+```
+
+| 주차 | p95 | 처리량 | 실패율 |
+|---|---|---|---|
+| W2 | 15.3ms | 99.99 req/s | 0.00% |
+| W5 | 7.74ms | 99.69 req/s | 0.00% |
+| W6 | 8.34ms | 99.73 req/s | 0.00% |
+
+세 측정 모두 실패 요청 0건, 기준(200ms) 대비 20배 이상 여유였습니다. W7에는 실제 EKS 클러스터에 배포한 상태로 롤링 업데이트 도중 부하 테스트를 실행해 무중단 배포를 검증했습니다 — 새 파드가 준비될 때까지 이전 파드가 계속 요청을 받고, graceful shutdown(20초)이 종료 유예시간(30초) 안에 끝나 전환 구간에서도 실패 요청이 0건이었습니다. 측정 조건과 원본 로그는 [`perf/README.md`](perf/README.md), [`perf/results/`](perf/results/)에 있습니다.
 
 ## 실행 방법
 
@@ -190,9 +223,15 @@ scripts/dev.sh core messaging   # 위 두 개 + Kafka (발신함 폴링 발행�
 cd apps/jbank-api && ./gradlew bootRun --args='--spring.profiles.active=local'
 # http://localhost:8080/swagger-ui.html
 
-# 시연용 고객 2명·계좌 2개·상품 4종이 필요하면 seed 프로파일을 추가한다
-# (이미 데이터가 있으면 아무 것도 하지 않아 반복 실행해도 안전하다)
+# 상품가입은 jbank-api에 출금을 요청하는 사가라 jbank-api가 먼저 떠 있어야 한다.
+cd apps/jbank-product && ./gradlew bootRun --args='--spring.profiles.active=local'
+# http://localhost:8081/swagger-ui.html
+
+# 시연용 고객 2명·계좌 2개(jbank-api)·상품 2종(jbank-product)이 필요하면
+# 두 서비스 모두 seed 프로파일을 추가한다(이미 데이터가 있으면 아무 것도
+# 하지 않아 반복 실행해도 안전하다)
 cd apps/jbank-api && ./gradlew bootRun --args='--spring.profiles.active=local,seed'
+cd apps/jbank-product && ./gradlew bootRun --args='--spring.profiles.active=local,seed'
 
 cd apps/frontend && npm run dev
 # http://localhost:3000
@@ -212,22 +251,24 @@ cd apps/frontend && npm run dev
 
 세부 과정은 [`docs/devlog/`](docs/devlog/)에 있습니다.
 
-## 향후 개선 계획
+## 7주 로드맵
 
-| 주차 | 목표 |
-|---|---|
-| W2 | 원장·거래 코어 구현, 동시성·멱등성 시나리오 검증, 성능 베이스라인 기록 |
-| W3 | 인증·보안, 상품 도메인 구현, Phase 1 마감(`v0.1.0`) |
-| W4~W5 | 감사 로그·위험도 이력, 발신함 기반 이벤트 알림, 배치 처리, 고액이체 2차 인증(Phase 2) |
-| W6~W7 | 관측 가능성·성능 최적화·Terraform 코드화, 쿠버네티스 배포·GitOps·서비스 분리(Phase 3, `v1.0.0`) |
+| 주차 | 목표 | 상태 |
+|---|---|---|
+| W1 | 환경 세팅, 도메인 패키지 경계·ArchUnit 규칙 확정 | 완료 |
+| W2 | 원장·거래 코어 구현, 동시성·멱등성 시나리오 검증, 성능 베이스라인 기록 | 완료 |
+| W3 | 인증·보안, 상품 도메인 구현, Phase 1 마감(`v0.1.0`) | 완료 |
+| W4~W5 | 감사 로그·위험도 이력, 발신함 기반 이벤트 알림, 배치 처리, 고액이체 2차 인증(Phase 2) | 완료 |
+| W6 | 관측 가능성(Prometheus/Grafana/Loki), 성능 측정·인덱스 튜닝, Terraform 코드화 | 완료 |
+| W7 | 쿠버네티스 배포(Helm)·GitOps(ArgoCD)·오토스케일링, 상품 도메인 독립 배포 분리+사가, 이상거래 탐지(Phase 3, `v1.0.0`) | 완료 |
 
 전체 로드맵과 완료 기준은 [구현계획 문서](docs/07_J-Bank_구현계획.md)에 있습니다.
 
 ## 진행 상황
 
-Phase 1(코어 도메인 확립)이 `v0.1.0`로 마감되었습니다. 계좌·원장·거래(입출금·이체) 코어와 동시성·멱등성 검증, JWT 쿠키 인증·CSRF 이중제출·로그인 잠금, 예적금 상품 가입 도메인까지 구현했고, 회원가입부터 상품가입까지 전체 흐름을 HTTP 통합 테스트로 검증합니다. 다음 단계는 감사 로그·이벤트 알림·배치 처리를 다루는 Phase 2(W4~W5)입니다.
+`v1.0.0` — 계획한 7주 로드맵을 모두 마쳤습니다. 계좌·원장·거래 코어, JWT 인증·CSRF·2차 인증, 예적금 상품 가입, 감사 로그·이벤트 알림·배치 처리(이자·정합성대사·CTR·이상거래탐지), 그리고 EKS·Helm·ArgoCD 기반 쿠버네티스 배포와 상품 도메인의 독립 배포 분리(오케스트레이션 사가 포함)까지 실제 클러스터에 배포해 검증했습니다.
 
-주차별 체크리스트는 [`todo/`](todo/), 작업 과정은 [`docs/devlog/`](docs/devlog/)에서 확인하실 수 있습니다.
+주차별 체크리스트는 [`todo/`](todo/), 작업 과정은 [`docs/devlog/`](docs/devlog/), 설계 결정은 [`docs/adr/`](docs/adr/)에서 확인하실 수 있습니다.
 
 ## 문서
 
