@@ -43,6 +43,23 @@ resource "aws_ecr_lifecycle_policy" "jbank_api" {
   })
 }
 
+# W7 product 모듈 분리 — jbank-api와 같은 이미지 수명주기 규칙을 그대로 쓴다.
+resource "aws_ecr_repository" "jbank_product" {
+  name                 = "jbank-product"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  tags = merge(var.tags, { Name = "jbank-${var.environment}-ecr-jbank-product" })
+}
+
+resource "aws_ecr_lifecycle_policy" "jbank_product" {
+  repository = aws_ecr_repository.jbank_product.name
+  policy     = aws_ecr_lifecycle_policy.jbank_api.policy
+}
+
 # ---- GitHub Actions OIDC — ECR 푸시 전용 역할 ----
 # OIDC provider 자체는 여기서 안 만든다 — 계정당 하나만 있어야 하는 리소스라
 # bootstrap 스택에서 만들고, 그 ARN을 var.github_oidc_provider_arn으로 받는다.
@@ -97,7 +114,7 @@ data "aws_iam_policy_document" "ecr_push_permissions" {
       "ecr:CompleteLayerUpload",
       "ecr:BatchGetImage",
     ]
-    resources = [aws_ecr_repository.jbank_api.arn]
+    resources = [aws_ecr_repository.jbank_api.arn, aws_ecr_repository.jbank_product.arn]
   }
 }
 

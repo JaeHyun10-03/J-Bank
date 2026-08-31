@@ -1,0 +1,10 @@
+apiVersion: v2
+name: jbank-product
+description: >-
+  상품·계약 도메인 API 서버(Deployment). W7에서 jbank-api로부터 독립
+  배포 단위로 떼어냈다(docs/adr/0007-w7-product-module-separation.md).
+  배치 잡은 없다 — 이자 지급 배치는 jbank-api의 CronJob이 이 서비스의
+  내부 API를 호출하는 방식으로 남아있다.
+type: application
+version: 0.1.0
+appVersion: "0.0.1-SNAPSHOT"

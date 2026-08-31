@@ -1,0 +1,15 @@
+replicaCount: 2
+
+autoscaling:
+  enabled: true
+
+springProfilesActive: prod
+
+secretName: jbank-api-secrets-prod
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 320Mi
+  limits:
+    memory: 640Mi

@@ -30,32 +30,33 @@ resource "helm_release" "argocd" {
 # dev는 automated(prune+selfHeal)로 즉시 동기화하고, prod는 syncPolicy에
 # automated 블록을 빼서 `argocd app sync`로 수동 승인해야만 반영되게
 # 한다(인프라아키텍처 문서 219행 — 변경관리위원회 심의를 간소화한 승인
-# 게이트).
-resource "kubectl_manifest" "app_dev" {
-  yaml_body = templatefile("${path.module}/templates/application.yaml.tpl", {
-    name             = "jbank-api-dev"
-    argocd_namespace = var.argocd_namespace
-    namespace        = "jbank-dev"
-    values_file      = "values-dev.yaml"
-    repo_url         = var.repo_url
-    target_revision  = var.target_revision
-    chart_path       = var.chart_path
-    automated_sync   = true
-  })
-
-  depends_on = [helm_release.argocd]
+# 게이트). jbank-api·jbank-product 두 차트 × dev·prod 두 환경, 총 네
+# Application을 같은 규칙으로 만든다.
+locals {
+  argocd_apps = {
+    for pair in setproduct(["jbank-api", "jbank-product"], ["dev", "prod"]) : "${pair[0]}-${pair[1]}" => {
+      chart          = pair[0]
+      env            = pair[1]
+      chart_path     = "infra/helm/${pair[0]}"
+      values_file    = "values-${pair[1]}.yaml"
+      namespace      = "jbank-${pair[1]}"
+      automated_sync = pair[1] == "dev"
+    }
+  }
 }
 
-resource "kubectl_manifest" "app_prod" {
+resource "kubectl_manifest" "app" {
+  for_each = local.argocd_apps
+
   yaml_body = templatefile("${path.module}/templates/application.yaml.tpl", {
-    name             = "jbank-api-prod"
+    name             = each.key
     argocd_namespace = var.argocd_namespace
-    namespace        = "jbank-prod"
-    values_file      = "values-prod.yaml"
+    namespace        = each.value.namespace
+    values_file      = each.value.values_file
     repo_url         = var.repo_url
     target_revision  = var.target_revision
-    chart_path       = var.chart_path
-    automated_sync   = false
+    chart_path       = each.value.chart_path
+    automated_sync   = each.value.automated_sync
   })
 
   depends_on = [helm_release.argocd]

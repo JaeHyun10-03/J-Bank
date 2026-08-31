@@ -1,0 +1,12 @@
+replicaCount: 1
+
+springProfilesActive: dev
+
+secretName: jbank-api-secrets-dev
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 320Mi
+  limits:
+    memory: 640Mi

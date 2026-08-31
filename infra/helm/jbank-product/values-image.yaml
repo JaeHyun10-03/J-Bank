@@ -1,0 +1,6 @@
+# ArgoCD가 지켜보는 실제 배포 이미지. jbank-api와 같은 이유로 CI가 이 파일만
+# 커밋한다(docs/adr/0006-w7-gitops-image-tag.md 참고 — 여기선 jbank-product로
+# 대상만 바뀐다). 직접 고치지 말 것.
+image:
+  repository: jbank-product
+  tag: latest

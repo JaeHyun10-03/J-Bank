@@ -1,0 +1,67 @@
+name: backend-product-cd
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/jbank-product/**"
+      - "infra/docker/jbank-product/**"
+      - ".github/workflows/backend-product-cd.yml"
+
+permissions:
+  id-token: write
+  contents: write # values-image.yaml에 이미지 태그를 커밋하려면 필요
+
+jobs:
+  build-and-push:
+    # backend-cd.yml과 같은 게이트 — 인프라가 준비되면 저장소 설정의
+    # Variables에 ECR_DEPLOY_READY=true를 추가한다(jbank-api와 공유).
+    if: ${{ vars.ECR_DEPLOY_READY == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ECR_PUSH_ROLE_ARN }}
+          aws-region: ap-northeast-2
+
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          ECR_REPOSITORY: jbank-product
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build \
+            -f infra/docker/jbank-product/Dockerfile \
+            -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" \
+            -t "$ECR_REGISTRY/$ECR_REPOSITORY:latest" \
+            apps/jbank-product
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:latest"
+
+      # backend-cd.yml과 같은 이유(docs/adr/0006) — ArgoCD가 Git을 보고
+      # 동기화하므로 이미지 태그는 클러스터가 아니라 이 파일에 커밋한다.
+      - name: Commit new image tag for ArgoCD to sync
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          ECR_REPOSITORY: jbank-product
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          cat > infra/helm/jbank-product/values-image.yaml <<EOF
+          # ArgoCD가 지켜보는 실제 배포 이미지 — 이 파일은 이 CI 잡이 자동으로
+          # 갱신한다. 직접 고치지 말 것(다음 배포에서 덮어쓴다).
+          image:
+            repository: $ECR_REGISTRY/$ECR_REPOSITORY
+            tag: $IMAGE_TAG
+          EOF
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add infra/helm/jbank-product/values-image.yaml
+          git commit -m "chore(infra): jbank-product 이미지 태그를 $IMAGE_TAG(으)로 갱신 [skip ci]"
+          git push

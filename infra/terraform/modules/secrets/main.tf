@@ -16,10 +16,17 @@ resource "random_password" "jwt_secret" {
   special = false
 }
 
+# jbank-api ↔ jbank-product 서비스 간 호출(InternalApiKeyFilter)이 확인하는
+# 공유 비밀키. 두 서비스가 같은 값을 넣어야 하므로 시크릿 하나로 관리한다.
+resource "random_password" "internal_api_key" {
+  length  = 48
+  special = false
+}
+
 locals {
   db_url = "jdbc:postgresql://${var.db_address}:5432/${var.db_name}"
 
-  secret_payload = {
+  common_secret_payload = {
     DB_URL                   = local.db_url
     DB_USERNAME              = var.db_master_username
     DB_PASSWORD              = var.db_master_password
@@ -29,6 +36,21 @@ locals {
     PII_ENCRYPTION_KEY       = random_id.pii_key.b64_std
     RESIDENT_REG_NO_HASH_KEY = random_id.hash_key.b64_std
     JWT_SECRET               = random_password.jwt_secret.result
+    INTERNAL_API_KEY         = random_password.internal_api_key.result
+  }
+
+  # 서비스 간 호출 대상 URL은 네임스페이스마다 다르다(dev↔dev, prod↔prod) —
+  # Helm 차트 fullname 규칙("{릴리스 이름}-{차트 이름}")과 ArgoCD Application
+  # 이름(jbank-api-{key}/jbank-product-{key})이 곧 릴리스 이름이라는 전제로
+  # 서비스 DNS를 조립한다.
+  secret_payload = {
+    for key, ns in var.namespaces : key => merge(
+      local.common_secret_payload,
+      {
+        ACCOUNT_SERVICE_INTERNAL_URL = "http://jbank-api-${key}-jbank-api.${ns.namespace}.svc.cluster.local:8080"
+        PRODUCT_SERVICE_INTERNAL_URL = "http://jbank-product-${key}-jbank-product.${ns.namespace}.svc.cluster.local:8080"
+      }
+    )
   }
 }
 
@@ -47,7 +69,7 @@ resource "aws_secretsmanager_secret_version" "jbank_api" {
   for_each = var.namespaces
 
   secret_id     = aws_secretsmanager_secret.jbank_api[each.key].id
-  secret_string = jsonencode(local.secret_payload)
+  secret_string = jsonencode(local.secret_payload[each.key])
 }
 
 # ---- External Secrets Operator IRSA ----

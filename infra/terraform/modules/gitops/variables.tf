@@ -20,9 +20,3 @@ variable "target_revision" {
   type        = string
   default     = "main"
 }
-
-variable "chart_path" {
-  description = "저장소 내 jbank-api Helm 차트 경로."
-  type        = string
-  default     = "infra/helm/jbank-api"
-}
