@@ -11,4 +11,4 @@
 # 실제 레지스트리·태그는 이 파일 하나로만 흐른다.
 image:
   repository: 489470371163.dkr.ecr.ap-northeast-2.amazonaws.com/jbank-api
-  tag: w7-manual
+  tag: w7-fds
