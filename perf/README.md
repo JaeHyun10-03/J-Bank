@@ -244,3 +244,57 @@ Execution Time: 1.222 ms
 - **다음에 재검토할 조건**: 실 서비스 계좌 수가 늘어난 스테이징/운영 데이터로 같은
   EXPLAIN을 다시 돌렸을 때 PK 역순 스캔의 `Rows Removed by Filter`가 지금(22건)보다
   훨씬 커지는 게 확인되면 그때 UNION 재작성을 다시 꺼낸다.
+
+## W7 무중단 배포(롤링 업데이트) 검증
+
+W2·W5·W6과 측정 조건이 다르다 — 로컬 단일 프로세스가 아니라 실제 EKS
+(jbank-dev 네임스페이스) `jbank-api-dev` Deployment(replicaCount=1,
+terminationGracePeriodSeconds=30, `server.shutdown=graceful` +
+`timeout-per-shutdown-phase=20s`) 대상이라 비교표에 넣지 않는다. 목적도
+다르다 — 처리량 재측정이 아니라 "롤링 업데이트 도중 실패 요청이
+0건인가"(이번 주 완료 기준의 절반)를 확인하는 것이다.
+
+`kubectl port-forward`는 특정 파드에 고정돼 롤링 업데이트 도중 엔드포인트
+전환을 반영하지 못한다는 걸 이 과정에서 확인했다 — 검증 도구로 못 쓴다.
+대신 k6를 클러스터 내부 Job(공식 `grafana/k6` 이미지)으로 실행해 실제
+kube-proxy 로드밸런싱을 거쳐 Service(ClusterIP) DNS로 접근했다. 부하도
+낮췄다(15 iterations/s, 300초) — dev 환경 리소스 요청량(250m CPU)이 작아
+baseline 강도(100 iterations/s)로는 무중단 여부와 무관한 자원 경합이
+결과를 흐리기 때문이다.
+
+절차: k6 Job 시작(t=0) → 15초 후 새 이미지 태그로 ArgoCD 강제 동기화
+트리거 → 새 파드 생성·Ready 전환·이전 파드 Terminating까지 전체 롤아웃
+수명주기가 이 300초 창 안에 들어옴(새 파드 Ready t≈5m40s 무렵, 이전 파드
+Terminating이 k6 종료 직전 관측됨).
+
+### 결과
+
+총 4502건 요청, **실패 0건**(`http_req_failed` 0.00%). k6 임계값 둘 다
+통과: `http_req_duration p(95)<200` → 실측 32ms, `http_req_failed rate<0.01`
+→ 실측 0.00%.
+
+| 지표 | 값 |
+|---|---|
+| 총 요청 | 4502건 |
+| 실패율 | 0.00% |
+| p95 | 32ms |
+| 처리량 | 14.98 req/s |
+
+롤링 업데이트 전체 수명주기(새 파드 생성 → Ready → 이전 파드 Terminating)가
+측정 창 안에 들어갔고 그 구간 포함 실패 요청이 0건이었다 — W7 완료
+기준("배포 중 부하 스크립트 실패 요청 0건")을 실제 클러스터 배포로
+충족했다.
+
+### 검증 중 발견한 dev 노드 용량 제약
+
+이 검증을 준비하며 두 번의 시도가 노드 파드 용량 부족(`0/1 nodes are
+available: 1 Too many pods`, node max-pods=17)으로 서지(surge) 파드가
+스케줄 자체를 못 받았다 — ArgoCD(7)·External Secrets Operator(3)·
+kube-system(4)·jbank-dev 워크로드가 이미 17개를 채우고 있어 롤링
+업데이트가 필요로 하는 +1 서지 여유가 전혀 없었다. 완료된 CronJob 파드
+정리와 CoreDNS 레플리카를 일시적으로 2→1로 줄여 슬롯을 확보해 검증을
+진행했고, 검증 직후 원복했다. 실제 운영에서는 노드그룹을 최소 2대
+이상으로 둬야 이 문제가 안 생긴다(인프라아키텍처 문서의 상시구동
+사양이 이미 이걸 전제한다) — dev의 `demo` 워크스페이스가 노드 1대로
+축소하는 비용 절감 설정과 서지 여유가 서로 충돌하는 지점이라는 걸
+이번에 실측으로 확인했다.
