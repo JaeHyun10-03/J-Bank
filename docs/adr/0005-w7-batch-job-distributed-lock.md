@@ -6,7 +6,7 @@
 
 ## 배경
 
-[[0003-w2-no-distributed-lock]]에서 Redisson 분산 락 도입을 W7까지 보류하기로
+`0003-w2-no-distributed-lock.md`에서 Redisson 분산 락 도입을 W7까지 보류하기로
 결정하면서, 그 시점을 "인스턴스를 여러 개로 늘리는 W7"이 아니라 "여러
 인스턴스에서 같은 배치 잡이 중복 실행될 수 있게 되는 시점"으로 명시해뒀다.
 W7에서 HPA로 API 파드를 2~5개로 늘리고 나면 그 조건이 실제로 성립한다.
@@ -53,6 +53,6 @@ Job 빌더에 전부 `.listener(...)`로 붙였다. `beforeJob`에서
 
 - `interestMaturityJob`, `ctrDetectionJob`, `ledgerReconciliationJob` 세
   Job 빈이 모두 `RedissonClient`를 주입받는다.
-- 이체·입금·출금 경로는 이 변경과 무관 — 여전히 DB 행 락만 쓴다([[0003-w2-no-distributed-lock]]
+- 이체·입금·출금 경로는 이 변경과 무관 — 여전히 DB 행 락만 쓴다(`0003-w2-no-distributed-lock.md`
   결정 유지).
 - `redisson-spring-boot-starter`가 W7부터 실제로 쓰이기 시작한다.
