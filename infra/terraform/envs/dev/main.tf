@@ -88,3 +88,28 @@ resource "aws_wafv2_web_acl_association" "alb" {
   resource_arn = module.compute.alb_arn
   web_acl_arn  = module.security.waf_web_acl_arn
 }
+
+# security 모듈의 db_sg/redis_sg 인그레스는 원래 was_sg 기준으로만 있었는데, was_sg는
+# cluster_additional_security_group_ids로 클러스터 ENI에는 붙지만 워커노드 EC2 자체의
+# ENI에는 안 붙는다 — 파드가 실제로 내는 트래픽은 노드 보안그룹을 달고 나간다.
+# 2026-08-31 실측 배포에서 파드가 RDS에 연결하지 못하는 것으로 발견했다(docs/adr/0008).
+# 두 모듈 다 서로를 모르므로 여기 루트에서만 연결한다(WAF-ALB와 같은 패턴).
+resource "aws_security_group_rule" "db_ingress_from_eks_nodes" {
+  type                     = "ingress"
+  security_group_id        = module.security.db_sg_id
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = module.compute.eks_node_security_group_id
+  description              = "EKS worker nodes (pods) to RDS PostgreSQL"
+}
+
+resource "aws_security_group_rule" "redis_ingress_from_eks_nodes" {
+  type                     = "ingress"
+  security_group_id        = module.security.redis_sg_id
+  from_port                = 6379
+  to_port                  = 6379
+  protocol                 = "tcp"
+  source_security_group_id = module.compute.eks_node_security_group_id
+  description              = "EKS worker nodes (pods) to ElastiCache Redis"
+}

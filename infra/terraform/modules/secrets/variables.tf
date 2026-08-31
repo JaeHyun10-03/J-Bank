@@ -61,12 +61,19 @@ variable "redis_endpoint" {
 }
 
 # MSK는 아직 프로비저닝하지 않았다(인프라아키텍처 문서 12절 Phase 2).
-# 값을 비워두면 애플리케이션이 부팅 시 Kafka 컨슈머/프로듀서 연결을
-# 계속 재시도하며 로그만 남긴다 — 이체·조회 API 자체는 이 값과 무관하게
-# 정상 동작한다(발신함 패턴이 DB 트랜잭션과 발행을 분리해두었기 때문).
+# 처음엔 "kafka-not-provisioned:9092" 같은 안 쓰는 호스트명을 넣어뒀는데,
+# 2026-08-31 실측 배포에서 컨테이너가 아예 못 뜨는 걸 발견했다 — Kafka
+# 컨슈머 컨테이너 시작이 SmartLifecycle 단계라 ApplicationContext refresh를
+# 막는데, DNS 자체가 안 풀리는 호스트명은 KafkaConsumer 생성자에서 즉시
+# ConfigException을 던져 그 자리에서 컨텍스트 기동이 실패한다(비동기로
+# 재시도하며 로그만 남기는 "연결은 되는데 응답이 없는" 상황과 다르다).
+# localhost는 항상 DNS가 풀리고 연결 거부(refused)는 비동기로 처리되므로
+# 안전하다 — 그래도 컨슈머는 못 뜨니 알림 발송은 안 되지만, 그 외 API는
+# 이 값과 무관하게 정상 동작한다(발신함 패턴이 DB 트랜잭션과 발행을
+# 분리해두었기 때문. docs/adr/0008 참고).
 variable "kafka_bootstrap_servers" {
   type    = string
-  default = "kafka-not-provisioned:9092"
+  default = "localhost:9092"
 }
 
 # 짧은 키(dev/prod)로 AWS Secrets Manager 시크릿 이름을, namespace로
