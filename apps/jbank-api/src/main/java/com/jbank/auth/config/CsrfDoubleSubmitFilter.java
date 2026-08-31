@@ -25,6 +25,10 @@ public class CsrfDoubleSubmitFilter extends OncePerRequestFilter {
   // 로그인은 문서(API설계 2.8절)가 명시한 예외. 고객 등록은 로그인 이전 익명 사용자가
   // 호출하므로 XSRF-TOKEN 쿠키 자체가 존재할 수 없어 이중제출 검증이 성립하지 않는다.
   private static final Set<String> EXEMPT_PATHS = Set.of("/api/v1/auth/login", "/api/v1/customers");
+  // 서비스 간 호출(InternalApiKeyFilter가 인증)은 브라우저 쿠키가 아예 없으니
+  // 이중제출 개념 자체가 성립하지 않는다 — 실측 배포에서 POST/PATCH 내부 API가
+  // 전부 403(COMMON_007_CSRF_TOKEN_INVALID)으로 막히는 걸 보고 발견했다.
+  private static final String EXEMPT_PATH_PREFIX = "/internal/";
   private static final String COOKIE_NAME = "XSRF-TOKEN";
   private static final String HEADER_NAME = "X-CSRF-TOKEN";
 
@@ -39,7 +43,8 @@ public class CsrfDoubleSubmitFilter extends OncePerRequestFilter {
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
     if (SAFE_METHODS.contains(request.getMethod())
-        || EXEMPT_PATHS.contains(request.getRequestURI())) {
+        || EXEMPT_PATHS.contains(request.getRequestURI())
+        || request.getRequestURI().startsWith(EXEMPT_PATH_PREFIX)) {
       filterChain.doFilter(request, response);
       return;
     }

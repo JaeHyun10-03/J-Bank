@@ -32,7 +32,6 @@ public class SecurityConfig {
     "/swagger-ui/**",
     "/swagger-ui.html",
     "/api/v1/customers",
-    "/api/v1/products",
     "/api/v1/auth/login",
     "/api/v1/auth/refresh",
     "/actuator/health/**", // kubelet이 인증 없이 readiness/liveness probe를 호출해야 함
