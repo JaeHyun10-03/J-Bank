@@ -25,6 +25,11 @@ output "eks_oidc_provider_arn" {
   value       = module.eks.oidc_provider_arn
 }
 
+output "eks_oidc_issuer_url" {
+  description = "IRSA 신뢰 정책의 sub 조건에 쓸 OIDC issuer URL(https:// 접두어 포함)."
+  value       = module.eks.cluster_oidc_issuer_url
+}
+
 output "alb_arn" {
   value = aws_lb.this.arn
 }
