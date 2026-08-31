@@ -1,5 +1,6 @@
 package com.jbank.batch.interest;
 
+import com.jbank.batch.lock.SingleInstanceJobExecutionListener;
 import com.jbank.product.domain.ContractStatus;
 import com.jbank.product.domain.ProductContract;
 import com.jbank.product.repository.ProductContractRepository;
@@ -7,6 +8,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
+import org.redisson.api.RedissonClient;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -29,8 +31,12 @@ public class InterestMaturityJobConfig {
   private static final int CHUNK_SIZE = 100;
 
   @Bean
-  public Job interestMaturityJob(JobRepository jobRepository, Step interestMaturityStep) {
-    return new JobBuilder("interestMaturityJob", jobRepository).start(interestMaturityStep).build();
+  public Job interestMaturityJob(
+      JobRepository jobRepository, Step interestMaturityStep, RedissonClient redissonClient) {
+    return new JobBuilder("interestMaturityJob", jobRepository)
+        .start(interestMaturityStep)
+        .listener(new SingleInstanceJobExecutionListener(redissonClient))
+        .build();
   }
 
   @Bean

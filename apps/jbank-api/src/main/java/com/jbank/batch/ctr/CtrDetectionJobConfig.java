@@ -1,10 +1,12 @@
 package com.jbank.batch.ctr;
 
 import com.jbank.account.repository.AccountRepository;
+import com.jbank.batch.lock.SingleInstanceJobExecutionListener;
 import com.jbank.support.ctr.repository.CtrReportQueueRepository;
 import com.jbank.transfer.repository.TransactionRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import org.redisson.api.RedissonClient;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -21,8 +23,12 @@ import org.springframework.transaction.PlatformTransactionManager;
 public class CtrDetectionJobConfig {
 
   @Bean
-  public Job ctrDetectionJob(JobRepository jobRepository, Step ctrDetectionStep) {
-    return new JobBuilder("ctrDetectionJob", jobRepository).start(ctrDetectionStep).build();
+  public Job ctrDetectionJob(
+      JobRepository jobRepository, Step ctrDetectionStep, RedissonClient redissonClient) {
+    return new JobBuilder("ctrDetectionJob", jobRepository)
+        .start(ctrDetectionStep)
+        .listener(new SingleInstanceJobExecutionListener(redissonClient))
+        .build();
   }
 
   @Bean

@@ -1,7 +1,9 @@
 package com.jbank.batch.reconciliation;
 
 import com.jbank.account.repository.AccountRepository;
+import com.jbank.batch.lock.SingleInstanceJobExecutionListener;
 import com.jbank.ledger.repository.LedgerEntryRepository;
+import org.redisson.api.RedissonClient;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -16,9 +18,11 @@ import org.springframework.transaction.PlatformTransactionManager;
 public class LedgerReconciliationJobConfig {
 
   @Bean
-  public Job ledgerReconciliationJob(JobRepository jobRepository, Step ledgerReconciliationStep) {
+  public Job ledgerReconciliationJob(
+      JobRepository jobRepository, Step ledgerReconciliationStep, RedissonClient redissonClient) {
     return new JobBuilder("ledgerReconciliationJob", jobRepository)
         .start(ledgerReconciliationStep)
+        .listener(new SingleInstanceJobExecutionListener(redissonClient))
         .build();
   }
 

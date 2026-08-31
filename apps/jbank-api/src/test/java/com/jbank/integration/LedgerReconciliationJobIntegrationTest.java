@@ -28,9 +28,14 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Base64;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.Job;
@@ -84,6 +89,7 @@ class LedgerReconciliationJobIntegrationTest {
   @Autowired private AccountRepository accountRepository;
   @Autowired private TransactionRepository transactionRepository;
   @Autowired private LedgerEntryRepository ledgerEntryRepository;
+  @Autowired private RedissonClient redissonClient;
 
   private ListAppender<ILoggingEvent> appender;
 
@@ -161,6 +167,45 @@ class LedgerReconciliationJobIntegrationTest {
             event ->
                 event.getLevel() == Level.WARN
                     && event.getFormattedMessage().contains("전체 차변/대변 합 불일치"));
+  }
+
+  @Test
+  void 다른_실행이_이미_락을_잡고_있으면_스텝을_실행하지_않고_실패한다() throws Exception {
+    Long customerId = saveCustomer();
+    saveAccount(customerId, BigDecimal.ZERO);
+
+    // Redisson 락은 (락 이름, 스레드 ID) 기준 재진입이 가능하다 — 테스트 스레드에서
+    // 바로 lock()을 걸면 잡 내부의 tryLock도 "같은 스레드"로 인식돼 재진입 성공해
+    // 버린다. 실제 다른 실행 인스턴스를 흉내내려면 별도 스레드에서 락을 잡아야 한다.
+    ExecutorService lockHolder = Executors.newSingleThreadExecutor();
+    CountDownLatch locked = new CountDownLatch(1);
+    CountDownLatch release = new CountDownLatch(1);
+    try {
+      lockHolder.submit(
+          () -> {
+            RLock lock = redissonClient.getLock("batch-job-lock:ledgerReconciliationJob");
+            lock.lock();
+            locked.countDown();
+            try {
+              release.await();
+            } catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
+            } finally {
+              lock.unlock();
+            }
+          });
+      locked.await();
+
+      JobExecution execution =
+          jobLauncherTestUtils.launchJob(
+              new JobParametersBuilder().addString("runDate", "2026-08-17").toJobParameters());
+
+      assertThat(execution.getStatus()).isEqualTo(BatchStatus.FAILED);
+      assertThat(execution.getStepExecutions()).isEmpty();
+    } finally {
+      release.countDown();
+      lockHolder.shutdown();
+    }
   }
 
   private Transaction saveCompletedTransaction(Account from, Account to, BigDecimal amount) {
