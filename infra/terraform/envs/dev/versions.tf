@@ -14,6 +14,10 @@ terraform {
       source  = "alekc/kubectl"
       version = "~> 2.4"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.6"
+    }
   }
 
   # 원격 상태(S3+DynamoDB 잠금, 인프라아키텍처 문서 10절). bucket은 계정 ID가 들어가
