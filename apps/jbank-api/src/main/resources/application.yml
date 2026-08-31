@@ -31,6 +31,13 @@ jbank:
       rounding-mode: DOWN
     ctr:
       threshold-amount: 10000000
+    fds:
+      single-transaction-threshold: 5000000
+      rapid-repeated:
+        window-minutes: 5
+        min-count: 3
+      late-night:
+        threshold: 3000000
   transfer:
     otp:
       threshold-amount: 10000000

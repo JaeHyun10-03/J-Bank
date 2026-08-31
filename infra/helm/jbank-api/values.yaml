@@ -58,6 +58,9 @@ batchJobs:
   - name: ledgerReconciliationJob
     schedule: "0 3 * * *"
     requiresRunDate: false
+  - name: fdsDetectionJob
+    schedule: "0 4 * * *"
+    requiresRunDate: true
 
 batchResources:
   requests:

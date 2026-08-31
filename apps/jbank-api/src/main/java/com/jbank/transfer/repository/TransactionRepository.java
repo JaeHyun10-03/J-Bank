@@ -2,6 +2,7 @@ package com.jbank.transfer.repository;
 
 import com.jbank.transfer.domain.Transaction;
 import com.jbank.transfer.domain.TransactionStatus;
+import com.jbank.transfer.domain.TransactionType;
 import jakarta.persistence.LockModeType;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -40,4 +41,13 @@ public interface TransactionRepository
           + "group by coalesce(t.fromAccountId, t.toAccountId)")
   List<AccountCashTotal> sumCashByAccount(
       @Param("startOfDay") OffsetDateTime startOfDay, @Param("endOfDay") OffsetDateTime endOfDay);
+
+  // 이상거래 탐지 배치(구현계획 W7, FR-SUP-003)가 하루치 완료된 이체를 한 번에 읽어
+  // 세 룰(단일 임계금액·짧은 시간 반복·심야 고액)을 자바 쪽에서 계산한다 — "짧은 시간
+  // 내 반복"은 계좌별로 시간순 정렬한 슬라이딩 윈도우가 필요해 SQL 집계만으론 안 된다.
+  List<Transaction> findByTransactionTypeAndStatusAndProcessedAtBetweenOrderByFromAccountIdAscProcessedAtAsc(
+      TransactionType transactionType,
+      TransactionStatus status,
+      OffsetDateTime startOfDay,
+      OffsetDateTime endOfDay);
 }
