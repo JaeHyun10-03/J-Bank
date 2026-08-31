@@ -1,10 +1,12 @@
 package com.jbank.batch.interest;
 
 import com.jbank.global.response.ApiResponse;
+import java.net.http.HttpClient;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -25,10 +27,14 @@ public class MaturedContractApiClient {
       RestClient.Builder restClientBuilder,
       @Value("${jbank.internal.product-service.base-url:http://localhost:8081}") String baseUrl,
       @Value("${jbank.internal.api-key:test-internal-key}") String internalApiKey) {
+    // jbank-product도 Tomcat(HTTP/1.1 전용)이라 h2c 협상 자체가 무의미하다 — 아예
+    // 1.1로 고정한다(WireMock 기반 테스트에서 h2c RST_STREAM으로 불안정해지는 것도 방지).
+    HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
     this.restClient =
         restClientBuilder
             .baseUrl(baseUrl)
             .defaultHeader("X-Internal-Api-Key", internalApiKey)
+            .requestFactory(new JdkClientHttpRequestFactory(httpClient))
             .build();
   }
 

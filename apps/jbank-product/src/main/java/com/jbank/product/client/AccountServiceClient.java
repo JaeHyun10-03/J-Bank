@@ -4,8 +4,10 @@ import com.jbank.global.exception.ErrorCode;
 import com.jbank.global.response.ApiResponse;
 import com.jbank.product.domain.ProductException;
 import java.math.BigDecimal;
+import java.net.http.HttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
@@ -24,10 +26,16 @@ public class AccountServiceClient {
       RestClient.Builder restClientBuilder,
       @Value("${jbank.internal.account-service.base-url}") String baseUrl,
       @Value("${jbank.internal.api-key}") String internalApiKey) {
+    // JDK HttpClient는 기본으로 HTTP/2 업그레이드를 시도하는데, jbank-api(Tomcat, HTTP/1.1
+    // 전용)는 h2c를 지원하지 않아 실제 배포 대상에서는 그냥 1.1로 자동 폴백된다. 문제는
+    // WireMock 테스트 서버 쪽 — h2c 협상 도중 연결이 RST_STREAM으로 끊겨버려 테스트가
+    // 불안정해진다. 어차피 실제 상대(Tomcat)도 1.1만 쓰니 아예 1.1로 고정한다.
+    HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
     this.restClient =
         restClientBuilder
             .baseUrl(baseUrl)
             .defaultHeader("X-Internal-Api-Key", internalApiKey)
+            .requestFactory(new JdkClientHttpRequestFactory(httpClient))
             .build();
   }
 
