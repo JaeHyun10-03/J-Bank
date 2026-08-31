@@ -10,5 +10,5 @@
 # 들어간 레지스트리 URL을 그대로 두지 않으려던 원래 취지를 유지하고,
 # 실제 레지스트리·태그는 이 파일 하나로만 흐른다.
 image:
-  repository: jbank-api
-  tag: latest
+  repository: 489470371163.dkr.ecr.ap-northeast-2.amazonaws.com/jbank-api
+  tag: w7-manual
