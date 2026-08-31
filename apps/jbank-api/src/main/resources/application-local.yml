@@ -16,6 +16,10 @@ jbank:
     hash-key: EaAMdQ3zxtSSUvgPsQYLyUT7iT+WbKhxERsRlx8P58g= # 로컬 전용, 운영 키와 무관
   jwt:
     secret: c0zN1QYc5xkPHqE3fJ8mWZ2vLdT9bR4gA6hK7nS0uYeXpVjMoIiFwCq1DtGzBl5r # 로컬 전용, 운영 키와 무관
+  internal:
+    api-key: local-dev-internal-key # 로컬 전용, jbank-product의 같은 값과 맞춰야 한다
+    product-service:
+      base-url: http://localhost:8081
 
 logging:
   level:

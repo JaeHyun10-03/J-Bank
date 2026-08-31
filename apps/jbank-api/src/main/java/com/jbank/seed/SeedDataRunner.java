@@ -7,9 +7,6 @@ import com.jbank.customer.domain.IdentityVerificationMethod;
 import com.jbank.customer.dto.CustomerRegisterRequest;
 import com.jbank.customer.repository.CustomerRepository;
 import com.jbank.customer.service.CustomerService;
-import com.jbank.product.domain.Product;
-import com.jbank.product.domain.ProductStatus;
-import com.jbank.product.repository.ProductRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import org.springframework.boot.ApplicationArguments;
@@ -25,17 +22,14 @@ public class SeedDataRunner implements ApplicationRunner {
   private final CustomerRepository customerRepository;
   private final CustomerService customerService;
   private final AccountService accountService;
-  private final ProductRepository productRepository;
 
   public SeedDataRunner(
       CustomerRepository customerRepository,
       CustomerService customerService,
-      AccountService accountService,
-      ProductRepository productRepository) {
+      AccountService accountService) {
     this.customerRepository = customerRepository;
     this.customerService = customerService;
     this.accountService = accountService;
-    this.productRepository = productRepository;
   }
 
   @Override
@@ -50,24 +44,8 @@ public class SeedDataRunner implements ApplicationRunner {
     accountService.open(new AccountOpenRequest(AccountType.CHECKING, BigDecimal.ZERO), customer1);
     accountService.open(new AccountOpenRequest(AccountType.CHECKING, BigDecimal.ZERO), customer2);
 
-    // 프론트 상품 화면(피그마 시안)이 기대하는 productCode로 맞춘다. 금리는 08_앱디자인노트
-    // 문서의 표시값 중 기본금리만 반영(우대금리는 단일 필드로 표현할 수 없어 제외).
-    productRepository.save(
-        new Product(
-            "j-kids",
-            "J키즈 적금",
-            new BigDecimal("0.0350"),
-            new BigDecimal("10000.00"),
-            60,
-            ProductStatus.ON_SALE));
-    productRepository.save(
-        new Product(
-            "j-farm",
-            "J팜 농장",
-            new BigDecimal("0.0300"),
-            new BigDecimal("10000.00"),
-            12,
-            ProductStatus.ON_SALE));
+    // 상품 시드는 jbank-product의 SeedDataRunner로 옮겼다(W7 모듈 분리) — 상품은 이제
+    // 이 서비스가 소유하지 않는다.
   }
 
   private Long registerCustomer(String loginId, String residentRegNo, String name, String phone) {

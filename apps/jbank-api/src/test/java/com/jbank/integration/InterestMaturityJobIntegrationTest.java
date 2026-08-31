@@ -2,23 +2,22 @@ package com.jbank.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 
 import com.jbank.account.domain.Account;
 import com.jbank.account.domain.AccountStatus;
 import com.jbank.account.domain.AccountType;
 import com.jbank.account.repository.AccountRepository;
+import com.jbank.batch.interest.MaturedContractApiClient;
+import com.jbank.batch.interest.MaturedContractDto;
 import com.jbank.customer.domain.Customer;
 import com.jbank.customer.domain.CustomerStatus;
 import com.jbank.customer.domain.IdentityVerificationMethod;
 import com.jbank.customer.domain.KycGrade;
 import com.jbank.customer.domain.RiskLevel;
 import com.jbank.customer.repository.CustomerRepository;
-import com.jbank.product.domain.ContractStatus;
-import com.jbank.product.domain.Product;
-import com.jbank.product.domain.ProductContract;
-import com.jbank.product.domain.ProductStatus;
-import com.jbank.product.repository.ProductContractRepository;
-import com.jbank.product.repository.ProductRepository;
 import com.jbank.transfer.domain.TransactionStatus;
 import com.jbank.transfer.domain.TransactionType;
 import com.jbank.transfer.repository.TransactionRepository;
@@ -26,6 +25,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Base64;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.BatchStatus;
@@ -41,10 +41,20 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-/** 이자 계산·만기 처리 배치 잡(구현계획 W5)이 실제로 이자를 지급하고 재실행을 막는지 검증한다. */
+/**
+ * 이자 계산·만기 처리 배치 잡(구현계획 W5)이 실제로 이자를 지급하고 재실행을 막는지 검증한다.
+ *
+ * <p>W7에서 product 모듈을 별도 배포 단위로 떼어내면서 만기 계약 조회·이자 계산은
+ * jbank-product의 내부 API로 옮겨갔다(docs/adr/0007). 이 서비스 혼자서는 그 API를
+ * 재현할 수 없으니 {@link MaturedContractApiClient}를 목으로 대체하고, 이 테스트는
+ * "이자가 실제로 계좌·거래·원장에 반영되는지"만 계속 실제 Postgres로 검증한다 —
+ * 검증 가치가 진짜 있는 부분(돈이 움직이는 로컬 트랜잭션)은 그대로 남기고, 이 서비스가
+ * 더는 답할 수 없는 부분(만기 계약이 실제로 뭔지)만 목으로 대체한 것이다.
+ */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @SpringBatchTest
 class InterestMaturityJobIntegrationTest {
@@ -76,31 +86,22 @@ class InterestMaturityJobIntegrationTest {
   @Qualifier("interestMaturityJob")
   private Job interestMaturityJob;
 
-  @Autowired private ProductRepository productRepository;
-  @Autowired private ProductContractRepository productContractRepository;
   @Autowired private CustomerRepository customerRepository;
   @Autowired private AccountRepository accountRepository;
   @Autowired private TransactionRepository transactionRepository;
+  @MockitoBean private MaturedContractApiClient maturedContractApiClient;
 
-  // 잡이 여러 개 등록된 애플리케이션 컨텍스트에서는 JobLauncherTestUtils가 잡을 자동으로
-  // 못 찾으므로 명시적으로 지정한다.
   @BeforeEach
   void setJob() {
     jobLauncherTestUtils.setJob(interestMaturityJob);
   }
 
   @Test
-  void 만기_도래한_계약에_이자를_지급하고_계약을_만기로_전환한다() throws Exception {
+  void 만기_도래한_계약에_이자를_지급하고_확정_API를_부른다() throws Exception {
     Long customerId = saveCustomer();
     Account account = saveAccount(customerId);
-    Product product = saveProduct("SAV-BATCH-001", new BigDecimal("0.0320"), 12);
-    ProductContract contract =
-        saveContract(
-            customerId,
-            product.getProductCode(),
-            account.getAccountId(),
-            new BigDecimal("1000000.00"),
-            OffsetDateTime.parse("2026-08-11T00:00:00+09:00"));
+    given(maturedContractApiClient.findMatured(LocalDate.parse("2026-08-11")))
+        .willReturn(List.of(new MaturedContractDto(1L, account.getAccountId(), new BigDecimal("32000"))));
 
     JobExecution execution =
         jobLauncherTestUtils.launchJob(
@@ -111,56 +112,31 @@ class InterestMaturityJobIntegrationTest {
     Account updatedAccount = accountRepository.findById(account.getAccountId()).orElseThrow();
     assertThat(updatedAccount.getCurrentBalanceCache()).isEqualByComparingTo("32000");
 
-    ProductContract updatedContract =
-        productContractRepository.findById(contract.getContractId()).orElseThrow();
-    assertThat(updatedContract.getStatus()).isEqualTo(ContractStatus.MATURED);
-
-    assertThat(
-            transactionRepository.findByIdempotencyKey(
-                "INTEREST-" + contract.getContractId() + "-2026-08-11"))
+    assertThat(transactionRepository.findByIdempotencyKey("INTEREST-1"))
         .hasValueSatisfying(
             transaction -> {
               assertThat(transaction.getTransactionType()).isEqualTo(TransactionType.INTEREST);
               assertThat(transaction.getStatus()).isEqualTo(TransactionStatus.COMPLETED);
               assertThat(transaction.getAmount()).isEqualByComparingTo("32000");
             });
+    then(maturedContractApiClient).should().markMatured(1L);
   }
 
   @Test
-  void 만기가_아직_안된_계약은_건드리지_않는다() throws Exception {
-    Long customerId = saveCustomer();
-    Account account = saveAccount(customerId);
-    Product product = saveProduct("SAV-BATCH-002", new BigDecimal("0.0320"), 12);
-    ProductContract contract =
-        saveContract(
-            customerId,
-            product.getProductCode(),
-            account.getAccountId(),
-            new BigDecimal("1000000.00"),
-            OffsetDateTime.parse("2026-09-01T00:00:00+09:00"));
+  void 만기_계약이_없으면_아무_계좌도_건드리지_않는다() throws Exception {
+    given(maturedContractApiClient.findMatured(any())).willReturn(List.of());
 
-    jobLauncherTestUtils.launchJob(
-        new JobParametersBuilder().addString("runDate", "2026-01-01").toJobParameters());
+    JobExecution execution =
+        jobLauncherTestUtils.launchJob(
+            new JobParametersBuilder().addString("runDate", "2026-01-01").toJobParameters());
 
-    Account untouchedAccount = accountRepository.findById(account.getAccountId()).orElseThrow();
-    assertThat(untouchedAccount.getCurrentBalanceCache()).isEqualByComparingTo("0.00");
-
-    ProductContract untouchedContract =
-        productContractRepository.findById(contract.getContractId()).orElseThrow();
-    assertThat(untouchedContract.getStatus()).isEqualTo(ContractStatus.ACTIVE);
+    assertThat(execution.getStatus()).isEqualTo(BatchStatus.COMPLETED);
+    then(maturedContractApiClient).should(org.mockito.Mockito.never()).markMatured(any());
   }
 
   @Test
   void 같은_기준일로_두번_실행하면_두번째_실행을_막는다() throws Exception {
-    Long customerId = saveCustomer();
-    Account account = saveAccount(customerId);
-    Product product = saveProduct("SAV-BATCH-003", new BigDecimal("0.0320"), 12);
-    saveContract(
-        customerId,
-        product.getProductCode(),
-        account.getAccountId(),
-        new BigDecimal("1000000.00"),
-        OffsetDateTime.parse("2026-08-11T00:00:00+09:00"));
+    given(maturedContractApiClient.findMatured(any())).willReturn(List.of());
 
     JobParameters parameters =
         new JobParametersBuilder().addString("runDate", "2026-03-01").toJobParameters();
@@ -174,33 +150,33 @@ class InterestMaturityJobIntegrationTest {
         .isInstanceOf(JobInstanceAlreadyCompleteException.class);
   }
 
-  private Product saveProduct(
-      String productCode, BigDecimal interestRate, int contractPeriodMonths) {
-    return productRepository.saveAndFlush(
-        new Product(
-            productCode,
-            "정기예금 " + contractPeriodMonths + "개월",
-            interestRate,
-            new BigDecimal("10000.00"),
-            contractPeriodMonths,
-            ProductStatus.ON_SALE));
-  }
+  @Test
+  void 같은_계약이_이미_입금됐으면_확정_호출만_재시도하고_중복_입금하지_않는다() throws Exception {
+    // 지난 실행에서 입금은 됐는데 markMatured 호출만 실패했던 상황을 흉내낸다 —
+    // idempotencyKey가 계약당 하나뿐이라 재실행해도 크레딧이 한 번만 남아야 한다.
+    Long customerId = saveCustomer();
+    Account account = saveAccount(customerId);
+    given(maturedContractApiClient.findMatured(LocalDate.parse("2026-08-12")))
+        .willReturn(List.of(new MaturedContractDto(2L, account.getAccountId(), new BigDecimal("5000"))));
+    jobLauncherTestUtils.launchJob(
+        new JobParametersBuilder().addString("runDate", "2026-08-12").toJobParameters());
 
-  private ProductContract saveContract(
-      Long customerId,
-      String productCode,
-      Long accountId,
-      BigDecimal subscriptionAmount,
-      OffsetDateTime maturityAt) {
-    return productContractRepository.saveAndFlush(
-        new ProductContract(
-            customerId,
-            productCode,
-            accountId,
-            subscriptionAmount,
-            maturityAt.minusMonths(12),
-            maturityAt,
-            ContractStatus.ACTIVE));
+    given(maturedContractApiClient.findMatured(LocalDate.parse("2026-08-13")))
+        .willReturn(List.of(new MaturedContractDto(2L, account.getAccountId(), new BigDecimal("5000"))));
+    jobLauncherTestUtils
+        .getJobLauncher()
+        .run(
+            jobLauncherTestUtils.getJob(),
+            jobLauncherTestUtils
+                .getUniqueJobParametersBuilder()
+                .addString("runDate", "2026-08-13")
+                .toJobParameters());
+
+    Account updatedAccount = accountRepository.findById(account.getAccountId()).orElseThrow();
+    assertThat(updatedAccount.getCurrentBalanceCache()).isEqualByComparingTo("5000"); // 중복 입금 안 됨
+    // markMatured는 두 실행 모두에서 재시도로 호출된다 — 첫 실행에서 그 호출만
+    // 실패했다고 가정한 시나리오이므로, 이걸 두 번 부르는 게 맞는 동작이다.
+    then(maturedContractApiClient).should(org.mockito.Mockito.times(2)).markMatured(2L);
   }
 
   private Long saveCustomer() {

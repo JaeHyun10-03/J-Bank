@@ -2,6 +2,9 @@
 apps/jbank-api/.gradle/
 apps/jbank-api/build/
 !apps/jbank-api/gradle/wrapper/gradle-wrapper.jar
+apps/jbank-product/.gradle/
+apps/jbank-product/build/
+!apps/jbank-product/gradle/wrapper/gradle-wrapper.jar
 
 # Java
 *.class

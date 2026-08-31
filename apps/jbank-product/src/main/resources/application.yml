@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: jbank-product
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+# products/product_contracts 테이블은 jbank-api의 Flyway 마이그레이션 이력이
+# 만들었고(DB를 계속 공유하는 W7 스코프), 이 서비스는 그 이력을 모른다 —
+# Flyway를 아예 안 쓰고 JPA validate로 스키마가 기대와 맞는지만 확인한다.
+# 스키마를 바꿔야 하면 jbank-api 쪽 마이그레이션에 추가한다.
+
+jbank:
+  batch:
+    interest:
+      rounding-mode: DOWN
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: readinessState,db
+        liveness:
+          include: livenessState
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html

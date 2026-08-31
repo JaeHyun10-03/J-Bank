@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+jbank:
+  jwt:
+    secret: ${JWT_SECRET}
+  internal:
+    api-key: ${INTERNAL_API_KEY}
+    account-service:
+      base-url: ${ACCOUNT_SERVICE_INTERNAL_URL}
+
+logging:
+  level:
+    com.jbank: INFO

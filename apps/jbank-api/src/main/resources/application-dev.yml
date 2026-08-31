@@ -16,6 +16,10 @@ jbank:
     hash-key: ${RESIDENT_REG_NO_HASH_KEY}
   jwt:
     secret: ${JWT_SECRET}
+  internal:
+    api-key: ${INTERNAL_API_KEY}
+    product-service:
+      base-url: ${PRODUCT_SERVICE_INTERNAL_URL}
 
 logging:
   level:

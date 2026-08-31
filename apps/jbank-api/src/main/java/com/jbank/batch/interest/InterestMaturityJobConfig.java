@@ -1,13 +1,7 @@
 package com.jbank.batch.interest;
 
 import com.jbank.batch.lock.SingleInstanceJobExecutionListener;
-import com.jbank.product.domain.ContractStatus;
-import com.jbank.product.domain.ProductContract;
-import com.jbank.product.repository.ProductContractRepository;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.List;
-import java.util.Map;
 import org.redisson.api.RedissonClient;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -15,16 +9,23 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.data.RepositoryItemReader;
+import org.springframework.batch.item.support.ListItemReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.domain.Sort;
 import org.springframework.transaction.PlatformTransactionManager;
 
-/** 만기 도래 계약에 이자를 지급하고 계약을 만기 상태로 전환한다(구현계획 W5). 청크 크기는 W6에서 측정 후 조정. */
+/**
+ * 만기 도래 계약에 이자를 지급하고 계약을 만기 상태로 전환한다(구현계획 W5). 청크 크기는 W6에서 측정 후 조정.
+ *
+ * <p>W7에서 product 모듈을 별도 배포 단위로 떼어내면서 만기 계약 조회·이자율 계산은
+ * jbank-product의 내부 API({@link MaturedContractApiClient})로 옮겨갔다 — 더는 같은 JVM
+ * 안에서 {@code ProductContractRepository}를 직접 못 읽는다. 이자를 실제로 입금하는
+ * 계좌·거래·원장은 여전히 이 서비스가 소유하므로, 돈이 움직이는 부분은 그대로 로컬
+ * 트랜잭션 안에서 처리한다(docs/adr/0007-w7-product-module-separation.md).
+ */
 @Configuration
 public class InterestMaturityJobConfig {
 
@@ -43,36 +44,20 @@ public class InterestMaturityJobConfig {
   public Step interestMaturityStep(
       JobRepository jobRepository,
       PlatformTransactionManager transactionManager,
-      RepositoryItemReader<ProductContract> maturedContractItemReader,
-      ItemProcessor<ProductContract, MaturedContractInterest> maturedContractInterestItemProcessor,
-      ItemWriter<MaturedContractInterest> maturedContractInterestItemWriter) {
+      ItemReader<MaturedContractDto> maturedContractItemReader,
+      ItemWriter<MaturedContractDto> maturedContractInterestItemWriter) {
     return new StepBuilder("interestMaturityStep", jobRepository)
-        .<ProductContract, MaturedContractInterest>chunk(CHUNK_SIZE, transactionManager)
+        .<MaturedContractDto, MaturedContractDto>chunk(CHUNK_SIZE, transactionManager)
         .reader(maturedContractItemReader)
-        .processor(maturedContractInterestItemProcessor)
         .writer(maturedContractInterestItemWriter)
         .build();
   }
 
   @Bean
   @StepScope
-  public RepositoryItemReader<ProductContract> maturedContractItemReader(
-      ProductContractRepository productContractRepository,
+  public ItemReader<MaturedContractDto> maturedContractItemReader(
+      MaturedContractApiClient maturedContractApiClient,
       @Value("#{jobParameters['runDate']}") String runDate) {
-    // 기준일 당일 만기까지 포함하려고 다음날 자정을 배타적 상한으로 쓴다.
-    var exclusiveUpperBound =
-        LocalDate.parse(runDate)
-            .plusDays(1)
-            .atStartOfDay(ZoneId.systemDefault())
-            .toOffsetDateTime();
-
-    RepositoryItemReader<ProductContract> reader = new RepositoryItemReader<>();
-    reader.setRepository(productContractRepository);
-    reader.setMethodName("findByStatusAndMaturityAtLessThan");
-    reader.setArguments(List.of(ContractStatus.ACTIVE, exclusiveUpperBound));
-    reader.setSort(Map.of("contractId", Sort.Direction.ASC));
-    reader.setPageSize(CHUNK_SIZE);
-    reader.setName("maturedContractItemReader");
-    return reader;
+    return new ListItemReader<>(maturedContractApiClient.findMatured(LocalDate.parse(runDate)));
   }
 }

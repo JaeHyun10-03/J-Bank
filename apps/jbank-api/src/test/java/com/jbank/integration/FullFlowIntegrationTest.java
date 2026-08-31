@@ -12,10 +12,6 @@ import com.jbank.account.dto.AccountOpenRequest;
 import com.jbank.auth.dto.LoginRequest;
 import com.jbank.customer.domain.IdentityVerificationMethod;
 import com.jbank.customer.dto.CustomerRegisterRequest;
-import com.jbank.product.domain.Product;
-import com.jbank.product.domain.ProductStatus;
-import com.jbank.product.dto.ProductSubscribeRequest;
-import com.jbank.product.repository.ProductRepository;
 import com.jbank.transfer.dto.DepositRequest;
 import com.jbank.transfer.dto.TransferRequest;
 import jakarta.servlet.http.Cookie;
@@ -36,8 +32,12 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 /**
- * Phase 1 완료 기준(구현계획 4절 W3)이 요구하는 통합 시연 흐름 전체를 실제 HTTP 요청으로 검증한다: 회원가입→로그인→계좌개설→입금→이체→잔액조회→
- * 거래내역조회→상품가입. 계좌개설이 인증을 요구해 로그인이 계좌개설보다 먼저다.
+ * Phase 1 완료 기준(구현계획 4절 W3)이 요구하는 통합 시연 흐름을 실제 HTTP 요청으로 검증한다: 회원가입→로그인→계좌개설→입금→이체→잔액조회→
+ * 거래내역조회. 계좌개설이 인증을 요구해 로그인이 계좌개설보다 먼저다.
+ *
+ * <p>원래는 이 뒤에 "상품가입"까지 이어졌지만, W7에서 product 모듈을 별도 배포 단위로
+ * 떼어내면서 그 구간은 이 서비스(jbank-api) 혼자 검증할 수 없게 됐다 — 상품가입은
+ * jbank-product 쪽 통합 테스트(ProductSubscriptionSagaIntegrationTest)가 대신 맡는다.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -66,10 +66,9 @@ class FullFlowIntegrationTest {
 
   @Autowired private MockMvc mockMvc;
   @Autowired private ObjectMapper objectMapper;
-  @Autowired private ProductRepository productRepository;
 
   @Test
-  void 회원가입부터_상품가입까지_전체_흐름이_성공한다() throws Exception {
+  void 회원가입부터_거래내역조회까지_전체_흐름이_성공한다() throws Exception {
     mockMvc
         .perform(
             post("/api/v1/customers")
@@ -142,46 +141,6 @@ class FullFlowIntegrationTest {
 
     JsonNode history = getJson("/api/v1/accounts/" + accountA + "/transactions", accessToken);
     assertThat(history.get("data").get("totalElements").asInt()).isEqualTo(2);
-
-    productRepository.saveAndFlush(
-        new Product(
-            "SAV-12M-FLOW",
-            "정기적금 12개월",
-            new BigDecimal("0.0320"),
-            new BigDecimal("100000.00"),
-            12,
-            ProductStatus.ON_SALE));
-
-    mockMvc
-        .perform(
-            post("/api/v1/products/SAV-12M-FLOW/subscriptions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    objectMapper.writeValueAsString(
-                        new ProductSubscribeRequest(accountNumberB, new BigDecimal("100000.00"))))
-                .cookie(accessToken, csrfCookie)
-                .header("X-CSRF-TOKEN", csrfToken))
-        .andExpect(status().isCreated());
-
-    JsonNode customerId =
-        objectMapper.readTree(
-            mockMvc
-                .perform(
-                    post("/api/v1/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(
-                            objectMapper.writeValueAsString(
-                                new LoginRequest("flow01", "Passw0rd!23"))))
-                .andReturn()
-                .getResponse()
-                .getContentAsString());
-    Long loginCustomerId = customerId.get("data").get("customerId").asLong();
-
-    JsonNode contracts =
-        getJson("/api/v1/customers/" + loginCustomerId + "/contracts", accessToken);
-    assertThat(contracts.get("data").get("totalElements").asInt()).isEqualTo(1);
-    assertThat(contracts.get("data").get("content").get(0).get("productCode").asText())
-        .isEqualTo("SAV-12M-FLOW");
   }
 
   private Long openAccount(Cookie accessToken, Cookie csrfCookie, String csrfToken)
