@@ -2,5 +2,5 @@
 # 커밋한다(docs/adr/0006-w7-gitops-image-tag.md 참고 — 여기선 jbank-product로
 # 대상만 바뀐다). 직접 고치지 말 것.
 image:
-  repository: jbank-product
-  tag: latest
+  repository: 489470371163.dkr.ecr.ap-northeast-2.amazonaws.com/jbank-product
+  tag: w7-manual
