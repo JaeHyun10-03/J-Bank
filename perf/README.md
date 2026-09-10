@@ -350,6 +350,16 @@ docker compose -f infra/compose/docker-compose.yml exec -T postgres psql -U jban
    DELETE FROM customers WHERE login_id LIKE 'seed-user-%';"
 ```
 
-### 측정 결과
+### 측정 결과 (2026-09-10)
 
-(run-10m.sh 실행 후 `docs/devlog/`에 기록)
+전체 기록은 `docs/devlog/2026-09-10_대규모1천만건성능측정.md`. 결과 JSON은
+`perf/results/2026-09-10-10m-*.json`.
+
+- 계좌당 매칭률 약 0.001%(측정 계좌 131건/1천만)에서 거래내역 조회 실행
+  계획이 W6의 `transactions_pkey` 역순 스캔 → **V13 복합 인덱스 2개의
+  `BitmapOr`로 바뀌었다.** W6의 "인덱스는 남기고 UNION 재작성은 반려" 결정이
+  맞았음이 확인됐다(코드 변경 0).
+- `Page` 총건수 `count(*)`도 같은 `BitmapOr` 계획으로 0.3ms — seq scan 안 함.
+- k6(100 it/s·30초·실패 0): 거래내역 p95 11.7ms · 잔액 7.6ms · 계좌상세 7.9ms ·
+  고객별계좌목록 7.7ms · 이체 12.9ms. 거래 1천만 건이 이체 성능에 주는 영향은
+  관측되지 않았다.
