@@ -298,3 +298,58 @@ kube-system(4)·jbank-dev 워크로드가 이미 17개를 채우고 있어 롤�
 사양이 이미 이걸 전제한다) — dev의 `demo` 워크스페이스가 노드 1대로
 축소하는 비용 절감 설정과 서지 여유가 서로 충돌하는 지점이라는 걸
 이번에 실측으로 확인했다.
+
+## 대규모 시드 (계좌 10만·거래 1천만)
+
+W6 화요일분에서 "로컬 계좌 3개로는 재현 불가"로 보류한 병목 — 계좌당 매칭률이
+낮을 때 PK 역순 스캔이 붕괴하는지, `Page` 총건수 count(*)가 얼마나 드는지, CTR
+배치의 `(type, status, processed_at)` seq scan이 얼마나 커지는지 — 를 실제
+데이터 규모에서 재측정하기 위한 시드다. 계좌 10만 개면 계좌당 평균 매칭률이
+약 0.002%로 떨어져 W6의 42%와는 전혀 다른 실행 계획이 나온다.
+
+### 구성
+
+| 테이블 | 건수 | 비고 |
+|---|---|---|
+| customers | 10,000 | 암호화 컬럼은 placeholder — 로그인·복호화 안 함 |
+| accounts | 100,000 | 고객당 10개, `account_number` `900{10자리}` |
+| transactions | 10,000,000 | 전 계좌 풀에서 무작위 배정, 50만 건 × 20청크 |
+| ledger_entries | 0 | 측정 대상 API가 안 읽음 — 안 채운다 |
+
+`perf/sql/seed-10m.sql`. 인덱스 3개(`from`/`to` 복합, `idempotency` unique)를 떼고
+벌크 적재 후 재생성한다. 로컬 디스크 약 3GB, 적재 수 분.
+
+### 실행
+
+전체 1회 측정은 `perf/run-10m.sh` 하나로 끝난다. 선행 조건: `scripts/dev.sh core`,
+백엔드 기동(`--spring.profiles.active=local`), k6 설치.
+
+```bash
+perf/run-10m.sh
+```
+
+스크립트가 하는 일:
+
+1. 이체 테스트용 고객(`perf10m`) 등록 → 계좌 2개 개설 → 각각 1억원 입금
+   (거래 시드 이전에 만들어 1천만 건 풀에 포함시킨다 → 저매칭 계좌로 재사용)
+2. `seed-10m.sql` 적재
+3. 거래내역 조회 EXPLAIN 3종(정렬 없는 LIMIT / `ORDER BY id DESC` LIMIT / count(*)) →
+   `perf/results/<날짜>-10m-explain.log`
+4. k6 조회계 부하 4종(거래내역·잔액·계좌상세·고객별계좌목록) →
+   `perf/results/<날짜>-10m-read-<엔드포인트>.{json,log}`
+5. k6 이체 부하 재측정(`scripts/perf.sh` 재사용) → `perf/results/<날짜>-10m-transfer.{json,log}`
+
+### 재실행 전 정리
+
+시드 스크립트는 `transactions`에 1000건 이상 있으면 중단한다. 다시 돌리려면:
+
+```bash
+docker compose -f infra/compose/docker-compose.yml exec -T postgres psql -U jbank -d jbank -c \
+  "TRUNCATE transactions, ledger_entries RESTART IDENTITY; \
+   DELETE FROM accounts WHERE account_number LIKE '900%'; \
+   DELETE FROM customers WHERE login_id LIKE 'seed-user-%';"
+```
+
+### 측정 결과
+
+(run-10m.sh 실행 후 `docs/devlog/`에 기록)
