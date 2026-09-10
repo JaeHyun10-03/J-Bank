@@ -16,8 +16,11 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BASE_URL="${BASE_URL:-http://localhost:8080}"
-COMPOSE="docker compose -f $ROOT_DIR/infra/compose/docker-compose.yml"
-PSQL="$COMPOSE exec -T postgres psql -U jbank -d jbank -v ON_ERROR_STOP=1"
+# 함수로 감싼다 — ROOT_DIR에 공백/대괄호가 있어 문자열 변수로는 단어분리가 깨진다.
+psql_run() {
+  docker compose -f "$ROOT_DIR/infra/compose/docker-compose.yml" \
+    exec -T postgres psql -U jbank -d jbank -v ON_ERROR_STOP=1 "$@"
+}
 DATE="$(date +%Y-%m-%d)"
 OUT_DIR="$ROOT_DIR/perf/results"
 mkdir -p "$OUT_DIR"
@@ -37,14 +40,9 @@ curl -fsS "$BASE_URL/actuator/health" >/dev/null || {
 # --- 1. 이체 테스트용 계좌 준비 (거래 시드 이전에 만들어 풀에 포함시킨다) ---
 log "이체 테스트 계좌 준비"
 # 고객 등록(공개 엔드포인트, CSRF 예외). 이미 있으면 무시하고 진행.
-curl -fsS -X POST "$BASE_URL/api/v1/customers" \
-  -H 'Content-Type: application/json' \
-  -d "{\"name\":\"perf tester\",\"loginId\":\"$LOGIN_ID\",\"password\":\"$PASSWORD\",
-       \"residentRegNo\":\"$RRN\",\"birthDate\":\"1988-11-11\",\"phone\":\"010-9999-0001\",
-       \"address\":\"서울\",\"occupation\":\"회사원\",
-       \"identityVerificationMethod\":\"FACE_TO_FACE\",
-       \"transactionPurpose\":\"급여\",\"fundSource\":\"근로소득\"}' >/dev/null 2>&1 \
-  || echo "  (고객이 이미 있는 듯 — 로그인으로 진행)"
+REG_BODY="{\"name\":\"perf tester\",\"loginId\":\"$LOGIN_ID\",\"password\":\"$PASSWORD\",\"residentRegNo\":\"$RRN\",\"birthDate\":\"1988-11-11\",\"phone\":\"010-9999-0001\",\"address\":\"서울\",\"occupation\":\"회사원\",\"identityVerificationMethod\":\"FACE_TO_FACE\",\"transactionPurpose\":\"급여\",\"fundSource\":\"근로소득\"}"
+curl -fsS -X POST "$BASE_URL/api/v1/customers" -H 'Content-Type: application/json' -d "$REG_BODY" \
+  >/dev/null 2>&1 || echo "  (고객이 이미 있는 듯 - 로그인으로 진행)"
 
 # 로그인: access_token / XSRF-TOKEN 쿠키값을 Set-Cookie에서 직접 뽑는다
 # (Secure 속성이라 curl 쿠키 저장소가 http://로 안 돌려보냄). 응답 본문에서 customerId도 얻는다.
@@ -78,26 +76,26 @@ echo "  from=$A1_NO ($A1_ID)  to=$A2_NO ($A2_ID)  customer=$CUSTOMER_ID"
 
 # --- 2. 대규모 시드 -------------------------------------------------------
 log "seed-10m.sql 적재 (수 분 소요)"
-time ($PSQL < "$ROOT_DIR/perf/sql/seed-10m.sql")
+time psql_run < "$ROOT_DIR/perf/sql/seed-10m.sql"
 
-$PSQL -c "SELECT
+psql_run -c "SELECT
   (SELECT count(*) FROM customers)    AS customers,
   (SELECT count(*) FROM accounts)     AS accounts,
   (SELECT count(*) FROM transactions) AS transactions;"
 
 # --- 3. 거래내역 조회 EXPLAIN (저매칭 계좌 = 이체 테스트 계좌) -----------
 log "거래내역 조회 EXPLAIN — account_id=$A1_ID"
-MATCH="$($PSQL -tA -c "SELECT count(*) FROM transactions WHERE from_account_id=$A1_ID OR to_account_id=$A1_ID;")"
+MATCH="$(psql_run -tA -c "SELECT count(*) FROM transactions WHERE from_account_id=$A1_ID OR to_account_id=$A1_ID;")"
 echo "  매칭 행: $MATCH / 10,000,000"
 {
   echo "-- SELECT (LIMIT 20, 정렬 없음: JPA findAll 기본형)"
-  $PSQL -c "EXPLAIN (ANALYZE, BUFFERS) SELECT * FROM transactions
+  psql_run -c "EXPLAIN (ANALYZE, BUFFERS) SELECT * FROM transactions
     WHERE from_account_id=$A1_ID OR to_account_id=$A1_ID LIMIT 20;"
   echo "-- SELECT (ORDER BY transaction_id DESC LIMIT 20)"
-  $PSQL -c "EXPLAIN (ANALYZE, BUFFERS) SELECT * FROM transactions
+  psql_run -c "EXPLAIN (ANALYZE, BUFFERS) SELECT * FROM transactions
     WHERE from_account_id=$A1_ID OR to_account_id=$A1_ID ORDER BY transaction_id DESC LIMIT 20;"
   echo "-- COUNT(*) (Spring Data Page가 총건수 계산에 실행하는 쿼리)"
-  $PSQL -c "EXPLAIN (ANALYZE, BUFFERS) SELECT count(*) FROM transactions
+  psql_run -c "EXPLAIN (ANALYZE, BUFFERS) SELECT count(*) FROM transactions
     WHERE from_account_id=$A1_ID OR to_account_id=$A1_ID;"
 } | tee "$OUT_DIR/${DATE}-10m-explain.log"
 
