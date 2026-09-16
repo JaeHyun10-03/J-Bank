@@ -38,6 +38,8 @@ tags:
   description: 운영자용 감사 로그 조회 API
 - name: 이체
   description: 계좌 이체 API
+- name: 이상거래 탐지
+  description: 운영자용 이상거래 탐지 결과 조회 API
 - name: 인증
   description: 로그인·토큰 재발급·로그아웃 API
 - name: 계좌
@@ -442,6 +444,50 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ApiResponsePageResponseCustomerAccountSummaryResponse"
+  /api/v1/admin/suspicious-transactions:
+    get:
+      tags:
+      - 이상거래 탐지
+      summary: 이상거래 탐지 결과 조회(API-022)
+      description: |
+        FR-SUP-003 룰 기반 이상거래 탐지 결과를 조회합니다. ruleType, from, to는 선택입니다.
+        자동 차단은 하지 않고 조회만 제공합니다 — 운영자 전용이지만 운영자 역할 모델이
+        아직 없어 인증된 사용자면 누구나 호출할 수 있습니다.
+      operationId: getSuspiciousTransactions
+      parameters:
+      - name: ruleType
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - SINGLE_TRANSACTION_THRESHOLD_EXCEEDED
+          - RAPID_REPEATED_TRANSFER
+          - LATE_NIGHT_HIGH_VALUE_TRANSFER
+      - name: from
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: to
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: pageable
+        in: query
+        required: true
+        schema:
+          $ref: "#/components/schemas/Pageable"
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponsePageResponseSuspiciousTransactionResponse"
   /api/v1/admin/audit-logs:
     get:
       tags:
@@ -1139,6 +1185,56 @@ components:
         totalPages:
           type: integer
           format: int32
+    ApiResponsePageResponseSuspiciousTransactionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/PageResponseSuspiciousTransactionResponse"
+        error:
+          $ref: "#/components/schemas/ErrorDetail"
+    PageResponseSuspiciousTransactionResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/SuspiciousTransactionResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+    SuspiciousTransactionResponse:
+      type: object
+      properties:
+        suspiciousTransactionId:
+          type: string
+        transactionId:
+          type: string
+        accountId:
+          type: string
+        ruleType:
+          type: string
+          enum:
+          - SINGLE_TRANSACTION_THRESHOLD_EXCEEDED
+          - RAPID_REPEATED_TRANSFER
+          - LATE_NIGHT_HIGH_VALUE_TRANSFER
+        amount:
+          type: number
+        detail:
+          type: string
+        detectedAt:
+          type: string
+          format: date-time
     ApiResponsePageResponseAuditLogResponse:
       type: object
       properties:
