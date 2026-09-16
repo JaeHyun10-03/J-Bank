@@ -72,7 +72,7 @@ PR 템플릿(`.github/pull_request_template.md`)을 채운다. `backend-ci` 또�
 
 ## 아키텍처 결정
 
-락 순서, 발신함 패턴, 패키지 의존 방향처럼 되돌리는 비용이 큰 판단이나, 이번 Tailwind v4 적용처럼 설계 문서와 실제 구현이 갈라지는 지점은 `docs/adr/`에 번호를 붙여 기록한다. 형식은 기존 ADR(`docs/adr/0001-spring-boot-version.md`)을 따른다.
+락 순서, 패키지 의존 방향처럼 되돌리는 비용이 큰 판단이나, 이번 Tailwind v4 적용처럼 설계 문서와 실제 구현이 갈라지는 지점은 `docs/adr/`에 번호를 붙여 기록한다. 형식은 기존 ADR(`docs/adr/0001-spring-boot-version.md`)을 따른다.
 
 ## 코드 컨벤션
 

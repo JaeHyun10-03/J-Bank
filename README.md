@@ -8,7 +8,6 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
 ![Redis](https://img.shields.io/badge/Redis-7-DC382D?logo=redis&logoColor=white)
-![Kafka](https://img.shields.io/badge/Kafka-MSK-231F20?logo=apachekafka&logoColor=white)
 
 ## 화면
 
@@ -24,9 +23,9 @@ Figma에서 디자인 토큰부터 41개 화면, 81개 프로토타입 배선까
 | 거래·원장 | 입출금, 계좌이체(복식부기), 잔액/거래내역 조회, 원장 정합성 검증 배치 | 1~2 |
 | 인증·보안 | 로그인/토큰 재발급(httpOnly 쿠키), 권한 검증, 고액이체 2차 인증(OTP) | 1~2 |
 | 상품 | 예적금 가입, 이자 계산 배치, 만기 처리 | 2~3 |
-| 지원 기능 | 감사 로그, 이체 완료 알림(Kafka), 이상거래 탐지, CTR 판별 | 2~3 |
+| 지원 기능 | 감사 로그, 이상거래 탐지, CTR 판별 | 2~3 |
 
-전체 22개 기능 요구사항은 [요구사항명세서](docs/01_J-Bank_요구사항명세서.md)에 있으며, 현재 구현 상태는 [진행 상황](#진행-상황)에서 확인하실 수 있습니다.
+전체 21개 기능 요구사항은 [요구사항명세서](docs/01_J-Bank_요구사항명세서.md)에 있으며, 현재 구현 상태는 [진행 상황](#진행-상황)에서 확인하실 수 있습니다.
 
 ## 규제 대응
 
@@ -58,9 +57,7 @@ flowchart TB
     SM[("Secrets Manager")] -.-> ESO
     API --> RDS[("PostgreSQL<br/>Multi-AZ · Isolated Subnet")]
     API --> Redis[("Redis<br/>분산락·세션·OTP")]
-    API -.발신함.-> Kafka[("Kafka · MSK<br/>거래·감사 이벤트")]
     Batch --> RDS
-    Batch -.-> Kafka
 
     Web["Next.js 프론트엔드<br/>Vercel"] -->|same-site 프록시| ALB
 ```
@@ -71,12 +68,12 @@ flowchart TB
 
 | 영역 | 스택 |
 |---|---|
-| 백엔드 | Java 21, Spring Boot 3.5, Spring Data JPA, Spring Security, Spring Batch, Spring Kafka, Flyway, Redisson(분산락), springdoc-openapi |
-| 데이터 | PostgreSQL 16, Redis 7, Kafka(MSK) |
+| 백엔드 | Java 21, Spring Boot 3.5, Spring Data JPA, Spring Security, Spring Batch, Flyway, Redisson(분산락), springdoc-openapi |
+| 데이터 | PostgreSQL 16, Redis 7 |
 | 백엔드 테스트 | JUnit5, ArchUnit(의존 방향 강제), Testcontainers, Spotless(Google Java Format) |
 | 프론트엔드 | React 18, Next.js 14(App Router), TypeScript, TanStack Query, Zustand, React Hook Form + Zod, Tailwind v4 + shadcn/ui, Axios, openapi-typescript |
 | 프론트엔드 테스트 | Jest, React Testing Library, Playwright(E2E) |
-| 인프라 | AWS EKS/RDS/ElastiCache/MSK/WAF/Secrets Manager, Terraform, GitHub Actions, ArgoCD(GitOps), External Secrets Operator, Vercel |
+| 인프라 | AWS EKS/RDS/ElastiCache/WAF/Secrets Manager, Terraform, GitHub Actions, ArgoCD(GitOps), External Secrets Operator, Vercel |
 
 ## 프로젝트 구조
 
@@ -98,7 +95,6 @@ erDiagram
     CUSTOMER ||--o{ ACCOUNT : 보유
     ACCOUNT ||--o{ TRANSACTION : "출금·입금"
     TRANSACTION ||--o{ LEDGER_ENTRY : 생성
-    TRANSACTION ||--o{ OUTBOX_EVENT : 발행대상
 
     CUSTOMER {
         bigint customer_id PK
@@ -121,13 +117,9 @@ erDiagram
         varchar entry_type "DEBIT·CREDIT"
         numeric amount
     }
-    OUTBOX_EVENT {
-        bigint event_id PK
-        varchar status "PENDING·PUBLISHED·FAILED"
-    }
 ```
 
-전체 10개 엔티티, 컬럼 제약, 인덱스 설계는 [ERD 문서](docs/02_J-Bank_ERD.md)에 정리되어 있습니다.
+전체 9개 엔티티, 컬럼 제약, 인덱스 설계는 [ERD 문서](docs/02_J-Bank_ERD.md)에 정리되어 있습니다.
 
 ## Ledger 설계
 
@@ -155,8 +147,6 @@ stateDiagram-v2
     FAILED --> [*]
     CANCELLED --> [*]
 ```
-
-커밋과 이벤트 발행 사이의 원자성은 발신함(Outbox)으로 확보합니다. 이벤트를 원본 거래와 같은 DB 트랜잭션에 먼저 적재하고, 별도 발행기가 미발행 레코드를 폴링해 Kafka로 발행합니다. 최소 한 번 전달을 보장하고, 중복은 소비자 측 멱등 처리로 흡수합니다.
 
 ## 동시성·멱등성 처리
 
@@ -216,7 +206,7 @@ xychart-beta
 ## 실행 방법
 
 ```bash
-scripts/up.sh              # 한 번에 전체 기동: Docker(core+messaging+observability) + 백엔드 + 프론트엔드
+scripts/up.sh              # 한 번에 전체 기동: Docker(core+observability) + 백엔드 + 프론트엔드
 ```
 
 세부적으로 나눠서 켜고 싶다면:
@@ -224,7 +214,6 @@ scripts/up.sh              # 한 번에 전체 기동: Docker(core+messaging+obs
 ```bash
 scripts/bootstrap.sh      # 도구 확인 + 의존성 설치 + 로컬 인프라 기동
 scripts/dev.sh core       # PostgreSQL 16 + Redis 7 (한 줄로 docker compose 기동)
-scripts/dev.sh core messaging   # 위 두 개 + Kafka (발신함 폴링 발행기 구동에 필요)
 
 cd apps/jbank-api && ./gradlew bootRun --args='--spring.profiles.active=local'
 # http://localhost:8080/swagger-ui.html
@@ -259,7 +248,7 @@ cd apps/frontend && npm run dev
 | W1 | 환경 세팅, 도메인 패키지 경계·ArchUnit 규칙 확정 | 완료 |
 | W2 | 원장·거래 코어 구현, 동시성·멱등성 시나리오 검증, 성능 베이스라인 기록 | 완료 |
 | W3 | 인증·보안, 상품 도메인 구현, Phase 1 마감(`v0.1.0`) | 완료 |
-| W4~W5 | 감사 로그·위험도 이력, 발신함 기반 이벤트 알림, 배치 처리, 고액이체 2차 인증(Phase 2) | 완료 |
+| W4~W5 | 감사 로그·위험도 이력, 배치 처리, 고액이체 2차 인증(Phase 2) | 완료 |
 | W6 | 관측 가능성(Prometheus/Grafana/Loki), 성능 측정·인덱스 튜닝, Terraform 코드화 | 완료 |
 | W7 | 쿠버네티스 배포(Helm)·GitOps(ArgoCD)·오토스케일링, 이상거래 탐지(Phase 3, `v1.0.0`) | 완료 |
 
@@ -267,7 +256,7 @@ cd apps/frontend && npm run dev
 
 ## 진행 상황
 
-`v1.0.0` — 계획한 7주 로드맵을 모두 마쳤습니다. 계좌·원장·거래 코어, JWT 인증·CSRF·2차 인증, 예적금 상품 가입, 감사 로그·이벤트 알림·배치 처리(이자·정합성대사·CTR·이상거래탐지), 그리고 EKS·Helm·ArgoCD 기반 쿠버네티스 배포까지 실제 클러스터에 배포해 검증했습니다.
+`v1.0.0` — 계획한 7주 로드맵을 모두 마쳤습니다. 계좌·원장·거래 코어, JWT 인증·CSRF·2차 인증, 예적금 상품 가입, 감사 로그·배치 처리(이자·정합성대사·CTR·이상거래탐지), 그리고 EKS·Helm·ArgoCD 기반 쿠버네티스 배포까지 실제 클러스터에 배포해 검증했습니다.
 
 `v1.0.0` 태그 이후에도 검증은 계속하고 있습니다 — 계좌 10만·거래 1천만 규모 부하 측정([성능 추이](#성능-추이))과 코드 근거 기반 서비스 아키텍처 다이어그램을 추가했습니다.
 
@@ -287,8 +276,8 @@ cd apps/frontend && npm run dev
 
 설계 문서 11종이 [`docs/README.md`](docs/README.md)에 정리되어 있습니다. 처음 보시는 경우 다음 순서를 권합니다.
 
-1. [요구사항명세서](docs/01_J-Bank_요구사항명세서.md) — 기능 요구사항 22개, 규제 목업 처리 근거
-2. [ERD](docs/02_J-Bank_ERD.md) — 지급정지 금액, 발신함 등 설계 판단이 드러나는 데이터 구조
+1. [요구사항명세서](docs/01_J-Bank_요구사항명세서.md) — 기능 요구사항 21개, 규제 목업 처리 근거
+2. [ERD](docs/02_J-Bank_ERD.md) — 지급정지 금액, 거래 상태 등 설계 판단이 드러나는 데이터 구조
 3. [API설계](docs/03_J-Bank_API설계.md) — 인증 쿠키, Idempotency-Key, 위조 방지 토큰 등 공통 규칙
 4. [인프라아키텍처](docs/06_J-Bank_인프라아키텍처.md) — AWS 구성과 실제 금융권 관례 대비 축소 적용 근거
 5. [폴더구조](docs/10_J-Bank_폴더구조.md) — 단일 모듈·도메인 패키지 경계를 택한 근거

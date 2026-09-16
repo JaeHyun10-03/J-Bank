@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 로컬 풀스택 한 번에 기동: Docker(core+messaging+observability) + 백엔드 + 프론트엔드.
+# 로컬 풀스택 한 번에 기동: Docker(core+observability) + 백엔드 + 프론트엔드.
 # 성능 측정(k6) 시에는 이 스크립트 대신 `scripts/dev.sh core`로 프로파일을 좁혀서 조건을 고정할 것.
 set -euo pipefail
 
@@ -7,8 +7,8 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOG_DIR="$ROOT_DIR/.local-logs"
 mkdir -p "$LOG_DIR"
 
-echo "== 로컬 인프라(core+messaging+observability) 기동 =="
-"$ROOT_DIR/scripts/dev.sh" core messaging observability
+echo "== 로컬 인프라(core+observability) 기동 =="
+"$ROOT_DIR/scripts/dev.sh" core observability
 
 echo "== 백엔드 기동 (로그: $LOG_DIR/backend.log) =="
 (cd "$ROOT_DIR/apps/jbank-api" && ./gradlew bootRun --args='--spring.profiles.active=local') \
