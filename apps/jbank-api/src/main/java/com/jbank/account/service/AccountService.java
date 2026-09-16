@@ -154,10 +154,7 @@ public class AccountService {
     account.close();
     eventPublisher.publishEvent(
         new AccountStatusChangedEvent(
-            accountId,
-            previousStatus.name(),
-            account.getStatus().name(),
-            OffsetDateTime.now()));
+            accountId, previousStatus.name(), account.getStatus().name(), OffsetDateTime.now()));
     return new AccountCloseResponse(
         String.valueOf(accountId), account.getStatus(), account.getClosedAt());
   }

@@ -51,23 +51,23 @@ public class SeedDataRunner implements ApplicationRunner {
     // 문서의 표시값 중 기본금리만 반영(우대금리는 단일 필드로 표현할 수 없어 제외).
     if (!productRepository.existsById("j-kids")) {
       productRepository.save(
-        new Product(
-            "j-kids",
-            "J키즈 적금",
-            new BigDecimal("0.0350"),
-            new BigDecimal("10000.00"),
-            60,
-            ProductStatus.ON_SALE));
+          new Product(
+              "j-kids",
+              "J키즈 적금",
+              new BigDecimal("0.0350"),
+              new BigDecimal("10000.00"),
+              60,
+              ProductStatus.ON_SALE));
     }
     if (!productRepository.existsById("j-farm")) {
       productRepository.save(
-        new Product(
-            "j-farm",
-            "J팜 농장",
-            new BigDecimal("0.0300"),
-            new BigDecimal("10000.00"),
-            12,
-            ProductStatus.ON_SALE));
+          new Product(
+              "j-farm",
+              "J팜 농장",
+              new BigDecimal("0.0300"),
+              new BigDecimal("10000.00"),
+              12,
+              ProductStatus.ON_SALE));
     }
   }
 

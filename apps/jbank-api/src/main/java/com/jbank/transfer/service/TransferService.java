@@ -125,8 +125,8 @@ public class TransferService {
   }
 
   /**
-   * OTP 검증 성공(API-016) 후 대기 중이던 이체를 마무리한다. 지급정지를 해제하고 원장 두 건을
-   * 남겨 완료 전이하는 로직은 임계금액 이하 즉시 완료 경로와 동일해 executeTransfer로 공유한다.
+   * OTP 검증 성공(API-016) 후 대기 중이던 이체를 마무리한다. 지급정지를 해제하고 원장 두 건을 남겨 완료 전이하는 로직은 임계금액 이하 즉시 완료 경로와 동일해
+   * executeTransfer로 공유한다.
    */
   @Transactional
   public TransferResponse completeAfterOtp(Long transactionId) {

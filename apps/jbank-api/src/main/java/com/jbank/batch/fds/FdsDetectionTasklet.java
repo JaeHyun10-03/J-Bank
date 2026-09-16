@@ -21,8 +21,7 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 
 /**
- * 룰 기반 이상거래 탐지 간이 버전(구현계획 W7, 요구사항명세서 FR-SUP-003). CTR과 같은 결로
- * 하루치를 배치로 훑는다. 세 룰:
+ * 룰 기반 이상거래 탐지 간이 버전(구현계획 W7, 요구사항명세서 FR-SUP-003). CTR과 같은 결로 하루치를 배치로 훑는다. 세 룰:
  *
  * <ol>
  *   <li>단일 거래 임계금액 초과
@@ -30,8 +29,8 @@ import org.springframework.batch.repeat.RepeatStatus;
  *   <li>심야 시간대(23시~06시) 고액 이체
  * </ol>
  *
- * 세 룰 다 "탐지해서 조회 가능하게 적재"까지만 한다 — 자동 차단·거래 취소는 하지 않는다
- * (실제 은행 FDS와 이 프로젝트 규모의 차이를 인프라아키텍처 문서 11절에 명시해뒀다).
+ * 세 룰 다 "탐지해서 조회 가능하게 적재"까지만 한다 — 자동 차단·거래 취소는 하지 않는다 (실제 은행 FDS와 이 프로젝트 규모의 차이를 인프라아키텍처 문서 11절에
+ * 명시해뒀다).
  */
 public class FdsDetectionTasklet implements Tasklet {
 
@@ -132,7 +131,8 @@ public class FdsDetectionTasklet implements Tasklet {
       window.add(transaction);
       // 윈도우 시작에서 너무 오래된 것들을 밀어낸다.
       while (Duration.between(window.get(0).getProcessedAt(), transaction.getProcessedAt())
-          .toMinutes() > rapidRepeatedWindowMinutes) {
+              .toMinutes()
+          > rapidRepeatedWindowMinutes) {
         window.remove(0);
       }
       if (window.size() >= rapidRepeatedMinCount) {

@@ -23,7 +23,8 @@ public class SuspiciousTransactionController {
 
   private final SuspiciousTransactionService suspiciousTransactionService;
 
-  public SuspiciousTransactionController(SuspiciousTransactionService suspiciousTransactionService) {
+  public SuspiciousTransactionController(
+      SuspiciousTransactionService suspiciousTransactionService) {
     this.suspiciousTransactionService = suspiciousTransactionService;
   }
 
@@ -38,13 +39,14 @@ public class SuspiciousTransactionController {
           아직 없어 인증된 사용자면 누구나 호출할 수 있습니다.
           """)
   @GetMapping("/suspicious-transactions")
-  public ResponseEntity<ApiResponse<PageResponse<SuspiciousTransactionResponse>>> getSuspiciousTransactions(
-      @RequestParam(required = false) FdsRuleType ruleType,
-      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-          OffsetDateTime from,
-      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-          OffsetDateTime to,
-      Pageable pageable) {
+  public ResponseEntity<ApiResponse<PageResponse<SuspiciousTransactionResponse>>>
+      getSuspiciousTransactions(
+          @RequestParam(required = false) FdsRuleType ruleType,
+          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+              OffsetDateTime from,
+          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+              OffsetDateTime to,
+          Pageable pageable) {
     PageResponse<SuspiciousTransactionResponse> response =
         suspiciousTransactionService.getSuspiciousTransactions(ruleType, from, to, pageable);
     return ResponseEntity.ok(ApiResponse.success(response));

@@ -12,9 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * 인증 대기(PENDING_OTP) 거래를 취소하고 지급정지를 롤백한다(FR-AUTH-003). OTP 검증 실패한도초과·만료 처리와
- * 만료 대기 거래 정리 스케줄러가 공용으로 쓴다. 이미 다른 경로로 처리된 거래는 조용히 넘어간다 — 두 호출자가
- * 같은 거래를 동시에 취소하려는 경쟁을 대비한 안전장치다.
+ * 인증 대기(PENDING_OTP) 거래를 취소하고 지급정지를 롤백한다(FR-AUTH-003). OTP 검증 실패한도초과·만료 처리와 만료 대기 거래 정리 스케줄러가 공용으로
+ * 쓴다. 이미 다른 경로로 처리된 거래는 조용히 넘어간다 — 두 호출자가 같은 거래를 동시에 취소하려는 경쟁을 대비한 안전장치다.
  */
 @Service
 public class PendingOtpCancellationService {

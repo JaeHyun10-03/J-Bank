@@ -60,8 +60,7 @@ class PendingOtpCancellationServiceIntegrationTest {
 
   @Test
   void 인증_대기_거래를_취소하면_거래는_CANCELLED로_지급정지는_해제된다() {
-    Account from =
-        saveAccount(new BigDecimal("20000000.00"), new BigDecimal("15000000.00"));
+    Account from = saveAccount(new BigDecimal("20000000.00"), new BigDecimal("15000000.00"));
     Transaction transaction = savePendingOtpTransaction(from.getAccountId(), "15000000.00");
 
     pendingOtpCancellationService.cancel(transaction.getTransactionId());

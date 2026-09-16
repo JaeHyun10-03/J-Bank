@@ -11,8 +11,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 /**
- * OTP 유효시간이 지나도록 검증되지 않은 PENDING_OTP 거래를 정리한다(FR-AUTH-003). Redis의 OTP는 자체 TTL로
- * 사라지지만 거래 자체는 그대로 남으므로, 이 스케줄러가 지급정지를 풀고 거래를 취소한다.
+ * OTP 유효시간이 지나도록 검증되지 않은 PENDING_OTP 거래를 정리한다(FR-AUTH-003). Redis의 OTP는 자체 TTL로 사라지지만 거래 자체는 그대로
+ * 남으므로, 이 스케줄러가 지급정지를 풀고 거래를 취소한다.
  */
 @Component
 public class PendingOtpExpirationScheduler {

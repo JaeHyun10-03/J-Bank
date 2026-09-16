@@ -12,10 +12,9 @@ import com.jbank.transfer.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 
 /**
- * API-016 OTP 검증(FR-AUTH-003) 오케스트레이션. 원장 반영은 TransferService.completeAfterOtp,
- * 취소·지급정지 롤백은 PendingOtpCancellationService에 위임한다. 두 위임 대상 모두 각자
- * @Transactional로 독립 커밋되므로, 이 클래스는 트랜잭션을 직접 열지 않는다 — 실패한도초과·만료는
- * 상태 변경이 이미 커밋된 뒤에 예외를 던져야 응답 실패가 방금 커밋한 취소를 되돌리지 않는다.
+ * API-016 OTP 검증(FR-AUTH-003) 오케스트레이션. 원장 반영은 TransferService.completeAfterOtp, 취소·지급정지 롤백은
+ * PendingOtpCancellationService에 위임한다. 두 위임 대상 모두 각자 @Transactional로 독립 커밋되므로, 이 클래스는 트랜잭션을 직접 열지
+ * 않는다 — 실패한도초과·만료는 상태 변경이 이미 커밋된 뒤에 예외를 던져야 응답 실패가 방금 커밋한 취소를 되돌리지 않는다.
  */
 @Service
 public class OtpVerificationService {

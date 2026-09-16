@@ -29,7 +29,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(AuditLogController.class)
 @Import({SecurityConfig.class, JacksonConfig.class, JwtTokenProvider.class})
-@TestPropertySource(properties = "jbank.jwt.secret=test-secret-key-at-least-32-bytes-long-for-hs256")
+@TestPropertySource(
+    properties = "jbank.jwt.secret=test-secret-key-at-least-32-bytes-long-for-hs256")
 class AuditLogControllerTest {
 
   @Autowired private MockMvc mockMvc;
