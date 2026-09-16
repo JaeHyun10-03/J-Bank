@@ -30,11 +30,11 @@ resource "helm_release" "argocd" {
 # dev는 automated(prune+selfHeal)로 즉시 동기화하고, prod는 syncPolicy에
 # automated 블록을 빼서 `argocd app sync`로 수동 승인해야만 반영되게
 # 한다(인프라아키텍처 문서 219행 — 변경관리위원회 심의를 간소화한 승인
-# 게이트). jbank-api·jbank-product 두 차트 × dev·prod 두 환경, 총 네
+# 게이트). jbank-api 차트 × dev·prod 두 환경, 총 두
 # Application을 같은 규칙으로 만든다.
 locals {
   argocd_apps = {
-    for pair in setproduct(["jbank-api", "jbank-product"], ["dev", "prod"]) : "${pair[0]}-${pair[1]}" => {
+    for pair in setproduct(["jbank-api"], ["dev", "prod"]) : "${pair[0]}-${pair[1]}" => {
       chart          = pair[0]
       env            = pair[1]
       chart_path     = "infra/helm/${pair[0]}"
