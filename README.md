@@ -50,20 +50,13 @@ flowchart TB
 
     subgraph VPC["EKS · ap-northeast-2 · Private Subnet"]
         Argo["ArgoCD<br/>(GitOps 동기화)"] -.배포.-> API
-        Argo -.배포.-> Product
-        ALB --> API["jbank-api<br/>계좌·거래·원장·인증"]
-        ALB --> Product["jbank-product<br/>상품·계약(독립 배포)"]
+        ALB --> API["jbank-api<br/>계좌·거래·원장·인증·상품"]
         Batch["배치 CronJob<br/>이자·정합성대사·CTR·FDS판별"]
-        API -->|"내부 API<br/>(출금/입금)"| Product
-        Product -->|"내부 API<br/>(출금/보상)"| API
-        Batch --> API
         ESO["External Secrets<br/>Operator"] -.주입.-> API
-        ESO -.주입.-> Product
     end
 
     SM[("Secrets Manager")] -.-> ESO
     API --> RDS[("PostgreSQL<br/>Multi-AZ · Isolated Subnet")]
-    Product --> RDS
     API --> Redis[("Redis<br/>분산락·세션·OTP")]
     API -.발신함.-> Kafka[("Kafka · MSK<br/>거래·감사 이벤트")]
     Batch --> RDS
@@ -72,9 +65,7 @@ flowchart TB
     Web["Next.js 프론트엔드<br/>Vercel"] -->|same-site 프록시| ALB
 ```
 
-프론트엔드(Vercel)와 백엔드(AWS)를 분리 배포하되, 원장·개인정보를 다루는 컴포넌트는 전부 AWS 안에 둡니다. W7에서 상품·계약 도메인(`jbank-product`)을 독립 배포 단위로 떼어내고, 상품가입을 오케스트레이션 사가(계약 생성 → 출금 → 확정, 실패 시 보상 거래)로 구현했습니다 — 근거는 [ADR 0007](docs/adr/0007-w7-product-module-separation.md). 계정 구조, 망분리, 키 관리까지 포함한 전체 설계는 [인프라아키텍처 문서](docs/06_J-Bank_인프라아키텍처.md)에서 확인하실 수 있습니다.
-
-코드 근거(파일·라인)까지 연결된 인터랙티브 버전은 [서비스 아키텍처 다이어그램](docs/architecture/jbank-service-architecture.html)에서 pan/zoom·검색으로 볼 수 있습니다.
+프론트엔드(Vercel)와 백엔드(AWS)를 분리 배포하되, 원장·개인정보를 다루는 컴포넌트는 전부 AWS 안에 둡니다. 상품·계약은 jbank-api 내부 도메인으로 관리하고, 가입 계약·출금·원장을 하나의 DB 트랜잭션으로 처리합니다. 계정 구조, 망분리, 키 관리까지 포함한 전체 설계는 [인프라아키텍처 문서](docs/06_J-Bank_인프라아키텍처.md)에서 확인하실 수 있습니다.
 
 ## 기술 스택
 
@@ -90,16 +81,15 @@ flowchart TB
 ## 프로젝트 구조
 
 ```
-apps/jbank-api/       Spring Boot, 계좌·거래·원장·인증·감사·FDS/CTR 배치 — 도메인 패키지 경계 + ArchUnit
-apps/jbank-product/   Spring Boot, 상품·계약 도메인 — 별도 Gradle 프로젝트·독립 배포 단위(W7)
+apps/jbank-api/       Spring Boot, 계좌·거래·원장·인증·상품·감사·FDS/CTR 배치 — 도메인 패키지 경계 + ArchUnit
 apps/frontend/        Next.js 14 App Router
-infra/                Docker Compose, Dockerfile(서비스별), Terraform, Helm(서비스별)
+infra/                Docker Compose, Dockerfile, Terraform, Helm
 contracts/            OpenAPI 스냅샷, 수동 호출 컬렉션
 perf/                 k6 스크립트와 주차별 결과
 docs/                 설계 문서, ADR, 런북
 ```
 
-W1~W6은 단일 모듈에서 도메인 패키지(`account`, `customer`, `ledger`, `transfer`, `product` 등)로 나누고 ArchUnit으로 의존 방향을 강제했습니다. W7에 그 경계 중 하나(상품·계약)가 실제로 정당화되는지 검증한 뒤 `apps/jbank-product`로 독립 배포 단위로 떼어냈고, 그 과정에서 ArchUnit이 놓치고 있던 역방향 의존(이자 지급 배치)을 실제로 발견해 해소했습니다. 전면 MSA 전환이 아니라 경계 하나만 떼어낸 것이며, 근거와 트레이드오프는 [폴더구조 문서](docs/10_J-Bank_폴더구조.md)와 [ADR 0007](docs/adr/0007-w7-product-module-separation.md)에 있습니다.
+백엔드는 단일 Spring Boot 애플리케이션에서 도메인 패키지 경계를 유지합니다. 상품 가입과 만기 이자 지급은 계좌·거래·원장과 같은 DB 트랜잭션에 참여합니다.
 
 ## ERD
 
@@ -187,7 +177,7 @@ stateDiagram-v2
 | API 테스트 | 공통 응답 포맷·에러코드 계약 검증 | MockMvc |
 | E2E 테스트 | 실제 브라우저 흐름 | Playwright |
 
-커버리지 수치를 일괄 목표로 삼지 않고, 원장·이체·인증 세 패키지에만 분기 커버리지 80%를 기준선으로 두어 파이프라인에서 강제합니다. 동시성 시나리오 5종(동시 출금·양방향 이체·멱등성 키 경합 등)과 배치 잡 재실행 안전성, 상품가입 사가의 보상 트랜잭션까지 Testcontainers 기반 통합 테스트로 검증합니다. 상세 방침은 [구현계획 10절](docs/07_J-Bank_구현계획.md)에 있습니다.
+커버리지 수치를 일괄 목표로 삼지 않고, 원장·이체·인증 세 패키지에만 분기 커버리지 80%를 기준선으로 두어 파이프라인에서 강제합니다. 동시성 시나리오 5종(동시 출금·양방향 이체·멱등성 키 경합 등)과 배치 잡 재실행 안전성, 상품 가입의 출금·계약 원자성까지 Testcontainers 기반 통합 테스트로 검증합니다. 상세 방침은 [구현계획 10절](docs/07_J-Bank_구현계획.md)에 있습니다.
 
 ## 성능 추이
 
@@ -239,15 +229,10 @@ scripts/dev.sh core messaging   # 위 두 개 + Kafka (발신함 폴링 발행�
 cd apps/jbank-api && ./gradlew bootRun --args='--spring.profiles.active=local'
 # http://localhost:8080/swagger-ui.html
 
-# 상품가입은 jbank-api에 출금을 요청하는 사가라 jbank-api가 먼저 떠 있어야 한다.
-cd apps/jbank-product && ./gradlew bootRun --args='--spring.profiles.active=local'
-# http://localhost:8081/swagger-ui.html
-
-# 시연용 고객 2명·계좌 2개(jbank-api)·상품 2종(jbank-product)이 필요하면
-# 두 서비스 모두 seed 프로파일을 추가한다(이미 데이터가 있으면 아무 것도
+# 시연용 고객 2명·계좌 2개·상품 2종이 필요하면
+# seed 프로파일을 추가한다(이미 데이터가 있으면 아무 것도
 # 하지 않아 반복 실행해도 안전하다)
 cd apps/jbank-api && ./gradlew bootRun --args='--spring.profiles.active=local,seed'
-cd apps/jbank-product && ./gradlew bootRun --args='--spring.profiles.active=local,seed'
 
 cd apps/frontend && npm run dev
 # http://localhost:3000
@@ -276,13 +261,13 @@ cd apps/frontend && npm run dev
 | W3 | 인증·보안, 상품 도메인 구현, Phase 1 마감(`v0.1.0`) | 완료 |
 | W4~W5 | 감사 로그·위험도 이력, 발신함 기반 이벤트 알림, 배치 처리, 고액이체 2차 인증(Phase 2) | 완료 |
 | W6 | 관측 가능성(Prometheus/Grafana/Loki), 성능 측정·인덱스 튜닝, Terraform 코드화 | 완료 |
-| W7 | 쿠버네티스 배포(Helm)·GitOps(ArgoCD)·오토스케일링, 상품 도메인 독립 배포 분리+사가, 이상거래 탐지(Phase 3, `v1.0.0`) | 완료 |
+| W7 | 쿠버네티스 배포(Helm)·GitOps(ArgoCD)·오토스케일링, 이상거래 탐지(Phase 3, `v1.0.0`) | 완료 |
 
 전체 로드맵과 완료 기준은 [구현계획 문서](docs/07_J-Bank_구현계획.md)에 있습니다.
 
 ## 진행 상황
 
-`v1.0.0` — 계획한 7주 로드맵을 모두 마쳤습니다. 계좌·원장·거래 코어, JWT 인증·CSRF·2차 인증, 예적금 상품 가입, 감사 로그·이벤트 알림·배치 처리(이자·정합성대사·CTR·이상거래탐지), 그리고 EKS·Helm·ArgoCD 기반 쿠버네티스 배포와 상품 도메인의 독립 배포 분리(오케스트레이션 사가 포함)까지 실제 클러스터에 배포해 검증했습니다.
+`v1.0.0` — 계획한 7주 로드맵을 모두 마쳤습니다. 계좌·원장·거래 코어, JWT 인증·CSRF·2차 인증, 예적금 상품 가입, 감사 로그·이벤트 알림·배치 처리(이자·정합성대사·CTR·이상거래탐지), 그리고 EKS·Helm·ArgoCD 기반 쿠버네티스 배포까지 실제 클러스터에 배포해 검증했습니다.
 
 `v1.0.0` 태그 이후에도 검증은 계속하고 있습니다 — 계좌 10만·거래 1천만 규모 부하 측정([성능 추이](#성능-추이))과 코드 근거 기반 서비스 아키텍처 다이어그램을 추가했습니다.
 
@@ -294,9 +279,7 @@ cd apps/frontend && npm run dev
 
 | 항목 | 내용 |
 |---|---|
-| 서비스 간 인증 | `X-Internal-Api-Key` 정적 공유키 하나뿐, mTLS·키 로테이션 없음 — 유출 시 임의 계좌 출금/입금 API 직접 호출 가능 |
 | 관리자 역할 부재 | 감사 로그·이상거래 조회 API에 별도 admin role 없이 인증된 고객이면 누구나 호출 가능 |
-| DB는 공유, 서비스만 분리 | jbank-api/jbank-product가 같은 Postgres 스키마를 공유(jbank-api가 Flyway 소유, product는 읽기 검증만) |
 
 전체 9개 항목과 예상 질문·대응 논리는 [알려진 한계와 개선 과제](docs/11_J-Bank_알려진한계와개선과제.md)에 있습니다.
 
