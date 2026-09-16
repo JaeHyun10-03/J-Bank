@@ -630,6 +630,8 @@ Set-Cookie: XSRF-TOKEN=; Secure; SameSite=Lax; Path=/; Max-Age=0
 
 ### API-012 POST /products/{productCode}/subscriptions
 
+계약 생성·초기 납입금 출금·원장 기록은 하나의 DB 트랜잭션에서 처리한다. 출금 시 계좌 소유권·활성 상태·지급정지를 제외한 출금 가능 금액을 검증하며, 어느 단계든 실패하면 계약과 금전 변경을 모두 롤백한다.
+
 요청 헤더: `X-CSRF-TOKEN: {token}`
 
 요청:
@@ -658,6 +660,7 @@ Set-Cookie: XSRF-TOKEN=; Secure; SameSite=Lax; Path=/; Max-Age=0
 |---|---|---|
 | PRD_001_MIN_AMOUNT_NOT_MET | 400 | 최소가입금액 미달 |
 | PRD_002_PRODUCT_NOT_AVAILABLE | 409 | 판매 중지된 상품 |
+| TXN_001_INSUFFICIENT_BALANCE | 409 | 지급정지 금액을 제외한 출금 가능 금액 부족 |
 
 ### API-019 GET /customers/{customerId}/contracts
 

@@ -34,21 +34,19 @@ class SecurityConfigTest {
   }
 
   @Test
-  void PUBLIC_PATHS는_더는_상품목록을_포함하지_않는다() throws Exception {
-    // W7에서 product 모듈을 분리하면서 /api/v1/products는 jbank-product가
-    // 서빙한다 — 이 서비스엔 그 엔드포인트 자체가 없다.
+  void PUBLIC_PATHS는_상품목록을_포함한다() throws Exception {
     String[] patterns = publicPaths();
     PathPatternParser parser = new PathPatternParser();
-
-    assertThat(matchesAny(parser, patterns, "/api/v1/products")).isFalse();
+    assertThat(matchesAny(parser, patterns, "/api/v1/products")).isTrue();
+    assertThat(matchesAny(parser, patterns, "/api/v1/products/SAV/subscriptions")).isFalse();
   }
 
   @Test
-  void PUBLIC_PATHS는_서비스간_내부_API_경로를_포함한다() throws Exception {
+  void PUBLIC_PATHS는_내부_API_경로를_허용하지_않는다() throws Exception {
     String[] patterns = publicPaths();
     PathPatternParser parser = new PathPatternParser();
 
-    assertThat(matchesAny(parser, patterns, "/internal/v1/accounts/withdraw-by-number")).isTrue();
+    assertThat(matchesAny(parser, patterns, "/internal/v1/accounts/withdraw-by-number")).isFalse();
   }
 
   @Test

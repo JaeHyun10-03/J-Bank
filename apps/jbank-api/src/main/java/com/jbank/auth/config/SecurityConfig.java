@@ -2,9 +2,7 @@ package com.jbank.auth.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jbank.auth.jwt.JwtTokenProvider;
-import com.jbank.internal.config.InternalApiKeyFilter;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -35,19 +33,11 @@ public class SecurityConfig {
     "/api/v1/auth/login",
     "/api/v1/auth/refresh",
     "/actuator/health/**", // kubelet이 인증 없이 readiness/liveness probe를 호출해야 함
-    "/internal/v1/**" // 고객 JWT가 아니라 InternalApiKeyFilter의 공유 비밀키로 인증(서비스 간 호출)
+    "/api/v1/products"
   };
 
   private final JwtTokenProvider jwtTokenProvider;
   private final ObjectMapper objectMapper;
-
-  // 기본값은 테스트 컨텍스트 기동용이다 — 27개+ 기존 @SpringBootTest가 이미
-  // jwt.secret/crypto 키만 @DynamicPropertySource로 override하는 패턴이라,
-  // 이 값에 필수(default 없음) 처리를 하면 그 테스트들이 전부 컨텍스트 기동
-  // 단계에서 깨진다. 내부 API를 실제로 검증하는 테스트만 이 프로퍼티를 직접
-  // override한다.
-  @Value("${jbank.internal.api-key:test-internal-key}")
-  private String internalApiKey;
 
   public SecurityConfig(JwtTokenProvider jwtTokenProvider, ObjectMapper objectMapper) {
     this.jwtTokenProvider = jwtTokenProvider;
@@ -65,11 +55,6 @@ public class SecurityConfig {
             ex ->
                 ex.authenticationEntryPoint(new RestAuthenticationEntryPoint(objectMapper))
                     .accessDeniedHandler(new RestAccessDeniedHandler(objectMapper)))
-        // /internal/v1/**는 PUBLIC_PATHS라 JWT가 없어도 authorizeHttpRequests를 통과하지만,
-        // 이 필터가 그 경로만 따로 가로채 공유 비밀키를 확인한다 — 인증 자체가 없는 것과는 다르다.
-        .addFilterBefore(
-            new InternalApiKeyFilter(internalApiKey, objectMapper),
-            UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(
             new JwtAuthenticationFilter(jwtTokenProvider),
             UsernamePasswordAuthenticationFilter.class)

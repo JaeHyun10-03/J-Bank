@@ -168,7 +168,7 @@ Phase 1에서는 EKS 클러스터에 Spring Boot 애플리케이션을 배포한
 
 Phase 2에서는 Kafka 컨슈머 그룹을 담당하는 워크로드를 추가한다. 여기에 발신함 발행기가 함께 올라간다. 발행기는 미발행 이벤트를 폴링해 Kafka로 보내는 역할이라 상시 구동이 필요하므로 CronJob이 아니라 API 서버와 같은 디플로이먼트 안에서 스케줄러로 동작시킨다. 인스턴스가 여러 개일 때 같은 레코드를 중복 발행하는 문제는 발신함 자체가 최소 한 번 전달을 전제로 설계되어 있어 소비자 측 멱등 처리로 흡수된다.
 
-Phase 3에서는 서비스 단위로 배포 단위를 분리한다. 상품과 계약 도메인을 독립된 디플로이먼트로 떼어내고, 서비스 간 통신에 재시도와 서킷브레이커를 적용하기 위해 Resilience4j를 각 서비스에 내장한다. App Mesh나 Istio 같은 서비스 메시 도입은 학습 가치는 있으나 운영 복잡도가 높으므로, 이 프로젝트에서는 필수 항목이 아닌 선택적 확장 목표로 둔다.
+Phase 3에서도 단일 API 배포 단위를 유지하고, 도메인 패키지와 ArchUnit으로 내부 경계를 관리한다.
 
 ## 7. 데이터 계층
 
@@ -226,7 +226,7 @@ GitHub Actions에서 빌드와 테스트를 수행하고 컨테이너 이미지�
 |---|---|
 | Phase 1 | VPC 4단 서브넷 분리, EKS 단일 클러스터, RDS Multi-AZ, ALB, WAF, GitHub Actions 기반 CI/CD, Terraform 초기 구성 |
 | Phase 2 | MSK 도입, ElastiCache 확장, 배치 CronJob 분리, 발신함 발행기 배치, Loki 기반 로그 수집, Secrets Manager 자동 로테이션 |
-| Phase 3 | 서비스 단위 배포 분리, HPA/Cluster Autoscaler, ArgoCD GitOps 전환, 크로스 리전 백업 정례화, FDS 연계 실험 |
+| Phase 3 | HPA/Cluster Autoscaler, ArgoCD GitOps 전환, 크로스 리전 백업 정례화, FDS 연계 실험 |
 
 주차 단위 배치는 구현계획 문서 9절을 따른다.
 
