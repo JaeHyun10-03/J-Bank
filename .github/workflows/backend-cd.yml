@@ -44,19 +44,6 @@ jobs:
           docker push "$IMAGE:${{ github.sha }}"
           docker push "$IMAGE:latest"
 
-      # 임시 디버그: AWS가 거부하는 원인을 좁히기 위해 GitHub가 발급하는 OIDC 토큰의
-      # 클레임(sub/aud/ref)만 출력한다. 토큰 자체는 출력하지 않는다. 원인 확인 후 제거.
-      - name: Debug OIDC claims
-        run: |
-          TOKEN=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r .value)
-          echo "$TOKEN" | cut -d. -f2 | python3 -c '
-          import sys, json, base64
-          p = sys.stdin.read().strip()
-          p += "=" * (-len(p) % 4)
-          c = json.loads(base64.urlsafe_b64decode(p))
-          print(json.dumps({k: c.get(k) for k in ("iss","sub","aud","ref","ref_type","repository","event_name","job_workflow_ref")}, indent=2))'
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
