@@ -22,6 +22,39 @@ services:
     ports:
       - "6379:6379"
 
+  # 패키징된 백엔드를 컨테이너로 기동한다. 코드 수정·재시작 반복은 여전히
+  # `./gradlew bootRun`(local 프로파일)이 빠르고, 이 서비스는 "빌드된 이미지가 실제로
+  # 뜨는가"를 확인하거나 EC2 배포 구성(docker-compose.prod.yml)과 같은 모양으로
+  # 로컬에서 돌려볼 때 쓴다. 키 값은 application-local.yml과 같은 로컬 전용 값이다.
+  api:
+    build:
+      context: ../../apps/jbank-api
+      dockerfile: ../../infra/docker/jbank-api/Dockerfile
+    image: jbank-api:local
+    profiles: ["api"]
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_URL: jdbc:postgresql://postgres:5432/jbank
+      DB_USERNAME: jbank
+      DB_PASSWORD: jbank
+      REDIS_HOST: redis
+      PII_ENCRYPTION_KEY: rEs9xA1c4JnQE3giHpqdSmhxY/r3DzbFx45Gn7NNv7o= # 로컬 전용, 운영 키와 무관
+      RESIDENT_REG_NO_HASH_KEY: EaAMdQ3zxtSSUvgPsQYLyUT7iT+WbKhxERsRlx8P58g= # 로컬 전용, 운영 키와 무관
+      JWT_SECRET: c0zN1QYc5xkPHqE3fJ8mWZ2vLdT9bR4gA6hK7nS0uYeXpVjMoIiFwCq1DtGzBl5r # 로컬 전용, 운영 키와 무관
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
   prometheus:
     image: prom/prometheus:v2.55.1
     profiles: ["observability"]

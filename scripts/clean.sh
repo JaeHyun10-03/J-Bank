@@ -3,4 +3,4 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-docker compose -f "$ROOT_DIR/infra/compose/docker-compose.yml" --profile core --profile observability down -v
+docker compose -f "$ROOT_DIR/infra/compose/docker-compose.yml" --profile core --profile api --profile observability down -v
