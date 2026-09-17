@@ -18,3 +18,4 @@
 | 2026-07-28 | [2026-07-28_공통응답포맷과전역예외처리.md](2026-07-28_공통응답포맷과전역예외처리.md) | ApiResponse/ErrorCode/GlobalExceptionHandler 설계 결정 |
 | 2026-07-29 | [2026-07-29_공통기반마무리와Springdoc노출.md](2026-07-29_공통기반마무리와Springdoc노출.md) | 금액 시리얼라이저, 요청추적ID 필터, SecurityConfig 부재로 막혀있던 Springdoc 노출 문제 |
 | 2026-09-17 | [2026-09-17_CI첫실행실패와gradle.properties.md](2026-09-17_CI첫실행실패와gradle.properties.md) | backend-ci 첫 실행 실패 — gradle.properties의 macOS JDK 경로 하드코딩이 원인 |
+| 2026-09-17 | [2026-09-17_EKS를EC2단일인스턴스로다운사이징.md](2026-09-17_EKS를EC2단일인스턴스로다운사이징.md) | EKS·ArgoCD·Helm 제거, EC2 1대 + Compose + Caddy + SSM 배포로 전환. 배치 CronJob 누락 발견, Loki 제거 |
