@@ -1,0 +1,9 @@
+# TLS는 Caddy가 Let's Encrypt로 자동 발급·갱신한다. 두 호스트 모두 EIP를 가리키는
+# A 레코드가 먼저 있어야 발급이 된다.
+api.j-bank.site {
+	reverse_proxy api:8080
+}
+
+grafana.j-bank.site {
+	reverse_proxy grafana:3000
+}

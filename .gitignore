@@ -40,3 +40,4 @@ infra/terraform/**/*.auto.tfvars
 perf/results/**/*.raw
 .vercel
 .env*
+!.env.example
