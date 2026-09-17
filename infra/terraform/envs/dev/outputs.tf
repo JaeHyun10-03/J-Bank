@@ -1,28 +1,13 @@
-output "vpc_id" {
-  value = module.network.vpc_id
+output "instance_id" {
+  value = module.ec2.instance_id
 }
 
-output "rds_endpoint" {
-  value = module.data.rds_endpoint
+output "public_ip" {
+  description = "api.j-bank.site, grafana.j-bank.site A 레코드에 넣을 EIP."
+  value       = module.ec2.public_ip
 }
 
-output "redis_endpoint" {
-  value = module.data.redis_endpoint
-}
-
-output "ecr_repository_url" {
-  value = module.compute.ecr_repository_url
-}
-
-output "ecr_push_role_arn" {
-  description = "backend-cd.yml의 secrets.AWS_ECR_PUSH_ROLE_ARN에 등록할 값."
-  value       = module.compute.ecr_push_role_arn
-}
-
-output "eks_cluster_name" {
-  value = module.compute.eks_cluster_name
-}
-
-output "alb_dns_name" {
-  value = module.compute.alb_dns_name
+output "deploy_role_arn" {
+  description = "backend-cd.yml의 secrets.AWS_DEPLOY_ROLE_ARN에 등록할 값."
+  value       = module.ec2.deploy_role_arn
 }
