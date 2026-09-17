@@ -21,7 +21,7 @@ postgres 컨테이너를 내려서 readiness=503/DOWN, liveness=200/UP로
 
 `infra/helm/jbank-api/`에 Chart.yaml, Deployment+Service,
 values.yaml. probe는 위에서 나눈 두 엔드포인트로 각각 연결했다.
-DB/Redis/Kafka 접속정보와 시크릿은 Secret 리소스 참조로만 받는다
+DB/Redis 접속정보와 시크릿은 Secret 리소스 참조로만 받는다
 — 실제 Secret 생성(ESO 연동)은 목요일 몫이라 이번 범위 밖.
 
 ## 배치 CronJob — 로컬 실행에서 걸린 문제
@@ -30,7 +30,7 @@ CronJob 템플릿을 쓰기 전에 실제 배치 실행 커맨드(`--spring.
 profiles.active=batch --spring.batch.job.name=... runDate=...`)를
 로컬 jar로 먼저 돌려봤는데, 잡이 COMPLETED로 끝나도 프로세스가 안
 죽었다. `application-batch.yml`엔 `spring.batch.job.enabled: true`
-뿐이라 내장 톰캣이 그대로 뜨고, Kafka 리스너·스케줄러의 비-데몬
+뿐이라 내장 톰캣이 그대로 뜨고, 스케줄러의 비-데몬
 스레드가 컨텍스트 종료 후에도 JVM을 붙잡고 있었다 —
 `restartPolicy: Never`인 CronJob 파드가 절대 Completed로 안 넘어가고
 영원히 Running으로 남는, 발견 안 했으면 배포하고서야 알았을 문제.

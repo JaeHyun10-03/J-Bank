@@ -25,7 +25,6 @@ locals {
     DB_PASSWORD              = var.db_master_password
     REDIS_HOST               = var.redis_endpoint
     REDIS_PORT               = "6379"
-    KAFKA_BOOTSTRAP_SERVERS  = var.kafka_bootstrap_servers
     PII_ENCRYPTION_KEY       = random_id.pii_key.b64_std
     RESIDENT_REG_NO_HASH_KEY = random_id.hash_key.b64_std
     JWT_SECRET               = random_password.jwt_secret.result

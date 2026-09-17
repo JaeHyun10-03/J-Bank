@@ -41,7 +41,9 @@ class PendingOtpExpirationSchedulerTest {
     Transaction tx2 = mock(Transaction.class);
     given(tx1.getTransactionId()).willReturn(1L);
     given(tx2.getTransactionId()).willReturn(2L);
-    given(transactionRepository.findByStatusAndCreatedAtBefore(eq(TransactionStatus.PENDING_OTP), any()))
+    given(
+            transactionRepository.findByStatusAndCreatedAtBefore(
+                eq(TransactionStatus.PENDING_OTP), any()))
         .willReturn(List.of(tx1, tx2));
 
     scheduler.cancelExpired();
@@ -52,7 +54,9 @@ class PendingOtpExpirationSchedulerTest {
 
   @Test
   void 대상이_없으면_아무것도_취소하지_않는다() {
-    given(transactionRepository.findByStatusAndCreatedAtBefore(eq(TransactionStatus.PENDING_OTP), any()))
+    given(
+            transactionRepository.findByStatusAndCreatedAtBefore(
+                eq(TransactionStatus.PENDING_OTP), any()))
         .willReturn(List.of());
 
     scheduler.cancelExpired();
@@ -62,7 +66,9 @@ class PendingOtpExpirationSchedulerTest {
 
   @Test
   void 컷오프는_현재_시각에서_만료시간만큼_뺀_시점이다() {
-    given(transactionRepository.findByStatusAndCreatedAtBefore(eq(TransactionStatus.PENDING_OTP), any()))
+    given(
+            transactionRepository.findByStatusAndCreatedAtBefore(
+                eq(TransactionStatus.PENDING_OTP), any()))
         .willReturn(List.of());
     OffsetDateTime before = OffsetDateTime.now().minus(Duration.ofMinutes(3));
 

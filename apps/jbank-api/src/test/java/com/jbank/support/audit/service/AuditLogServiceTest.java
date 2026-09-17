@@ -40,8 +40,7 @@ class AuditLogServiceTest {
     given(auditLogRepository.findAll(any(Specification.class), any(PageRequest.class)))
         .willReturn(new PageImpl<>(List.of(auditLog)));
 
-    var result =
-        auditLogService.getLogs(null, null, null, null, PageRequest.of(0, 20));
+    var result = auditLogService.getLogs(null, null, null, null, PageRequest.of(0, 20));
 
     assertThat(result.content()).hasSize(1);
     assertThat(result.content().get(0).eventType()).isEqualTo("ACCOUNT_STATUS_CHANGED");

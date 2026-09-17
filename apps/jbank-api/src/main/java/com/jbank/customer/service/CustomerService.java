@@ -82,7 +82,11 @@ public class CustomerService {
     Long customerId = customer.getCustomerId();
 
     recordRiskAssessment(
-        customer, null, null, request.transactionPurpose(), request.fundSource(),
+        customer,
+        null,
+        null,
+        request.transactionPurpose(),
+        request.fundSource(),
         ASSESSED_BY_SYSTEM);
 
     return new CustomerRegisterResponse(

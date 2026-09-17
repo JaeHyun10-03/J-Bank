@@ -319,6 +319,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/suspicious-transactions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 이상거래 탐지 결과 조회(API-022)
+         * @description FR-SUP-003 룰 기반 이상거래 탐지 결과를 조회합니다. ruleType, from, to는 선택입니다.
+         *     자동 차단은 하지 않고 조회만 제공합니다 — 운영자 전용이지만 운영자 역할 모델이
+         *     아직 없어 인증된 사용자면 누구나 호출할 수 있습니다.
+         */
+        get: operations["getSuspiciousTransactions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/audit-logs": {
         parameters: {
             query?: never;
@@ -669,6 +691,33 @@ export interface components {
             totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
+        };
+        ApiResponsePageResponseSuspiciousTransactionResponse: {
+            success?: boolean;
+            data?: components["schemas"]["PageResponseSuspiciousTransactionResponse"];
+            error?: components["schemas"]["ErrorDetail"];
+        };
+        PageResponseSuspiciousTransactionResponse: {
+            content?: components["schemas"]["SuspiciousTransactionResponse"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+        };
+        SuspiciousTransactionResponse: {
+            suspiciousTransactionId?: string;
+            transactionId?: string;
+            accountId?: string;
+            /** @enum {string} */
+            ruleType?: "SINGLE_TRANSACTION_THRESHOLD_EXCEEDED" | "RAPID_REPEATED_TRANSFER" | "LATE_NIGHT_HIGH_VALUE_TRANSFER";
+            amount?: number;
+            detail?: string;
+            /** Format: date-time */
+            detectedAt?: string;
         };
         ApiResponsePageResponseAuditLogResponse: {
             success?: boolean;
@@ -1151,6 +1200,31 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponsePageResponseCustomerAccountSummaryResponse"];
+                };
+            };
+        };
+    };
+    getSuspiciousTransactions: {
+        parameters: {
+            query: {
+                ruleType?: "SINGLE_TRANSACTION_THRESHOLD_EXCEEDED" | "RAPID_REPEATED_TRANSFER" | "LATE_NIGHT_HIGH_VALUE_TRANSFER";
+                from?: string;
+                to?: string;
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePageResponseSuspiciousTransactionResponse"];
                 };
             };
         };

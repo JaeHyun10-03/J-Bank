@@ -89,8 +89,6 @@ j-bank/
 │   │       │   │   │
 │   │       │   │   ├── support/                 # 지원 기능, 도메인 이벤트 구독
 │   │       │   │   │   ├── audit/               # 감사 로그
-│   │       │   │   │   ├── outbox/              # 발신함 테이블과 폴링 발행기
-│   │       │   │   │   ├── notification/        # Kafka 소비 후 알림, 로그 출력 대체
 │   │       │   │   │   ├── ctr/                 # 고액현금거래 보고대상 큐
 │   │       │   │   │   └── fds/                 # 간이 이상거래 규칙
 │   │       │   │   │
@@ -187,7 +185,7 @@ j-bank/
 │   │   └── jbank-api/
 │   │       └── Dockerfile
 │   └── compose/
-│       ├── docker-compose.yml                   # profiles: core / messaging / observability
+│       ├── docker-compose.yml                   # profiles: core / observability
 │       └── observability/
 │           ├── prometheus.yml
 │           ├── loki-config.yml
@@ -281,7 +279,7 @@ ArchUnit으로 강제하고 아키텍처 결정 기록에 근거를 남긴다. W
 
 역방향 의존과 순환은 전면 금지한다. `ledger`가 `transfer`를 알거나 `customer`가 `account`를 아는 구조가 생기면 W7에 분리선이 사라진다.
 
-`support`는 어떤 도메인도 직접 호출하지 않는다. 감사 로그와 발신함은 `common.event`에 정의된 도메인 이벤트를 구독해서만 동작한다. 이 방향을 지키면 감사 기록을 붙이거나 떼는 것이 도메인 코드에 영향을 주지 않는다.
+`support`는 어떤 도메인도 직접 호출하지 않는다. 감사 로그는 `common.event`에 정의된 도메인 이벤트를 구독해서만 동작한다. 이 방향을 지키면 감사 기록을 붙이거나 떼는 것이 도메인 코드에 영향을 주지 않는다.
 
 ### 4.3 transfer 패키지의 범위
 
@@ -319,7 +317,6 @@ Springdoc 어노테이션
 | 프로파일 | 구성 | 사용 시점 |
 |---|---|---|
 | core | PostgreSQL 16, Redis 7 | 상시 |
-| messaging | Kafka | W4 이후 |
 | observability | Prometheus, Grafana, Loki | W6 이후 |
 
 구현계획 리스크 5번이 지적한 대로 전부 동시에 띄우면 개발 머신이 버겁다. `scripts/dev.sh`가 프로파일을 인자로 받아 필요한 것만 올린다.
@@ -342,6 +339,6 @@ Springdoc 어노테이션
 
 착수 전 문서 보정 목록에 이 항목을 네 번째로 추가한다. 기존 세 건은 다음과 같다.
 
-첫째, API설계 문서의 API-011과 API-014 응답을 쿠키 발급 방식으로 수정하고 상태 변경 요청의 위조 방지 토큰 규칙을 2절에 추가한다. 둘째, 지급정지 금액 개념과 출금 가능 금액 정의를 ERD와 요구사항명세서 FR-TXN-002에 추가한다. 셋째, 발신함 테이블을 ERD에 추가한다.
+첫째, API설계 문서의 API-011과 API-014 응답을 쿠키 발급 방식으로 수정하고 상태 변경 요청의 위조 방지 토큰 규칙을 2절에 추가한다. 둘째, 지급정지 금액 개념과 출금 가능 금액 정의를 ERD와 요구사항명세서 FR-TXN-002에 추가한다.
 
 네 건 모두 구현 착수 전에 끝낸다.

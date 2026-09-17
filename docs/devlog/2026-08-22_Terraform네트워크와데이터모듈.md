@@ -20,7 +20,7 @@ RDS·ElastiCache 모듈. 수요일분(복합 인덱스 반영·재측정)은 전
 ### network 모듈
 
 5.2절 4단 서브넷 표 그대로: public(ALB·NAT)/was(EKS 워커·배치)/db(RDS·
-Redis·MSK, 인터넷 라우팅 없음)/mgmt(SSM, 인터넷 라우팅 없음). VPC
+Redis, 인터넷 라우팅 없음)/mgmt(SSM, 인터넷 라우팅 없음). VPC
 `/16`을 `/24`로 쪼개 계층별로 10칸씩 띄워 배정(public 0~, was 10~,
 db 20~, mgmt 30~) — 나중에 서브넷이 늘어도 CIDR이 안 겹치게 여유를
 뒀다. NAT Gateway는 `single_nat_gateway` 변수로 기본 1개 공유(비용

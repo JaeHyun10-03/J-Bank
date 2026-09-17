@@ -572,7 +572,7 @@ Set-Cookie: XSRF-TOKEN=; Secure; SameSite=Lax; Path=/; Max-Age=0
 | TXN_003_COUNTERPARTY_ACCOUNT_NOT_FOUND | 404 | 입금계좌 번호 불일치 |
 | TXN_004_COUNTERPARTY_ACCOUNT_INVALID | 409 | 입금계좌가 정지 또는 해지 상태 |
 
-이체는 두 계좌번호를 오름차순 정렬한 뒤 그 순서대로 락을 획득해 교착상태를 방지하고, 출금계좌 차변과 입금계좌 대변 원장 엔트리를 단일 트랜잭션으로 커밋한다. Phase 2부터는 같은 트랜잭션 안에서 발신함 테이블에 이체완료 이벤트를 적재하고, 별도 발행기가 이를 읽어 Kafka로 발행한다. 커밋과 발행 사이의 원자성을 확보하기 위한 구조이며 상세는 ERD 문서 2.9절에 있다.
+이체는 두 계좌번호를 오름차순 정렬한 뒤 그 순서대로 락을 획득해 교착상태를 방지하고, 출금계좌 차변과 입금계좌 대변 원장 엔트리를 단일 트랜잭션으로 커밋한다.
 
 ### API-009 GET /accounts/{accountId}/balance
 
@@ -702,7 +702,7 @@ FR-SUP-003의 간이 룰 기반 탐지 결과를 조회한다. Phase 3 구현 �
 
 이 절의 모든 JSON 필드명은 ERD 문서의 컬럼과 1대1로 대응하되 표기 규칙만 카멜케이스로 바뀐다. 예를 들어 ERD의 `resident_reg_no_encrypted`, `resident_reg_no_hash`는 API 응답에 그대로 노출하지 않고, 응답 시점에는 마스킹된 `residentRegNo`(뒷자리 마스킹)만 반환한다. 원문 암호화 컬럼과 해시 컬럼은 서버 내부 조회 및 중복 확인 용도로만 쓰이고 API 계약에는 등장하지 않는다.
 
-예외가 두 개 있다. `availableBalance`는 컬럼이 아니라 `current_balance_cache`에서 `hold_amount`를 뺀 파생값이다. 발신함 테이블은 내부 발행 메커니즘이므로 어떤 응답에도 노출하지 않는다.
+예외가 있다. `availableBalance`는 컬럼이 아니라 `current_balance_cache`에서 `hold_amount`를 뺀 파생값이다.
 
 ## 10. Springdoc OpenAPI 연동 메모
 

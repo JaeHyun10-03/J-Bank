@@ -11,7 +11,7 @@ DB: PostgreSQL 기준
 |---|---|---|
 | v1.0 | 2026-07-21 | 최초 작성 |
 | v1.1 | 2026-07-21 | CustomerRiskAssessmentHistory, CtrReportQueue 엔티티 추가 |
-| v1.2 | 2026-07-26 | Account에 지급정지 금액 컬럼 추가, OutboxEvent 테이블 신규 정의, Transaction 상태 기계 정의, 관련 인덱스 반영 |
+| v1.2 | 2026-07-26 | Account에 지급정지 금액 컬럼 추가, Transaction 상태 기계 정의, 관련 인덱스 반영 |
 | v1.3 | 2026-07-29 | kyc_grade 값 체계를 GENERAL/CDD/EDD 3단계로 명시(API설계 문서 API-001 응답 예시와 통일, 기존 "CDD 또는 EDD" 표기 오류 수정) |
 
 ## 1. ERD 다이어그램
@@ -139,21 +139,9 @@ erDiagram
         occurred_at timestamptz
     }
 
-    OUTBOX_EVENT {
-        event_id bigint PK
-        aggregate_type varchar
-        aggregate_id varchar
-        event_type varchar
-        payload jsonb
-        status varchar
-        retry_count int
-        last_error varchar
-        occurred_at timestamptz
-        published_at timestamptz
-    }
 ```
 
-AuditLog는 target_type과 target_id로 임의 엔티티를 참조하는 범용 로그 테이블이라 강한 외래키를 걸지 않고, 애플리케이션 레벨에서만 관계를 관리한다. OutboxEvent도 같은 이유로 외래키를 걸지 않는다. 두 테이블 모두 참조 대상 엔티티가 여러 종류이고, 발신함은 원본 레코드가 삭제되거나 파티션에서 분리된 뒤에도 발행 이력이 남아야 하기 때문이다.
+AuditLog는 target_type과 target_id로 임의 엔티티를 참조하는 범용 로그 테이블이라 강한 외래키를 걸지 않고, 애플리케이션 레벨에서만 관계를 관리한다.
 
 ## 2. 엔티티별 상세 스키마
 
@@ -331,43 +319,6 @@ FR-SUP-004의 판별 결과를 적재하는 큐 테이블. 실제 전송 대신 
 | detail | JSONB | NULL | 변경 전/후 값 등 구조화된 상세 |
 | occurred_at | TIMESTAMPTZ | NOT NULL | |
 
-### 2.9 OutboxEvent (v1.2 신규)
-
-| 컬럼 | 타입 | 제약 | 설명 |
-|---|---|---|---|
-| event_id | BIGSERIAL | PK | |
-| aggregate_type | VARCHAR(50) | NOT NULL | 이벤트를 발생시킨 엔티티 종류. TRANSACTION, ACCOUNT, CUSTOMER |
-| aggregate_id | VARCHAR(50) | NOT NULL | 해당 엔티티 식별자 |
-| event_type | VARCHAR(50) | NOT NULL | TRANSFER_COMPLETED, ACCOUNT_STATUS_CHANGED 등 |
-| payload | JSONB | NOT NULL | 발행할 이벤트 본문 |
-| status | VARCHAR(20) | NOT NULL, DEFAULT 'PENDING' | PENDING, PUBLISHED, FAILED |
-| retry_count | INT | NOT NULL, DEFAULT 0 | 발행 재시도 횟수 |
-| last_error | VARCHAR(500) | NULL | 마지막 발행 실패 사유 |
-| occurred_at | TIMESTAMPTZ | NOT NULL | 이벤트 발생 시각, 원본 트랜잭션 커밋 시각 |
-| published_at | TIMESTAMPTZ | NULL | 발행 성공 시각 |
-
-**이 테이블이 필요한 이유**
-
-데이터베이스 커밋과 메시지 발행 사이에는 원자성이 없다. 커밋 후에 발행하도록 걸어두면 커밋 직후 애플리케이션이 죽었을 때 메시지가 영영 발행되지 않는다. 반대로 커밋 전에 발행하면 트랜잭션이 롤백됐는데 이벤트만 나가는 상황이 생긴다. 이체 완료 알림에서 앞의 경우는 알림 누락이고 뒤의 경우는 발생하지 않은 이체를 알리는 것이므로, 금융 거래에서 둘 다 허용되지 않는다.
-
-해법은 이벤트를 메시지 브로커가 아니라 같은 데이터베이스에 먼저 쓰는 것이다. 이체 트랜잭션 안에서 원장 엔트리와 이 테이블의 레코드를 함께 커밋하면, 둘은 같은 트랜잭션이므로 원자성이 보장된다. 그 뒤 별도 발행기가 PENDING 상태 레코드를 폴링해 Kafka로 보내고 상태를 PUBLISHED로 갱신한다.
-
-이 구조는 최소 한 번 전달을 보장한다. 발행 후 상태 갱신 전에 죽으면 같은 이벤트가 두 번 발행되지만, 중복은 소비자 측 멱등 처리로 흡수한다. 유실보다 중복이 다루기 쉽다는 판단이다.
-
-**부분 인덱스**
-
-미발행 레코드만 골라내는 조회가 폴링 주기마다 반복되므로 status가 PENDING인 행만 담는 부분 인덱스를 건다.
-
-```sql
-CREATE INDEX idx_outbox_pending
-    ON outbox_event (occurred_at)
-    WHERE status = 'PENDING';
-```
-
-이 인덱스는 초기부터 넣는다. 발신함은 발행이 끝난 레코드가 계속 쌓이는 구조라, 인덱스 없이 두면 전체 테이블에서 소수의 미발행 행을 찾는 비용이 시간에 비례해 나빠진다. 전체 인덱스가 아니라 부분 인덱스를 쓰는 이유는 인덱스 크기가 미발행 행 수에 비례해 유지되기 때문이다. 정상 운영 상태에서 미발행 행은 항상 소수이므로 인덱스가 거의 비어 있는 상태로 유지된다.
-
-발행이 끝난 레코드는 일정 기간 보관 후 정리하는 배치를 Phase 3에서 추가한다. 즉시 삭제하지 않는 이유는 발행 이력 자체가 추적 자료이기 때문이다.
-
 ## 3. 인덱스 설계
 
 | 테이블 | 인덱스 | 목적 |
@@ -380,7 +331,6 @@ CREATE INDEX idx_outbox_pending
 | product_contract | INDEX(customer_id), INDEX(maturity_at) | 고객별 계약 조회, 만기 배치 대상 조회 |
 | audit_log | INDEX(occurred_at), INDEX(target_type, target_id) | 기간별 조회, 대상별 조회 |
 | ctr_report_queue | INDEX(transaction_date) | 일자별 배치 조회 |
-| outbox_event | INDEX(occurred_at) WHERE status = 'PENDING' | 미발행 이벤트 폴링 |
 
 이 표의 인덱스 가운데 두 개의 부분 인덱스만 초기부터 생성한다. 나머지 조회용 인덱스는 구현계획 7.3절에 따라 W6의 측정 후에 근거와 함께 반영한다. 부분 인덱스 두 개를 예외로 두는 이유는 둘 다 폴링이나 스케줄러가 주기적으로 반복 실행하는 조회이고, 테이블이 커질수록 비용이 나빠지는 구조여서 데이터가 적을 때 넣어두는 편이 낫기 때문이다.
 
@@ -388,7 +338,7 @@ CREATE INDEX idx_outbox_pending
 
 - 모든 PK는 대리키(BIGSERIAL)를 쓰고, 계좌번호처럼 외부에 노출되는 값은 별도 UNIQUE 컬럼으로 둔다. 대리키를 노출하면 내부 데이터량 추정이나 순차 추측 공격에 노출될 수 있어서다.
 - 금액 컬럼은 부동소수점 오차를 피하기 위해 전부 NUMERIC(19,2)로 통일한다.
-- ledger_entry, transaction, audit_log, outbox_event는 데이터가 계속 쌓이는 append-only 테이블이라 Phase 3에서 월별 range 파티셔닝을 적용해 조회 성능과 백업 효율을 확보한다.
+- ledger_entry, transaction, audit_log는 데이터가 계속 쌓이는 append-only 테이블이라 Phase 3에서 월별 range 파티셔닝을 적용해 조회 성능과 백업 효율을 확보한다.
 - 실명번호, 연락처, 주소는 애플리케이션 레벨 암호화(AES-256-GCM)로 저장하고, DB 자체 암호화를 추가로 얹는 이중 방어를 권장한다.
 - 잔액과 관련된 컬럼은 current_balance_cache와 hold_amount 두 개뿐이고, 출금 가능 금액은 항상 파생 계산한다. 저장하는 값의 수를 최소로 유지하는 것이 정합성 관리 비용을 낮춘다.
 
@@ -396,6 +346,6 @@ CREATE INDEX idx_outbox_pending
 
 v1.2에서 추가한 두 항목은 요구사항명세서에도 반영했다.
 
-지급정지 금액과 출금 가능 금액의 정의는 요구사항명세서 1.3절 용어 정의와 FR-TXN-002 출금 처리에 들어갔다. 발신함은 5절 데이터 요구사항의 엔티티 표에 추가했다.
+지급정지 금액과 출금 가능 금액의 정의는 요구사항명세서 1.3절 용어 정의와 FR-TXN-002 출금 처리에 들어갔다.
 
 거래 상태 기계 확장은 요구사항명세서에 별도 항목으로 넣지 않았다. 상태 목록 자체가 FR-TXN-003과 FR-AUTH-003의 처리 절차에서 파생되는 구현 수준의 정의이고, API설계 문서가 이미 상태값을 응답 계약으로 노출하고 있어서 이 문서와 API설계 문서만 일치하면 충분하다고 판단했다.

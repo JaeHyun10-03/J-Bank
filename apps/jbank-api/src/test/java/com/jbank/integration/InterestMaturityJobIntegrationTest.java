@@ -1,15 +1,5 @@
 package com.jbank.integration;
 
-import org.mockito.ArgumentMatchers;
-
-import org.mockito.Mockito;
-
-import org.springframework.data.domain.PageRequest;
-
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
-
-import org.springframework.jdbc.core.JdbcTemplate;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -38,6 +28,8 @@ import java.time.OffsetDateTime;
 import java.util.Base64;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -49,8 +41,11 @@ import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 
@@ -87,8 +82,7 @@ class InterestMaturityJobIntegrationTest {
   private Job interestMaturityJob;
 
   @Autowired private ProductRepository productRepository;
-  @MockitoSpyBean
-  private ProductContractRepository productContractRepository;
+  @MockitoSpyBean private ProductContractRepository productContractRepository;
   @Autowired private JdbcTemplate jdbcTemplate;
   @Autowired private CustomerRepository customerRepository;
   @Autowired private AccountRepository accountRepository;
@@ -216,8 +210,7 @@ class InterestMaturityJobIntegrationTest {
         .isEqualByComparingTo(new BigDecimal("32000").multiply(new BigDecimal("205")));
     assertThat(
             productContractRepository
-                .findByCustomerId(
-                    customerId, PageRequest.of(0, 300))
+                .findByCustomerId(customerId, PageRequest.of(0, 300))
                 .getContent())
         .hasSize(205)
         .allMatch(c -> c.getStatus() == ContractStatus.MATURED);
@@ -229,11 +222,18 @@ class InterestMaturityJobIntegrationTest {
     Long customerId = saveCustomer();
     Account account = saveAccount(customerId);
     Product product = saveProduct("SAV-ATOMIC-FAILURE", new BigDecimal("0.0320"), 12);
-    ProductContract contract = saveContract(customerId, product.getProductCode(), account.getAccountId(),
-        new BigDecimal("1000000"), OffsetDateTime.parse("2024-01-01T00:00:00+09:00"));
-    JobParameters parameters = new JobParametersBuilder().addString("runDate", "2024-01-02").toJobParameters();
+    ProductContract contract =
+        saveContract(
+            customerId,
+            product.getProductCode(),
+            account.getAccountId(),
+            new BigDecimal("1000000"),
+            OffsetDateTime.parse("2024-01-01T00:00:00+09:00"));
+    JobParameters parameters =
+        new JobParametersBuilder().addString("runDate", "2024-01-02").toJobParameters();
     Mockito.doThrow(new IllegalStateException("계약 저장 장애"))
-        .when(productContractRepository).save(ArgumentMatchers.any());
+        .when(productContractRepository)
+        .save(ArgumentMatchers.any());
     // when
     JobExecution failed;
     try {
@@ -243,18 +243,37 @@ class InterestMaturityJobIntegrationTest {
     }
     // then
     assertThat(failed.getStatus()).isEqualTo(BatchStatus.FAILED);
-    assertThat(accountRepository.findById(account.getAccountId()).orElseThrow().getCurrentBalanceCache())
+    assertThat(
+            accountRepository
+                .findById(account.getAccountId())
+                .orElseThrow()
+                .getCurrentBalanceCache())
         .isEqualByComparingTo("0");
-    assertThat(productContractRepository.findById(contract.getContractId()).orElseThrow().getStatus())
+    assertThat(
+            productContractRepository.findById(contract.getContractId()).orElseThrow().getStatus())
         .isEqualTo(ContractStatus.ACTIVE);
-    assertThat(transactionRepository.findByIdempotencyKey("INTEREST-" + contract.getContractId())).isEmpty();
-    assertThat(jdbcTemplate.queryForObject("select count(*) from ledger_entries where account_id = ?",
-        Long.class, account.getAccountId())).isZero();
-    assertThat(jobLauncherTestUtils.launchJob(parameters).getStatus()).isEqualTo(BatchStatus.COMPLETED);
-    assertThat(accountRepository.findById(account.getAccountId()).orElseThrow().getCurrentBalanceCache())
+    assertThat(transactionRepository.findByIdempotencyKey("INTEREST-" + contract.getContractId()))
+        .isEmpty();
+    assertThat(
+            jdbcTemplate.queryForObject(
+                "select count(*) from ledger_entries where account_id = ?",
+                Long.class,
+                account.getAccountId()))
+        .isZero();
+    assertThat(jobLauncherTestUtils.launchJob(parameters).getStatus())
+        .isEqualTo(BatchStatus.COMPLETED);
+    assertThat(
+            accountRepository
+                .findById(account.getAccountId())
+                .orElseThrow()
+                .getCurrentBalanceCache())
         .isEqualByComparingTo("32000");
-    assertThat(jdbcTemplate.queryForObject("select count(*) from ledger_entries where account_id = ?",
-        Long.class, account.getAccountId())).isEqualTo(1L);
+    assertThat(
+            jdbcTemplate.queryForObject(
+                "select count(*) from ledger_entries where account_id = ?",
+                Long.class,
+                account.getAccountId()))
+        .isEqualTo(1L);
   }
 
   private Product saveProduct(

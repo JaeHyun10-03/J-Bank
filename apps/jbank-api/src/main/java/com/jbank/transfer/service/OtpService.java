@@ -11,8 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * 임계금액 초과 이체의 2차 인증(FR-AUTH-003)에 쓰는 OTP를 Redis에 저장·검증한다. 실제 SMS 발송은 CTR 배치와 같은 원칙으로 로그
- * 출력으로 대체한다.
+ * 임계금액 초과 이체의 2차 인증(FR-AUTH-003)에 쓰는 OTP를 Redis에 저장·검증한다. 실제 SMS 발송은 CTR 배치와 같은 원칙으로 로그 출력으로 대체한다.
  */
 @Component
 public class OtpService {

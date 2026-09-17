@@ -15,15 +15,6 @@ spring:
     open-in-view: false
   flyway:
     locations: classpath:db/migration
-  kafka:
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-    consumer:
-      group-id: jbank-notification
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      auto-offset-reset: earliest
 
 jbank:
   batch:
@@ -45,15 +36,6 @@ jbank:
       max-attempts: 5
       cleanup:
         poll-interval-ms: 60000
-  outbox:
-    topic: jbank.events
-    poll-interval-ms: 1000
-    batch-size: 100
-  kafka:
-    consumer:
-      retry:
-        max-attempts: 3
-        backoff-ms: 1000
 
 management:
   endpoints:

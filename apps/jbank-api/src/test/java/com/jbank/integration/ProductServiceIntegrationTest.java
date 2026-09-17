@@ -1,25 +1,5 @@
 package com.jbank.integration;
 
-import org.mockito.ArgumentMatchers;
-
-import org.mockito.Mockito;
-
-import org.springframework.transaction.annotation.Propagation;
-
-import org.springframework.transaction.annotation.Transactional;
-
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
-
-import org.springframework.jdbc.core.JdbcTemplate;
-
-import com.jbank.ledger.repository.LedgerEntryRepository;
-
-import com.jbank.transfer.domain.TransactionException;
-
-import com.jbank.transfer.service.IdempotencyRecovery;
-
-import com.jbank.transfer.service.WithdrawalService;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -38,6 +18,7 @@ import com.jbank.customer.domain.RiskLevel;
 import com.jbank.customer.repository.CustomerRepository;
 import com.jbank.global.exception.ErrorCode;
 import com.jbank.global.response.PageResponse;
+import com.jbank.ledger.repository.LedgerEntryRepository;
 import com.jbank.product.domain.Product;
 import com.jbank.product.domain.ProductException;
 import com.jbank.product.domain.ProductStatus;
@@ -47,18 +28,27 @@ import com.jbank.product.dto.ProductSummaryResponse;
 import com.jbank.product.repository.ProductContractRepository;
 import com.jbank.product.repository.ProductRepository;
 import com.jbank.product.service.ProductService;
+import com.jbank.transfer.domain.TransactionException;
+import com.jbank.transfer.service.IdempotencyRecovery;
+import com.jbank.transfer.service.WithdrawalService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Base64;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -94,8 +84,7 @@ class ProductServiceIntegrationTest {
   @Autowired private ProductService productService;
   @Autowired private JdbcTemplate jdbcTemplate;
 
-  @MockitoSpyBean
-  private LedgerEntryRepository ledgerEntryRepository;
+  @MockitoSpyBean private LedgerEntryRepository ledgerEntryRepository;
 
   @Test
   void 판매중인_상품만_목록에_나온다() {
@@ -243,8 +232,7 @@ class ProductServiceIntegrationTest {
   }
 
   @Test
-  @Transactional(
-      propagation = Propagation.NOT_SUPPORTED)
+  @Transactional(propagation = Propagation.NOT_SUPPORTED)
   void 가입하면_계약_출금_원장이_함께_커밋된다() {
     // given
     Product product = saveProduct("ATOMIC-SUCCESS", 12, ProductStatus.ON_SALE);
@@ -263,7 +251,8 @@ class ProductServiceIntegrationTest {
                 .orElseThrow()
                 .getCurrentBalanceCache())
         .isEqualByComparingTo("900000");
-    assertThat(productContractRepository.findById(Long.valueOf(response.contractNumber()))).isPresent();
+    assertThat(productContractRepository.findById(Long.valueOf(response.contractNumber())))
+        .isPresent();
     assertThat(
             jdbcTemplate.queryForObject(
                 "select count(*) from ledger_entries where account_id = ? and entry_type = 'DEBIT' and amount = 100000",
@@ -273,8 +262,7 @@ class ProductServiceIntegrationTest {
   }
 
   @Test
-  @Transactional(
-      propagation = Propagation.NOT_SUPPORTED)
+  @Transactional(propagation = Propagation.NOT_SUPPORTED)
   void 원장_저장_실패시_계약_거래_잔액이_모두_롤백된다() {
     // given
     Product product = saveProduct("ATOMIC-ROLLBACK", 12, ProductStatus.ON_SALE);
@@ -320,8 +308,7 @@ class ProductServiceIntegrationTest {
   }
 
   @Test
-  @Transactional(
-      propagation = Propagation.NOT_SUPPORTED)
+  @Transactional(propagation = Propagation.NOT_SUPPORTED)
   void 지급정지를_제외한_잔액이_부족하면_계약도_남기지_않는다() {
     // given
     Product product = saveProduct("ATOMIC-HOLD", 12, ProductStatus.ON_SALE);
