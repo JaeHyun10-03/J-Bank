@@ -6,66 +6,75 @@ on:
     paths:
       - "apps/jbank-api/**"
       - "infra/docker/jbank-api/**"
+      - "infra/compose/**"
       - ".github/workflows/backend-cd.yml"
 
 permissions:
-  id-token: write
-  contents: write # values-image.yaml에 이미지 태그를 커밋하려면 필요
+  id-token: write # AWS OIDC
+  contents: read
+  packages: write # GHCR push
+
+env:
+  IMAGE: ghcr.io/jaehyun10-03/jbank-api
 
 jobs:
-  build-and-push:
-    # infra/terraform으로 ECR·OIDC 역할이 실제로 만들어지기 전까지는 이 job을 건너뛴다.
-    # 자리표시자 워크플로가 매 병합마다 실패해 CI 배지를 붉게 만드는 것을 막기 위함이다.
-    # 인프라가 준비되면 저장소 설정의 Variables에 ECR_DEPLOY_READY=true를 추가한다.
-    if: ${{ vars.ECR_DEPLOY_READY == 'true' }}
+  build-and-deploy:
+    # infra/terraform으로 EC2·배포 역할이 만들어지기 전까지는 건너뛴다. 준비되면 저장소
+    # Variables에 EC2_DEPLOY_READY=true, Secrets에 AWS_DEPLOY_ROLE_ARN·EC2_INSTANCE_ID를 넣는다
+    # (둘 다 `terraform output`에서 나온다).
+    if: ${{ vars.EC2_DEPLOY_READY == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Login to GHCR
+        uses: docker/login-action@v3
         with:
-          role-to-assume: ${{ secrets.AWS_ECR_PUSH_ROLE_ARN }}
-          aws-region: ap-northeast-2
-
-      - name: Login to Amazon ECR
-        id: ecr-login
-        uses: aws-actions/amazon-ecr-login@v2
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push image
-        env:
-          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
-          ECR_REPOSITORY: jbank-api
-          IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build \
             -f infra/docker/jbank-api/Dockerfile \
-            -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" \
-            -t "$ECR_REGISTRY/$ECR_REPOSITORY:latest" \
+            -t "$IMAGE:${{ github.sha }}" \
+            -t "$IMAGE:latest" \
             apps/jbank-api
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:latest"
+          docker push "$IMAGE:${{ github.sha }}"
+          docker push "$IMAGE:latest"
 
-      # ArgoCD(GitOps)는 클러스터가 아니라 Git을 진실의 원천으로 본다 — 여기서
-      # helm upgrade --set으로 클러스터에 직접 값을 넣으면 jbank-api-dev
-      # Application의 selfHeal이 "Git과 다르다"고 보고 원래 값으로 되돌려버린다
-      # (ADR 0006). 그래서 이미지 태그는 이 파일에 커밋해서 Git 쪽 desired
-      # state를 갱신하고, ArgoCD가 그 변경을 스스로 끌어가게 한다.
-      - name: Commit new image tag for ArgoCD to sync
-        env:
-          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
-          ECR_REPOSITORY: jbank-api
-          IMAGE_TAG: ${{ github.sha }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ap-northeast-2
+
+      # 인스턴스에는 SSH 포트가 없다. SSM Run Command로 저장소를 최신화하고 새 이미지
+      # 태그로 api만 재기동한다(postgres·redis 등은 그대로). 결과를 폴링해 실패를 잡는다.
+      - name: Deploy via SSM
         run: |
-          cat > infra/helm/jbank-api/values-image.yaml <<EOF
-          # ArgoCD가 지켜보는 실제 배포 이미지 — 이 파일은 이 CI 잡이 자동으로
-          # 갱신한다. 직접 고치지 말 것(다음 배포에서 덮어쓴다).
-          image:
-            repository: $ECR_REGISTRY/$ECR_REPOSITORY
-            tag: $IMAGE_TAG
-          EOF
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add infra/helm/jbank-api/values-image.yaml
-          git commit -m "chore(infra): jbank-api 이미지 태그를 $IMAGE_TAG(으)로 갱신 [skip ci]"
-          git push
+          COMMAND_ID=$(aws ssm send-command \
+            --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
+            --document-name AWS-RunShellScript \
+            --comment "deploy ${{ github.sha }}" \
+            --parameters '{"commands":["cd /opt/jbank && git fetch -q origin main && git reset -q --hard origin/main && IMAGE_TAG=${{ github.sha }} bash infra/compose/deploy.sh"]}' \
+            --query Command.CommandId --output text)
+
+          STATUS=Pending
+          for i in $(seq 1 60); do
+            STATUS=$(aws ssm get-command-invocation \
+              --command-id "$COMMAND_ID" \
+              --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
+              --query Status --output text 2>/dev/null || echo Pending)
+            case "$STATUS" in
+              Success|Failed|Cancelled|TimedOut) break ;;
+            esac
+            sleep 5
+          done
+
+          aws ssm get-command-invocation \
+            --command-id "$COMMAND_ID" \
+            --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
+            --query '[Status,StandardOutputContent,StandardErrorContent]' --output text
+          [ "$STATUS" = "Success" ]
