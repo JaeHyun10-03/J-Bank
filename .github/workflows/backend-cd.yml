@@ -52,13 +52,15 @@ jobs:
 
       # 인스턴스에는 SSH 포트가 없다. SSM Run Command로 저장소를 최신화하고 새 이미지
       # 태그로 api만 재기동한다(postgres·redis 등은 그대로). 결과를 폴링해 실패를 잡는다.
+      # SSM은 root로 실행되는데 /opt/jbank는 ec2-user 소유라 git이 'dubious ownership'으로
+      # 거부한다 — 저장소 소유자인 ec2-user로 내려서 실행한다(docker 그룹도 그쪽에 있다).
       - name: Deploy via SSM
         run: |
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
             --document-name AWS-RunShellScript \
             --comment "deploy ${{ github.sha }}" \
-            --parameters '{"commands":["cd /opt/jbank && git fetch -q origin main && git reset -q --hard origin/main && IMAGE_TAG=${{ github.sha }} bash infra/compose/deploy.sh"]}' \
+            --parameters '{"commands":["runuser -u ec2-user -- bash -c \"cd /opt/jbank && git fetch -q origin main && git reset -q --hard origin/main && IMAGE_TAG=${{ github.sha }} bash infra/compose/deploy.sh\""]}' \
             --query Command.CommandId --output text)
 
           STATUS=Pending
