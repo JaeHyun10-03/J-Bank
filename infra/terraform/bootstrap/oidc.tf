@@ -12,6 +12,12 @@
 #     compute 모듈 안에 있어서, 그 역할도 계속 compute 모듈에 둔다. 이 provider의
 #     ARN만 compute 모듈에 변수로 넘겨준다(중복 생성 방지).
 
+locals {
+  github_owner      = split("/", var.github_repository)[0]
+  github_repo       = split("/", var.github_repository)[1]
+  github_sub_prefix = "repo:${local.github_owner}@${var.github_owner_id}/${local.github_repo}@${var.github_repository_id}"
+}
+
 data "tls_certificate" "github_actions" {
   url = "https://token.actions.githubusercontent.com/.well-known/openid-configuration"
 }
@@ -40,12 +46,14 @@ data "aws_iam_policy_document" "github_actions_assume_role" {
       values   = ["sts.amazonaws.com"]
     }
 
+    # sub는 "repo:owner@ownerId/repo@repoId:..." 형식이다 — 이름만으로는 매칭되지
+    # 않는다(modules/ec2/main.tf의 deploy 역할 주석, 2026-09-17).
     condition {
-      test     = "StringLike"
+      test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
       values = [
-        "repo:${var.github_repository}:pull_request",
-        "repo:${var.github_repository}:ref:refs/heads/main",
+        "${local.github_sub_prefix}:pull_request",
+        "${local.github_sub_prefix}:ref:refs/heads/main",
       ]
     }
   }
