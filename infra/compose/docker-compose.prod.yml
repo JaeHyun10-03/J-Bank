@@ -1,0 +1,92 @@
+# EC2 단일 인스턴스 배포 구성. 로컬용 docker-compose.yml과 별도 파일로 두는 이유:
+# 프로파일·호스트 포트·빌드 컨텍스트가 전부 다르고, 오버라이드로 "빼는" 건 Compose가
+# 지원하지 않아 한 파일에 합치면 오히려 읽기 어렵다.
+#
+# 비밀값은 같은 디렉터리의 .env(.gitignore 대상)에서 읽는다 — .env.example 참고.
+# 실행: docker compose -f docker-compose.prod.yml up -d --pull always
+# 외부 진입은 caddy(80/443)만. 나머지는 Compose 내부 네트워크로만 통신한다.
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - api
+      - grafana
+
+  api:
+    image: ghcr.io/jaehyun10-03/jbank-api:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:postgresql://postgres:5432/jbank
+      DB_USERNAME: jbank
+      REDIS_HOST: redis
+      # t3.small(2GB)에서 postgres·prometheus·grafana와 함께 산다. 힙 상한을 명시하지
+      # 않으면 JVM이 컨테이너 메모리의 1/4만 잡아 오히려 부족하고, 너무 크게 잡으면
+      # 이웃을 밀어낸다.
+      JAVA_TOOL_OPTIONS: -Xmx512m -XX:MaxMetaspaceSize=128m
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: jbank
+      POSTGRES_USER: jbank
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jbank"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    restart: unless-stopped
+    volumes:
+      - ./observability/prometheus.prod.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=15d
+
+  grafana:
+    image: grafana/grafana:11.3.1
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      GF_SERVER_ROOT_URL: https://grafana.j-bank.site
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./observability/provisioning:/etc/grafana/provisioning:ro
+
+volumes:
+  postgres-data:
+  prometheus-data:
+  grafana-data:
+  caddy-data:
+  caddy-config:

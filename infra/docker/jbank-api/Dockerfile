@@ -5,10 +5,7 @@ WORKDIR /workspace
 
 COPY gradlew ./
 COPY gradle ./gradle
-COPY build.gradle.kts settings.gradle.kts gradle.properties ./
-# gradle.properties의 org.gradle.java.home은 로컬 macOS 개발 편의용 경로라
-# 컨테이너 안에는 존재하지 않는다. 빌드 이미지 자체가 이미 JDK 21이므로 제거한다.
-RUN sed -i '/org.gradle.java.home/d' gradle.properties
+COPY build.gradle.kts settings.gradle.kts ./
 RUN chmod +x gradlew
 
 COPY src ./src

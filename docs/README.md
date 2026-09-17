@@ -113,13 +113,19 @@ npm run dev
 # http://localhost:3000
 ```
 
-관측 스택(Prometheus/Grafana/Loki)이 필요하면 프로파일을 더한다.
+관측 스택(Prometheus/Grafana)이 필요하면 프로파일을 더한다.
 
 ```bash
 scripts/dev.sh core observability
 ```
 
 전부 동시에 띄우는 단축 명령은 두지 않는다. 성능 측정 조건이 매주 달라지는 것을 막기 위해서다(`infra/compose/docker-compose.yml` 프로파일 구성, `10_J-Bank_폴더구조.md` 7절).
+
+패키징된 이미지가 실제로 뜨는지 보거나 EC2 배포 구성을 로컬에서 재현하려면 `api` 프로파일로 백엔드도 컨테이너로 띄운다(gradle bootRun과 포트 8080이 겹치니 둘 중 하나만).
+
+```bash
+scripts/dev.sh core api
+```
 
 인프라를 내리려면 `scripts/clean.sh`.
 
@@ -128,7 +134,7 @@ scripts/dev.sh core observability
 ```
 apps/jbank-api/   Spring Boot 단일 모듈, 도메인 패키지 경계 + ArchUnit
 apps/frontend/    Next.js 14 App Router
-infra/            Docker Compose, Dockerfile, Terraform, Helm
+infra/            Docker Compose(로컬·EC2 배포), Dockerfile, Terraform(bootstrap·ec2)
 contracts/        OpenAPI 스냅샷, 수동 호출 컬렉션
 perf/             k6 스크립트와 주차별 결과
 docs/             설계 문서, ADR, 런북

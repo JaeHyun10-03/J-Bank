@@ -1,6 +1,6 @@
 # j-bank 폴더 구조
 
-문서 버전: v2.0
+문서 버전: v2.1
 작성일: 2026-07-26
 
 ## 버전 이력
@@ -9,6 +9,7 @@
 |---|---|---|
 | v1.0 | 2026-07-26 | 최초 작성 - 모노레포, 백엔드 Gradle 멀티모듈, packages/api-client 분리 |
 | v2.0 | 2026-07-26 | 설계 문서 정합성 보정. 백엔드를 단일 모듈 + 패키지 경계로 전환, auth·support 도메인과 batch 진입점 추가, perf 트랙 신설, api-client 패키지와 turbo/pnpm 워크스페이스 제거, openapi.yaml의 성격을 원본에서 스냅샷으로 재정의 |
+| v2.1 | 2026-09-17 | EKS·Helm·ArgoCD 제거, EC2 단일 인스턴스 + Compose 배포 구성 반영(ADR 0010). infra 트리·compose 프로파일 표 갱신 |
 
 ## 관련 문서
 
@@ -29,9 +30,9 @@ j-bank/
 ├── .github/
 │   └── workflows/
 │       ├── backend-ci.yml                  # 컴파일·단위·통합·ArchUnit·Spotless·커버리지·OpenAPI 드리프트
-│       ├── backend-cd.yml                  # main 병합 시 이미지 빌드 후 레지스트리 푸시
+│       ├── backend-cd.yml                  # main 병합 시 GHCR 푸시 → SSM으로 EC2 배포
 │       ├── frontend-ci.yml                 # 타입체크·린트·테스트·생성 타입 드리프트
-│       ├── infra-plan.yml                  # terraform plan 자동, apply는 수동 승인
+│       ├── infra-cd.yml                    # terraform plan 자동, apply는 수동 승인
 │       └── perf.yml                        # k6 수동 트리거, 결과만 커밋
 │
 ├── apps/
@@ -171,25 +172,25 @@ j-bank/
 │
 ├── infra/
 │   ├── terraform/
+│   │   ├── bootstrap/                           # 상태 버킷·잠금 테이블·GitHub OIDC (계정당 1회)
 │   │   ├── modules/
-│   │   │   ├── network/
-│   │   │   ├── compute/
-│   │   │   ├── data/
-│   │   │   └── security/
+│   │   │   └── ec2/                             # 단일 인스턴스, SG 80/443, SSM 역할, EIP, crontab
 │   │   └── envs/
-│   │       ├── dev/
-│   │       └── prod/
-│   ├── helm/
-│   │   └── jbank-api/                            # Deployment, CronJob, HPA, PDB
+│   │       └── dev/
 │   ├── docker/
 │   │   └── jbank-api/
 │   │       └── Dockerfile
 │   └── compose/
-│       ├── docker-compose.yml                   # profiles: core / observability
+│       ├── docker-compose.yml                   # 로컬. profiles: core / api / observability
+│       ├── docker-compose.prod.yml              # EC2. caddy·api·postgres·redis·prometheus·grafana
+│       ├── Caddyfile                            # api./grafana.j-bank.site TLS
+│       ├── deploy.sh                            # backend-cd가 SSM으로 호출
+│       ├── run-batch.sh                         # crontab이 호출하는 배치 잡 실행기
+│       ├── .env.example                         # EC2 비밀값 양식
 │       └── observability/
-│           ├── prometheus.yml
-│           ├── loki-config.yml
-│           └── grafana/
+│           ├── prometheus.yml                   # 로컬(host.docker.internal)
+│           ├── prometheus.prod.yml              # EC2(api:8080)
+│           └── provisioning/                    # Grafana datasource·대시보드
 │
 ├── perf/
 │   ├── k6/
@@ -312,12 +313,13 @@ Springdoc 어노테이션
 
 ## 7. 로컬 실행 프로파일
 
-단일 compose 파일에 프로파일 셋을 정의한다. 파일을 나누지 않는 이유는 서비스 정의가 중복되면 어느 쪽이 진실인지 흐려지기 때문이다.
+로컬용 단일 compose 파일에 프로파일 셋을 정의한다. 파일을 나누지 않는 이유는 서비스 정의가 중복되면 어느 쪽이 진실인지 흐려지기 때문이다. 예외는 EC2 배포용 `docker-compose.prod.yml` 하나다 — 프로파일·호스트 포트·빌드 컨텍스트·비밀값 주입이 전부 달라 오버라이드로 "빼는" 것이 불가능하고, 로컬과 배포 중 어느 쪽이 진실인지는 파일 이름이 답한다(ADR 0010).
 
 | 프로파일 | 구성 | 사용 시점 |
 |---|---|---|
 | core | PostgreSQL 16, Redis 7 | 상시 |
-| observability | Prometheus, Grafana, Loki | W6 이후 |
+| api | jbank-api (Dockerfile 빌드) | 이미지 검증, EC2 구성 로컬 재현 |
+| observability | Prometheus, Grafana | W6 이후 |
 
 구현계획 리스크 5번이 지적한 대로 전부 동시에 띄우면 개발 머신이 버겁다. `scripts/dev.sh`가 프로파일을 인자로 받아 필요한 것만 올린다.
 
