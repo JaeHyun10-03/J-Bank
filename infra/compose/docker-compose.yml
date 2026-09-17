@@ -74,15 +74,6 @@ services:
       - grafana-data:/var/lib/grafana
       - ./observability/provisioning:/etc/grafana/provisioning:ro
 
-  loki:
-    image: grafana/loki:3.2.1
-    profiles: ["observability"]
-    ports:
-      - "3100:3100"
-    volumes:
-      - ./observability/loki-config.yml:/etc/loki/local-config.yaml:ro
-    command: -config.file=/etc/loki/local-config.yaml
-
 volumes:
   postgres-data:
   grafana-data:
