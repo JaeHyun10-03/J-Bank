@@ -37,32 +37,30 @@ Figma에서 디자인 토큰부터 41개 화면, 81개 프로토타입 배선까
 | 고액현금거래보고(CTR) | 금융정보분석원(KoFIU) 전산망은 승인받은 금융기관만 접속 가능 | 1거래일 1천만원 이상 판별과 내부 큐 적재까지 구현, 전송은 로그로 대체 |
 | 공동인증서/전자서명 | 전자서명인증사업자 인정은 기업 단위 심사 절차라 개인 개발자 단위로는 사실상 불가능 | OTP 기반 2차 인증을 실무적 대체 수단으로 채택 |
 
-근거는 [요구사항명세서 7.1절](docs/01_J-Bank_요구사항명세서.md), [인프라아키텍처 13절](docs/06_J-Bank_인프라아키텍처.md)에 있습니다.
+근거는 [요구사항명세서 7.1절](docs/01_J-Bank_요구사항명세서.md), [인프라아키텍처 7절](docs/06_J-Bank_인프라아키텍처.md)에 있습니다.
 
 ## 시스템 아키텍처
 
 ```mermaid
 flowchart TB
-    User([고객 클라이언트]) --> CF["CloudFront · WAF · Shield"]
-    CF --> ALB["ALB · Public Subnet"]
-    Git[("GitHub<br/>main 브랜치")] -.동기화.-> Argo
+    User([고객 클라이언트]) --> Web["Next.js 프론트엔드<br/>Vercel · www.j-bank.site"]
+    Web -->|서버사이드 프록시<br/>HTTPS| Caddy
+    GH[("GitHub Actions")] -.GHCR 이미지 푸시 → SSM 배포.-> API
 
-    subgraph VPC["EKS · ap-northeast-2 · Private Subnet"]
-        Argo["ArgoCD<br/>(GitOps 동기화)"] -.배포.-> API
-        ALB --> API["jbank-api<br/>계좌·거래·원장·인증·상품"]
-        Batch["배치 CronJob<br/>이자·정합성대사·CTR·FDS판별"]
-        ESO["External Secrets<br/>Operator"] -.주입.-> API
+    subgraph EC2["EC2 t3.small · ap-northeast-2 · Docker Compose"]
+        Caddy["Caddy<br/>TLS 자동발급 · api.j-bank.site"] --> API["jbank-api<br/>계좌·거래·원장·인증·상품"]
+        Cron["crontab<br/>이자·정합성대사·CTR·FDS 배치"] -.같은 이미지 일회성 컨테이너.-> API
+        API --> PG[("PostgreSQL 16")]
+        API --> Redis[("Redis 7<br/>분산락·세션·OTP")]
+        Prom["Prometheus"] -.스크랩.-> API
+        Grafana["Grafana<br/>grafana.j-bank.site"] --> Prom
+        Caddy --> Grafana
     end
-
-    SM[("Secrets Manager")] -.-> ESO
-    API --> RDS[("PostgreSQL<br/>Multi-AZ · Isolated Subnet")]
-    API --> Redis[("Redis<br/>분산락·세션·OTP")]
-    Batch --> RDS
-
-    Web["Next.js 프론트엔드<br/>Vercel"] -->|same-site 프록시| ALB
 ```
 
-프론트엔드(Vercel)와 백엔드(AWS)를 분리 배포하되, 원장·개인정보를 다루는 컴포넌트는 전부 AWS 안에 둡니다. 상품·계약은 jbank-api 내부 도메인으로 관리하고, 가입 계약·출금·원장을 하나의 DB 트랜잭션으로 처리합니다. 계정 구조, 망분리, 키 관리까지 포함한 전체 설계는 [인프라아키텍처 문서](docs/06_J-Bank_인프라아키텍처.md)에서 확인하실 수 있습니다.
+프론트엔드(Vercel)와 백엔드(AWS)를 분리 배포하되, 원장·개인정보를 다루는 컴포넌트는 전부 AWS 안에 둡니다. 백엔드는 EC2 한 대 위의 Docker Compose로 돌고, 외부 진입은 Caddy의 80/443만 열려 있습니다(SSH 폐쇄, 운영 접근·배포는 SSM). 상품·계약은 jbank-api 내부 도메인으로 관리하고, 가입 계약·출금·원장을 하나의 DB 트랜잭션으로 처리합니다.
+
+`v1.0.0`까지는 EKS·RDS·ElastiCache·ALB·ArgoCD(GitOps) 구성으로 실제 클러스터에 배포해 무중단 배포까지 검증했습니다. 그 뒤 앱 규모 대비 월 $200 수준의 고정비와 플랫폼 운영 부담이 본래 심화 주제(거래 코어 정합성·동시성)를 잠식한다고 판단해 현재 구성으로 낮췄습니다 — 판단 근거와 트레이드오프는 [ADR 0010](docs/adr/0010-ec2-single-instance.md), 현재 구성 상세는 [인프라아키텍처 문서](docs/06_J-Bank_인프라아키텍처.md), 원래 설계는 `v1.0.0` 태그의 같은 문서에 있습니다.
 
 ## 기술 스택
 
@@ -73,14 +71,14 @@ flowchart TB
 | 백엔드 테스트 | JUnit5, ArchUnit(의존 방향 강제), Testcontainers, Spotless(Google Java Format) |
 | 프론트엔드 | React 18, Next.js 14(App Router), TypeScript, TanStack Query, Zustand, React Hook Form + Zod, Tailwind v4 + shadcn/ui, Axios, openapi-typescript |
 | 프론트엔드 테스트 | Jest, React Testing Library, Playwright(E2E) |
-| 인프라 | AWS EKS/RDS/ElastiCache/WAF/Secrets Manager, Terraform, GitHub Actions, ArgoCD(GitOps), External Secrets Operator, Vercel |
+| 인프라 | AWS EC2 단일 인스턴스 + Docker Compose, Caddy(TLS), Terraform, GitHub Actions(GHCR → SSM 배포), Prometheus/Grafana, Vercel |
 
 ## 프로젝트 구조
 
 ```
 apps/jbank-api/       Spring Boot, 계좌·거래·원장·인증·상품·감사·FDS/CTR 배치 — 도메인 패키지 경계 + ArchUnit
 apps/frontend/        Next.js 14 App Router
-infra/                Docker Compose, Dockerfile, Terraform, Helm
+infra/                Docker Compose(로컬·EC2 배포), Dockerfile, Terraform(bootstrap·ec2)
 contracts/            OpenAPI 스냅샷, 수동 호출 컬렉션
 perf/                 k6 스크립트와 주차별 결과
 docs/                 설계 문서, ADR, 런북
@@ -259,6 +257,8 @@ cd apps/frontend && npm run dev
 `v1.0.0` — 계획한 7주 로드맵을 모두 마쳤습니다. 계좌·원장·거래 코어, JWT 인증·CSRF·2차 인증, 예적금 상품 가입, 감사 로그·배치 처리(이자·정합성대사·CTR·이상거래탐지), 그리고 EKS·Helm·ArgoCD 기반 쿠버네티스 배포까지 실제 클러스터에 배포해 검증했습니다.
 
 `v1.0.0` 태그 이후에도 검증은 계속하고 있습니다 — 계좌 10만·거래 1천만 규모 부하 측정([성능 추이](#성능-추이))과 코드 근거 기반 서비스 아키텍처 다이어그램을 추가했습니다.
+
+`v1.0.0` 이후 걷어낸 것도 있습니다. 상품 서비스의 독립 배포·동기식 사가는 모놀리스 내부 모듈과 로컬 트랜잭션으로, 로그 알림 전용 Kafka 파이프라인은 제거로, EKS·ArgoCD 중심 배포는 EC2 한 대 + Docker Compose로 낮췄습니다([ADR 0010](docs/adr/0010-ec2-single-instance.md)). 복잡도를 줄인 이유와 그 결과 강화한 보장을 함께 설명하는 것이 이 프로젝트의 현재 방향입니다.
 
 주차별 체크리스트는 [`todo/`](todo/), 작업 과정은 [`docs/devlog/`](docs/devlog/), 설계 결정은 [`docs/adr/`](docs/adr/)에서 확인하실 수 있습니다.
 
