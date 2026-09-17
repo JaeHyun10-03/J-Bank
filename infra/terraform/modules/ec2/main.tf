@@ -4,6 +4,11 @@
 # 쓰고, 인바운드는 caddy가 받는 80/443만 연다. SSH 포트는 열지 않고 운영 접근은
 # SSM Session Manager로 한다.
 
+locals {
+  github_owner = split("/", var.github_repository)[0]
+  github_repo  = split("/", var.github_repository)[1]
+}
+
 data "aws_vpc" "default" {
   default = true
 }
@@ -144,10 +149,14 @@ data "aws_iam_policy_document" "deploy_assume_role" {
       variable = "token.actions.githubusercontent.com:aud"
       values   = ["sts.amazonaws.com"]
     }
+    # GitHub의 sub 클레임은 "repo:owner@ownerId/repo@repoId:ref:..." 형식이다 — 이름만 쓴
+    # "repo:owner/repo:ref:..."는 매칭되지 않아 'Not authorized to perform
+    # sts:AssumeRoleWithWebIdentity'가 난다(2026-09-17 첫 배포에서 확인). ID가 붙어
+    # 있어 저장소 이름이 바뀌거나 재생성돼도 다른 저장소가 이 역할을 못 쓴다.
     condition {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.github_repository}:ref:refs/heads/main"]
+      values   = ["repo:${local.github_owner}@${var.github_owner_id}/${local.github_repo}@${var.github_repository_id}:ref:refs/heads/main"]
     }
   }
 }

@@ -19,6 +19,16 @@ variable "github_repository" {
   type        = string
 }
 
+variable "github_owner_id" {
+  description = "GitHub 소유자(사용자/조직) 숫자 ID. OIDC 토큰의 sub는 이름 뒤에 @ID를 붙인 형식(repo:owner@ID/repo@ID:...)이라 신뢰 정책에 필요하다. `curl -s https://api.github.com/repos/<owner>/<repo>` 의 owner.id."
+  type        = number
+}
+
+variable "github_repository_id" {
+  description = "GitHub 저장소 숫자 ID. 같은 API 응답의 id."
+  type        = number
+}
+
 variable "github_oidc_provider_arn" {
   description = "bootstrap 스택이 만든 GitHub Actions OIDC provider ARN."
   type        = string
