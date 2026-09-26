@@ -1,0 +1,3 @@
+{
+  "extra_files": [".env", ".env.local", "apps/frontend/.env.local"]
+}

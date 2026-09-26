@@ -41,3 +41,10 @@ perf/results/**/*.raw
 .vercel
 .env*
 !.env.example
+
+# Claude Code 하네스
+__pycache__/
+*.pyc
+.claude/settings.local.json
+.claude/tasks/*/evidence/*.log
+.claude/tasks/*/evidence/verify-*/check-*.log
