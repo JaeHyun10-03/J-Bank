@@ -42,6 +42,8 @@ case "$cmd" in
     fi
     mkdir -p "$PGDATA_DIR" "$OUT/env"
     "${DC[@]}" --env-file .env up -d --quiet-pull
+    # Caddyfile은 바인드 마운트라 내용이 바뀌어도 컨테이너가 다시 만들어지지 않는다. 동기화 후 항상 다시 읽힌다.
+    "${DC[@]}" restart caddy
     wait_ready
     ;;
 
