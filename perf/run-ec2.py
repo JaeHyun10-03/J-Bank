@@ -254,7 +254,9 @@ def cmd_run(args):
     i = ids()
     scen, rnd = args.scenario, args.round
     run = f"{scen}-r{rnd}" if not args.dry else "dryrun"
-    local = os.path.join(RESULTS, "dryrun" if args.dry else f"{scen}/r{rnd}")
+    # 드라이런은 기준선에서 빼므로 실행마다 별도 폴더에 받는다(이전 드라이런 파일과 섞이지 않게).
+    stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
+    local = os.path.join(RESULTS, f"dryrun/{stamp}" if args.dry else f"{scen}/r{rnd}")
     kst_now = dt.datetime.now(dt.timezone(dt.timedelta(hours=9)))
     log(f"=== {run} 시작 (KST {kst_now.isoformat(timespec='seconds')})")
 
