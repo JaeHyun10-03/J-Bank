@@ -20,3 +20,4 @@
 | 2026-09-17 | [2026-09-17_CI첫실행실패와gradle.properties.md](2026-09-17_CI첫실행실패와gradle.properties.md) | backend-ci 첫 실행 실패 — gradle.properties의 macOS JDK 경로 하드코딩이 원인 |
 | 2026-09-17 | [2026-09-17_EKS를EC2단일인스턴스로다운사이징.md](2026-09-17_EKS를EC2단일인스턴스로다운사이징.md) | EKS·ArgoCD·Helm 제거, EC2 1대 + Compose + Caddy + SSM 배포로 전환. 배치 CronJob 누락 발견, Loki 제거 |
 | 2026-09-17 | [2026-09-17_EC2첫배포검증.md](2026-09-17_EC2첫배포검증.md) | EC2 첫 실배포 끝까지 연결. GitHub OIDC sub 클레임의 @ID 형식, SSM root/dubious ownership 발견 |
+| 2026-09-27 | [2026-09-27_저장소정리.md](2026-09-27_저장소정리.md) | todo·Dockerfile·perf 스크립트·하네스 테스트 위치 정리. 동적 경로 조립으로 쓰이던 SVG를 미사용으로 오판할 뻔함 |

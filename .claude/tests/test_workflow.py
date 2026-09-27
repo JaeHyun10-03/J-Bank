@@ -8,7 +8,7 @@ import sys
 import tempfile
 import unittest
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 PLAN = ('## 요구사항 구체화\n명세 상태: 확정\n원문 요청: 추가 기능 만들어줘.\n'
         '요청 해석: 추가 기능을 구현한다.\n'
         '조사한 사실: 임시 앱 파일을 확인했다.\n질문하지 않은 이유: 테스트 명세에 선택 사항이 없다.\n'
@@ -291,7 +291,7 @@ class WorkflowTests(unittest.TestCase):
                   'cat .claude/tasks/t/evidence/check-1.log', 'python3  ".claude/hooks/workflow.py" hook-stop',
                   'git commit --no-verify -m x', 'sed -i s/a/b/ .claude/tasks/active.json']
         allowed = ['git push origin main', 'git push', 'git commit -m x', 'git status',
-                   'python3 -m unittest discover -s tests',
+                   'python3 -m unittest discover -s .claude/tests',
                    'python3 .claude/hooks/workflow.py status', 'rm -f x.tmp', 'git checkout -b feat']
         for command in denied:
             self.assertEqual(self.decision(self.hook('bash', {'command': command})), 'deny', command)

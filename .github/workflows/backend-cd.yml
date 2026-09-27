@@ -5,7 +5,6 @@ on:
     branches: [main]
     paths:
       - "apps/jbank-api/**"
-      - "infra/docker/jbank-api/**"
       - "infra/compose/**"
       - ".github/workflows/backend-cd.yml"
 
@@ -37,7 +36,7 @@ jobs:
       - name: Build and push image
         run: |
           docker build \
-            -f infra/docker/jbank-api/Dockerfile \
+            -f apps/jbank-api/Dockerfile \
             -t "$IMAGE:${{ github.sha }}" \
             -t "$IMAGE:latest" \
             apps/jbank-api

@@ -29,7 +29,7 @@ services:
   api:
     build:
       context: ../../apps/jbank-api
-      dockerfile: ../../infra/docker/jbank-api/Dockerfile
+      dockerfile: Dockerfile
     image: jbank-api:local
     profiles: ["api"]
     ports:

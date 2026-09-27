@@ -7,7 +7,7 @@ on:
       - ".claude/settings.json"
       - ".claude/checks.json"
       - ".claude/snapshot.json"
-      - "tests/**"
+      - ".claude/tests/**"
       - ".github/workflows/harness-ci.yml"
 
 permissions:
@@ -25,4 +25,4 @@ jobs:
         with:
           python-version: "3.9"
 
-      - run: python -m unittest discover -s tests -v
+      - run: python -m unittest discover -s .claude/tests -v

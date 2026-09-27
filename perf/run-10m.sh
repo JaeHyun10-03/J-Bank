@@ -111,6 +111,6 @@ done
 
 # --- 5. 이체 부하 (기존 스크립트 재사용) --------------------------------
 log "k6 transfer — 1천만 건 상태 재측정"
-"$ROOT_DIR/scripts/perf.sh" 10m-transfer "$LOGIN_ID" "$PASSWORD" "$A1_NO" "$A2_NO"
+"$ROOT_DIR/perf/run-transfer.sh" 10m-transfer "$LOGIN_ID" "$PASSWORD" "$A1_NO" "$A2_NO"
 
 log "완료 — 결과는 perf/results/${DATE}-10m-*"

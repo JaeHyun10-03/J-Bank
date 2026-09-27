@@ -37,6 +37,7 @@ j-bank/
 │
 ├── apps/
 │   ├── jbank-api/                           # Spring Boot 단일 모듈, 모듈러 모놀리식
+│   │   ├── Dockerfile                          # 컨텍스트는 이 디렉터리(compose·backend-cd 공용)
 │   │   ├── build.gradle.kts
 │   │   ├── settings.gradle.kts
 │   │   ├── gradle/
@@ -158,9 +159,8 @@ j-bank/
 │       └── e2e/                                 # Playwright, 화면플로우 7개 흐름
 │
 ├── contracts/
-│   ├── openapi/
-│   │   └── openapi.yaml                         # 백엔드에서 덤프한 스냅샷, 원본 아님
-│   └── bruno/                                   # 수동 호출 컬렉션
+│   └── openapi/
+│       └── openapi.yaml                         # 백엔드에서 덤프한 스냅샷, 원본 아님
 │
 ├── docs/
 │   ├── design/                                  # 설계 문서 7종
@@ -168,6 +168,7 @@ j-bank/
 │   ├── architecture/                            # 구성도와 구조 설명
 │   ├── sequence/                                # 이체·2차인증 흐름
 │   ├── runbook/                                 # 장애 대응과 운영 절차
+│   ├── roadmap/                                 # 주차별 체크리스트(W1~W7)
 │   └── work-notes/                              # 작업 노트, 디자인 노트
 │
 ├── infra/
@@ -177,9 +178,6 @@ j-bank/
 │   │   │   └── ec2/                             # 단일 인스턴스, SG 80/443, SSM 역할, EIP, crontab
 │   │   └── envs/
 │   │       └── dev/
-│   ├── docker/
-│   │   └── jbank-api/
-│   │       └── Dockerfile
 │   └── compose/
 │       ├── docker-compose.yml                   # 로컬. profiles: core / api / observability
 │       ├── docker-compose.prod.yml              # EC2. caddy·api·postgres·redis·prometheus·grafana
@@ -196,6 +194,7 @@ j-bank/
 │   ├── k6/
 │   │   └── transfer.js
 │   ├── results/                                 # W2부터 주차별 측정치
+│   ├── run-transfer.sh                          # k6 이체 부하 실행과 결과 저장
 │   └── README.md                                # 측정 조건 고정 규약
 │
 ├── scripts/
@@ -203,7 +202,6 @@ j-bank/
 │   ├── dev.sh                                   # 프로파일 지정 기동
 │   ├── generate-api.sh                          # OpenAPI 덤프 후 프론트 타입 생성
 │   ├── seed.sh
-│   ├── perf.sh                                  # k6 실행과 결과 저장
 │   └── clean.sh
 │
 ├── .gitignore
