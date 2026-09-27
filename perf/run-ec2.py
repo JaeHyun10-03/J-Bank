@@ -231,10 +231,34 @@ def run_batches(i, run, tag):
     """S5 배치 3종을 순서대로 실행하고 (라벨, 시작, 끝) 구간을 돌려준다."""
     windows = []
     for job, dated in (("ctrDetectionJob", True), ("fdsDetectionJob", True), ("ledgerReconciliationJob", False)):
-        out = target_sh(i, f"batch {run} {job} {run}-{tag}-{job} {'--run-date' if dated else ''}".rstrip())
+        out = target_sh(i, f"batch {run} {job} {run}-{tag}-{job} {'--run-date' if dated else ''}".rstrip(),
+                        timeout=2400)
         fields = dict(kv.split("=", 1) for kv in out.strip().splitlines()[-1].split()[1:])
         windows.append((f"{tag}-{job}", float(fields["start"]), float(fields["end"])))
     return windows
+
+
+def local_mkdir(path):
+    os.makedirs(path, exist_ok=True)
+    return path
+
+
+def recover_target(i):
+    """대상이 응답하지 않을 때(메모리 스래싱 등) 재부팅하고 SSM·스택이 돌아올 때까지 기다린다."""
+    inst = i["target_instance_id"]
+    log(f"대상 재부팅 {inst}")
+    aws("ec2", "reboot-instances", "--instance-ids", inst)
+    time.sleep(60)
+    for _ in range(60):
+        info = aws("ssm", "describe-instance-information", "--filters",
+                   f"Key=InstanceIds,Values={inst}")["InstanceInformationList"]
+        if info and info[0]["PingStatus"] == "Online":
+            break
+        time.sleep(10)
+    else:
+        raise SystemExit("재부팅 후 SSM 등록 시간 초과")
+    ssm(inst, "cd /opt/jbank/infra/compose/perf && docker compose -f docker-compose.target.yml --env-file .env up -d "
+              "&& for n in $(seq 1 60); do curl -fsS localhost:8080/actuator/health/readiness >/dev/null && exit 0; sleep 5; done; exit 1")
 
 
 def cloudwatch_credit(i, start, end):
@@ -280,7 +304,15 @@ def cmd_run(args):
     else:  # s5
         cmd_id = k6_run(i, run, "s1-mixed.js", "none", f"MODE=constant RATE={args.rate} DURATION=20m", wait=False)
         time.sleep(5 * 60)
-        windows = run_batches(i, run, "load")
+        try:
+            windows = run_batches(i, run, "load")
+        except SystemExit as e:
+            # 부하 중 배치가 대상을 멈추게 한 경우(메모리 스래싱). 측정 결과로 기록하고 대상을 되살려 수집을 잇는다.
+            log(f"부하 중 배치 실패·대상 무응답: {str(e)[:300]}")
+            with open(os.path.join(local_mkdir(local), "incident.md"), "a", encoding="utf-8") as f:
+                f.write(f"- {dt.datetime.now().isoformat(timespec='seconds')} 부하 중 배치 실패·대상 무응답: {str(e)[:1000]}\n")
+            ssm_wait(i["loadgen_instance_id"], cmd_id)
+            recover_target(i)
         ssm_wait(i["loadgen_instance_id"], cmd_id)
         mode = "s5"
 
@@ -290,7 +322,8 @@ def cmd_run(args):
     loadgen_sh(i, f"analyze {run} {mode} {win_arg}".rstrip())
     loadgen_sh(i, f"export {run}")
     target_sh(i, f"integrity {run}")
-    target_sh(i, f"batch {run} ledgerReconciliationJob {run}-recon")
+    target_sh(i, "stop-api")
+    target_sh(i, f"batch {run} ledgerReconciliationJob {run}-recon", timeout=2400)
     since = dt.datetime.fromtimestamp(start - 180, dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     target_sh(i, f"logs {run} {since}")
 
@@ -398,7 +431,7 @@ def cmd_down(_):
 def main():
     p = argparse.ArgumentParser()
     sub = p.add_subparsers(dest="cmd", required=True)
-    for name in ("up", "setup", "prepare", "down"):
+    for name in ("up", "setup", "prepare", "down", "recover"):
         sub.add_parser(name)
     r = sub.add_parser("run")
     r.add_argument("scenario", choices=["s1", "s2", "s3", "s5"])
@@ -415,7 +448,8 @@ def main():
         if args.scenario == "s5" and args.rate <= 0:
             sys.exit("S5는 --rate(S1 최대 지속 가능 요청률 최솟값의 70%)가 필요하다")
         return cmd_run(args)
-    {"up": cmd_up, "setup": cmd_setup, "prepare": cmd_prepare, "down": cmd_down}[args.cmd](args)
+    {"up": cmd_up, "setup": cmd_setup, "prepare": cmd_prepare, "down": cmd_down,
+     "recover": lambda _: recover_target(ids())}[args.cmd](args)
 
 
 if __name__ == "__main__":

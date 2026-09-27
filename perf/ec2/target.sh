@@ -121,6 +121,13 @@ SQL
     disk "복원 후"
     ;;
 
+  stop-api)
+    # 측정이 끝난 뒤 정합성 확인용 대사 잡을 돌리기 전에 api를 멈춘다. 무너진 뒤 api가 약 1GB까지
+    # 불어난 상태에서 배치 JVM이 더 뜨면 2GB 인스턴스가 스래싱으로 멈춘다(s1-r1 사고). 대사는 DB만 본다.
+    "${DC[@]}" stop api metrics-proxy caddy
+    free -m
+    ;;
+
   clean)
     # 회차 시작 전에 이전 실행의 결과 디렉터리를 비운다.
     for run in "$@"; do rm -rf "${OUT:?}/$run"; done
@@ -163,7 +170,8 @@ SQL
     mkdir -p "$OUT/$run"
     start=$(date +%s.%N)
     set +e
-    "${DC[@]}" --env-file .env run --rm --no-deps api java -jar /app/app.jar "${args[@]}" \
+    # 메모리 스래싱으로 대상이 멈추면 배치가 끝나지 않는다(s1-r1 사고). 30분 넘으면 끊고 실패로 기록한다.
+    timeout 1800 "${DC[@]}" --env-file .env run --rm --no-deps api java -jar /app/app.jar "${args[@]}" \
       > "$OUT/$run/batch-$perf_run.full.log" 2>&1
     code=$?
     set -e
