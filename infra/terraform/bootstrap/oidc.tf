@@ -79,7 +79,7 @@ resource "aws_iam_role" "terraform_apply" {
 }
 
 # ponytail: PowerUserAccess는 IAM 리소스 관리를 뺀 광범위한 쓰기 권한이다. 여기서
-# 만드는 모듈들(EKS·RDS·ElastiCache 등)이 IAM 역할·정책도 만들어야 해서 그 부분만
+# 만드는 모듈(ec2 모듈의 SSM 인스턴스 역할 등)이 IAM 역할·정책도 만들어야 해서 그 부분만
 # jbank- 접두사로 스코프를 좁혀 별도 인라인 정책으로 더한다. 서비스별 세밀한 액션
 # 목록으로 더 좁히는 건 실제로 어떤 액션이 막히는지 apply 로그로 확인하면서 하는 게
 # 맞다 — 지금 추측만으로 좁히면 하다가 막혀서 다시 넓히는 순환이 된다.
