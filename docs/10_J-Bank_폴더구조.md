@@ -159,9 +159,8 @@ j-bank/
 │       └── e2e/                                 # Playwright, 화면플로우 7개 흐름
 │
 ├── contracts/
-│   ├── openapi/
-│   │   └── openapi.yaml                         # 백엔드에서 덤프한 스냅샷, 원본 아님
-│   └── bruno/                                   # 수동 호출 컬렉션
+│   └── openapi/
+│       └── openapi.yaml                         # 백엔드에서 덤프한 스냅샷, 원본 아님
 │
 ├── docs/
 │   ├── design/                                  # 설계 문서 7종
