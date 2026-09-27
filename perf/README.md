@@ -360,3 +360,70 @@ docker compose -f infra/compose/docker-compose.yml exec -T postgres psql -U jban
 - k6(100 it/s·30초·실패 0): 거래내역 p95 11.7ms · 잔액 7.6ms · 계좌상세 7.9ms ·
   고객별계좌목록 7.7ms · 이체 12.9ms. 거래 1천만 건이 이체 성능에 주는 영향은
   관측되지 않았다.
+
+## EC2 부하 테스트 (운영 사양에서 무너지는 지점 찾기)
+
+로컬 측정은 16~20배 여유로 통과해 한계에 닿은 적이 없다. 운영과 같은 t3.small 한 대를 따로 띄우고, 같은 AZ의
+별도 부하 발생 EC2에서 부하를 올려 무너지는 요청률과 원인을 지표로 남긴다. 작업 명세·측정 조건은
+`.claude/tasks/ec2-load-test/task.md`, 결과는 `perf/results/ec2-baseline/`.
+
+### 구성
+
+- `infra/terraform/envs/perf` → `modules/perf`: 대상(t3.small·gp3 20GB·AL2023·크레딧 unlimited)과 부하 발생기
+  (c7i.large). 공개 인바운드 없음, 대상은 부하 발생기 보안그룹에서 오는 443·9091·9100·8081·9187만 연다. SSH 없이
+  SSM으로만 접근한다. 로컬 state(일회성 환경).
+- `infra/compose/perf/docker-compose.target.yml`: 대상 스택. `docker-compose.loadgen.yml`: 부하 발생기의
+  Prometheus·Grafana·node_exporter와 대시보드 "J-Bank 부하 테스트".
+- `perf/run-ec2.sh`(→ `run-ec2.py`): 로컬 오케스트레이터. 원격 단계는 `perf/ec2/target.sh`·`loadgen.sh`,
+  단계별 무너짐 판정·분석·원자료 수집은 `perf/ec2/k6_monitor.py`. 결과 파일은 SSM 출력을 나눠 받아온다.
+- `perf/k6/s1-mixed.js`·`s2-hot-account.js`·`s3-spike.js`(공통 `lib/ec2.js`), 고객 준비 `perf/prepare-accounts.py`.
+
+### 운영과 다른 점
+
+| 항목 | 운영 | perf 대상 | 이유 |
+| --- | --- | --- | --- |
+| 관측 도구 | Prometheus·Grafana가 같은 인스턴스 | 부하 발생기로 옮김 | 관측 도구가 대상 자원을 쓰지 않게. 대신 메모리 여유가 운영보다 크다 |
+| TLS | Let's Encrypt(공인 도메인) | caddy `tls internal` + `default_sni`(사설 IP) | 공인 도메인 없음. IP 접속은 SNI가 없어 default_sni 필요 |
+| api 지표 수집 | `api:8080/actuator/prometheus` | `metrics-proxy`(:9091)가 perf 전용 계정으로 로그인해 대신 수집 | `/actuator/prometheus`가 인증을 요구해 직접 긁으면 401 |
+| exporter | 없음 | node_exporter·cAdvisor·postgres_exporter(락 대기 세션 custom query) | 호스트·컨테이너·PG 원인 지표 |
+| PG 로그 | 기본값 | `log_min_duration_statement=200`, `log_lock_waits=on` | 느린 쿼리·락 대기 증거 |
+| Tomcat 지표 | 미노출 | `SERVER_TOMCAT_MBEANREGISTRY_ENABLED=true` | 바쁜 스레드 수 관측(노출만 바뀜) |
+| 컨테이너 로그 | 로테이션 없음 | json-file 50MB × 3 | 무너지는 구간 로그로 디스크가 차지 않게 |
+| PG 데이터 경로 | 이름 있는 볼륨 | 호스트 `/opt/perf-pgdata`(바인드) | 회차마다 복사본으로 되돌리기 위해. XFS reflink라 복사가 즉시 |
+| 배치 cron | 01~04시 KST | 없음 | 측정 중 배치가 스스로 돌지 않게. 배치는 오케스트레이터가 회차 고유 `perfRun` 인자로 실행 |
+| 비밀값 | 운영 `.env` | 대상 안에서 `openssl rand`로 새로 생성 | 운영 값 복사 없음. 저장소·결과물에 남지 않음 |
+
+### 실행 (한 세션)
+
+선행: AWS 자격 증명, `terraform`, `session-manager-plugin`(Grafana 보기용), 이 브랜치가 원격에 push되어 있을 것.
+
+```bash
+perf/run-ec2.sh up          # apply + 생성 조건 기록(env/infra.md)
+perf/run-ec2.sh setup       # 두 인스턴스 저장소 동기화, 스택 기동, 이미지 digest 기록
+perf/run-ec2.sh prepare     # 시드(약 6분) → 가입·입금 준비 → 기준 대사 → postgres 중지·복사본 → 복원 검증
+perf/run-ec2.sh s1 --dry-run  # 짧은 수집 경로 확인(기준선 제외)
+perf/run-ec2.sh s1 1        # 회차: 복원 → 예열 2분 → 경계 기록 → 측정 → 분석·수집 → 정합성 → api 정지 → 대사 → 로그
+perf/run-ec2.sh s2 1
+perf/run-ec2.sh s3 1
+perf/run-ec2.sh s5 1 --rate 35   # S1 최대 지속 가능 요청률 최솟값의 70%
+perf/run-ec2.sh down        # destroy + 잔여 리소스 확인(env/destroy.md)
+```
+
+긴 실행은 로컬 앱이 꺼져도 살아 있게 `nohup … &`로 분리한다. 대상이 멈추면(메모리 스래싱) `perf/run-ec2.sh recover`로
+재부팅·재기동한다. Grafana: `aws ssm start-session --target <부하 발생기 ID> --document-name
+AWS-StartPortForwardingSession --parameters '{"portNumber":["3000"],"localPortNumber":["3000"]}'` 후
+`http://localhost:3000`(익명 보기). 모든 명령 기록은 `perf/results/ec2-baseline/env/commands.log`.
+
+### 결과 요약 (2026-09-28, 개선 전 기준선)
+
+회차별 표는 `perf/results/ec2-baseline/summary.md`, 원인 분석은 `bottleneck-analysis.md`.
+
+| 시나리오 | 무너진 요청률(대표) | 최대 지속 가능 | 원인 |
+| --- | --- | --- | --- |
+| S1 혼합 | 초당 100건(3/3) | 초당 50건 | CPU 포화(84~95%). 로그인 서버 p95 297ms로 가장 무거움 |
+| S2 핫 계좌 | 초당 90건(60~100) | 초당 70건 | 행 락 대기 → Hikari 10개 고갈(대기 120) → 무관한 잔액 조회 p95 10→744ms(전파 4/4) |
+| S3 스파이크 | 목표 500 중 176건/s 처리, 오류 89% | — | Tomcat 200·Hikari 대기 189, 회복 85초(3/3 미회복) |
+| S5 배치 중첩(초당 35건) | 무너지지 않음 | — | CTR 쿼리 Parallel Seq Scan 9.1초, 배치 1.3~1.5배 느려짐, 배치 구간 p95 최대 223ms |
+
+모든 회차에서 원장·잔액 정합성은 유지됐지만, 클라이언트가 타임아웃(실패)을 받은 이체가 실제로 완료된 건이 S1 1,640건,
+S3 2,685건(중앙값) 생겼다. 첫 S1 시도에서는 무너진 뒤 배치 JVM이 더 뜨자 2GB 대상이 메모리 스래싱으로 약 50분 멈췄다.
