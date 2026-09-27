@@ -195,6 +195,7 @@ j-bank/
 │   ├── k6/
 │   │   └── transfer.js
 │   ├── results/                                 # W2부터 주차별 측정치
+│   ├── run-transfer.sh                          # k6 이체 부하 실행과 결과 저장
 │   └── README.md                                # 측정 조건 고정 규약
 │
 ├── scripts/
@@ -202,7 +203,6 @@ j-bank/
 │   ├── dev.sh                                   # 프로파일 지정 기동
 │   ├── generate-api.sh                          # OpenAPI 덤프 후 프론트 타입 생성
 │   ├── seed.sh
-│   ├── perf.sh                                  # k6 실행과 결과 저장
 │   └── clean.sh
 │
 ├── .gitignore

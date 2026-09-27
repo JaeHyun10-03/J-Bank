@@ -17,14 +17,14 @@
    으로 이체에 쓸 두 계좌를 시드한다. 이체 총량보다 훨씬 큰 잔액을 넣어야 부하 테스트 도중
    출금 가능 금액 부족으로 실패하지 않는다. 반드시 같은 고객 소유 두 계좌여야 한다 — k6
    스크립트가 방향을 번갈아 보내므로 두 계좌 다 발신 계좌가 되고, 로그인은 한 번만 한다.
-4. `scripts/perf.sh <라벨> <로그인ID> <비밀번호> <출금계좌번호> <입금계좌번호>` 실행. 결과가
+4. `perf/run-transfer.sh <라벨> <로그인ID> <비밀번호> <출금계좌번호> <입금계좌번호>` 실행. 결과가
    `perf/results/<날짜>-<라벨>.json`, `.log`로 저장된다.
 
 W3부터 이체 API가 인증을 요구한다(JWT 쿠키 + CSRF 이중제출, `SecurityConfig`). k6
 스크립트의 `setup()`이 로그인해서 받은 쿠키·CSRF 토큰을 매 요청에 수동으로 실어 보낸다 —
 `access_token` 쿠키에 `Secure` 속성이 있어 k6 기본 쿠키 저장소가 `http://` 로컬 실행에서
 이를 되돌려보내지 않기 때문이다. `--summary-export` JSON에는 `setup()` 반환값(로그인
-토큰)이 그대로 직렬화되므로, `perf.sh`가 저장 직후 `setup_data`를 지운다.
+토큰)이 그대로 직렬화되므로, `run-transfer.sh`가 저장 직후 `setup_data`를 지운다.
 
 ## 측정 조건 고정 규약
 
@@ -334,7 +334,7 @@ perf/run-10m.sh
    `perf/results/<날짜>-10m-explain.log`
 4. k6 조회계 부하 4종(거래내역·잔액·계좌상세·고객별계좌목록) →
    `perf/results/<날짜>-10m-read-<엔드포인트>.{json,log}`
-5. k6 이체 부하 재측정(`scripts/perf.sh` 재사용) → `perf/results/<날짜>-10m-transfer.{json,log}`
+5. k6 이체 부하 재측정(`perf/run-transfer.sh` 재사용) → `perf/results/<날짜>-10m-transfer.{json,log}`
 
 ### 재실행 전 정리
 

@@ -68,7 +68,7 @@ AI 문서는 제품 기능 기준입니다. 개발에 AI를 쓴다는 이유만�
 | 프론트 | `npm --prefix apps/frontend run lint`, `apps/frontend/node_modules/.bin/tsc -p apps/frontend --noEmit`, `npm --prefix apps/frontend test`, `npm --prefix apps/frontend run build` | 포함 |
 | 백엔드·데이터 | `apps/jbank-api/gradlew -p apps/jbank-api test spotlessCheck` (Testcontainers PostgreSQL, Docker 필요) | 포함 |
 | 전체 흐름 | `npm --prefix apps/frontend run test:e2e` (Playwright) | 계획에서 필요 시 별도 실행 |
-| 성능 | `scripts/perf.sh`, `perf/k6/` — 목표·조건은 `perf/README.md` | 계획에서 필요 시 별도 실행 |
+| 성능 | `perf/run-transfer.sh`, `perf/k6/` — 목표·조건은 `perf/README.md` | 계획에서 필요 시 별도 실행 |
 | DevOps | `terraform -chdir=infra/terraform/envs/<환경> validate`·`plan`, 배포 후 헬스 체크 | 계획에서 필요 시 별도 실행 |
 
 ## 실행과 에이전트의 역할

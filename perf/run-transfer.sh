@@ -2,8 +2,8 @@
 # k6 이체 부하 테스트를 실행하고 결과를 perf/results에 저장한다. 실행 조건 기록 규약은
 # perf/README.md를 따른다. 백엔드가 로컬에 떠 있고, LOGIN_ID 계정이 FROM/TO 계좌를 둘 다
 # 소유하며(방향을 번갈아 보내므로 양쪽 다 발신 계좌가 됨) 잔액이 충분해야 한다.
-# 사용법: scripts/perf.sh <라벨> <로그인ID> <비밀번호> <출금계좌번호> <입금계좌번호>
-#   예:   scripts/perf.sh w2-baseline perf-tester perf-pass-1234 110-000001-5 110-000002-3
+# 사용법: perf/run-transfer.sh <라벨> <로그인ID> <비밀번호> <출금계좌번호> <입금계좌번호>
+#   예:   perf/run-transfer.sh w2-baseline perf-tester perf-pass-1234 110-000001-5 110-000002-3
 set -euo pipefail
 
 if [ "$#" -ne 5 ]; then
