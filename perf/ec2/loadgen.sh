@@ -73,6 +73,9 @@ case "$cmd" in
     wait "$k6_pid"; code=$?
     set -e
     date -u +%Y-%m-%dT%H:%M:%SZ > "$OUT/$run/k6-end.txt"
+    # --summary-export에는 setup() 반환값(perf 고객 전원의 로그인 토큰)이 그대로 들어간다. 결과물에 남기지 않는다.
+    python3 -c "import json,sys; p=sys.argv[1]; d=json.load(open(p)); d['setup_data']={}; json.dump(d, open(p,'w'), indent=2)" \
+      "$OUT/$run/k6-summary.json" 2>/dev/null || true
     echo "k6 exit=$code" | tee "$OUT/$run/k6-exit.txt"
     # 모니터가 멈춘 경우(SIGINT) k6 종료 코드는 0이 아닐 수 있다. 판정은 분석 결과로 한다.
     ;;
