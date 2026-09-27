@@ -1,0 +1,3 @@
+batch job=ctrDetectionJob perfRun=s5-r2-noload-noload-ctrDetectionJob exit=0 seconds=32.877 start=1790536620.335138929 end=1790536653.212167697
+batch job=fdsDetectionJob perfRun=s5-r2-noload-noload-fdsDetectionJob exit=0 seconds=44.567 start=1790536654.291095637 end=1790536698.858086986
+batch job=ledgerReconciliationJob perfRun=s5-r2-noload-noload-ledgerReconciliationJob exit=0 seconds=38.575 start=1790536701.797569578 end=1790536740.372601527

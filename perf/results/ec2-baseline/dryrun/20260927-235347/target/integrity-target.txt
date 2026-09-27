@@ -1,0 +1,16 @@
+Output format is unaligned.
+Field separator is "=".
+new_transfer_completed=43
+new_transfer_other_status=0
+new_non_transfer=0
+new_ledger_rows=86
+new_ledger_debit=43000.00
+new_ledger_credit=43000.00
+new_transfer_amount_sum=43000.00
+hot_completed_amount_sum=0
+hot_balance_delta=0.00
+new_mismatch_accounts=0
+baseline_account_delta_mismatch=0
+global_debit_delta=527000.00
+global_credit_delta=527000.00
+duplicate_idempotency_keys=0
