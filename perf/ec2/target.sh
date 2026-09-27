@@ -62,6 +62,10 @@ case "$cmd" in
     ;;
 
   seed)
+    # 준비 도중 실패해 prepare를 다시 돌릴 때를 위해, 이미 적재됐으면 건너뛴다(seed-10m.sql은 재실행을 거부한다).
+    if [ "$(psql_val 'SELECT count(*) FROM transactions')" -ge 10000000 ]; then
+      echo "이미 적재됨 — 시드 건너뜀 $(date -Is)" | tee -a "$OUT/env/seed.log"; exit 0
+    fi
     disk "시드 전" | tee "$OUT/env/disk.log"
     { time psql_q < "$REPO/perf/sql/seed-10m.sql"; } > "$OUT/env/seed.log" 2>&1
     psql_q -c "SELECT (SELECT count(*) FROM customers) AS customers,
