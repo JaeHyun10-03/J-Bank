@@ -57,6 +57,9 @@
 ├── hooks/
 │   └── workflow.py                   # 상태 전환·자동 테스트 프로그램
 │
+├── tests/
+│   └── test_workflow.py              # 하네스 회귀 테스트(harness-ci·verify에서 실행)
+│
 ├── checks.json                       # 실행할 필수 테스트 명령
 ├── snapshot.json                     # Git이 무시하는 검사 입력 파일
 │
@@ -148,7 +151,7 @@ verifier 호출은 Agent Hook이 계획 지문과 함께 상태에 기록합니�
 클로드가 start 명령을 호출하면 프로그램이 계획의 필수 항목을 확인하고 구현 단계로 전환합니다.
 클로드는 코드를 수정하고 진행 내용을 progress.md에 남깁니다.
 
-Edit·Write·NotebookEdit 실행 직전에는 PreToolUse Hook이 동작합니다. 구현 단계가 아니면 docs/, 루트 .md, 활성 작업의 task·progress·plan-review·review.md만 수정할 수 있고 나머지(앱 코드, tests/, .claude의 hooks·settings·checks·rules·agents·skills 포함)는 거부합니다. 증거·state.json·active.json·index.md는 어느 단계에서도 도구로 수정할 수 없습니다. settings.json의 Edit 경로 거부는 Claude Code의 Write에도 적용됩니다.
+Edit·Write·NotebookEdit 실행 직전에는 PreToolUse Hook이 동작합니다. 구현 단계가 아니면 docs/, 루트 .md, 활성 작업의 task·progress·plan-review·review.md만 수정할 수 있고 나머지(앱 코드, .claude의 tests·hooks·settings·checks·rules·agents·skills 포함)는 거부합니다. 증거·state.json·active.json·index.md는 어느 단계에서도 도구로 수정할 수 없습니다. settings.json의 Edit 경로 거부는 Claude Code의 Write에도 적용됩니다.
 Bash 실행 직전에도 Hook이 동작합니다. 증거·상태 파일을 언급하는 명령, hook 명령 직접 호출, 강제 push·원격 브랜치 삭제·reset --hard·clean·restore·checkout --·--no-verify, rm -r 계열을 거부합니다. 일반 `git push`와 `main` 직접 push는 허용합니다. 검사 로그는 Read 도구로 읽고, 커밋 시 상태 파일은 디렉토리 단위(`git add .claude/tasks`)로 지정합니다. settings.json의 permissions.deny는 상태·증거 경로와 로컬 파괴 명령을 한 번 더 막습니다.
 
 결과: 변경 코드와 진행 기록을 남기고 테스트로 넘어갑니다.

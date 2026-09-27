@@ -1,6 +1,6 @@
 {
   "checks": [
-    {"argv": ["python3", "-m", "unittest", "discover", "-s", "tests"], "timeout_seconds": 300},
+    {"argv": ["python3", "-m", "unittest", "discover", "-s", ".claude/tests"], "timeout_seconds": 300},
     {"argv": ["npm", "--prefix", "apps/frontend", "run", "lint"], "timeout_seconds": 180},
     {"argv": ["apps/frontend/node_modules/.bin/tsc", "-p", "apps/frontend", "--noEmit"], "timeout_seconds": 180},
     {"argv": ["npm", "--prefix", "apps/frontend", "test", "--", "--ci"], "timeout_seconds": 300},

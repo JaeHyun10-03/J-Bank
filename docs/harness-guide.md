@@ -111,7 +111,7 @@ CI 병합·배포 차단과 정기 실행은 별도 연결이 필요합니다. �
 
 - 새 작업은 명세가 초안이거나 미결정 질문이 남았거나, 요구사항 ID·질문 기록/무질문 근거가 빠지면 구현 시작 거부. 목표·범위·완료 기준, 기준 표, 현재 계획 지문에 대한 verifier 호출·명시적 통과 판정도 확인(wait·block을 거쳐도 동일)
 - 명세·테스트 기준 변경 뒤 새 계획 검증과 start 없이는 Edit·Write·NotebookEdit을 통한 코드 편집과 verify 거부. review pass는 모든 요구사항 ID에 대한 구현 위치·테스트 증거·통과 판정 표가 있어야 등록
-- Edit·Write·NotebookEdit는 구현 단계가 아니면 docs/, 루트 .md, 활성 작업의 task·progress·plan-review·review.md만 허용(그 외 앱 코드·tests·.claude 설정 전부 거부)
+- Edit·Write·NotebookEdit는 구현 단계가 아니면 docs/, 루트 .md, 활성 작업의 task·progress·plan-review·review.md만 허용(그 외 앱 코드·.claude/tests·.claude 설정 전부 거부)
 - evidence/, state.json, active.json, tasks/index.md는 모든 단계에서 도구 수정 거부 (settings.json의 Edit 경로 거부는 Write에도 적용되며 Hook과 이중으로 동작)
 - Bash는 증거·상태 파일 언급, hook 직접 호출, 강제 push·원격 브랜치 삭제·reset --hard·clean·restore·checkout --·--no-verify, rm -r 계열 거부. 일반 `git push`와 `main` 직접 push는 허용하며 검사 로그는 Read 도구로 읽음
 - verifier 호출을 Agent Hook이 회차·snapshot과 함께 기록. review pass·fail은 현재 회차 기록을 요구하고, review-begin 전 결과 리뷰 호출은 거부
@@ -148,7 +148,7 @@ CI 병합·배포 차단과 정기 실행은 별도 연결이 필요합니다. �
 ## 틀 자체의 검사
 
 ```sh
-python3 -m unittest discover -s tests -v
+python3 -m unittest discover -s .claude/tests -v
 ```
 
 테스트는 임시 프로젝트를 만들어 실행하므로 실제 작업 상태를 바꾸지 않습니다.
