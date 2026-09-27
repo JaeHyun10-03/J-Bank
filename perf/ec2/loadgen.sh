@@ -45,7 +45,11 @@ case "$cmd" in
     # k6 실행. 사용법: k6 <run> <스크립트> [모니터 모드] [KEY=VALUE...]
     #   모니터 모드 s1|s2: 단계별 무너짐을 판정해 한 단계 더 간 뒤 k6를 멈춘다. none: 끝까지 실행.
     run="$1"; script="$2"; monitor="${3:-none}"; shift 3 || shift $#
+    # 같은 이름으로 다시 돌린 회차의 이전 파일이 섞이지 않게 비우고 시작한다(백그라운드 k6가 로그를
+    # 비우기 전에 옛 SCENARIO_START를 읽는 경쟁도 이것으로 막는다).
+    rm -rf "${OUT:?}/$run"
     mkdir -p "$OUT/$run"
+    : > "$OUT/$run/k6.log"
     env_args=()
     for kv in "$@"; do env_args+=(-e "$kv"); done
     export K6_PROMETHEUS_RW_SERVER_URL=http://localhost:9090/api/v1/write

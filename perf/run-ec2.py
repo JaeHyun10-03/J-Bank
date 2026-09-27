@@ -258,6 +258,7 @@ def cmd_run(args):
     kst_now = dt.datetime.now(dt.timezone(dt.timedelta(hours=9)))
     log(f"=== {run} 시작 (KST {kst_now.isoformat(timespec='seconds')})")
 
+    target_sh(i, f"clean {run} {run}-noload")
     target_sh(i, "restore")
     k6_run(i, f"{run}-warmup", "s1-mixed.js", "none", "MODE=constant RATE=20 DURATION=2m")
     hot_id = ssm(i["loadgen_instance_id"], "bash /opt/jbank/perf/ec2/loadgen.sh hot-id", echo=False).strip()

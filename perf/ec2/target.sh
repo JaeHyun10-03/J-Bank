@@ -121,6 +121,11 @@ SQL
     disk "복원 후"
     ;;
 
+  clean)
+    # 회차 시작 전에 이전 실행의 결과 디렉터리를 비운다.
+    for run in "$@"; do rm -rf "${OUT:?}/$run"; done
+    ;;
+
   boundary)
     # 측정 경계: 예열이 끝난 뒤 ID 최댓값과 핫 계좌 잔액(REQ-10).
     run="$1"; hot_id="$2"
@@ -159,9 +164,14 @@ SQL
     start=$(date +%s.%N)
     set +e
     "${DC[@]}" --env-file .env run --rm --no-deps api java -jar /app/app.jar "${args[@]}" \
-      > "$OUT/$run/batch-$perf_run.log" 2>&1
+      > "$OUT/$run/batch-$perf_run.full.log" 2>&1
     code=$?
     set -e
+    # 대사 잡은 시드 계좌 약 10만 개의 기준 불일치를 한 줄씩 WARN으로 남긴다. 건수만 남기고 나머지 줄은 보존한다.
+    full="$OUT/$run/batch-$perf_run.full.log"
+    { echo "계좌 잔액 불일치 WARN 줄 수: $(grep -c '계좌 잔액 불일치' "$full" || true)"
+      grep -v '계좌 잔액 불일치' "$full"; } > "$OUT/$run/batch-$perf_run.log"
+    rm -f "$full"
     end=$(date +%s.%N)
     echo "batch job=$job perfRun=$perf_run exit=$code seconds=$(awk "BEGIN{print $end - $start}") start=$start end=$end" \
       | tee -a "$OUT/$run/batch.txt"
