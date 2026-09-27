@@ -168,6 +168,7 @@ j-bank/
 │   ├── architecture/                            # 구성도와 구조 설명
 │   ├── sequence/                                # 이체·2차인증 흐름
 │   ├── runbook/                                 # 장애 대응과 운영 절차
+│   ├── roadmap/                                 # 주차별 체크리스트(W1~W7)
 │   └── work-notes/                              # 작업 노트, 디자인 노트
 │
 ├── infra/

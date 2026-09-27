@@ -260,7 +260,7 @@ cd apps/frontend && npm run dev
 
 `v1.0.0` 이후 걷어낸 것도 있습니다. 상품 서비스의 독립 배포·동기식 사가는 모놀리스 내부 모듈과 로컬 트랜잭션으로, 로그 알림 전용 Kafka 파이프라인은 제거로, EKS·ArgoCD 중심 배포는 EC2 한 대 + Docker Compose로 낮췄습니다([ADR 0010](docs/adr/0010-ec2-single-instance.md)). 복잡도를 줄인 이유와 그 결과 강화한 보장을 함께 설명하는 것이 이 프로젝트의 현재 방향입니다.
 
-주차별 체크리스트는 [`todo/`](todo/), 작업 과정은 [`docs/devlog/`](docs/devlog/), 설계 결정은 [`docs/adr/`](docs/adr/)에서 확인하실 수 있습니다.
+주차별 체크리스트는 [`docs/roadmap/`](docs/roadmap/), 작업 과정은 [`docs/devlog/`](docs/devlog/), 설계 결정은 [`docs/adr/`](docs/adr/)에서 확인하실 수 있습니다.
 
 ## 알려진 한계
 
