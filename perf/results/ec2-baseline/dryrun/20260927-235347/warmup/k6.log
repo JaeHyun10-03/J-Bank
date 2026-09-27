@@ -1,0 +1,37 @@
+time="2026-09-27T14:54:47Z" level=warning msg="Legacy env var detected, use --features or K6_FEATURES instead" env=K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM feature=native-histograms lifecycle=deprecated_alias source=env_legacy_alias
+time="2026-09-27T14:54:47Z" level=info msg="Experimental feature enabled" feature=native-histograms lifecycle=experimental
+time="2026-09-27T14:55:13Z" level=info msg="SCENARIO_START 2026-09-27T14:55:13.345Z" source=console
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 2621    17.964302/s
+    checks_succeeded...: 100.00% 2621 out of 2621
+    checks_failed......: 0.00%   0 out of 2621
+
+    ✓ setup-login 200
+    ✓ account 200
+    ✓ balance 200
+    ✓ login 200
+    ✓ history 200
+    ✓ transfer 201
+    ✓ customer-accounts 200
+
+    HTTP
+    http_req_duration..............: min=3.53ms med=14.78ms avg=37.39ms p(90)=112.53ms p(95)=128.41ms p(99)=225.78ms max=509.05ms
+      { expected_response:true }...: min=3.53ms med=14.78ms avg=37.39ms p(90)=112.53ms p(95)=128.41ms p(99)=225.78ms max=509.05ms
+    http_req_failed................: 0.00%  0 out of 2621
+    http_reqs......................: 2621   17.964302/s
+
+    EXECUTION
+    iteration_duration.............: min=3.78ms med=13.72ms avg=30.68ms p(90)=100.03ms p(95)=123.92ms p(99)=221.14ms max=509.47ms
+    iterations.....................: 2401   16.456424/s
+    vus............................: 0      min=0         max=4  
+    vus_max........................: 200    min=200       max=200
+
+    NETWORK
+    data_received..................: 2.0 MB 14 kB/s
+    data_sent......................: 741 kB 5.1 kB/s
+
+
+

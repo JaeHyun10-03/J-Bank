@@ -1,0 +1,43 @@
+DO
+INSERT 0 10000
+INSERT 0 100000
+DROP INDEX
+DROP INDEX
+DROP INDEX
+NOTICE:  transactions seeded: 500000 / 10000000
+NOTICE:  transactions seeded: 1000000 / 10000000
+NOTICE:  transactions seeded: 1500000 / 10000000
+NOTICE:  transactions seeded: 2000000 / 10000000
+NOTICE:  transactions seeded: 2500000 / 10000000
+NOTICE:  transactions seeded: 3000000 / 10000000
+NOTICE:  transactions seeded: 3500000 / 10000000
+NOTICE:  transactions seeded: 4000000 / 10000000
+NOTICE:  transactions seeded: 4500000 / 10000000
+NOTICE:  transactions seeded: 5000000 / 10000000
+NOTICE:  transactions seeded: 5500000 / 10000000
+NOTICE:  transactions seeded: 6000000 / 10000000
+NOTICE:  transactions seeded: 6500000 / 10000000
+NOTICE:  transactions seeded: 7000000 / 10000000
+NOTICE:  transactions seeded: 7500000 / 10000000
+NOTICE:  transactions seeded: 8000000 / 10000000
+NOTICE:  transactions seeded: 8500000 / 10000000
+NOTICE:  transactions seeded: 9000000 / 10000000
+NOTICE:  transactions seeded: 9500000 / 10000000
+NOTICE:  transactions seeded: 10000000 / 10000000
+DO
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+ANALYZE
+ANALYZE
+ANALYZE
+
+real	6m1.468s
+user	0m0.110s
+sys	0m0.059s
+ customers | accounts | transactions 
+-----------+----------+--------------
+     10001 |   100000 |     10000000
+(1 row)
+
+이미 적재됨 — 시드 건너뜀 2026-09-27T14:26:01+00:00

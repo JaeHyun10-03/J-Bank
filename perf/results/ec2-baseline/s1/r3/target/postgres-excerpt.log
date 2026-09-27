@@ -1,0 +1,2 @@
+2026-09-27 16:44:17.406 UTC [1456] LOG:  duration: 224.960 ms  statement: WITH cur AS (
+2026-09-27 16:44:58.198 UTC [1512] LOG:  duration: 303.074 ms  execute <unnamed>: select a1_0.account_id,a1_0.account_number,a1_0.account_type,a1_0.closed_at,a1_0.created_at,a1_0.current_balance_cache,a1_0.customer_id,a1_0.hold_amount,a1_0.opened_at,a1_0.status,a1_0.updated_at from accounts a1_0

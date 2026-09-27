@@ -1,0 +1,39 @@
+time="2026-09-27T16:49:36Z" level=warning msg="Legacy env var detected, use --features or K6_FEATURES instead" env=K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM feature=native-histograms lifecycle=deprecated_alias source=env_legacy_alias
+time="2026-09-27T16:49:36Z" level=info msg="Experimental feature enabled" feature=native-histograms lifecycle=experimental
+time="2026-09-27T16:49:57Z" level=info msg="SCENARIO_START 2026-09-27T16:49:57.844Z" source=console
+time="2026-09-27T16:56:04Z" level=warning msg="Request Failed" error="Get \"https://172.31.63.69/api/v1/accounts/100216/balance\": request timeout"
+time="2026-09-27T16:56:09Z" level=warning msg="Request Failed" error="Post \"https://172.31.63.69/api/v1/transfers\": request timeout"
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 26023  65.5064/s
+    checks_succeeded...: 99.99% 26021 out of 26023
+    checks_failed......: 0.00%  2 out of 26023
+
+    ✓ setup-login 200
+    ✗ parallel-balance 200
+      ↳  99% — ✓ 7295 / ✗ 1
+    ✗ hot-transfer 201
+      ↳  99% — ✓ 18506 / ✗ 1
+
+    HTTP
+    http_req_duration..............: min=2.06ms med=13.81ms avg=719.38ms p(90)=2.27s p(95)=4.2s  p(99)=6.53s max=10s  
+      { expected_response:true }...: min=2.06ms med=13.81ms avg=718.67ms p(90)=2.26s p(95)=4.2s  p(99)=6.53s max=9.88s
+    http_req_failed................: 0.00%  2 out of 26023
+    http_reqs......................: 26023  65.5064/s
+
+    EXECUTION
+    dropped_iterations.............: 727    1.830041/s
+    iteration_duration.............: min=2.24ms med=13.93ms avg=725.36ms p(90)=2.28s p(95)=4.22s p(99)=6.54s max=10s  
+    iterations.....................: 25803  64.952605/s
+    vus............................: 827    min=0          max=827
+    vus_max........................: 829    min=120        max=829
+
+    NETWORK
+    data_received..................: 11 MB  28 kB/s
+    data_sent......................: 6.2 MB 16 kB/s
+
+
+
+time="2026-09-27T16:56:13Z" level=error msg="test run was aborted because k6 received a 'interrupt' signal"
