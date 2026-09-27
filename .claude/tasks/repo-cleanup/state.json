@@ -1,0 +1,70 @@
+{
+  "id": "repo-cleanup",
+  "phase": "done",
+  "spec_protocol": 1,
+  "base_head": "263a81ef90f9b8d33e4ebf81d63c0d38c9ccb353",
+  "base_status": "",
+  "updated_at": "2026-09-27T10:17:25.031470+00:00",
+  "verifier_calls": [
+    {
+      "at": "2026-09-27T09:38:08.381616+00:00",
+      "phase": "planning",
+      "stage": "plan",
+      "attempt": 0,
+      "snapshot": null,
+      "plan_snapshot": "7a1ed05813bf4a2c77e187c4c851a7c5c1186c9cc5b9a07de635a20ffdf448e8"
+    },
+    {
+      "at": "2026-09-27T09:43:26.956129+00:00",
+      "phase": "planning",
+      "stage": "plan",
+      "attempt": 0,
+      "snapshot": null,
+      "plan_snapshot": "a904c88064b0dfb88a5954243a7747f35174e9b87b2c1673cfb300422e7ae4ab"
+    },
+    {
+      "at": "2026-09-27T09:56:25.780296+00:00",
+      "phase": "planning",
+      "stage": "plan",
+      "attempt": 0,
+      "snapshot": null,
+      "plan_snapshot": "84bc4c5d2d73e1b1a9b49ab04ebc9cc75dba475d9d1cf18202007b68f9ee1d7a"
+    },
+    {
+      "at": "2026-09-27T10:02:41.589642+00:00",
+      "phase": "waiting",
+      "stage": "plan",
+      "attempt": 0,
+      "snapshot": null,
+      "plan_snapshot": "5e054ab8d64f1aefe6453cfce26b9a9e81f3da49d66ec1eecbbe26bc149ca3e4"
+    },
+    {
+      "at": "2026-09-27T10:05:46.373337+00:00",
+      "phase": "reviewing",
+      "stage": "result",
+      "attempt": 1,
+      "snapshot": "184a626d00361cb6178b10b4f30e74f9a0b2102a5ae70154f556ab0a6c563469",
+      "plan_snapshot": null
+    },
+    {
+      "at": "2026-09-27T10:09:48.300135+00:00",
+      "phase": "reviewing",
+      "stage": "result",
+      "attempt": 2,
+      "snapshot": "2eb6ceb67060d1fa8a24831905094f54d9e9f92d0ee445760007332af4033ed2",
+      "plan_snapshot": null
+    },
+    {
+      "at": "2026-09-27T10:16:02.933776+00:00",
+      "phase": "reviewing",
+      "stage": "result",
+      "attempt": 3,
+      "snapshot": "2eb6ceb67060d1fa8a24831905094f54d9e9f92d0ee445760007332af4033ed2",
+      "plan_snapshot": null
+    }
+  ],
+  "approved_plan_snapshot": "5e054ab8d64f1aefe6453cfce26b9a9e81f3da49d66ec1eecbbe26bc149ca3e4",
+  "started": true,
+  "verify_attempts": 3,
+  "review_attempts": 3
+}

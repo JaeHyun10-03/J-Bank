@@ -1,0 +1,65 @@
+# 작업 시작 HEAD
+263a81ef90f9b8d33e4ebf81d63c0d38c9ccb353
+# 작업 시작 시 변경 상태
+
+# 현재 git status --porcelain
+
+# 작업 시작 HEAD부터 현재 파일까지의 이름·상태
+M	.claude/README.md
+M	.claude/checks.json
+R099	tests/test_workflow.py	.claude/tests/test_workflow.py
+M	.github/workflows/backend-cd.yml
+M	.github/workflows/harness-ci.yml
+M	README.md
+M	apps/frontend/README.md
+R100	infra/docker/jbank-api/Dockerfile	apps/jbank-api/Dockerfile
+M	"docs/10_J-Bank_\355\217\264\353\215\224\352\265\254\354\241\260.md"
+M	"docs/11_J-Bank_\354\225\214\353\240\244\354\247\204\355\225\234\352\263\204\354\231\200\352\260\234\354\204\240\352\263\274\354\240\234.md"
+M	docs/README.md
+A	"docs/devlog/2026-09-27_\354\240\200\354\236\245\354\206\214\354\240\225\353\246\254.md"
+M	docs/devlog/README.md
+M	docs/harness-guide.md
+R100	todo/W1.md	docs/roadmap/W1.md
+R100	todo/W2.md	docs/roadmap/W2.md
+R100	todo/W3.md	docs/roadmap/W3.md
+R100	todo/W4.md	docs/roadmap/W4.md
+R100	todo/W5.md	docs/roadmap/W5.md
+R100	todo/W6.md	docs/roadmap/W6.md
+R100	todo/W7.md	docs/roadmap/W7.md
+M	docs/testing-policy.md
+M	infra/compose/docker-compose.yml
+M	infra/terraform/bootstrap/oidc.tf
+M	perf/README.md
+M	perf/run-10m.sh
+R087	scripts/perf.sh	perf/run-transfer.sh
+
+# 작업 시작 HEAD부터 현재 파일까지의 통계
+ .claude/README.md                                  |  5 +-
+ .claude/checks.json                                |  2 +-
+ {tests => .claude/tests}/test_workflow.py          |  4 +-
+ .github/workflows/backend-cd.yml                   |  3 +-
+ .github/workflows/harness-ci.yml                   |  4 +-
+ README.md                                          |  8 +--
+ apps/frontend/README.md                            | 40 +++-----------
+ {infra/docker => apps}/jbank-api/Dockerfile        |  0
+ ...217\264\353\215\224\352\265\254\354\241\260.md" | 12 ++---
+ ...260\234\354\204\240\352\263\274\354\240\234.md" |  2 +-
+ docs/README.md                                     |  6 +--
+ ...236\245\354\206\214\354\240\225\353\246\254.md" | 63 ++++++++++++++++++++++
+ docs/devlog/README.md                              |  1 +
+ docs/harness-guide.md                              |  4 +-
+ {todo => docs/roadmap}/W1.md                       |  0
+ {todo => docs/roadmap}/W2.md                       |  0
+ {todo => docs/roadmap}/W3.md                       |  0
+ {todo => docs/roadmap}/W4.md                       |  0
+ {todo => docs/roadmap}/W5.md                       |  0
+ {todo => docs/roadmap}/W6.md                       |  0
+ {todo => docs/roadmap}/W7.md                       |  0
+ docs/testing-policy.md                             |  2 +-
+ infra/compose/docker-compose.yml                   |  2 +-
+ infra/terraform/bootstrap/oidc.tf                  |  2 +-
+ perf/README.md                                     | 12 ++---
+ perf/run-10m.sh                                    |  2 +-
+ scripts/perf.sh => perf/run-transfer.sh            |  4 +-
+ 27 files changed, 109 insertions(+), 69 deletions(-)
+
