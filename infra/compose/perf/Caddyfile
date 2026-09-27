@@ -1,0 +1,6 @@
+# perf 대상 전용. 공인 도메인이 없어 사설 IP에 내부 CA 인증서를 쓴다(k6는 인증서 검증을 끈다).
+# 운영(../Caddyfile)과 같이 TLS 종단 후 api로 넘기는 경로는 유지한다.
+{$PERF_HOST} {
+	tls internal
+	reverse_proxy api:8080
+}
