@@ -76,9 +76,9 @@ flowchart TB
 ## 프로젝트 구조
 
 ```
-apps/jbank-api/       Spring Boot, 계좌·거래·원장·인증·상품·감사·FDS/CTR 배치 — 도메인 패키지 경계 + ArchUnit
+apps/jbank-api/       Spring Boot, 계좌·거래·원장·인증·상품·감사·FDS/CTR 배치 — 도메인 패키지 경계 + ArchUnit, Dockerfile
 apps/frontend/        Next.js 14 App Router
-infra/                Docker Compose(로컬·EC2 배포), Dockerfile, Terraform(bootstrap·ec2)
+infra/                Docker Compose(로컬·EC2 배포), Terraform(bootstrap·ec2)
 contracts/            OpenAPI 스냅샷, 수동 호출 컬렉션
 perf/                 k6 스크립트와 주차별 결과
 docs/                 설계 문서, ADR, 런북

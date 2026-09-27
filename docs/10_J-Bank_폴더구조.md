@@ -37,6 +37,7 @@ j-bank/
 │
 ├── apps/
 │   ├── jbank-api/                           # Spring Boot 단일 모듈, 모듈러 모놀리식
+│   │   ├── Dockerfile                          # 컨텍스트는 이 디렉터리(compose·backend-cd 공용)
 │   │   ├── build.gradle.kts
 │   │   ├── settings.gradle.kts
 │   │   ├── gradle/
@@ -178,9 +179,6 @@ j-bank/
 │   │   │   └── ec2/                             # 단일 인스턴스, SG 80/443, SSM 역할, EIP, crontab
 │   │   └── envs/
 │   │       └── dev/
-│   ├── docker/
-│   │   └── jbank-api/
-│   │       └── Dockerfile
 │   └── compose/
 │       ├── docker-compose.yml                   # 로컬. profiles: core / api / observability
 │       ├── docker-compose.prod.yml              # EC2. caddy·api·postgres·redis·prometheus·grafana
