@@ -393,6 +393,11 @@ def k6_fail_201(summary_path):
 
 
 def write_round_docs(local, run, scen, args, start, end, kst_now, credit, loadgen_type):
+    write_integrity(local, run)
+    write_environment(local, run, scen, args, start, end, kst_now, credit, loadgen_type)
+
+
+def write_integrity(local, run):
     target = dict(line.split("=", 1) for line in
                   open(os.path.join(local, "target/integrity-target.txt"), encoding="utf-8").read().split()
                   if "=" in line)
@@ -411,7 +416,9 @@ def write_round_docs(local, run, scen, args, start, end, kst_now, credit, loadge
         ("k6 이체 성공(201) 수 vs 새 COMPLETED 이체 수", f"{ok201} vs {completed}",
          "같음" if ok201 == completed else f"차이 {completed - ok201} (아래 두 행으로 나뉨)"),
         ("실패 이체 멱등키 기록 수 vs k6 이체 체크 실패 수(자기 검증)", f"{fk_total} vs {fail201}",
-         "같음" if fk_total == fail201 else "다름(키 기록 유실)"),
+         "같음" if fk_total == fail201 else
+         ("키 기록 유실" if fk_total < fail201 else
+          "키가 더 많음: k6 중단(SIGINT) 순간 끊긴 요청은 키가 남지만 체크 집계에는 들어가지 않는다")),
         ("실패 응답인데 실제 반영된 이체(멱등키 대조)", f"{fk_committed} ({by_status or '실패 없음'})", ""),
         ("k6 중단 순간 처리 중이던 요청의 반영(잔차 = 새 완료 − 201 − 실패 중 반영)", str(in_flight), ""),
         ("새 원장 행 수 vs 2 × 새 이체 수", f"{target['new_ledger_rows']} vs {2 * completed}",
@@ -435,6 +442,9 @@ def write_round_docs(local, run, scen, args, start, end, kst_now, credit, loadge
         for r in rows:
             f.write(f"| {r[0]} | {r[1]} | {r[2]} |\n")
         f.write(f"\n대사 잡 실행 기록:\n\n```\n{recon}```\n")
+
+
+def write_environment(local, run, scen, args, start, end, kst_now, credit, loadgen_type):
     with open(os.path.join(local, "environment.md"), "w", encoding="utf-8") as f:
         f.write(f"# {run} 측정 조건 (PERF-01)\n\n")
         f.write(f"- 시나리오: {scen}, 회차: {args.round}, S5 요청률: {args.rate}\n")
@@ -497,6 +507,8 @@ def main():
     sub = p.add_subparsers(dest="cmd", required=True)
     for name in ("up", "setup", "prepare", "down", "recover"):
         sub.add_parser(name)
+    g = sub.add_parser("regen-integrity")  # 받아 둔 원자료로 회차 정합성 표를 다시 만든다(원격 접속 없음)
+    g.add_argument("dirs", nargs="+")
     r = sub.add_parser("run")
     r.add_argument("scenario", choices=["s1", "s2", "s3", "s5"])
     r.add_argument("round", type=int)
@@ -504,6 +516,10 @@ def main():
     d = sub.add_parser("dry-run")
     args = p.parse_args()
     log(f"$ run-ec2.py {' '.join(sys.argv[1:])}")
+    if args.cmd == "regen-integrity":
+        for d in args.dirs:
+            write_integrity(d, os.path.basename(os.path.dirname(d)) + "-" + os.path.basename(d))
+        return
     if args.cmd == "dry-run":
         args.scenario, args.round, args.rate, args.dry = "s1", 0, 0, True
         return cmd_run(args)
