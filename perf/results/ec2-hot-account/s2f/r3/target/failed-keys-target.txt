@@ -1,0 +1,8 @@
+CREATE TABLE
+COPY 588
+Output format is unaligned.
+Field separator is "=".
+failed_keys_total=588
+failed_keys_committed=373
+failed_status_0_total=588
+failed_status_0_committed=373

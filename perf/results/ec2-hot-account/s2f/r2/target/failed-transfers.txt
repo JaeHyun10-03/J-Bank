@@ -1,0 +1,11 @@
+cc589a7c-15c6-4eb2-9312-cbbcbe7d4ab2 0 hot-transfer
+a3dcd86f-17de-4a37-b176-347815c962e9 0 hot-transfer
+9ba8660a-08cc-4dd1-a9af-ba0826856d56 0 hot-transfer
+7f1f7e95-a45f-4a41-b877-a8cad30e980b 0 hot-transfer
+9ba83949-e494-41ef-acb3-3eaa991b1928 0 hot-transfer
+5c2c49ca-e4a3-43d9-be85-bc94c7b57810 0 hot-transfer
+da927c00-9af6-4c25-8d62-f977caaa7f73 0 hot-transfer
+bf6afe89-acee-43ac-9d62-036800b6c33b 0 hot-transfer
+29839ef1-6b03-4b80-ad4b-e2fc9130cb16 0 hot-transfer
+53610bc0-71fa-4529-9b7d-f12de4208ad8 0 hot-transfer
+f49cc3d8-5e19-4f7a-9659-04f358a05d15 0 hot-transfer

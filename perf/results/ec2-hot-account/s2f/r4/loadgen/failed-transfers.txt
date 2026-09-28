@@ -1,0 +1,5 @@
+e082799d-14bb-4537-82bc-b87c4b898e88 0 hot-transfer
+11a545a0-a605-4f58-8cec-674d6faedde7 0 hot-transfer
+361d77db-b85f-4bcf-a266-0550c2b8e528 0 hot-transfer
+665a058f-0316-46cd-81bf-994342ce4600 0 hot-transfer
+f480ed21-f5e4-4f1f-a5c9-c3c86b03e35d 0 hot-transfer

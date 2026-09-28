@@ -1,0 +1,49 @@
+time="2026-09-28T13:07:22Z" level=warning msg="Legacy env var detected, use --features or K6_FEATURES instead" env=K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM feature=native-histograms lifecycle=deprecated_alias source=env_legacy_alias
+time="2026-09-28T13:07:22Z" level=info msg="Experimental feature enabled" feature=native-histograms lifecycle=experimental
+time="2026-09-28T13:07:46Z" level=info msg="SCENARIO_START 2026-09-28T13:07:46.507Z" source=console
+time="2026-09-28T13:16:02Z" level=info msg="FAILKEY cc589a7c-15c6-4eb2-9312-cbbcbe7d4ab2 0 hot-transfer" source=console
+time="2026-09-28T13:16:02Z" level=info msg="FAILKEY a3dcd86f-17de-4a37-b176-347815c962e9 0 hot-transfer" source=console
+time="2026-09-28T13:16:02Z" level=info msg="FAILKEY 9ba8660a-08cc-4dd1-a9af-ba0826856d56 0 hot-transfer" source=console
+time="2026-09-28T13:16:02Z" level=info msg="FAILKEY 7f1f7e95-a45f-4a41-b877-a8cad30e980b 0 hot-transfer" source=console
+time="2026-09-28T13:16:02Z" level=info msg="FAILKEY 9ba83949-e494-41ef-acb3-3eaa991b1928 0 hot-transfer" source=console
+time="2026-09-28T13:16:02Z" level=info msg="FAILKEY 5c2c49ca-e4a3-43d9-be85-bc94c7b57810 0 hot-transfer" source=console
+time="2026-09-28T13:16:02Z" level=info msg="FAILKEY da927c00-9af6-4c25-8d62-f977caaa7f73 0 hot-transfer" source=console
+time="2026-09-28T13:16:02Z" level=info msg="FAILKEY bf6afe89-acee-43ac-9d62-036800b6c33b 0 hot-transfer" source=console
+time="2026-09-28T13:16:02Z" level=info msg="FAILKEY 29839ef1-6b03-4b80-ad4b-e2fc9130cb16 0 hot-transfer" source=console
+time="2026-09-28T13:16:02Z" level=info msg="FAILKEY 53610bc0-71fa-4529-9b7d-f12de4208ad8 0 hot-transfer" source=console
+time="2026-09-28T13:16:02Z" level=info msg="FAILKEY f49cc3d8-5e19-4f7a-9659-04f358a05d15 0 hot-transfer" source=console
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 41186   79.15413/s
+    checks_succeeded...: 100.00% 41186 out of 41186
+    checks_failed......: 0.00%   0 out of 41186
+
+    ✓ setup-login 200
+    ✓ parallel-balance 200
+    ✓ hot-transfer 201
+
+    CUSTOM
+    relogin_after_minutes..........: min=9.001416 med=10.431014 avg=10.470486 p(90)=11.711167 p(95)=11.835991 p(99)=11.970771 max=11.996889
+
+    HTTP
+    http_req_duration..............: min=1.88ms   med=8.07ms    avg=91.65ms   p(90)=74.91ms   p(95)=390.78ms  p(99)=1.92s     max=4.75s    
+      { expected_response:true }...: min=1.88ms   med=8.07ms    avg=91.65ms   p(90)=74.91ms   p(95)=390.78ms  p(99)=1.92s     max=4.75s    
+    http_req_failed................: 0.00%  0 out of 41186
+    http_reqs......................: 41186  79.15413/s
+
+    EXECUTION
+    dropped_iterations.............: 115    0.221015/s
+    iteration_duration.............: min=1.98ms   med=8.26ms    avg=91.78ms   p(90)=62.91ms   p(95)=394.52ms  p(99)=1.92s     max=4.75s    
+    iterations.....................: 40966  78.731319/s
+    vus............................: 38     min=0          max=222
+    vus_max........................: 233    min=120        max=233
+
+    NETWORK
+    data_received..................: 15 MB  28 kB/s
+    data_sent......................: 7.5 MB 15 kB/s
+
+
+
+time="2026-09-28T13:16:03Z" level=error msg="test run was aborted because k6 received a 'interrupt' signal"

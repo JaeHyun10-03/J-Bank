@@ -1,0 +1,18 @@
+DROP TABLE
+SELECT 100000
+SELECT 1
+ baseline_mismatch_accounts 
+----------------------------
+                     100000
+(1 row)
+
+ debit |     credit     
+-------+----------------
+     0 | 20000000000.00
+(1 row)
+
+ db_size |  db_bytes  
+---------+------------
+ 2346 MB | 2459663383
+(1 row)
+
