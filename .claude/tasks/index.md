@@ -4,4 +4,5 @@
 
 - [ec2-load-test](ec2-load-test/task.md): done
 - [ec2-load-test-followup](ec2-load-test-followup/task.md): done
+- [hot-account-baseline](hot-account-baseline/task.md): done
 - [repo-cleanup](repo-cleanup/task.md): done
