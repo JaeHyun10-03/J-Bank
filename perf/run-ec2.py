@@ -421,8 +421,9 @@ def write_integrity(local, run):
          "같음" if fk_total == fail201 else
          ("키 기록 유실" if fk_total < fail201 else
           "키가 더 많음: k6 중단(SIGINT) 순간 끊긴 요청은 키가 남지만 체크 집계에는 들어가지 않는다")),
-        ("실패 응답인데 실제 반영된 이체(멱등키 대조)", f"{fk_committed} ({by_status or '실패 없음'})", ""),
-        ("k6 중단 순간 처리 중이던 요청의 반영(잔차 = 새 완료 − 201 − 실패 중 반영)", str(in_flight), ""),
+        ("실패 키 중 DB 반영(멱등키 대조, k6 중단 순간 끊긴 요청의 키 포함)", f"{fk_committed} ({by_status or '실패 없음'})",
+         f"실패 응답(체크 실패) 중 반영 하한 {max(fk_committed - max(fk_total - fail201, 0), 0)}"),
+        ("키가 남지 않은 중단 순간 요청의 반영(잔차 = 새 완료 − 201 − 실패 키 중 반영)", str(in_flight), ""),
         ("새 원장 행 수 vs 2 × 새 이체 수", f"{target['new_ledger_rows']} vs {2 * completed}",
          "같음" if int(target["new_ledger_rows"]) == 2 * completed else "다름"),
         ("새 원장 차변 합 = 대변 합", f"{target['new_ledger_debit']} / {target['new_ledger_credit']}",
