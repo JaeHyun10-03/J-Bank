@@ -123,8 +123,9 @@ SQL
     ;;
 
   stop-api)
-    # 측정이 끝난 뒤 정합성 확인용 대사 잡을 돌리기 전에 api를 멈춘다. 무너진 뒤 api가 약 1GB까지
-    # 불어난 상태에서 배치 JVM이 더 뜨면 2GB 인스턴스가 스래싱으로 멈춘다(s1-r1 사고). 대사는 DB만 본다.
+    # 측정이 끝나면 정합성 스냅샷 전에 api를 멈춘다. (1) 대기열 이체가 더 커밋되지 않아 스냅샷과 실패 키 대조가
+    # 같은 상태를 본다. (2) 무너진 뒤 api가 약 1GB까지 불어난 상태에서 대사 잡 JVM이 더 뜨면 2GB 인스턴스가
+    # 스래싱으로 멈춘다(s1-r1 사고). 정합성·대사는 DB만 본다.
     "${DC[@]}" stop api metrics-proxy caddy
     free -m
     ;;
@@ -278,7 +279,8 @@ SQL
     "${DC[@]}" logs --no-log-prefix --since "$since" api > "$OUT/$run/api-full.log" 2>&1 || true
     {
       # 전체 줄 수: api를 먼저 멈춘 뒤에도 정지된 컨테이너 로그를 실제로 읽었는지 확인하는 값.
-      echo "api_log_lines=$(wc -l < "$OUT/$run/api-full.log")"
+      # 앱 로그 형식(ECS JSON의 log.level)만 센다. compose 에러 메시지 한 줄로 0보다 커지지 않게 한다.
+      echo "api_log_lines=$(grep -c '"log.level"' "$OUT/$run/api-full.log" || true)"
       echo "postgres_log_lines=$(wc -l < "$OUT/$run/postgres-full.log")"
       echo "slow_statements=$(grep -c 'duration:' "$OUT/$run/postgres-full.log" || true)"
       echo "lock_wait_lines=$(grep -c 'still waiting for' "$OUT/$run/postgres-full.log" || true)"

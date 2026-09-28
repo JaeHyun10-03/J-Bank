@@ -422,7 +422,8 @@ AWS-StartPortForwardingSession --parameters '{"portNumber":["3000"],"localPortNu
 
 2026-09-28 기준선 이후 후처리 순서를 "정합성 → api 정지"에서 "api 정지 → 정합성"으로 바꿨다. 이후 측정은 api를 먼저 멈춰
 대기열 요청이 커밋되지 않고 끊기므로, "실패 키 중 반영" 수가 기준선보다 조금 작게 나올 수 있다(기준선의 중단 잔차는 모두 0 이상).
-비교할 때 이 조건 차이를 적는다. 다음 드라이런에서는 정지된 api의 로그 발췌가 실제로 되는지(`target/log-counts.txt`의 `api_log_lines` > 0) 함께 본다.
+비교할 때 이 조건 차이를 적는다. 다음 드라이런에서는 정지된 api의 로그 발췌가 실제로 되는지(`target/log-counts.txt`의 `api_log_lines` > 0 — 앱 로그 형식
+`"log.level"` 줄 수라 compose 에러 메시지만으로는 0보다 커지지 않는다) 함께 본다.
 
 ### 결과 요약 (2026-09-28 재측정, 개선 전 기준선)
 
