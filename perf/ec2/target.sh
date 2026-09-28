@@ -138,6 +138,16 @@ SQL
     # 측정 경계: 예열이 끝난 뒤 ID 최댓값과 핫 계좌 잔액(REQ-10).
     run="$1"; hot_id="$2"
     mkdir -p "$OUT/$run"
+    # 지표 프록시를 재시작해 새 쿠키로 측정을 시작한다(측정 구간 동안 만료 전 쿠키 유지).
+    # /metrics가 200을 돌려주지 않으면 측정을 시작하지 않는다.
+    "${DC[@]}" restart metrics-proxy >/dev/null
+    ok=0
+    for _ in $(seq 1 30); do
+      if [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:9091/metrics)" = 200 ]; then ok=1; break; fi
+      sleep 1
+    done
+    [ "$ok" = 1 ] || { echo "metrics-proxy 수집 확인 실패 — 이 회차는 시작하지 않는다" >&2; exit 3; }
+    echo "metrics-proxy 재로그인·수집 확인 $(date -Is)"
     {
       echo "B_TX=$(psql_val 'SELECT coalesce(max(transaction_id), 0) FROM transactions')"
       echo "B_LE=$(psql_val 'SELECT coalesce(max(entry_id), 0) FROM ledger_entries')"

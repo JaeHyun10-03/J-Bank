@@ -4,7 +4,11 @@ Prometheus가 직접 긁으면 401이 난다. 앱 코드를 바꾸지 않고 측
 (perf-metrics)으로 로그인한 쿠키를 붙여 대신 가져와 :9091/metrics로 내놓는다.
 
   - 계정이 없으면 가입 API로 만든다(비밀번호는 대상 .env의 METRICS_PASSWORD, 인스턴스 안에서 생성).
-  - 액세스 토큰 TTL이 15분이라 10분마다 다시 로그인한다. 401을 받으면 즉시 다시 로그인한다.
+  - 지표는 관리 포트(9095, 별도 커넥터)에서 가져오지만 로그인은 본 포트(8080)에만 있어, 본 포트가
+    포화되면 로그인이 실패할 수 있다. 그래서 로그인은 수집 요청 경로에서 하지 않는다. 백그라운드
+    스레드가 쿠키 발급 5분 뒤부터 30초 간격으로 재로그인을 시도하고, 성공할 때만 쿠키를 바꾼다.
+    실패해도 만료(15분) 전인 기존 쿠키를 계속 쓴다.
+  - 매 회차 측정 경계에서 target.sh가 이 컨테이너를 재시작해 새 쿠키로 측정을 시작한다.
 운영과 다른 점으로 perf/README.md에 기록한다. 표준 라이브러리만 쓴다.
 """
 import http.server
@@ -20,7 +24,8 @@ API = os.environ.get("API_URL", "http://api:8080")
 METRICS_URL = os.environ.get("METRICS_URL", "http://api:9095/actuator/prometheus")
 LOGIN_ID = "perf-metrics"
 PASSWORD = os.environ["METRICS_PASSWORD"]
-lock = threading.Lock()
+REFRESH_AFTER = int(os.environ.get("REFRESH_AFTER_SECONDS", "300"))  # 쿠키 발급 후 재로그인 시도 시작(초). 검증용으로만 바꾼다
+RETRY_EVERY = 30
 state = {"cookie": None, "at": 0.0}
 
 
@@ -39,7 +44,10 @@ def call(method, path, body=None, cookie=None):
 
 
 def login():
-    status, headers, _ = call("POST", "/api/v1/auth/login", {"loginId": LOGIN_ID, "password": PASSWORD})
+    try:
+        status, headers, _ = call("POST", "/api/v1/auth/login", {"loginId": LOGIN_ID, "password": PASSWORD})
+    except OSError:
+        return None
     if status != 200:
         return None
     for raw in headers.get_all("Set-Cookie") or []:
@@ -49,23 +57,28 @@ def login():
 
 
 def register():
-    call("POST", "/api/v1/customers", {
-        "name": LOGIN_ID, "loginId": LOGIN_ID, "password": PASSWORD,
-        "residentRegNo": "9901019999999", "birthDate": "1999-01-01", "phone": "010-9999-9999",
-        "address": "서울", "occupation": "회사원", "identityVerificationMethod": "FACE_TO_FACE",
-        "transactionPurpose": "급여", "fundSource": "근로소득",
-    })
+    try:
+        call("POST", "/api/v1/customers", {
+            "name": LOGIN_ID, "loginId": LOGIN_ID, "password": PASSWORD,
+            "residentRegNo": "9901019999999", "birthDate": "1999-01-01", "phone": "010-9999-9999",
+            "address": "서울", "occupation": "회사원", "identityVerificationMethod": "FACE_TO_FACE",
+            "transactionPurpose": "급여", "fundSource": "근로소득",
+        })
+    except OSError:
+        pass
 
 
-def cookie(force=False):
-    with lock:
-        if force or not state["cookie"] or time.time() - state["at"] > 600:
+def refresher():
+    """쿠키가 없으면 곧바로, 있으면 발급 5분 뒤부터 재로그인을 시도한다. 성공할 때만 교체한다."""
+    while True:
+        if not state["cookie"] or time.time() - state["at"] > REFRESH_AFTER:
             c = login()
-            if c is None:
+            if c is None and not state["cookie"]:
                 register()
                 c = login()
-            state["cookie"], state["at"] = c, time.time()
-        return state["cookie"]
+            if c:
+                state["cookie"], state["at"] = c, time.time()
+        time.sleep(5 if not state["cookie"] else RETRY_EVERY)
 
 
 class Handler(http.server.BaseHTTPRequestHandler):
@@ -73,12 +86,13 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if self.path != "/metrics":
             self.send_error(404)
             return
-        try:
-            status, headers, body = call("GET", METRICS_URL, cookie=cookie())
-            if status == 401:
-                status, headers, body = call("GET", METRICS_URL, cookie=cookie(force=True))
-        except OSError as e:
-            status, headers, body = 502, None, str(e).encode()
+        if not state["cookie"]:
+            status, headers, body = 503, None, b"no session yet"
+        else:
+            try:
+                status, headers, body = call("GET", METRICS_URL, cookie=state["cookie"])
+            except OSError as e:
+                status, headers, body = 502, None, str(e).encode()
         self.send_response(status)
         self.send_header("Content-Type", headers.get("Content-Type", "text/plain") if headers else "text/plain")
         self.end_headers()
@@ -89,4 +103,5 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
+    threading.Thread(target=refresher, daemon=True).start()
     http.server.ThreadingHTTPServer(("0.0.0.0", 9091), Handler).serve_forever()
