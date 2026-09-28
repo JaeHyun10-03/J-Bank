@@ -219,7 +219,8 @@ def analyze(mode, run, start_iso, end_iso, windows_arg=""):
                     outside[label]["p95_s"] = window_stats(run, "", s, e)["p95_s"]
             result["outside_batches"] = outside
         # 분당 재로그인 건수(REQ-09, 1차 12분 동시 재로그인 포화 재발 확인).
-        series = query_range(f'sum(increase(k6_http_reqs_total{{run="{run}",name="relogin"}}[1m]))', start + 60, end, 60)
+        series = (query_range(f'sum(increase(k6_http_reqs_total{{run="{run}",name="relogin"}}[1m]))', start + 60, end, 60)
+                  if end - start > 60 else [])
         result["relogin_per_minute"] = [round(float(v)) for _, v in (series[0]["values"] if series else [])]
     print(json.dumps(result, ensure_ascii=False))
 
