@@ -189,7 +189,9 @@ def analyze(mode, run, start_iso, end_iso, windows_arg=""):
         result["max_sustainable_rps"] = prev[-1]["target_rps"] if prev else None
         result["loadgen_cpu_max"] = max((r["loadgen_cpu_max"] or 0) for r in rows) if rows else None
         if mode in HOT_MODES:
-            best = max(rows, key=lambda r: r["success_tps"], default=None)
+            # k6를 멈춘 뒤 남은 짧은 꼬리 구간은 처리율이 부정확하므로 단계를 다 채운 구간만 본다.
+            full = [r for r in rows if r["window"][1] - r["window"][0] >= cfg["stage"] - SKIP]
+            best = max(full, key=lambda r: r["success_tps"], default=None)
             result["max_success_tps"] = best["success_tps"] if best else None
             result["max_success_tps_stage"] = best["target_rps"] if best else None
             result["dropped_stage_est"] = {r["target_rps"]: r["dropped_iterations"] for r in rows}
