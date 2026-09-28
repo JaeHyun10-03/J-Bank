@@ -345,11 +345,13 @@ def cmd_run(args):
     win_arg = ",".join(f"{label}:{s}:{e}" for label, s, e in windows)
     loadgen_sh(i, f"analyze {run} {mode} {win_arg}".rstrip())
     loadgen_sh(i, f"export {run}")
+    # api를 먼저 멈춰 대기열 요청이 더 커밋되지 않게 한 뒤 정합성 스냅샷을 찍는다. 그래야 새 완료 수와
+    # 실패 키 반영 수가 같은 상태를 본다. postgres는 계속 떠 있어 대조·대사가 동작한다.
+    target_sh(i, "stop-api")
     target_sh(i, f"integrity {run}")
     copy_file(i["loadgen_instance_id"], f"/opt/perf-out/{run}/failed-transfers.txt",
               i["target_instance_id"], f"/opt/perf-out/{run}/failed-transfers.txt")
     target_sh(i, f"failed-keys {run}")
-    target_sh(i, "stop-api")
     target_sh(i, f"batch {run} ledgerReconciliationJob {run}-recon", timeout=2400)
     since = dt.datetime.fromtimestamp(start - 180, dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     target_sh(i, f"logs {run} {since}")

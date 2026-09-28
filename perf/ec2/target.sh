@@ -277,6 +277,9 @@ SQL
     "${DC[@]}" logs --no-log-prefix --since "$since" postgres > "$OUT/$run/postgres-full.log" 2>&1 || true
     "${DC[@]}" logs --no-log-prefix --since "$since" api > "$OUT/$run/api-full.log" 2>&1 || true
     {
+      # 전체 줄 수: api를 먼저 멈춘 뒤에도 정지된 컨테이너 로그를 실제로 읽었는지 확인하는 값.
+      echo "api_log_lines=$(wc -l < "$OUT/$run/api-full.log")"
+      echo "postgres_log_lines=$(wc -l < "$OUT/$run/postgres-full.log")"
       echo "slow_statements=$(grep -c 'duration:' "$OUT/$run/postgres-full.log" || true)"
       echo "lock_wait_lines=$(grep -c 'still waiting for' "$OUT/$run/postgres-full.log" || true)"
       echo "api_error_lines=$(grep -c '"log.level":"ERROR"' "$OUT/$run/api-full.log" || true)"
