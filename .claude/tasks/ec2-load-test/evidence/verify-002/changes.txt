@@ -1,0 +1,885 @@
+# 작업 시작 HEAD
+6c40ee2be5261760407cf0781f716c9ec3476119
+# 작업 시작 시 변경 상태
+
+# 현재 git status --porcelain
+?? perf/results/ec2-baseline/dryrun/artifacts.txt
+?? perf/results/ec2-baseline/dryrun/environment.md
+?? perf/results/ec2-baseline/dryrun/integrity.md
+?? perf/results/ec2-baseline/dryrun/loadgen/analysis.json
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-summary.json
+?? perf/results/ec2-baseline/dryrun/loadgen/prometheus/query_range.json.gz
+?? perf/results/ec2-baseline/dryrun/target/batch.txt
+?? perf/results/ec2-baseline/dryrun/target/boundary.env
+?? perf/results/ec2-baseline/dryrun/target/integrity-target.txt
+?? perf/results/ec2-baseline/dryrun/target/log-counts.txt
+?? perf/results/ec2-baseline/dryrun/target/pg_stat_activity.csv
+?? perf/results/ec2-baseline/dryrun/warmup/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-summary.json
+
+# 작업 시작 HEAD부터 현재 파일까지의 이름·상태
+A	infra/compose/perf/Caddyfile
+A	infra/compose/perf/docker-compose.loadgen.yml
+A	infra/compose/perf/docker-compose.target.yml
+A	infra/compose/perf/loadgen/prometheus.yml.tpl
+A	infra/compose/perf/loadgen/provisioning/dashboards/dashboards.yml
+A	infra/compose/perf/loadgen/provisioning/dashboards/json/jbank-perf.json
+A	infra/compose/perf/loadgen/provisioning/datasources/datasources.yml
+A	infra/compose/perf/postgres-exporter-queries.yml
+A	infra/compose/perf/target.env.example
+A	infra/terraform/envs/perf/main.tf
+A	infra/terraform/envs/perf/outputs.tf
+A	infra/terraform/envs/perf/variables.tf
+A	infra/terraform/envs/perf/versions.tf
+A	infra/terraform/modules/perf/main.tf
+A	infra/terraform/modules/perf/outputs.tf
+A	infra/terraform/modules/perf/user_data.sh.tpl
+A	infra/terraform/modules/perf/variables.tf
+A	infra/terraform/modules/perf/versions.tf
+M	perf/README.md
+A	perf/ec2/extract_slow_sql.py
+A	perf/ec2/k6_monitor.py
+A	perf/ec2/loadgen.sh
+A	perf/ec2/metrics_proxy.py
+A	perf/ec2/target.sh
+A	perf/ec2/verify_login.py
+A	perf/k6/lib/ec2.js
+A	perf/k6/s1-mixed.js
+A	perf/k6/s2-hot-account.js
+A	perf/k6/s3-spike.js
+A	perf/prepare-accounts.py
+A	perf/results/ec2-baseline/bottleneck-analysis.md
+A	perf/results/ec2-baseline/dryrun/20260927-235347/artifacts.txt
+A	perf/results/ec2-baseline/dryrun/20260927-235347/environment.md
+A	perf/results/ec2-baseline/dryrun/20260927-235347/integrity.md
+A	perf/results/ec2-baseline/dryrun/20260927-235347/loadgen/analysis.json
+A	perf/results/ec2-baseline/dryrun/20260927-235347/loadgen/k6-end.txt
+A	perf/results/ec2-baseline/dryrun/20260927-235347/loadgen/k6-exit.txt
+A	perf/results/ec2-baseline/dryrun/20260927-235347/loadgen/k6-start.txt
+A	perf/results/ec2-baseline/dryrun/20260927-235347/loadgen/k6-summary.json
+A	perf/results/ec2-baseline/dryrun/20260927-235347/loadgen/k6.log
+A	perf/results/ec2-baseline/dryrun/20260927-235347/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-baseline/dryrun/20260927-235347/target/api-errors-excerpt.log
+A	perf/results/ec2-baseline/dryrun/20260927-235347/target/batch-dryrun-recon.log
+A	perf/results/ec2-baseline/dryrun/20260927-235347/target/batch.txt
+A	perf/results/ec2-baseline/dryrun/20260927-235347/target/boundary.env
+A	perf/results/ec2-baseline/dryrun/20260927-235347/target/disk.log
+A	perf/results/ec2-baseline/dryrun/20260927-235347/target/integrity-target.txt
+A	perf/results/ec2-baseline/dryrun/20260927-235347/target/log-counts.txt
+A	perf/results/ec2-baseline/dryrun/20260927-235347/target/pg_stat_activity.csv
+A	perf/results/ec2-baseline/dryrun/20260927-235347/target/postgres-excerpt.log
+A	perf/results/ec2-baseline/dryrun/20260927-235347/warmup/k6-end.txt
+A	perf/results/ec2-baseline/dryrun/20260927-235347/warmup/k6-exit.txt
+A	perf/results/ec2-baseline/dryrun/20260927-235347/warmup/k6-start.txt
+A	perf/results/ec2-baseline/dryrun/20260927-235347/warmup/k6-summary.json
+A	perf/results/ec2-baseline/dryrun/20260927-235347/warmup/k6.log
+A	perf/results/ec2-baseline/env/commands.log
+A	perf/results/ec2-baseline/env/destroy.md
+A	perf/results/ec2-baseline/env/infra.md
+A	perf/results/ec2-baseline/env/loadgen/accounts.json
+A	perf/results/ec2-baseline/env/loadgen/k6-version.txt
+A	perf/results/ec2-baseline/env/loadgen/prepare.log
+A	perf/results/ec2-baseline/env/loadgen/restore-verify.log
+A	perf/results/ec2-baseline/env/loadgen/target-ip
+A	perf/results/ec2-baseline/env/target/baseline.log
+A	perf/results/ec2-baseline/env/target/disk.log
+A	perf/results/ec2-baseline/env/target/environment-target.md
+A	perf/results/ec2-baseline/env/target/seed.log
+A	perf/results/ec2-baseline/s1/incident-r1-memory/loadgen/analysis.json
+A	perf/results/ec2-baseline/s1/incident-r1-memory/loadgen/k6-end.txt
+A	perf/results/ec2-baseline/s1/incident-r1-memory/loadgen/k6-exit.txt
+A	perf/results/ec2-baseline/s1/incident-r1-memory/loadgen/k6-start.txt
+A	perf/results/ec2-baseline/s1/incident-r1-memory/loadgen/k6-summary.json
+A	perf/results/ec2-baseline/s1/incident-r1-memory/loadgen/k6.log.gz
+A	perf/results/ec2-baseline/s1/incident-r1-memory/loadgen/monitor.log
+A	perf/results/ec2-baseline/s1/incident-r1-memory/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-baseline/s1/incident-r1-memory/target/batch-s1-r1-recon.full.log.gz
+A	perf/results/ec2-baseline/s1/incident-r1-memory/target/boundary.env
+A	perf/results/ec2-baseline/s1/incident-r1-memory/target/integrity-target.txt
+A	perf/results/ec2-baseline/s1/incident-r1-memory/target/pg_stat_activity.csv
+A	perf/results/ec2-baseline/s1/r1/artifacts.txt
+A	perf/results/ec2-baseline/s1/r1/environment.md
+A	perf/results/ec2-baseline/s1/r1/integrity.md
+A	perf/results/ec2-baseline/s1/r1/loadgen/analysis.json
+A	perf/results/ec2-baseline/s1/r1/loadgen/k6-end.txt
+A	perf/results/ec2-baseline/s1/r1/loadgen/k6-exit.txt
+A	perf/results/ec2-baseline/s1/r1/loadgen/k6-start.txt
+A	perf/results/ec2-baseline/s1/r1/loadgen/k6-summary.json
+A	perf/results/ec2-baseline/s1/r1/loadgen/k6.log
+A	perf/results/ec2-baseline/s1/r1/loadgen/monitor.log
+A	perf/results/ec2-baseline/s1/r1/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-baseline/s1/r1/target/api-errors-excerpt.log
+A	perf/results/ec2-baseline/s1/r1/target/batch-s1-r1-recon.log
+A	perf/results/ec2-baseline/s1/r1/target/batch.txt
+A	perf/results/ec2-baseline/s1/r1/target/boundary.env
+A	perf/results/ec2-baseline/s1/r1/target/disk.log
+A	perf/results/ec2-baseline/s1/r1/target/integrity-target.txt
+A	perf/results/ec2-baseline/s1/r1/target/log-counts.txt
+A	perf/results/ec2-baseline/s1/r1/target/pg_stat_activity.csv
+A	perf/results/ec2-baseline/s1/r1/target/postgres-excerpt.log
+A	perf/results/ec2-baseline/s1/r1/warmup/k6-end.txt
+A	perf/results/ec2-baseline/s1/r1/warmup/k6-exit.txt
+A	perf/results/ec2-baseline/s1/r1/warmup/k6-start.txt
+A	perf/results/ec2-baseline/s1/r1/warmup/k6-summary.json
+A	perf/results/ec2-baseline/s1/r1/warmup/k6.log
+A	perf/results/ec2-baseline/s1/r2/artifacts.txt
+A	perf/results/ec2-baseline/s1/r2/environment.md
+A	perf/results/ec2-baseline/s1/r2/integrity.md
+A	perf/results/ec2-baseline/s1/r2/loadgen/analysis.json
+A	perf/results/ec2-baseline/s1/r2/loadgen/k6-end.txt
+A	perf/results/ec2-baseline/s1/r2/loadgen/k6-exit.txt
+A	perf/results/ec2-baseline/s1/r2/loadgen/k6-start.txt
+A	perf/results/ec2-baseline/s1/r2/loadgen/k6-summary.json
+A	perf/results/ec2-baseline/s1/r2/loadgen/k6.log
+A	perf/results/ec2-baseline/s1/r2/loadgen/monitor.log
+A	perf/results/ec2-baseline/s1/r2/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-baseline/s1/r2/target/api-errors-excerpt.log
+A	perf/results/ec2-baseline/s1/r2/target/batch-s1-r2-recon.log
+A	perf/results/ec2-baseline/s1/r2/target/batch.txt
+A	perf/results/ec2-baseline/s1/r2/target/boundary.env
+A	perf/results/ec2-baseline/s1/r2/target/disk.log
+A	perf/results/ec2-baseline/s1/r2/target/integrity-target.txt
+A	perf/results/ec2-baseline/s1/r2/target/log-counts.txt
+A	perf/results/ec2-baseline/s1/r2/target/pg_stat_activity.csv
+A	perf/results/ec2-baseline/s1/r2/target/postgres-excerpt.log
+A	perf/results/ec2-baseline/s1/r2/warmup/k6-end.txt
+A	perf/results/ec2-baseline/s1/r2/warmup/k6-exit.txt
+A	perf/results/ec2-baseline/s1/r2/warmup/k6-start.txt
+A	perf/results/ec2-baseline/s1/r2/warmup/k6-summary.json
+A	perf/results/ec2-baseline/s1/r2/warmup/k6.log
+A	perf/results/ec2-baseline/s1/r3/artifacts.txt
+A	perf/results/ec2-baseline/s1/r3/environment.md
+A	perf/results/ec2-baseline/s1/r3/integrity.md
+A	perf/results/ec2-baseline/s1/r3/loadgen/analysis.json
+A	perf/results/ec2-baseline/s1/r3/loadgen/k6-end.txt
+A	perf/results/ec2-baseline/s1/r3/loadgen/k6-exit.txt
+A	perf/results/ec2-baseline/s1/r3/loadgen/k6-start.txt
+A	perf/results/ec2-baseline/s1/r3/loadgen/k6-summary.json
+A	perf/results/ec2-baseline/s1/r3/loadgen/k6.log.gz
+A	perf/results/ec2-baseline/s1/r3/loadgen/monitor.log
+A	perf/results/ec2-baseline/s1/r3/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-baseline/s1/r3/target/api-errors-excerpt.log
+A	perf/results/ec2-baseline/s1/r3/target/batch-s1-r3-recon.log
+A	perf/results/ec2-baseline/s1/r3/target/batch.txt
+A	perf/results/ec2-baseline/s1/r3/target/boundary.env
+A	perf/results/ec2-baseline/s1/r3/target/disk.log
+A	perf/results/ec2-baseline/s1/r3/target/integrity-target.txt
+A	perf/results/ec2-baseline/s1/r3/target/log-counts.txt
+A	perf/results/ec2-baseline/s1/r3/target/pg_stat_activity.csv
+A	perf/results/ec2-baseline/s1/r3/target/postgres-excerpt.log
+A	perf/results/ec2-baseline/s1/r3/warmup/k6-end.txt
+A	perf/results/ec2-baseline/s1/r3/warmup/k6-exit.txt
+A	perf/results/ec2-baseline/s1/r3/warmup/k6-start.txt
+A	perf/results/ec2-baseline/s1/r3/warmup/k6-summary.json
+A	perf/results/ec2-baseline/s1/r3/warmup/k6.log
+A	perf/results/ec2-baseline/s2/r1/artifacts.txt
+A	perf/results/ec2-baseline/s2/r1/environment.md
+A	perf/results/ec2-baseline/s2/r1/integrity.md
+A	perf/results/ec2-baseline/s2/r1/loadgen/analysis.json
+A	perf/results/ec2-baseline/s2/r1/loadgen/k6-end.txt
+A	perf/results/ec2-baseline/s2/r1/loadgen/k6-exit.txt
+A	perf/results/ec2-baseline/s2/r1/loadgen/k6-start.txt
+A	perf/results/ec2-baseline/s2/r1/loadgen/k6-summary.json
+A	perf/results/ec2-baseline/s2/r1/loadgen/k6.log
+A	perf/results/ec2-baseline/s2/r1/loadgen/monitor.log
+A	perf/results/ec2-baseline/s2/r1/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-baseline/s2/r1/target/api-errors-excerpt.log
+A	perf/results/ec2-baseline/s2/r1/target/batch-s2-r1-recon.log
+A	perf/results/ec2-baseline/s2/r1/target/batch.txt
+A	perf/results/ec2-baseline/s2/r1/target/boundary.env
+A	perf/results/ec2-baseline/s2/r1/target/disk.log
+A	perf/results/ec2-baseline/s2/r1/target/integrity-target.txt
+A	perf/results/ec2-baseline/s2/r1/target/log-counts.txt
+A	perf/results/ec2-baseline/s2/r1/target/pg_stat_activity.csv
+A	perf/results/ec2-baseline/s2/r1/target/postgres-excerpt.log
+A	perf/results/ec2-baseline/s2/r1/warmup/k6-end.txt
+A	perf/results/ec2-baseline/s2/r1/warmup/k6-exit.txt
+A	perf/results/ec2-baseline/s2/r1/warmup/k6-start.txt
+A	perf/results/ec2-baseline/s2/r1/warmup/k6-summary.json
+A	perf/results/ec2-baseline/s2/r1/warmup/k6.log
+A	perf/results/ec2-baseline/s2/r2/artifacts.txt
+A	perf/results/ec2-baseline/s2/r2/environment.md
+A	perf/results/ec2-baseline/s2/r2/integrity.md
+A	perf/results/ec2-baseline/s2/r2/loadgen/analysis.json
+A	perf/results/ec2-baseline/s2/r2/loadgen/k6-end.txt
+A	perf/results/ec2-baseline/s2/r2/loadgen/k6-exit.txt
+A	perf/results/ec2-baseline/s2/r2/loadgen/k6-start.txt
+A	perf/results/ec2-baseline/s2/r2/loadgen/k6-summary.json
+A	perf/results/ec2-baseline/s2/r2/loadgen/k6.log
+A	perf/results/ec2-baseline/s2/r2/loadgen/monitor.log
+A	perf/results/ec2-baseline/s2/r2/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-baseline/s2/r2/target/api-errors-excerpt.log
+A	perf/results/ec2-baseline/s2/r2/target/batch-s2-r2-recon.log
+A	perf/results/ec2-baseline/s2/r2/target/batch.txt
+A	perf/results/ec2-baseline/s2/r2/target/boundary.env
+A	perf/results/ec2-baseline/s2/r2/target/disk.log
+A	perf/results/ec2-baseline/s2/r2/target/integrity-target.txt
+A	perf/results/ec2-baseline/s2/r2/target/log-counts.txt
+A	perf/results/ec2-baseline/s2/r2/target/pg_stat_activity.csv
+A	perf/results/ec2-baseline/s2/r2/target/postgres-excerpt.log
+A	perf/results/ec2-baseline/s2/r2/warmup/k6-end.txt
+A	perf/results/ec2-baseline/s2/r2/warmup/k6-exit.txt
+A	perf/results/ec2-baseline/s2/r2/warmup/k6-start.txt
+A	perf/results/ec2-baseline/s2/r2/warmup/k6-summary.json
+A	perf/results/ec2-baseline/s2/r2/warmup/k6.log
+A	perf/results/ec2-baseline/s2/r3/artifacts.txt
+A	perf/results/ec2-baseline/s2/r3/environment.md
+A	perf/results/ec2-baseline/s2/r3/integrity.md
+A	perf/results/ec2-baseline/s2/r3/loadgen/analysis.json
+A	perf/results/ec2-baseline/s2/r3/loadgen/k6-end.txt
+A	perf/results/ec2-baseline/s2/r3/loadgen/k6-exit.txt
+A	perf/results/ec2-baseline/s2/r3/loadgen/k6-start.txt
+A	perf/results/ec2-baseline/s2/r3/loadgen/k6-summary.json
+A	perf/results/ec2-baseline/s2/r3/loadgen/k6.log
+A	perf/results/ec2-baseline/s2/r3/loadgen/monitor.log
+A	perf/results/ec2-baseline/s2/r3/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-baseline/s2/r3/target/api-errors-excerpt.log
+A	perf/results/ec2-baseline/s2/r3/target/batch-s2-r3-recon.log
+A	perf/results/ec2-baseline/s2/r3/target/batch.txt
+A	perf/results/ec2-baseline/s2/r3/target/boundary.env
+A	perf/results/ec2-baseline/s2/r3/target/disk.log
+A	perf/results/ec2-baseline/s2/r3/target/integrity-target.txt
+A	perf/results/ec2-baseline/s2/r3/target/log-counts.txt
+A	perf/results/ec2-baseline/s2/r3/target/pg_stat_activity.csv
+A	perf/results/ec2-baseline/s2/r3/target/postgres-excerpt.log
+A	perf/results/ec2-baseline/s2/r3/warmup/k6-end.txt
+A	perf/results/ec2-baseline/s2/r3/warmup/k6-exit.txt
+A	perf/results/ec2-baseline/s2/r3/warmup/k6-start.txt
+A	perf/results/ec2-baseline/s2/r3/warmup/k6-summary.json
+A	perf/results/ec2-baseline/s2/r3/warmup/k6.log
+A	perf/results/ec2-baseline/s2/r4/artifacts.txt
+A	perf/results/ec2-baseline/s2/r4/environment.md
+A	perf/results/ec2-baseline/s2/r4/integrity.md
+A	perf/results/ec2-baseline/s2/r4/loadgen/analysis.json
+A	perf/results/ec2-baseline/s2/r4/loadgen/k6-end.txt
+A	perf/results/ec2-baseline/s2/r4/loadgen/k6-exit.txt
+A	perf/results/ec2-baseline/s2/r4/loadgen/k6-start.txt
+A	perf/results/ec2-baseline/s2/r4/loadgen/k6-summary.json
+A	perf/results/ec2-baseline/s2/r4/loadgen/k6.log
+A	perf/results/ec2-baseline/s2/r4/loadgen/monitor.log
+A	perf/results/ec2-baseline/s2/r4/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-baseline/s2/r4/target/api-errors-excerpt.log
+A	perf/results/ec2-baseline/s2/r4/target/batch-s2-r4-recon.log
+A	perf/results/ec2-baseline/s2/r4/target/batch.txt
+A	perf/results/ec2-baseline/s2/r4/target/boundary.env
+A	perf/results/ec2-baseline/s2/r4/target/disk.log
+A	perf/results/ec2-baseline/s2/r4/target/integrity-target.txt
+A	perf/results/ec2-baseline/s2/r4/target/log-counts.txt
+A	perf/results/ec2-baseline/s2/r4/target/pg_stat_activity.csv
+A	perf/results/ec2-baseline/s2/r4/target/postgres-excerpt.log
+A	perf/results/ec2-baseline/s2/r4/warmup/k6-end.txt
+A	perf/results/ec2-baseline/s2/r4/warmup/k6-exit.txt
+A	perf/results/ec2-baseline/s2/r4/warmup/k6-start.txt
+A	perf/results/ec2-baseline/s2/r4/warmup/k6-summary.json
+A	perf/results/ec2-baseline/s2/r4/warmup/k6.log
+A	perf/results/ec2-baseline/s3/r1/artifacts.txt
+A	perf/results/ec2-baseline/s3/r1/environment.md
+A	perf/results/ec2-baseline/s3/r1/integrity.md
+A	perf/results/ec2-baseline/s3/r1/loadgen/analysis.json
+A	perf/results/ec2-baseline/s3/r1/loadgen/k6-end.txt
+A	perf/results/ec2-baseline/s3/r1/loadgen/k6-exit.txt
+A	perf/results/ec2-baseline/s3/r1/loadgen/k6-start.txt
+A	perf/results/ec2-baseline/s3/r1/loadgen/k6-summary.json
+A	perf/results/ec2-baseline/s3/r1/loadgen/k6.log.gz
+A	perf/results/ec2-baseline/s3/r1/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-baseline/s3/r1/target/api-errors-excerpt.log
+A	perf/results/ec2-baseline/s3/r1/target/batch-s3-r1-recon.log
+A	perf/results/ec2-baseline/s3/r1/target/batch.txt
+A	perf/results/ec2-baseline/s3/r1/target/boundary.env
+A	perf/results/ec2-baseline/s3/r1/target/disk.log
+A	perf/results/ec2-baseline/s3/r1/target/integrity-target.txt
+A	perf/results/ec2-baseline/s3/r1/target/log-counts.txt
+A	perf/results/ec2-baseline/s3/r1/target/pg_stat_activity.csv
+A	perf/results/ec2-baseline/s3/r1/target/postgres-excerpt.log
+A	perf/results/ec2-baseline/s3/r1/warmup/k6-end.txt
+A	perf/results/ec2-baseline/s3/r1/warmup/k6-exit.txt
+A	perf/results/ec2-baseline/s3/r1/warmup/k6-start.txt
+A	perf/results/ec2-baseline/s3/r1/warmup/k6-summary.json
+A	perf/results/ec2-baseline/s3/r1/warmup/k6.log
+A	perf/results/ec2-baseline/s3/r2/artifacts.txt
+A	perf/results/ec2-baseline/s3/r2/environment.md
+A	perf/results/ec2-baseline/s3/r2/integrity.md
+A	perf/results/ec2-baseline/s3/r2/loadgen/analysis.json
+A	perf/results/ec2-baseline/s3/r2/loadgen/k6-end.txt
+A	perf/results/ec2-baseline/s3/r2/loadgen/k6-exit.txt
+A	perf/results/ec2-baseline/s3/r2/loadgen/k6-start.txt
+A	perf/results/ec2-baseline/s3/r2/loadgen/k6-summary.json
+A	perf/results/ec2-baseline/s3/r2/loadgen/k6.log.gz
+A	perf/results/ec2-baseline/s3/r2/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-baseline/s3/r2/target/api-errors-excerpt.log
+A	perf/results/ec2-baseline/s3/r2/target/batch-s3-r2-recon.log
+A	perf/results/ec2-baseline/s3/r2/target/batch.txt
+A	perf/results/ec2-baseline/s3/r2/target/boundary.env
+A	perf/results/ec2-baseline/s3/r2/target/disk.log
+A	perf/results/ec2-baseline/s3/r2/target/integrity-target.txt
+A	perf/results/ec2-baseline/s3/r2/target/log-counts.txt
+A	perf/results/ec2-baseline/s3/r2/target/pg_stat_activity.csv
+A	perf/results/ec2-baseline/s3/r2/target/postgres-excerpt.log
+A	perf/results/ec2-baseline/s3/r2/warmup/k6-end.txt
+A	perf/results/ec2-baseline/s3/r2/warmup/k6-exit.txt
+A	perf/results/ec2-baseline/s3/r2/warmup/k6-start.txt
+A	perf/results/ec2-baseline/s3/r2/warmup/k6-summary.json
+A	perf/results/ec2-baseline/s3/r2/warmup/k6.log
+A	perf/results/ec2-baseline/s3/r3/artifacts.txt
+A	perf/results/ec2-baseline/s3/r3/environment.md
+A	perf/results/ec2-baseline/s3/r3/integrity.md
+A	perf/results/ec2-baseline/s3/r3/loadgen/analysis.json
+A	perf/results/ec2-baseline/s3/r3/loadgen/k6-end.txt
+A	perf/results/ec2-baseline/s3/r3/loadgen/k6-exit.txt
+A	perf/results/ec2-baseline/s3/r3/loadgen/k6-start.txt
+A	perf/results/ec2-baseline/s3/r3/loadgen/k6-summary.json
+A	perf/results/ec2-baseline/s3/r3/loadgen/k6.log.gz
+A	perf/results/ec2-baseline/s3/r3/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-baseline/s3/r3/target/api-errors-excerpt.log
+A	perf/results/ec2-baseline/s3/r3/target/batch-s3-r3-recon.log
+A	perf/results/ec2-baseline/s3/r3/target/batch.txt
+A	perf/results/ec2-baseline/s3/r3/target/boundary.env
+A	perf/results/ec2-baseline/s3/r3/target/disk.log
+A	perf/results/ec2-baseline/s3/r3/target/integrity-target.txt
+A	perf/results/ec2-baseline/s3/r3/target/log-counts.txt
+A	perf/results/ec2-baseline/s3/r3/target/pg_stat_activity.csv
+A	perf/results/ec2-baseline/s3/r3/target/postgres-excerpt.log
+A	perf/results/ec2-baseline/s3/r3/warmup/k6-end.txt
+A	perf/results/ec2-baseline/s3/r3/warmup/k6-exit.txt
+A	perf/results/ec2-baseline/s3/r3/warmup/k6-start.txt
+A	perf/results/ec2-baseline/s3/r3/warmup/k6-summary.json
+A	perf/results/ec2-baseline/s3/r3/warmup/k6.log
+A	perf/results/ec2-baseline/s5/r1/artifacts.txt
+A	perf/results/ec2-baseline/s5/r1/environment.md
+A	perf/results/ec2-baseline/s5/r1/integrity.md
+A	perf/results/ec2-baseline/s5/r1/loadgen/analysis.json
+A	perf/results/ec2-baseline/s5/r1/loadgen/k6-end.txt
+A	perf/results/ec2-baseline/s5/r1/loadgen/k6-exit.txt
+A	perf/results/ec2-baseline/s5/r1/loadgen/k6-start.txt
+A	perf/results/ec2-baseline/s5/r1/loadgen/k6-summary.json
+A	perf/results/ec2-baseline/s5/r1/loadgen/k6.log
+A	perf/results/ec2-baseline/s5/r1/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-baseline/s5/r1/noload/target/batch-explain.txt
+A	perf/results/ec2-baseline/s5/r1/noload/target/batch-s5-r1-noload-noload-ctrDetectionJob.log
+A	perf/results/ec2-baseline/s5/r1/noload/target/batch-s5-r1-noload-noload-fdsDetectionJob.log
+A	perf/results/ec2-baseline/s5/r1/noload/target/batch-s5-r1-noload-noload-ledgerReconciliationJob.log
+A	perf/results/ec2-baseline/s5/r1/noload/target/batch-slow.sql
+A	perf/results/ec2-baseline/s5/r1/noload/target/batch.txt
+A	perf/results/ec2-baseline/s5/r1/target/api-errors-excerpt.log
+A	perf/results/ec2-baseline/s5/r1/target/batch-s5-r1-load-ctrDetectionJob.log
+A	perf/results/ec2-baseline/s5/r1/target/batch-s5-r1-load-fdsDetectionJob.log
+A	perf/results/ec2-baseline/s5/r1/target/batch-s5-r1-load-ledgerReconciliationJob.log
+A	perf/results/ec2-baseline/s5/r1/target/batch-s5-r1-recon.log
+A	perf/results/ec2-baseline/s5/r1/target/batch.txt
+A	perf/results/ec2-baseline/s5/r1/target/boundary.env
+A	perf/results/ec2-baseline/s5/r1/target/disk.log
+A	perf/results/ec2-baseline/s5/r1/target/integrity-target.txt
+A	perf/results/ec2-baseline/s5/r1/target/log-counts.txt
+A	perf/results/ec2-baseline/s5/r1/target/pg_stat_activity.csv
+A	perf/results/ec2-baseline/s5/r1/target/postgres-excerpt.log
+A	perf/results/ec2-baseline/s5/r1/warmup/k6-end.txt
+A	perf/results/ec2-baseline/s5/r1/warmup/k6-exit.txt
+A	perf/results/ec2-baseline/s5/r1/warmup/k6-start.txt
+A	perf/results/ec2-baseline/s5/r1/warmup/k6-summary.json
+A	perf/results/ec2-baseline/s5/r1/warmup/k6.log
+A	perf/results/ec2-baseline/s5/r2/artifacts.txt
+A	perf/results/ec2-baseline/s5/r2/environment.md
+A	perf/results/ec2-baseline/s5/r2/integrity.md
+A	perf/results/ec2-baseline/s5/r2/loadgen/analysis.json
+A	perf/results/ec2-baseline/s5/r2/loadgen/k6-end.txt
+A	perf/results/ec2-baseline/s5/r2/loadgen/k6-exit.txt
+A	perf/results/ec2-baseline/s5/r2/loadgen/k6-start.txt
+A	perf/results/ec2-baseline/s5/r2/loadgen/k6-summary.json
+A	perf/results/ec2-baseline/s5/r2/loadgen/k6.log
+A	perf/results/ec2-baseline/s5/r2/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-baseline/s5/r2/noload/target/batch-explain.txt
+A	perf/results/ec2-baseline/s5/r2/noload/target/batch-s5-r2-noload-noload-ctrDetectionJob.log
+A	perf/results/ec2-baseline/s5/r2/noload/target/batch-s5-r2-noload-noload-fdsDetectionJob.log
+A	perf/results/ec2-baseline/s5/r2/noload/target/batch-s5-r2-noload-noload-ledgerReconciliationJob.log
+A	perf/results/ec2-baseline/s5/r2/noload/target/batch-slow.sql
+A	perf/results/ec2-baseline/s5/r2/noload/target/batch.txt
+A	perf/results/ec2-baseline/s5/r2/target/api-errors-excerpt.log
+A	perf/results/ec2-baseline/s5/r2/target/batch-s5-r2-load-ctrDetectionJob.log
+A	perf/results/ec2-baseline/s5/r2/target/batch-s5-r2-load-fdsDetectionJob.log
+A	perf/results/ec2-baseline/s5/r2/target/batch-s5-r2-load-ledgerReconciliationJob.log
+A	perf/results/ec2-baseline/s5/r2/target/batch-s5-r2-recon.log
+A	perf/results/ec2-baseline/s5/r2/target/batch.txt
+A	perf/results/ec2-baseline/s5/r2/target/boundary.env
+A	perf/results/ec2-baseline/s5/r2/target/disk.log
+A	perf/results/ec2-baseline/s5/r2/target/integrity-target.txt
+A	perf/results/ec2-baseline/s5/r2/target/log-counts.txt
+A	perf/results/ec2-baseline/s5/r2/target/pg_stat_activity.csv
+A	perf/results/ec2-baseline/s5/r2/target/postgres-excerpt.log
+A	perf/results/ec2-baseline/s5/r2/warmup/k6-end.txt
+A	perf/results/ec2-baseline/s5/r2/warmup/k6-exit.txt
+A	perf/results/ec2-baseline/s5/r2/warmup/k6-start.txt
+A	perf/results/ec2-baseline/s5/r2/warmup/k6-summary.json
+A	perf/results/ec2-baseline/s5/r2/warmup/k6.log
+A	perf/results/ec2-baseline/s5/r3/artifacts.txt
+A	perf/results/ec2-baseline/s5/r3/environment.md
+A	perf/results/ec2-baseline/s5/r3/integrity.md
+A	perf/results/ec2-baseline/s5/r3/loadgen/analysis.json
+A	perf/results/ec2-baseline/s5/r3/loadgen/k6-end.txt
+A	perf/results/ec2-baseline/s5/r3/loadgen/k6-exit.txt
+A	perf/results/ec2-baseline/s5/r3/loadgen/k6-start.txt
+A	perf/results/ec2-baseline/s5/r3/loadgen/k6-summary.json
+A	perf/results/ec2-baseline/s5/r3/loadgen/k6.log
+A	perf/results/ec2-baseline/s5/r3/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-baseline/s5/r3/noload/target/batch-explain.txt
+A	perf/results/ec2-baseline/s5/r3/noload/target/batch-s5-r3-noload-noload-ctrDetectionJob.log
+A	perf/results/ec2-baseline/s5/r3/noload/target/batch-s5-r3-noload-noload-fdsDetectionJob.log
+A	perf/results/ec2-baseline/s5/r3/noload/target/batch-s5-r3-noload-noload-ledgerReconciliationJob.log
+A	perf/results/ec2-baseline/s5/r3/noload/target/batch-slow.sql
+A	perf/results/ec2-baseline/s5/r3/noload/target/batch.txt
+A	perf/results/ec2-baseline/s5/r3/target/api-errors-excerpt.log
+A	perf/results/ec2-baseline/s5/r3/target/batch-s5-r3-load-ctrDetectionJob.log
+A	perf/results/ec2-baseline/s5/r3/target/batch-s5-r3-load-fdsDetectionJob.log
+A	perf/results/ec2-baseline/s5/r3/target/batch-s5-r3-load-ledgerReconciliationJob.log
+A	perf/results/ec2-baseline/s5/r3/target/batch-s5-r3-recon.log
+A	perf/results/ec2-baseline/s5/r3/target/batch.txt
+A	perf/results/ec2-baseline/s5/r3/target/boundary.env
+A	perf/results/ec2-baseline/s5/r3/target/disk.log
+A	perf/results/ec2-baseline/s5/r3/target/integrity-target.txt
+A	perf/results/ec2-baseline/s5/r3/target/log-counts.txt
+A	perf/results/ec2-baseline/s5/r3/target/pg_stat_activity.csv
+A	perf/results/ec2-baseline/s5/r3/target/postgres-excerpt.log
+A	perf/results/ec2-baseline/s5/r3/warmup/k6-end.txt
+A	perf/results/ec2-baseline/s5/r3/warmup/k6-exit.txt
+A	perf/results/ec2-baseline/s5/r3/warmup/k6-start.txt
+A	perf/results/ec2-baseline/s5/r3/warmup/k6-summary.json
+A	perf/results/ec2-baseline/s5/r3/warmup/k6.log
+A	perf/results/ec2-baseline/summary.md
+A	perf/run-ec2.py
+A	perf/run-ec2.sh
+
+# 작업 시작 HEAD부터 현재 파일까지의 통계
+ infra/compose/perf/Caddyfile                       |   11 +
+ infra/compose/perf/docker-compose.loadgen.yml      |   47 +
+ infra/compose/perf/docker-compose.target.yml       |  137 +
+ infra/compose/perf/loadgen/prometheus.yml.tpl      |   22 +
+ .../loadgen/provisioning/dashboards/dashboards.yml |    8 +
+ .../provisioning/dashboards/json/jbank-perf.json   |  871 +++
+ .../provisioning/datasources/datasources.yml       |    9 +
+ infra/compose/perf/postgres-exporter-queries.yml   |   16 +
+ infra/compose/perf/target.env.example              |    9 +
+ infra/terraform/envs/perf/main.tf                  |   17 +
+ infra/terraform/envs/perf/outputs.tf               |   15 +
+ infra/terraform/envs/perf/variables.tf             |   26 +
+ infra/terraform/envs/perf/versions.tf              |   20 +
+ infra/terraform/modules/perf/main.tf               |  155 +
+ infra/terraform/modules/perf/outputs.tf            |   15 +
+ infra/terraform/modules/perf/user_data.sh.tpl      |   24 +
+ infra/terraform/modules/perf/variables.tf          |   37 +
+ infra/terraform/modules/perf/versions.tf           |   10 +
+ perf/README.md                                     |   67 +
+ perf/ec2/extract_slow_sql.py                       |   57 +
+ perf/ec2/k6_monitor.py                             |  241 +
+ perf/ec2/loadgen.sh                                |  100 +
+ perf/ec2/metrics_proxy.py                          |   89 +
+ perf/ec2/target.sh                                 |  269 +
+ perf/ec2/verify_login.py                           |   45 +
+ perf/k6/lib/ec2.js                                 |  142 +
+ perf/k6/s1-mixed.js                                |   49 +
+ perf/k6/s2-hot-account.js                          |   56 +
+ perf/k6/s3-spike.js                                |   48 +
+ perf/prepare-accounts.py                           |  131 +
+ perf/results/ec2-baseline/bottleneck-analysis.md   |   56 +
+ .../dryrun/20260927-235347/artifacts.txt           |    1 +
+ .../dryrun/20260927-235347/environment.md          |    9 +
+ .../dryrun/20260927-235347/integrity.md            |   19 +
+ .../dryrun/20260927-235347/loadgen/analysis.json   |    1 +
+ .../dryrun/20260927-235347/loadgen/k6-end.txt      |    1 +
+ .../dryrun/20260927-235347/loadgen/k6-exit.txt     |    1 +
+ .../dryrun/20260927-235347/loadgen/k6-start.txt    |    1 +
+ .../dryrun/20260927-235347/loadgen/k6-summary.json |  188 +
+ .../dryrun/20260927-235347/loadgen/k6.log          |   37 +
+ .../loadgen/prometheus/query_range.json.gz         |  Bin 0 -> 13940 bytes
+ .../20260927-235347/target/api-errors-excerpt.log  |    0
+ .../20260927-235347/target/batch-dryrun-recon.log  |   61 +
+ .../dryrun/20260927-235347/target/batch.txt        |    1 +
+ .../dryrun/20260927-235347/target/boundary.env     |    5 +
+ .../dryrun/20260927-235347/target/disk.log         |    1 +
+ .../20260927-235347/target/integrity-target.txt    |   16 +
+ .../dryrun/20260927-235347/target/log-counts.txt   |    4 +
+ .../20260927-235347/target/pg_stat_activity.csv    |   14 +
+ .../20260927-235347/target/postgres-excerpt.log    |    1 +
+ .../dryrun/20260927-235347/warmup/k6-end.txt       |    1 +
+ .../dryrun/20260927-235347/warmup/k6-exit.txt      |    1 +
+ .../dryrun/20260927-235347/warmup/k6-start.txt     |    1 +
+ .../dryrun/20260927-235347/warmup/k6-summary.json  |  188 +
+ .../dryrun/20260927-235347/warmup/k6.log           |   37 +
+ perf/results/ec2-baseline/env/commands.log         |  780 +++
+ perf/results/ec2-baseline/env/destroy.md           |    3 +
+ perf/results/ec2-baseline/env/infra.md             |   15 +
+ .../results/ec2-baseline/env/loadgen/accounts.json | 1332 +++++
+ .../ec2-baseline/env/loadgen/k6-version.txt        |    1 +
+ perf/results/ec2-baseline/env/loadgen/prepare.log  |    1 +
+ .../ec2-baseline/env/loadgen/restore-verify.log    |    3 +
+ perf/results/ec2-baseline/env/loadgen/target-ip    |    1 +
+ perf/results/ec2-baseline/env/target/baseline.log  |   18 +
+ perf/results/ec2-baseline/env/target/disk.log      |    5 +
+ .../ec2-baseline/env/target/environment-target.md  |   20 +
+ perf/results/ec2-baseline/env/target/seed.log      |   43 +
+ .../s1/incident-r1-memory/loadgen/analysis.json    |    1 +
+ .../s1/incident-r1-memory/loadgen/k6-end.txt       |    1 +
+ .../s1/incident-r1-memory/loadgen/k6-exit.txt      |    1 +
+ .../s1/incident-r1-memory/loadgen/k6-start.txt     |    1 +
+ .../s1/incident-r1-memory/loadgen/k6-summary.json  |  192 +
+ .../s1/incident-r1-memory/loadgen/k6.log.gz        |  Bin 0 -> 29310 bytes
+ .../s1/incident-r1-memory/loadgen/monitor.log      |    4 +
+ .../loadgen/prometheus/query_range.json.gz         |  Bin 0 -> 48745 bytes
+ .../target/batch-s1-r1-recon.full.log.gz           |  Bin 0 -> 18691 bytes
+ .../s1/incident-r1-memory/target/boundary.env      |    5 +
+ .../incident-r1-memory/target/integrity-target.txt |   16 +
+ .../incident-r1-memory/target/pg_stat_activity.csv |  114 +
+ perf/results/ec2-baseline/s1/r1/artifacts.txt      |    1 +
+ perf/results/ec2-baseline/s1/r1/environment.md     |    9 +
+ perf/results/ec2-baseline/s1/r1/integrity.md       |   19 +
+ .../ec2-baseline/s1/r1/loadgen/analysis.json       |    1 +
+ perf/results/ec2-baseline/s1/r1/loadgen/k6-end.txt |    1 +
+ .../results/ec2-baseline/s1/r1/loadgen/k6-exit.txt |    1 +
+ .../ec2-baseline/s1/r1/loadgen/k6-start.txt        |    1 +
+ .../ec2-baseline/s1/r1/loadgen/k6-summary.json     |  192 +
+ perf/results/ec2-baseline/s1/r1/loadgen/k6.log     | 3430 +++++++++++
+ .../results/ec2-baseline/s1/r1/loadgen/monitor.log |    4 +
+ .../s1/r1/loadgen/prometheus/query_range.json.gz   |  Bin 0 -> 42121 bytes
+ .../s1/r1/target/api-errors-excerpt.log            |    0
+ .../s1/r1/target/batch-s1-r1-recon.log             |   61 +
+ perf/results/ec2-baseline/s1/r1/target/batch.txt   |    1 +
+ .../results/ec2-baseline/s1/r1/target/boundary.env |    5 +
+ perf/results/ec2-baseline/s1/r1/target/disk.log    |    1 +
+ .../ec2-baseline/s1/r1/target/integrity-target.txt |   16 +
+ .../ec2-baseline/s1/r1/target/log-counts.txt       |    4 +
+ .../ec2-baseline/s1/r1/target/pg_stat_activity.csv |  112 +
+ .../ec2-baseline/s1/r1/target/postgres-excerpt.log |    1 +
+ perf/results/ec2-baseline/s1/r1/warmup/k6-end.txt  |    1 +
+ perf/results/ec2-baseline/s1/r1/warmup/k6-exit.txt |    1 +
+ .../results/ec2-baseline/s1/r1/warmup/k6-start.txt |    1 +
+ .../ec2-baseline/s1/r1/warmup/k6-summary.json      |  188 +
+ perf/results/ec2-baseline/s1/r1/warmup/k6.log      |   37 +
+ perf/results/ec2-baseline/s1/r2/artifacts.txt      |    1 +
+ perf/results/ec2-baseline/s1/r2/environment.md     |    9 +
+ perf/results/ec2-baseline/s1/r2/integrity.md       |   19 +
+ .../ec2-baseline/s1/r2/loadgen/analysis.json       |    1 +
+ perf/results/ec2-baseline/s1/r2/loadgen/k6-end.txt |    1 +
+ .../results/ec2-baseline/s1/r2/loadgen/k6-exit.txt |    1 +
+ .../ec2-baseline/s1/r2/loadgen/k6-start.txt        |    1 +
+ .../ec2-baseline/s1/r2/loadgen/k6-summary.json     |  192 +
+ perf/results/ec2-baseline/s1/r2/loadgen/k6.log     | 6127 ++++++++++++++++++++
+ .../results/ec2-baseline/s1/r2/loadgen/monitor.log |    4 +
+ .../s1/r2/loadgen/prometheus/query_range.json.gz   |  Bin 0 -> 42321 bytes
+ .../s1/r2/target/api-errors-excerpt.log            |    0
+ .../s1/r2/target/batch-s1-r2-recon.log             |   61 +
+ perf/results/ec2-baseline/s1/r2/target/batch.txt   |    1 +
+ .../results/ec2-baseline/s1/r2/target/boundary.env |    5 +
+ perf/results/ec2-baseline/s1/r2/target/disk.log    |    1 +
+ .../ec2-baseline/s1/r2/target/integrity-target.txt |   16 +
+ .../ec2-baseline/s1/r2/target/log-counts.txt       |    4 +
+ .../ec2-baseline/s1/r2/target/pg_stat_activity.csv |  115 +
+ .../ec2-baseline/s1/r2/target/postgres-excerpt.log |    1 +
+ perf/results/ec2-baseline/s1/r2/warmup/k6-end.txt  |    1 +
+ perf/results/ec2-baseline/s1/r2/warmup/k6-exit.txt |    1 +
+ .../results/ec2-baseline/s1/r2/warmup/k6-start.txt |    1 +
+ .../ec2-baseline/s1/r2/warmup/k6-summary.json      |  188 +
+ perf/results/ec2-baseline/s1/r2/warmup/k6.log      |   37 +
+ perf/results/ec2-baseline/s1/r3/artifacts.txt      |    1 +
+ perf/results/ec2-baseline/s1/r3/environment.md     |    9 +
+ perf/results/ec2-baseline/s1/r3/integrity.md       |   19 +
+ .../ec2-baseline/s1/r3/loadgen/analysis.json       |    1 +
+ perf/results/ec2-baseline/s1/r3/loadgen/k6-end.txt |    1 +
+ .../results/ec2-baseline/s1/r3/loadgen/k6-exit.txt |    1 +
+ .../ec2-baseline/s1/r3/loadgen/k6-start.txt        |    1 +
+ .../ec2-baseline/s1/r3/loadgen/k6-summary.json     |  192 +
+ perf/results/ec2-baseline/s1/r3/loadgen/k6.log.gz  |  Bin 0 -> 26355 bytes
+ .../results/ec2-baseline/s1/r3/loadgen/monitor.log |    4 +
+ .../s1/r3/loadgen/prometheus/query_range.json.gz   |  Bin 0 -> 42017 bytes
+ .../s1/r3/target/api-errors-excerpt.log            |    0
+ .../s1/r3/target/batch-s1-r3-recon.log             |   61 +
+ perf/results/ec2-baseline/s1/r3/target/batch.txt   |    1 +
+ .../results/ec2-baseline/s1/r3/target/boundary.env |    5 +
+ perf/results/ec2-baseline/s1/r3/target/disk.log    |    1 +
+ .../ec2-baseline/s1/r3/target/integrity-target.txt |   16 +
+ .../ec2-baseline/s1/r3/target/log-counts.txt       |    4 +
+ .../ec2-baseline/s1/r3/target/pg_stat_activity.csv |  124 +
+ .../ec2-baseline/s1/r3/target/postgres-excerpt.log |    2 +
+ perf/results/ec2-baseline/s1/r3/warmup/k6-end.txt  |    1 +
+ perf/results/ec2-baseline/s1/r3/warmup/k6-exit.txt |    1 +
+ .../results/ec2-baseline/s1/r3/warmup/k6-start.txt |    1 +
+ .../ec2-baseline/s1/r3/warmup/k6-summary.json      |  188 +
+ perf/results/ec2-baseline/s1/r3/warmup/k6.log      |   37 +
+ perf/results/ec2-baseline/s2/r1/artifacts.txt      |    1 +
+ perf/results/ec2-baseline/s2/r1/environment.md     |    9 +
+ perf/results/ec2-baseline/s2/r1/integrity.md       |   19 +
+ .../ec2-baseline/s2/r1/loadgen/analysis.json       |    1 +
+ perf/results/ec2-baseline/s2/r1/loadgen/k6-end.txt |    1 +
+ .../results/ec2-baseline/s2/r1/loadgen/k6-exit.txt |    1 +
+ .../ec2-baseline/s2/r1/loadgen/k6-start.txt        |    1 +
+ .../ec2-baseline/s2/r1/loadgen/k6-summary.json     |  164 +
+ perf/results/ec2-baseline/s2/r1/loadgen/k6.log     |   39 +
+ .../results/ec2-baseline/s2/r1/loadgen/monitor.log |    6 +
+ .../s2/r1/loadgen/prometheus/query_range.json.gz   |  Bin 0 -> 35626 bytes
+ .../s2/r1/target/api-errors-excerpt.log            |    0
+ .../s2/r1/target/batch-s2-r1-recon.log             |   61 +
+ perf/results/ec2-baseline/s2/r1/target/batch.txt   |    1 +
+ .../results/ec2-baseline/s2/r1/target/boundary.env |    5 +
+ perf/results/ec2-baseline/s2/r1/target/disk.log    |    1 +
+ .../ec2-baseline/s2/r1/target/integrity-target.txt |   16 +
+ .../ec2-baseline/s2/r1/target/log-counts.txt       |    4 +
+ .../ec2-baseline/s2/r1/target/pg_stat_activity.csv |  126 +
+ .../ec2-baseline/s2/r1/target/postgres-excerpt.log |  300 +
+ perf/results/ec2-baseline/s2/r1/warmup/k6-end.txt  |    1 +
+ perf/results/ec2-baseline/s2/r1/warmup/k6-exit.txt |    1 +
+ .../results/ec2-baseline/s2/r1/warmup/k6-start.txt |    1 +
+ .../ec2-baseline/s2/r1/warmup/k6-summary.json      |  188 +
+ perf/results/ec2-baseline/s2/r1/warmup/k6.log      |   37 +
+ perf/results/ec2-baseline/s2/r2/artifacts.txt      |    1 +
+ perf/results/ec2-baseline/s2/r2/environment.md     |    9 +
+ perf/results/ec2-baseline/s2/r2/integrity.md       |   19 +
+ .../ec2-baseline/s2/r2/loadgen/analysis.json       |    1 +
+ perf/results/ec2-baseline/s2/r2/loadgen/k6-end.txt |    1 +
+ .../results/ec2-baseline/s2/r2/loadgen/k6-exit.txt |    1 +
+ .../ec2-baseline/s2/r2/loadgen/k6-start.txt        |    1 +
+ .../ec2-baseline/s2/r2/loadgen/k6-summary.json     |  164 +
+ perf/results/ec2-baseline/s2/r2/loadgen/k6.log     |   35 +
+ .../results/ec2-baseline/s2/r2/loadgen/monitor.log |    5 +
+ .../s2/r2/loadgen/prometheus/query_range.json.gz   |  Bin 0 -> 31477 bytes
+ .../s2/r2/target/api-errors-excerpt.log            |    0
+ .../s2/r2/target/batch-s2-r2-recon.log             |   61 +
+ perf/results/ec2-baseline/s2/r2/target/batch.txt   |    1 +
+ .../results/ec2-baseline/s2/r2/target/boundary.env |    5 +
+ perf/results/ec2-baseline/s2/r2/target/disk.log    |    1 +
+ .../ec2-baseline/s2/r2/target/integrity-target.txt |   16 +
+ .../ec2-baseline/s2/r2/target/log-counts.txt       |    4 +
+ .../ec2-baseline/s2/r2/target/pg_stat_activity.csv |   95 +
+ .../ec2-baseline/s2/r2/target/postgres-excerpt.log |   64 +
+ perf/results/ec2-baseline/s2/r2/warmup/k6-end.txt  |    1 +
+ perf/results/ec2-baseline/s2/r2/warmup/k6-exit.txt |    1 +
+ .../results/ec2-baseline/s2/r2/warmup/k6-start.txt |    1 +
+ .../ec2-baseline/s2/r2/warmup/k6-summary.json      |  188 +
+ perf/results/ec2-baseline/s2/r2/warmup/k6.log      |   37 +
+ perf/results/ec2-baseline/s2/r3/artifacts.txt      |    1 +
+ perf/results/ec2-baseline/s2/r3/environment.md     |    9 +
+ perf/results/ec2-baseline/s2/r3/integrity.md       |   19 +
+ .../ec2-baseline/s2/r3/loadgen/analysis.json       |    1 +
+ perf/results/ec2-baseline/s2/r3/loadgen/k6-end.txt |    1 +
+ .../results/ec2-baseline/s2/r3/loadgen/k6-exit.txt |    1 +
+ .../ec2-baseline/s2/r3/loadgen/k6-start.txt        |    1 +
+ .../ec2-baseline/s2/r3/loadgen/k6-summary.json     |  164 +
+ perf/results/ec2-baseline/s2/r3/loadgen/k6.log     |   35 +
+ .../results/ec2-baseline/s2/r3/loadgen/monitor.log |    7 +
+ .../s2/r3/loadgen/prometheus/query_range.json.gz   |  Bin 0 -> 38041 bytes
+ .../s2/r3/target/api-errors-excerpt.log            |    0
+ .../s2/r3/target/batch-s2-r3-recon.log             |   61 +
+ perf/results/ec2-baseline/s2/r3/target/batch.txt   |    1 +
+ .../results/ec2-baseline/s2/r3/target/boundary.env |    5 +
+ perf/results/ec2-baseline/s2/r3/target/disk.log    |    1 +
+ .../ec2-baseline/s2/r3/target/integrity-target.txt |   16 +
+ .../ec2-baseline/s2/r3/target/log-counts.txt       |    4 +
+ .../ec2-baseline/s2/r3/target/pg_stat_activity.csv |  141 +
+ .../ec2-baseline/s2/r3/target/postgres-excerpt.log |  206 +
+ perf/results/ec2-baseline/s2/r3/warmup/k6-end.txt  |    1 +
+ perf/results/ec2-baseline/s2/r3/warmup/k6-exit.txt |    1 +
+ .../results/ec2-baseline/s2/r3/warmup/k6-start.txt |    1 +
+ .../ec2-baseline/s2/r3/warmup/k6-summary.json      |  188 +
+ perf/results/ec2-baseline/s2/r3/warmup/k6.log      |   37 +
+ perf/results/ec2-baseline/s2/r4/artifacts.txt      |    1 +
+ perf/results/ec2-baseline/s2/r4/environment.md     |    9 +
+ perf/results/ec2-baseline/s2/r4/integrity.md       |   19 +
+ .../ec2-baseline/s2/r4/loadgen/analysis.json       |    1 +
+ perf/results/ec2-baseline/s2/r4/loadgen/k6-end.txt |    1 +
+ .../results/ec2-baseline/s2/r4/loadgen/k6-exit.txt |    1 +
+ .../ec2-baseline/s2/r4/loadgen/k6-start.txt        |    1 +
+ .../ec2-baseline/s2/r4/loadgen/k6-summary.json     |  164 +
+ perf/results/ec2-baseline/s2/r4/loadgen/k6.log     |   35 +
+ .../results/ec2-baseline/s2/r4/loadgen/monitor.log |    7 +
+ .../s2/r4/loadgen/prometheus/query_range.json.gz   |  Bin 0 -> 37893 bytes
+ .../s2/r4/target/api-errors-excerpt.log            |    0
+ .../s2/r4/target/batch-s2-r4-recon.log             |   61 +
+ perf/results/ec2-baseline/s2/r4/target/batch.txt   |    1 +
+ .../results/ec2-baseline/s2/r4/target/boundary.env |    5 +
+ perf/results/ec2-baseline/s2/r4/target/disk.log    |    1 +
+ .../ec2-baseline/s2/r4/target/integrity-target.txt |   16 +
+ .../ec2-baseline/s2/r4/target/log-counts.txt       |    4 +
+ .../ec2-baseline/s2/r4/target/pg_stat_activity.csv |  136 +
+ .../ec2-baseline/s2/r4/target/postgres-excerpt.log |  300 +
+ perf/results/ec2-baseline/s2/r4/warmup/k6-end.txt  |    1 +
+ perf/results/ec2-baseline/s2/r4/warmup/k6-exit.txt |    1 +
+ .../results/ec2-baseline/s2/r4/warmup/k6-start.txt |    1 +
+ .../ec2-baseline/s2/r4/warmup/k6-summary.json      |  188 +
+ perf/results/ec2-baseline/s2/r4/warmup/k6.log      |   37 +
+ perf/results/ec2-baseline/s3/r1/artifacts.txt      |    1 +
+ perf/results/ec2-baseline/s3/r1/environment.md     |    9 +
+ perf/results/ec2-baseline/s3/r1/integrity.md       |   19 +
+ .../ec2-baseline/s3/r1/loadgen/analysis.json       |    1 +
+ perf/results/ec2-baseline/s3/r1/loadgen/k6-end.txt |    1 +
+ .../results/ec2-baseline/s3/r1/loadgen/k6-exit.txt |    1 +
+ .../ec2-baseline/s3/r1/loadgen/k6-start.txt        |    1 +
+ .../ec2-baseline/s3/r1/loadgen/k6-summary.json     |  199 +
+ perf/results/ec2-baseline/s3/r1/loadgen/k6.log.gz  |  Bin 0 -> 46454 bytes
+ .../s3/r1/loadgen/prometheus/query_range.json.gz   |  Bin 0 -> 28497 bytes
+ .../s3/r1/target/api-errors-excerpt.log            |    0
+ .../s3/r1/target/batch-s3-r1-recon.log             |   61 +
+ perf/results/ec2-baseline/s3/r1/target/batch.txt   |    1 +
+ .../results/ec2-baseline/s3/r1/target/boundary.env |    5 +
+ perf/results/ec2-baseline/s3/r1/target/disk.log    |    1 +
+ .../ec2-baseline/s3/r1/target/integrity-target.txt |   16 +
+ .../ec2-baseline/s3/r1/target/log-counts.txt       |    4 +
+ .../ec2-baseline/s3/r1/target/pg_stat_activity.csv |   81 +
+ .../ec2-baseline/s3/r1/target/postgres-excerpt.log |    1 +
+ perf/results/ec2-baseline/s3/r1/warmup/k6-end.txt  |    1 +
+ perf/results/ec2-baseline/s3/r1/warmup/k6-exit.txt |    1 +
+ .../results/ec2-baseline/s3/r1/warmup/k6-start.txt |    1 +
+ .../ec2-baseline/s3/r1/warmup/k6-summary.json      |  188 +
+ perf/results/ec2-baseline/s3/r1/warmup/k6.log      |   37 +
+ perf/results/ec2-baseline/s3/r2/artifacts.txt      |    1 +
+ perf/results/ec2-baseline/s3/r2/environment.md     |    9 +
+ perf/results/ec2-baseline/s3/r2/integrity.md       |   19 +
+ .../ec2-baseline/s3/r2/loadgen/analysis.json       |    1 +
+ perf/results/ec2-baseline/s3/r2/loadgen/k6-end.txt |    1 +
+ .../results/ec2-baseline/s3/r2/loadgen/k6-exit.txt |    1 +
+ .../ec2-baseline/s3/r2/loadgen/k6-start.txt        |    1 +
+ .../ec2-baseline/s3/r2/loadgen/k6-summary.json     |  199 +
+ perf/results/ec2-baseline/s3/r2/loadgen/k6.log.gz  |  Bin 0 -> 48609 bytes
+ .../s3/r2/loadgen/prometheus/query_range.json.gz   |  Bin 0 -> 29059 bytes
+ .../s3/r2/target/api-errors-excerpt.log            |    0
+ .../s3/r2/target/batch-s3-r2-recon.log             |   61 +
+ perf/results/ec2-baseline/s3/r2/target/batch.txt   |    1 +
+ .../results/ec2-baseline/s3/r2/target/boundary.env |    5 +
+ perf/results/ec2-baseline/s3/r2/target/disk.log    |    1 +
+ .../ec2-baseline/s3/r2/target/integrity-target.txt |   16 +
+ .../ec2-baseline/s3/r2/target/log-counts.txt       |    4 +
+ .../ec2-baseline/s3/r2/target/pg_stat_activity.csv |   79 +
+ .../ec2-baseline/s3/r2/target/postgres-excerpt.log |    6 +
+ perf/results/ec2-baseline/s3/r2/warmup/k6-end.txt  |    1 +
+ perf/results/ec2-baseline/s3/r2/warmup/k6-exit.txt |    1 +
+ .../results/ec2-baseline/s3/r2/warmup/k6-start.txt |    1 +
+ .../ec2-baseline/s3/r2/warmup/k6-summary.json      |  188 +
+ perf/results/ec2-baseline/s3/r2/warmup/k6.log      |   37 +
+ perf/results/ec2-baseline/s3/r3/artifacts.txt      |    1 +
+ perf/results/ec2-baseline/s3/r3/environment.md     |    9 +
+ perf/results/ec2-baseline/s3/r3/integrity.md       |   19 +
+ .../ec2-baseline/s3/r3/loadgen/analysis.json       |    1 +
+ perf/results/ec2-baseline/s3/r3/loadgen/k6-end.txt |    1 +
+ .../results/ec2-baseline/s3/r3/loadgen/k6-exit.txt |    1 +
+ .../ec2-baseline/s3/r3/loadgen/k6-start.txt        |    1 +
+ .../ec2-baseline/s3/r3/loadgen/k6-summary.json     |  199 +
+ perf/results/ec2-baseline/s3/r3/loadgen/k6.log.gz  |  Bin 0 -> 47051 bytes
+ .../s3/r3/loadgen/prometheus/query_range.json.gz   |  Bin 0 -> 28501 bytes
+ .../s3/r3/target/api-errors-excerpt.log            |    0
+ .../s3/r3/target/batch-s3-r3-recon.log             |   61 +
+ perf/results/ec2-baseline/s3/r3/target/batch.txt   |    1 +
+ .../results/ec2-baseline/s3/r3/target/boundary.env |    5 +
+ perf/results/ec2-baseline/s3/r3/target/disk.log    |    1 +
+ .../ec2-baseline/s3/r3/target/integrity-target.txt |   16 +
+ .../ec2-baseline/s3/r3/target/log-counts.txt       |    4 +
+ .../ec2-baseline/s3/r3/target/pg_stat_activity.csv |   86 +
+ .../ec2-baseline/s3/r3/target/postgres-excerpt.log |    1 +
+ perf/results/ec2-baseline/s3/r3/warmup/k6-end.txt  |    1 +
+ perf/results/ec2-baseline/s3/r3/warmup/k6-exit.txt |    1 +
+ .../results/ec2-baseline/s3/r3/warmup/k6-start.txt |    1 +
+ .../ec2-baseline/s3/r3/warmup/k6-summary.json      |  188 +
+ perf/results/ec2-baseline/s3/r3/warmup/k6.log      |   37 +
+ perf/results/ec2-baseline/s5/r1/artifacts.txt      |    1 +
+ perf/results/ec2-baseline/s5/r1/environment.md     |    9 +
+ perf/results/ec2-baseline/s5/r1/integrity.md       |   22 +
+ .../ec2-baseline/s5/r1/loadgen/analysis.json       |    1 +
+ perf/results/ec2-baseline/s5/r1/loadgen/k6-end.txt |    1 +
+ .../results/ec2-baseline/s5/r1/loadgen/k6-exit.txt |    1 +
+ .../ec2-baseline/s5/r1/loadgen/k6-start.txt        |    1 +
+ .../ec2-baseline/s5/r1/loadgen/k6-summary.json     |  199 +
+ perf/results/ec2-baseline/s5/r1/loadgen/k6.log     |   43 +
+ .../s5/r1/loadgen/prometheus/query_range.json.gz   |  Bin 0 -> 107135 bytes
+ .../s5/r1/noload/target/batch-explain.txt          |   29 +
+ .../batch-s5-r1-noload-noload-ctrDetectionJob.log  |   60 +
+ .../batch-s5-r1-noload-noload-fdsDetectionJob.log  |   60 +
+ ...s5-r1-noload-noload-ledgerReconciliationJob.log |   61 +
+ .../s5/r1/noload/target/batch-slow.sql             |    3 +
+ .../ec2-baseline/s5/r1/noload/target/batch.txt     |    3 +
+ .../s5/r1/target/api-errors-excerpt.log            |    0
+ .../r1/target/batch-s5-r1-load-ctrDetectionJob.log |   60 +
+ .../r1/target/batch-s5-r1-load-fdsDetectionJob.log |   60 +
+ .../batch-s5-r1-load-ledgerReconciliationJob.log   |   61 +
+ .../s5/r1/target/batch-s5-r1-recon.log             |   61 +
+ perf/results/ec2-baseline/s5/r1/target/batch.txt   |    4 +
+ .../results/ec2-baseline/s5/r1/target/boundary.env |    5 +
+ perf/results/ec2-baseline/s5/r1/target/disk.log    |    1 +
+ .../ec2-baseline/s5/r1/target/integrity-target.txt |   16 +
+ .../ec2-baseline/s5/r1/target/log-counts.txt       |    4 +
+ .../ec2-baseline/s5/r1/target/pg_stat_activity.csv |  289 +
+ .../ec2-baseline/s5/r1/target/postgres-excerpt.log |    6 +
+ perf/results/ec2-baseline/s5/r1/warmup/k6-end.txt  |    1 +
+ perf/results/ec2-baseline/s5/r1/warmup/k6-exit.txt |    1 +
+ .../results/ec2-baseline/s5/r1/warmup/k6-start.txt |    1 +
+ .../ec2-baseline/s5/r1/warmup/k6-summary.json      |  188 +
+ perf/results/ec2-baseline/s5/r1/warmup/k6.log      |   37 +
+ perf/results/ec2-baseline/s5/r2/artifacts.txt      |    1 +
+ perf/results/ec2-baseline/s5/r2/environment.md     |    9 +
+ perf/results/ec2-baseline/s5/r2/integrity.md       |   22 +
+ .../ec2-baseline/s5/r2/loadgen/analysis.json       |    1 +
+ perf/results/ec2-baseline/s5/r2/loadgen/k6-end.txt |    1 +
+ .../results/ec2-baseline/s5/r2/loadgen/k6-exit.txt |    1 +
+ .../ec2-baseline/s5/r2/loadgen/k6-start.txt        |    1 +
+ .../ec2-baseline/s5/r2/loadgen/k6-summary.json     |  199 +
+ perf/results/ec2-baseline/s5/r2/loadgen/k6.log     |   44 +
+ .../s5/r2/loadgen/prometheus/query_range.json.gz   |  Bin 0 -> 107559 bytes
+ .../s5/r2/noload/target/batch-explain.txt          |   29 +
+ .../batch-s5-r2-noload-noload-ctrDetectionJob.log  |   60 +
+ .../batch-s5-r2-noload-noload-fdsDetectionJob.log  |   60 +
+ ...s5-r2-noload-noload-ledgerReconciliationJob.log |   61 +
+ .../s5/r2/noload/target/batch-slow.sql             |    3 +
+ .../ec2-baseline/s5/r2/noload/target/batch.txt     |    3 +
+ .../s5/r2/target/api-errors-excerpt.log            |    0
+ .../r2/target/batch-s5-r2-load-ctrDetectionJob.log |   60 +
+ .../r2/target/batch-s5-r2-load-fdsDetectionJob.log |   60 +
+ .../batch-s5-r2-load-ledgerReconciliationJob.log   |   61 +
+ .../s5/r2/target/batch-s5-r2-recon.log             |   61 +
+ perf/results/ec2-baseline/s5/r2/target/batch.txt   |    4 +
+ .../results/ec2-baseline/s5/r2/target/boundary.env |    5 +
+ perf/results/ec2-baseline/s5/r2/target/disk.log    |    1 +
+ .../ec2-baseline/s5/r2/target/integrity-target.txt |   16 +
+ .../ec2-baseline/s5/r2/target/log-counts.txt       |    4 +
+ .../ec2-baseline/s5/r2/target/pg_stat_activity.csv |  289 +
+ .../ec2-baseline/s5/r2/target/postgres-excerpt.log |    6 +
+ perf/results/ec2-baseline/s5/r2/warmup/k6-end.txt  |    1 +
+ perf/results/ec2-baseline/s5/r2/warmup/k6-exit.txt |    1 +
+ .../results/ec2-baseline/s5/r2/warmup/k6-start.txt |    1 +
+ .../ec2-baseline/s5/r2/warmup/k6-summary.json      |  188 +
+ perf/results/ec2-baseline/s5/r2/warmup/k6.log      |   37 +
+ perf/results/ec2-baseline/s5/r3/artifacts.txt      |    1 +
+ perf/results/ec2-baseline/s5/r3/environment.md     |    9 +
+ perf/results/ec2-baseline/s5/r3/integrity.md       |   22 +
+ .../ec2-baseline/s5/r3/loadgen/analysis.json       |    1 +
+ perf/results/ec2-baseline/s5/r3/loadgen/k6-end.txt |    1 +
+ .../results/ec2-baseline/s5/r3/loadgen/k6-exit.txt |    1 +
+ .../ec2-baseline/s5/r3/loadgen/k6-start.txt        |    1 +
+ .../ec2-baseline/s5/r3/loadgen/k6-summary.json     |  195 +
+ perf/results/ec2-baseline/s5/r3/loadgen/k6.log     |   38 +
+ .../s5/r3/loadgen/prometheus/query_range.json.gz   |  Bin 0 -> 106922 bytes
+ .../s5/r3/noload/target/batch-explain.txt          |   29 +
+ .../batch-s5-r3-noload-noload-ctrDetectionJob.log  |   60 +
+ .../batch-s5-r3-noload-noload-fdsDetectionJob.log  |   60 +
+ ...s5-r3-noload-noload-ledgerReconciliationJob.log |   61 +
+ .../s5/r3/noload/target/batch-slow.sql             |    3 +
+ .../ec2-baseline/s5/r3/noload/target/batch.txt     |    3 +
+ .../s5/r3/target/api-errors-excerpt.log            |    0
+ .../r3/target/batch-s5-r3-load-ctrDetectionJob.log |   60 +
+ .../r3/target/batch-s5-r3-load-fdsDetectionJob.log |   60 +
+ .../batch-s5-r3-load-ledgerReconciliationJob.log   |   61 +
+ .../s5/r3/target/batch-s5-r3-recon.log             |   61 +
+ perf/results/ec2-baseline/s5/r3/target/batch.txt   |    4 +
+ .../results/ec2-baseline/s5/r3/target/boundary.env |    5 +
+ perf/results/ec2-baseline/s5/r3/target/disk.log    |    1 +
+ .../ec2-baseline/s5/r3/target/integrity-target.txt |   16 +
+ .../ec2-baseline/s5/r3/target/log-counts.txt       |    4 +
+ .../ec2-baseline/s5/r3/target/pg_stat_activity.csv |  294 +
+ .../ec2-baseline/s5/r3/target/postgres-excerpt.log |    6 +
+ perf/results/ec2-baseline/s5/r3/warmup/k6-end.txt  |    1 +
+ perf/results/ec2-baseline/s5/r3/warmup/k6-exit.txt |    1 +
+ .../results/ec2-baseline/s5/r3/warmup/k6-start.txt |    1 +
+ .../ec2-baseline/s5/r3/warmup/k6-summary.json      |  188 +
+ perf/results/ec2-baseline/s5/r3/warmup/k6.log      |   37 +
+ perf/results/ec2-baseline/summary.md               |   62 +
+ perf/run-ec2.py                                    |  456 ++
+ perf/run-ec2.sh                                    |   16 +
+ 428 files changed, 27377 insertions(+)
+
