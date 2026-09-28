@@ -84,7 +84,7 @@ def system_stats(run, start, end):
         "hikari_active_max": f'max_over_time(sum(hikaricp_connections_active{{job="api"}}){r})',
         "hikari_pending_max": f'max_over_time(sum(hikaricp_connections_pending{{job="api"}}){r})',
         "lock_wait_max_s": f'max_over_time(max(db_lock_wait_seconds_max{{job="api"}}){r})',
-        "tomcat_busy_max": f'max_over_time(sum(tomcat_threads_busy_threads{{job="api"}}){r})',
+        "tomcat_busy_max": f'max_over_time(sum(tomcat_threads_busy_threads{{job="api",name="http-nio-8080"}}){r})',
         "heap_used_max": f'max_over_time(sum(jvm_memory_used_bytes{{job="api",area="heap"}}){r})',
         "gc_pause_ratio": f'sum(increase(jvm_gc_pause_seconds_sum{{job="api"}}[{d}s])) / {d}',
         "pg_lock_waiting_max": f'max_over_time(pg_lock_waiting_sessions{{job="target-postgres"}}{r})',
