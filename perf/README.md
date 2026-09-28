@@ -384,7 +384,9 @@ docker compose -f infra/compose/docker-compose.yml exec -T postgres psql -U jban
 | --- | --- | --- | --- |
 | 관측 도구 | Prometheus·Grafana가 같은 인스턴스 | 부하 발생기로 옮김 | 관측 도구가 대상 자원을 쓰지 않게. 대신 메모리 여유가 운영보다 크다 |
 | TLS | Let's Encrypt(공인 도메인) | caddy `tls internal` + `default_sni`(사설 IP) | 공인 도메인 없음. IP 접속은 SNI가 없어 default_sni 필요 |
-| api 지표 수집 | `api:8080/actuator/prometheus` | `metrics-proxy`(:9091)가 perf 전용 계정으로 로그인해 대신 수집 | `/actuator/prometheus`가 인증을 요구해 직접 긁으면 401 |
+| api 지표 수집 | `api:8080/actuator/prometheus` | `metrics-proxy`(:9091)가 perf 전용 계정으로 로그인해 관리 포트에서 대신 수집. 재로그인은 백그라운드(발급 5분 뒤부터, 성공 시에만 쿠키 교체), 회차 측정 경계마다 프록시 재시작 후 수집 확인 | `/actuator/prometheus`가 인증을 요구해 직접 긁으면 401. 로그인이 본 포트에만 있어 포화 구간에 실패할 수 있음 |
+| 관리 엔드포인트 | 본 포트(8080) | 별도 관리 포트 9095(`MANAGEMENT_SERVER_PORT`, 호스트 미매핑). 헬스체크·readiness도 이 포트 | 1차 측정에서 본 포트 포화 시 지표 수집이 끊김. 관리 포트는 자체 커넥터·스레드를 쓴다 |
+| 부하 발생 | 없음 | 같은 AZ의 별도 EC2(c7i.large)에서 k6 실행 | 부하 발생이 대상 자원을 쓰지 않게 |
 | exporter | 없음 | node_exporter·cAdvisor·postgres_exporter(락 대기 세션 custom query) | 호스트·컨테이너·PG 원인 지표 |
 | PG 로그 | 기본값 | `log_min_duration_statement=200`, `log_lock_waits=on` | 느린 쿼리·락 대기 증거 |
 | Tomcat 지표 | 미노출 | `SERVER_TOMCAT_MBEANREGISTRY_ENABLED=true` | 바쁜 스레드 수 관측(노출만 바뀜) |
@@ -414,16 +416,22 @@ perf/run-ec2.sh down        # destroy + 잔여 리소스 확인(env/destroy.md)
 AWS-StartPortForwardingSession --parameters '{"portNumber":["3000"],"localPortNumber":["3000"]}'` 후
 `http://localhost:3000`(익명 보기). 모든 명령 기록은 `perf/results/ec2-baseline/env/commands.log`.
 
-### 결과 요약 (2026-09-28, 개선 전 기준선)
+`up`에서 "SSM 등록 시간 초과"가 나면(인스턴스 프로필 권한이 반영되기 전에 SSM 에이전트가 떠서 재시도 대기에 걸리는 경우, 2026-09-28
+부하 발생기에서 한 번 발생) 그 인스턴스를 `aws ec2 reboot-instances`로 재부팅한 뒤 `up`을 다시 실행한다(apply는 변경 없음).
+회차의 정합성 표는 `perf/run-ec2.py regen-integrity <회차 폴더...>`로 받아 둔 원자료에서 다시 만들 수 있다.
 
-회차별 표는 `perf/results/ec2-baseline/summary.md`, 원인 분석은 `bottleneck-analysis.md`.
+### 결과 요약 (2026-09-28 재측정, 개선 전 기준선)
+
+회차별 표는 `perf/results/ec2-baseline/summary.md`, 원인 분석은 `bottleneck-analysis.md`. 결함이 있던 1차 측정은
+`perf/results/ec2-baseline/first-pass/`에 보존(대표값에 쓰지 않음). 재측정은 모든 회차 지표 결측 0, 무효 회차 없음.
 
 | 시나리오 | 무너진 요청률(대표) | 최대 지속 가능 | 원인 |
 | --- | --- | --- | --- |
-| S1 혼합 | 초당 100건(3/3) | 초당 50건 | CPU 포화(84~95%). 로그인 서버 p95 297ms로 가장 무거움 |
-| S2 핫 계좌 | 초당 90건(60~100) | 초당 70건 | 행 락 대기 → Hikari 10개 고갈(대기 120) → 무관한 잔액 조회 p95 10→744ms(전파 4/4) |
-| S3 스파이크 | 목표 500 중 176건/s 처리, 오류 89% | — | Tomcat 200·Hikari 대기 189, 회복 85초(3/3 미회복) |
-| S5 배치 중첩(초당 35건) | 무너지지 않음 | — | CTR 쿼리 Parallel Seq Scan 9.1초, 배치 1.3~1.5배 느려짐, 배치 구간 p95 최대 223ms |
+| S1 혼합 | 초당 100건(3/3) | 초당 50건 | CPU 포화(80~84%, 다음 단계 98%). 로그인 서버 p95 315ms로 이체·잔액의 8~26배 |
+| S2 핫 계좌 | 초당 80건(80~100) | 초당 60건 | 행 락 대기 0.77s → Hikari 대기 99 → 무관한 잔액 조회 p95 8→1,397ms(전파 3/3), CPU 46%로 여유 |
+| S3 스파이크 | 목표 500 중 172건/s 처리, 오류 88% | — | Tomcat 200·Hikari 대기 192, 회복 100초(3/3 미회복) |
+| S5 배치 중첩(초당 35건) | 무너지지 않음 | — | CTR 쿼리 Parallel Seq Scan 9.1초, 배치 1.3~1.5배 느려짐, 배치 구간 p95 최대 220ms |
 
-모든 회차에서 원장·잔액 정합성은 유지됐지만, 클라이언트가 타임아웃(실패)을 받은 이체가 실제로 완료된 건이 S1 1,640건,
-S3 2,685건(중앙값) 생겼다. 첫 S1 시도에서는 무너진 뒤 배치 JVM이 더 뜨자 2GB 대상이 메모리 스래싱으로 약 50분 멈췄다.
+모든 회차에서 원장·잔액 정합성은 유지됐지만, 멱등키 대조 결과 클라이언트가 타임아웃(실패)을 받은 이체는 사실상 전부 실제로
+완료됐다(S1 실패 체크 579~1,723건 전부, S3 타임아웃 2,633~2,827건). caddy 502는 한 건도 반영되지 않았다. 1차 측정의 첫 S1
+시도에서는 무너진 뒤 배치 JVM이 더 뜨자 2GB 대상이 메모리 스래싱으로 약 50분 멈췄다(`first-pass/s1/incident-r1-memory/`).
