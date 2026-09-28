@@ -8,12 +8,15 @@ SSM 출력으로 나눠 받아온다(추가 IAM 권한·SSH 없음). 명령은 p
   python3 perf/run-ec2.py up                      # terraform apply + 생성 조건 기록(REQ-01)
   python3 perf/run-ec2.py setup                   # 두 인스턴스 저장소 동기화·스택 기동(REQ-03)
   python3 perf/run-ec2.py prepare                 # 시드 → 준비 → 기준 대사 → 복사본 → 복원 검증(REQ-04)
-  python3 perf/run-ec2.py run s1 1                # 시나리오 회차 실행(s1|s2|s3), 결과를 로컬로 수집
+  python3 perf/run-ec2.py run s1 1                # 시나리오 회차 실행(s1|s2|s2f|s3), 결과를 로컬로 수집
   python3 perf/run-ec2.py run s5 1 --rate 140     # S5는 S1 최대 지속 가능 요청률 최솟값의 70%
   python3 perf/run-ec2.py dry-run                 # 짧은 S1(초당 10건 20초)로 수집 경로 확인(기준선 제외)
+  python3 perf/run-ec2.py dry-run s2f             # s2f를 상한 초당 60건(40·50·60)으로 짧게 돌려 경로 확인
   python3 perf/run-ec2.py down                    # terraform destroy + 삭제 확인(REQ-02)
 
-모든 명령은 perf/results/ec2-baseline/env/commands.log에 실행 기록을 남긴다(REQ-13).
+모든 명령은 <결과 루트>/env/commands.log에 실행 기록을 남긴다(REQ-13).
+환경변수: PERF_RESULTS(결과 루트, 저장소 루트 기준, 기본 perf/results/ec2-baseline),
+PERF_GIT_REF(인스턴스가 체크아웃할 원격 브랜치, 기본 perf/ec2-load-test. 실행 전에 push해 둔다).
 """
 import argparse
 import base64
@@ -29,9 +32,12 @@ import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TF_DIR = os.path.join(ROOT, "infra/terraform/envs/perf")
-RESULTS = os.path.join(ROOT, "perf/results/ec2-baseline")
+RESULTS = os.path.join(ROOT, os.environ.get("PERF_RESULTS", "perf/results/ec2-baseline"))
 REGION = "ap-northeast-2"
-GIT_REF = "perf/ec2-load-test"
+GIT_REF = os.environ.get("PERF_GIT_REF", "perf/ec2-load-test")
+# s2f: 핫 계좌 정밀 측정(.claude/tasks/hot-account-baseline/task.md). 드라이런은 상한만 60으로 줄인다.
+S2F_RAMP = "S2_START=40 S2_STEP=10 S2_MAX=400"
+S2F_DRY_RAMP = "S2_START=40 S2_STEP=10 S2_MAX=60"
 CHUNK = 20000
 UPLOAD_CHUNK = 8000  # SSM 명령 매개변수 크기 한도 안쪽
 
@@ -316,11 +322,15 @@ def cmd_run(args):
     target_sh(i, f"sampler-start {run}")
 
     windows = []
-    if args.dry:
+    if args.dry and scen == "s2f":
+        k6_run(i, run, "s2-hot-account.js", "s2f", S2F_DRY_RAMP)
+        mode = "s2f"
+    elif args.dry:
         k6_run(i, run, "s1-mixed.js", "none", "MODE=constant RATE=10 DURATION=20s")
         mode = "warmup"
-    elif scen in ("s1", "s2"):
-        k6_run(i, run, "s1-mixed.js" if scen == "s1" else "s2-hot-account.js", scen, "MODE=ramp" if scen == "s1" else "")
+    elif scen in ("s1", "s2", "s2f"):
+        script = "s1-mixed.js" if scen == "s1" else "s2-hot-account.js"
+        k6_run(i, run, script, scen, {"s1": "MODE=ramp", "s2": "", "s2f": S2F_RAMP}[scen])
         mode = scen
     elif scen == "s3":
         k6_run(i, run, "s3-spike.js", "none")
@@ -452,7 +462,7 @@ def write_environment(local, run, scen, args, start, end, kst_now, credit, loadg
         f.write(f"# {run} 측정 조건 (PERF-01)\n\n")
         f.write(f"- 시나리오: {scen}, 회차: {args.round}, S5 요청률: {args.rate}\n")
         f.write(f"- 부하 발생기 인스턴스 유형: {loadgen_type}\n")
-        f.write(f"- 로컬 저장소 커밋: {sh(['git', 'rev-parse', 'HEAD']).stdout.strip()}\n")
+        f.write(f"- 로컬 저장소 커밋: {sh(['git', 'rev-parse', 'HEAD']).stdout.strip()}, 원격 브랜치: {GIT_REF}\n")
         f.write(f"- 시작(KST): {kst_now.isoformat(timespec='seconds')}\n")
         f.write(f"- k6 구간(UTC epoch): {start} ~ {end}\n")
         f.write("- 회차 시작 조건: PG 복사본 복원 → OS 페이지 캐시 비움 → 스택 재기동(redis 새 컨테이너) → readiness → 예열(초당 20건 2분, 별도 k6 실행) → 측정 경계 기록\n")
@@ -468,7 +478,8 @@ REQUIRED = ["loadgen/k6-summary.json", "loadgen/analysis.json", "loadgen/prometh
 
 
 def check_artifacts(local, scen, dry):
-    need = list(REQUIRED) + (["loadgen/monitor.log"] if scen in ("s1", "s2") and not dry else []) \
+    watched = scen in ("s1", "s2", "s2f") and not dry or scen == "s2f"
+    need = list(REQUIRED) + (["loadgen/monitor.log"] if watched else []) \
         + (["noload/target/batch-explain.txt", "target/batch.txt", "target/batch-counts.txt",
             "noload/target/batch-counts.txt"] if scen == "s5" and not dry else [])
     missing = [p for p in need if not os.path.exists(os.path.join(local, p))]
@@ -513,10 +524,11 @@ def main():
     g = sub.add_parser("regen-integrity")  # 받아 둔 원자료로 회차 정합성 표를 다시 만든다(원격 접속 없음)
     g.add_argument("dirs", nargs="+")
     r = sub.add_parser("run")
-    r.add_argument("scenario", choices=["s1", "s2", "s3", "s5"])
+    r.add_argument("scenario", choices=["s1", "s2", "s2f", "s3", "s5"])
     r.add_argument("round", type=int)
     r.add_argument("--rate", type=int, default=0)
     d = sub.add_parser("dry-run")
+    d.add_argument("scenario", nargs="?", default="s1", choices=["s1", "s2", "s2f", "s3", "s5"])
     args = p.parse_args()
     log(f"$ run-ec2.py {' '.join(sys.argv[1:])}")
     if args.cmd == "regen-integrity":
@@ -524,7 +536,9 @@ def main():
             write_integrity(d, os.path.basename(os.path.dirname(d)) + "-" + os.path.basename(d))
         return
     if args.cmd == "dry-run":
-        args.scenario, args.round, args.rate, args.dry = "s1", 0, 0, True
+        # s2f만 자기 경로로 드라이런하고, 나머지는 기존처럼 짧은 S1로 수집 경로를 본다.
+        args.scenario = "s2f" if args.scenario == "s2f" else "s1"
+        args.round, args.rate, args.dry = 0, 0, True
         return cmd_run(args)
     if args.cmd == "run":
         args.dry = False
