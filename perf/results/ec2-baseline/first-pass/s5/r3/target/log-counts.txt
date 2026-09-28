@@ -1,0 +1,4 @@
+slow_statements=6
+lock_wait_lines=0
+api_error_lines=0
+api_warn_lines=0

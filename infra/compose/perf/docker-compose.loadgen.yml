@@ -1,0 +1,47 @@
+# perf 부하 발생 EC2의 관측 스택. 관측 도구가 대상 자원을 쓰지 않도록 대상이 아닌 이곳에 둔다.
+# k6는 호스트에 설치(user_data)하고 --out experimental-prometheus-rw로 이 Prometheus에 보낸다.
+# prometheus.yml은 perf/run-ec2.sh setup-loadgen이 대상 사설 IP를 넣어 loadgen/prometheus.yml.tpl에서 만든다.
+# 접속: 로컬에서 SSM 포트 포워딩(3000 Grafana, 9090 Prometheus). 외부 인바운드는 없다.
+services:
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=7d
+      - --web.enable-remote-write-receiver
+      # k6 응답 시간을 네이티브 히스토그램으로 받아 단계 구간별 p95·p99를 정확히 계산한다.
+      - --enable-feature=native-histograms
+    ports:
+      - "127.0.0.1:9090:9090"
+    volumes:
+      - ./loadgen/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+
+  grafana:
+    image: grafana/grafana:11.3.1
+    restart: unless-stopped
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - ./loadgen/provisioning:/etc/grafana/provisioning:ro
+      - grafana-data:/var/lib/grafana
+
+  # 부하 발생기 자체의 CPU(80% 넘으면 그 회차 무효, REQ-11).
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    restart: unless-stopped
+    command: ["--path.rootfs=/host"]
+    pid: host
+    ports:
+      - "127.0.0.1:9100:9100"
+    volumes:
+      - /:/host:ro,rslave
+
+volumes:
+  prometheus-data:
+  grafana-data:

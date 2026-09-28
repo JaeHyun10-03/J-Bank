@@ -1,0 +1,780 @@
+2026-09-27T23:12:44 $ run-ec2.py up
+2026-09-27T23:12:44 terraform apply (perf)
+2026-09-27T23:13:12 SSM 등록 대기
+2026-09-27T23:13:24 ssm i-062a05cde1f7675e4: for n in $(seq 1 90); do test -f /var/lib/cloud/instance/jbank-perf-ready && exit 0; sleep 10; done; exit 1
+2026-09-27T23:15:07 ssm i-096e37176e24102ff: for n in $(seq 1 90); do test -f /var/lib/cloud/instance/jbank-perf-ready && exit 0; sleep 10; done; exit 1
+2026-09-27T23:15:15 기록 perf/results/ec2-baseline/env/infra.md
+2026-09-27T23:15:25 $ run-ec2.py setup
+2026-09-27T23:15:26 ssm i-062a05cde1f7675e4: runuser -u ec2-user -- git -C /opt/jbank fetch -q origin perf/ec2-load-test && runuser -u ec2-user -- git -C /opt/jbank checkout -q -f cb67fff904f0c82dbcf03b2dfa17e4b999d34019 && git -c safe.directory='*' -C /opt/jbank rev-parse HEAD
+2026-09-27T23:15:30 ssm i-096e37176e24102ff: runuser -u ec2-user -- git -C /opt/jbank fetch -q origin perf/ec2-load-test && runuser -u ec2-user -- git -C /opt/jbank checkout -q -f cb67fff904f0c82dbcf03b2dfa17e4b999d34019 && git -c safe.directory='*' -C /opt/jbank rev-parse HEAD
+2026-09-27T23:15:34 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh setup
+2026-09-27T23:16:49 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh environment
+2026-09-27T23:16:53 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh setup 172.31.63.69
+2026-09-27T23:17:10 ssm i-062a05cde1f7675e4: cd /opt/perf-out/env && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-27T23:17:14 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-27T23:17:18 수집 i-062a05cde1f7675e4:/opt/perf-out/env → perf/results/ec2-baseline/env/target (1303 bytes)
+2026-09-27T23:17:18 ssm i-096e37176e24102ff: cd /opt/perf-out/env && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-27T23:17:22 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-27T23:17:26 수집 i-096e37176e24102ff:/opt/perf-out/env → perf/results/ec2-baseline/env/loadgen (238 bytes)
+2026-09-27T23:17:34 ssm i-096e37176e24102ff: curl -s localhost:9090/api/v1/targets | python3 -c "import json,sys; [print(t['labels']['job'], t['health'], t.get('lastError','')) for t in json.load(sys.stdin)['data']['activeTargets']]"
+2026-09-27T23:17:38 ssm i-096e37176e24102ff: for q in 'node_filesystem_avail_bytes{job="target-node",mountpoint="/"}' 'count(container_memory_working_set_bytes{job="target-cadvisor",name!=""})' 'tomcat_threads_busy_threads' 'pg_lock_waiting_sessions'; do curl -s --get localhost:9090/api/v1/query --data-urlencode "query=$q" | python3 -c "import json,sys; d=json.load(sys.stdin)['data']['result']; print(len(d), d[0]['value'][1] if d else None)"; done
+2026-09-27T23:17:51 $ run-ec2.py prepare
+2026-09-27T23:17:52 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh seed
+2026-09-27T23:24:05 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh prepare 172.31.63.69
+2026-09-27T23:24:54 $ run-ec2.py setup
+2026-09-27T23:24:55 ssm i-062a05cde1f7675e4: runuser -u ec2-user -- git -C /opt/jbank fetch -q origin perf/ec2-load-test && runuser -u ec2-user -- git -C /opt/jbank checkout -q -f d6612acbab93cf19c6936e180eafaa555852024e && git -c safe.directory='*' -C /opt/jbank rev-parse HEAD
+2026-09-27T23:24:59 ssm i-096e37176e24102ff: runuser -u ec2-user -- git -C /opt/jbank fetch -q origin perf/ec2-load-test && runuser -u ec2-user -- git -C /opt/jbank checkout -q -f d6612acbab93cf19c6936e180eafaa555852024e && git -c safe.directory='*' -C /opt/jbank rev-parse HEAD
+2026-09-27T23:25:03 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh setup
+2026-09-27T23:25:08 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh environment
+2026-09-27T23:25:11 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh setup 172.31.63.69
+2026-09-27T23:25:15 ssm i-062a05cde1f7675e4: cd /opt/perf-out/env && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-27T23:25:20 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-27T23:25:23 수집 i-062a05cde1f7675e4:/opt/perf-out/env → perf/results/ec2-baseline/env/target (1668 bytes)
+2026-09-27T23:25:23 ssm i-096e37176e24102ff: cd /opt/perf-out/env && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-27T23:25:28 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-27T23:25:31 수집 i-096e37176e24102ff:/opt/perf-out/env → perf/results/ec2-baseline/env/loadgen (261 bytes)
+2026-09-27T23:25:32 ssm i-062a05cde1f7675e4: cd /opt/jbank/infra/compose/perf && docker compose -f docker-compose.target.yml restart caddy >/dev/null 2>&1 && sleep 3 && echo restarted
+2026-09-27T23:25:40 ssm i-096e37176e24102ff: python3 -c "import ssl,urllib.request;print(urllib.request.urlopen('https://172.31.63.69/actuator/health/readiness',context=ssl._create_unverified_context(),timeout=10).status)"
+2026-09-27T23:25:51 $ run-ec2.py prepare
+2026-09-27T23:25:52 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh seed
+2026-09-27T23:26:03 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh prepare 172.31.63.69
+2026-09-27T23:27:23 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh baseline
+2026-09-27T23:27:27 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh snapshot
+2026-09-27T23:28:20 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh restore
+2026-09-27T23:29:19 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh verify-login 172.31.63.69
+2026-09-27T23:29:23 ssm i-062a05cde1f7675e4: cd /opt/perf-out/env && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-27T23:29:27 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-27T23:29:30 수집 i-062a05cde1f7675e4:/opt/perf-out/env → perf/results/ec2-baseline/env/target (1918 bytes)
+2026-09-27T23:29:30 ssm i-096e37176e24102ff: cd /opt/perf-out/env && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-27T23:29:34 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-27T23:29:38 수집 i-096e37176e24102ff:/opt/perf-out/env → perf/results/ec2-baseline/env/loadgen (3240 bytes)
+2026-09-27T23:29:56 $ run-ec2.py setup
+2026-09-27T23:29:56 ssm i-062a05cde1f7675e4: runuser -u ec2-user -- git -C /opt/jbank fetch -q origin perf/ec2-load-test && runuser -u ec2-user -- git -C /opt/jbank checkout -q -f fac858c74800f0dc8ba263d47925728c33200e25 && git -c safe.directory='*' -C /opt/jbank rev-parse HEAD
+2026-09-27T23:30:01 ssm i-096e37176e24102ff: runuser -u ec2-user -- git -C /opt/jbank fetch -q origin perf/ec2-load-test && runuser -u ec2-user -- git -C /opt/jbank checkout -q -f fac858c74800f0dc8ba263d47925728c33200e25 && git -c safe.directory='*' -C /opt/jbank rev-parse HEAD
+2026-09-27T23:30:05 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh setup
+2026-09-27T23:30:08 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh environment
+2026-09-27T23:30:12 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh setup 172.31.63.69
+2026-09-27T23:30:16 ssm i-062a05cde1f7675e4: cd /opt/perf-out/env && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-27T23:30:20 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-27T23:30:24 수집 i-062a05cde1f7675e4:/opt/perf-out/env → perf/results/ec2-baseline/env/target (1920 bytes)
+2026-09-27T23:30:24 ssm i-096e37176e24102ff: cd /opt/perf-out/env && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-27T23:30:27 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-27T23:30:31 수집 i-096e37176e24102ff:/opt/perf-out/env → perf/results/ec2-baseline/env/loadgen (3240 bytes)
+2026-09-27T23:30:31 $ run-ec2.py dry-run
+2026-09-27T23:30:32 === dryrun 시작 (KST 2026-09-27T23:30:32+09:00)
+2026-09-27T23:30:32 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh restore
+2026-09-27T23:31:33 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 dryrun-warmup s1-mixed.js none MODE=constant RATE=20 DURATION=2m
+2026-09-27T23:34:04 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh hot-id
+2026-09-27T23:34:08 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh boundary dryrun 100221
+2026-09-27T23:34:12 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-start dryrun
+2026-09-27T23:34:15 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 dryrun s1-mixed.js none MODE=constant RATE=10 DURATION=20s
+2026-09-27T23:35:00 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-stop dryrun
+2026-09-27T23:35:04 ssm i-096e37176e24102ff: cat /opt/perf-out/dryrun/k6-start.txt
+2026-09-27T23:35:08 ssm i-096e37176e24102ff: cat /opt/perf-out/dryrun/k6-end.txt
+2026-09-27T23:35:12 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh analyze dryrun warmup
+2026-09-27T23:35:16 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh export dryrun
+2026-09-27T23:35:20 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh integrity dryrun
+2026-09-27T23:35:24 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch dryrun ledgerReconciliationJob dryrun-recon
+2026-09-27T23:36:06 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh logs dryrun 2026-09-27T14:31:38Z
+2026-09-27T23:36:10 ssm i-096e37176e24102ff: cd /opt/perf-out/dryrun && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-27T23:36:14 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-27T23:36:18 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-27T23:36:22 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=2 count=1 2>/dev/null
+2026-09-27T23:36:26 수집 i-096e37176e24102ff:/opt/perf-out/dryrun → perf/results/ec2-baseline/dryrun/loadgen (42260 bytes)
+2026-09-27T23:36:26 ssm i-096e37176e24102ff: cd /opt/perf-out/dryrun-warmup && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-27T23:36:29 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-27T23:36:33 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-27T23:36:37 수집 i-096e37176e24102ff:/opt/perf-out/dryrun-warmup → perf/results/ec2-baseline/dryrun/warmup (27871 bytes)
+2026-09-27T23:36:37 ssm i-062a05cde1f7675e4: cd /opt/perf-out/dryrun && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-27T23:36:41 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-27T23:36:45 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-27T23:36:49 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=2 count=1 2>/dev/null
+2026-09-27T23:36:53 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=3 count=1 2>/dev/null
+2026-09-27T23:36:57 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=4 count=1 2>/dev/null
+2026-09-27T23:37:01 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=5 count=1 2>/dev/null
+2026-09-27T23:37:05 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=6 count=1 2>/dev/null
+2026-09-27T23:37:09 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=7 count=1 2>/dev/null
+2026-09-27T23:37:13 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=8 count=1 2>/dev/null
+2026-09-27T23:37:16 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=9 count=1 2>/dev/null
+2026-09-27T23:37:20 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=10 count=1 2>/dev/null
+2026-09-27T23:37:24 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=11 count=1 2>/dev/null
+2026-09-27T23:37:28 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=12 count=1 2>/dev/null
+2026-09-27T23:37:32 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=13 count=1 2>/dev/null
+2026-09-27T23:37:35 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=14 count=1 2>/dev/null
+2026-09-27T23:37:39 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=15 count=1 2>/dev/null
+2026-09-27T23:37:43 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=16 count=1 2>/dev/null
+2026-09-27T23:37:47 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=17 count=1 2>/dev/null
+2026-09-27T23:37:51 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=18 count=1 2>/dev/null
+2026-09-27T23:37:54 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=19 count=1 2>/dev/null
+2026-09-27T23:37:58 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=20 count=1 2>/dev/null
+2026-09-27T23:38:02 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=21 count=1 2>/dev/null
+2026-09-27T23:41:00 $ run-ec2.py dry-run
+2026-09-27T23:41:01 === dryrun 시작 (KST 2026-09-27T23:41:01+09:00)
+2026-09-27T23:41:01 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh restore
+2026-09-27T23:41:58 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 dryrun-warmup s1-mixed.js none MODE=constant RATE=20 DURATION=2m
+2026-09-27T23:44:30 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh hot-id
+2026-09-27T23:44:34 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh boundary dryrun 100221
+2026-09-27T23:44:38 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-start dryrun
+2026-09-27T23:44:41 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 dryrun s1-mixed.js none MODE=constant RATE=10 DURATION=20s
+2026-09-27T23:45:32 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-stop dryrun
+2026-09-27T23:45:36 ssm i-096e37176e24102ff: cat /opt/perf-out/dryrun/k6-start.txt
+2026-09-27T23:45:40 ssm i-096e37176e24102ff: cat /opt/perf-out/dryrun/k6-end.txt
+2026-09-27T23:45:44 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh analyze dryrun warmup
+2026-09-27T23:45:48 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh export dryrun
+2026-09-27T23:45:51 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh integrity dryrun
+2026-09-27T23:45:55 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch dryrun ledgerReconciliationJob dryrun-recon
+2026-09-27T23:46:39 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh logs dryrun 2026-09-27T14:31:38Z
+2026-09-27T23:46:43 ssm i-096e37176e24102ff: cd /opt/perf-out/dryrun && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-27T23:46:47 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-27T23:46:51 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-27T23:46:55 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=2 count=1 2>/dev/null
+2026-09-27T23:46:59 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=3 count=1 2>/dev/null
+2026-09-27T23:47:03 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=4 count=1 2>/dev/null
+2026-09-27T23:47:07 수집 i-096e37176e24102ff:/opt/perf-out/dryrun → perf/results/ec2-baseline/dryrun/loadgen (74356 bytes)
+2026-09-27T23:47:07 ssm i-096e37176e24102ff: cd /opt/perf-out/dryrun-warmup && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-27T23:47:11 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-27T23:47:15 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-27T23:47:18 수집 i-096e37176e24102ff:/opt/perf-out/dryrun-warmup → perf/results/ec2-baseline/dryrun/warmup (27938 bytes)
+2026-09-27T23:47:18 ssm i-062a05cde1f7675e4: cd /opt/perf-out/dryrun && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-27T23:47:22 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-27T23:47:26 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-27T23:47:30 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=2 count=1 2>/dev/null
+2026-09-27T23:47:34 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=3 count=1 2>/dev/null
+2026-09-27T23:47:38 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=4 count=1 2>/dev/null
+2026-09-27T23:47:41 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=5 count=1 2>/dev/null
+2026-09-27T23:47:45 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=6 count=1 2>/dev/null
+2026-09-27T23:47:49 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=7 count=1 2>/dev/null
+2026-09-27T23:47:53 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=8 count=1 2>/dev/null
+2026-09-27T23:47:57 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=9 count=1 2>/dev/null
+2026-09-27T23:48:00 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=10 count=1 2>/dev/null
+2026-09-27T23:48:04 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=11 count=1 2>/dev/null
+2026-09-27T23:48:08 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=12 count=1 2>/dev/null
+2026-09-27T23:48:12 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=13 count=1 2>/dev/null
+2026-09-27T23:48:16 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=14 count=1 2>/dev/null
+2026-09-27T23:48:20 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=15 count=1 2>/dev/null
+2026-09-27T23:48:24 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=16 count=1 2>/dev/null
+2026-09-27T23:48:27 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=17 count=1 2>/dev/null
+2026-09-27T23:48:31 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=18 count=1 2>/dev/null
+2026-09-27T23:48:35 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=19 count=1 2>/dev/null
+2026-09-27T23:48:39 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=20 count=1 2>/dev/null
+2026-09-27T23:48:42 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=21 count=1 2>/dev/null
+2026-09-27T23:48:46 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=22 count=1 2>/dev/null
+2026-09-27T23:48:50 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=23 count=1 2>/dev/null
+2026-09-27T23:48:54 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=24 count=1 2>/dev/null
+2026-09-27T23:48:58 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=25 count=1 2>/dev/null
+2026-09-27T23:49:01 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=26 count=1 2>/dev/null
+2026-09-27T23:49:05 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=27 count=1 2>/dev/null
+2026-09-27T23:49:09 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=28 count=1 2>/dev/null
+2026-09-27T23:49:13 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=29 count=1 2>/dev/null
+2026-09-27T23:49:16 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=30 count=1 2>/dev/null
+2026-09-27T23:49:20 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=31 count=1 2>/dev/null
+2026-09-27T23:49:24 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=32 count=1 2>/dev/null
+2026-09-27T23:49:28 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=33 count=1 2>/dev/null
+2026-09-27T23:49:31 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=34 count=1 2>/dev/null
+2026-09-27T23:49:35 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=35 count=1 2>/dev/null
+2026-09-27T23:49:39 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=36 count=1 2>/dev/null
+2026-09-27T23:49:43 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=37 count=1 2>/dev/null
+2026-09-27T23:49:47 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=38 count=1 2>/dev/null
+2026-09-27T23:49:50 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=39 count=1 2>/dev/null
+2026-09-27T23:49:54 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=40 count=1 2>/dev/null
+2026-09-27T23:49:58 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=41 count=1 2>/dev/null
+2026-09-27T23:50:02 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=42 count=1 2>/dev/null
+2026-09-27T23:50:05 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=43 count=1 2>/dev/null
+2026-09-27T23:50:09 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=44 count=1 2>/dev/null
+2026-09-27T23:50:13 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=45 count=1 2>/dev/null
+2026-09-27T23:50:17 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=46 count=1 2>/dev/null
+2026-09-27T23:50:21 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=47 count=1 2>/dev/null
+2026-09-27T23:50:24 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=48 count=1 2>/dev/null
+2026-09-27T23:50:28 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=49 count=1 2>/dev/null
+2026-09-27T23:50:32 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=50 count=1 2>/dev/null
+2026-09-27T23:50:36 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=51 count=1 2>/dev/null
+2026-09-27T23:50:39 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=52 count=1 2>/dev/null
+2026-09-27T23:50:43 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=53 count=1 2>/dev/null
+2026-09-27T23:50:47 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=54 count=1 2>/dev/null
+2026-09-27T23:50:51 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=55 count=1 2>/dev/null
+2026-09-27T23:50:55 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=56 count=1 2>/dev/null
+2026-09-27T23:50:59 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=57 count=1 2>/dev/null
+2026-09-27T23:51:03 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=58 count=1 2>/dev/null
+2026-09-27T23:51:07 수집 i-062a05cde1f7675e4:/opt/perf-out/dryrun → perf/results/ec2-baseline/dryrun/target (879352 bytes)
+2026-09-27T23:51:08 check-artifacts perf/results/ec2-baseline/dryrun: missing=none
+2026-09-27T23:52:59 $ run-ec2.py setup
+2026-09-27T23:53:00 ssm i-062a05cde1f7675e4: runuser -u ec2-user -- git -C /opt/jbank fetch -q origin perf/ec2-load-test && runuser -u ec2-user -- git -C /opt/jbank checkout -q -f 4489d9af2356e95dd8c859f9ee08417145421f91 && git -c safe.directory='*' -C /opt/jbank rev-parse HEAD
+2026-09-27T23:53:04 ssm i-096e37176e24102ff: runuser -u ec2-user -- git -C /opt/jbank fetch -q origin perf/ec2-load-test && runuser -u ec2-user -- git -C /opt/jbank checkout -q -f 4489d9af2356e95dd8c859f9ee08417145421f91 && git -c safe.directory='*' -C /opt/jbank rev-parse HEAD
+2026-09-27T23:53:08 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh setup
+2026-09-27T23:53:11 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh environment
+2026-09-27T23:53:15 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh setup 172.31.63.69
+2026-09-27T23:53:19 ssm i-062a05cde1f7675e4: cd /opt/perf-out/env && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-27T23:53:23 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-27T23:53:27 수집 i-062a05cde1f7675e4:/opt/perf-out/env → perf/results/ec2-baseline/env/target (1921 bytes)
+2026-09-27T23:53:27 ssm i-096e37176e24102ff: cd /opt/perf-out/env && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-27T23:53:30 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-27T23:53:34 수집 i-096e37176e24102ff:/opt/perf-out/env → perf/results/ec2-baseline/env/loadgen (3242 bytes)
+2026-09-27T23:53:47 $ run-ec2.py dry-run
+2026-09-27T23:53:47 === dryrun 시작 (KST 2026-09-27T23:53:47+09:00)
+2026-09-27T23:53:47 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh clean dryrun dryrun-noload
+2026-09-27T23:53:51 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh restore
+2026-09-27T23:54:46 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 dryrun-warmup s1-mixed.js none MODE=constant RATE=20 DURATION=2m
+2026-09-27T23:57:15 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh hot-id
+2026-09-27T23:57:19 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh boundary dryrun 100221
+2026-09-27T23:57:23 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-start dryrun
+2026-09-27T23:57:26 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 dryrun s1-mixed.js none MODE=constant RATE=10 DURATION=20s
+2026-09-27T23:58:18 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-stop dryrun
+2026-09-27T23:58:21 ssm i-096e37176e24102ff: cat /opt/perf-out/dryrun/k6-start.txt
+2026-09-27T23:58:25 ssm i-096e37176e24102ff: cat /opt/perf-out/dryrun/k6-end.txt
+2026-09-27T23:58:29 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh analyze dryrun warmup
+2026-09-27T23:58:33 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh export dryrun
+2026-09-27T23:58:36 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh integrity dryrun
+2026-09-27T23:58:40 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch dryrun ledgerReconciliationJob dryrun-recon
+2026-09-27T23:59:25 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh logs dryrun 2026-09-27T14:54:54Z
+2026-09-27T23:59:28 ssm i-096e37176e24102ff: cd /opt/perf-out/dryrun && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-27T23:59:32 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-27T23:59:36 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-27T23:59:40 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=2 count=1 2>/dev/null
+2026-09-27T23:59:43 수집 i-096e37176e24102ff:/opt/perf-out/dryrun → perf/results/ec2-baseline/dryrun/20260927-235347/loadgen (42348 bytes)
+2026-09-27T23:59:43 ssm i-096e37176e24102ff: cd /opt/perf-out/dryrun-warmup && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-27T23:59:47 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-27T23:59:51 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-27T23:59:55 수집 i-096e37176e24102ff:/opt/perf-out/dryrun-warmup → perf/results/ec2-baseline/dryrun/20260927-235347/warmup (27960 bytes)
+2026-09-27T23:59:55 ssm i-062a05cde1f7675e4: cd /opt/perf-out/dryrun && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-27T23:59:58 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T00:00:02 수집 i-062a05cde1f7675e4:/opt/perf-out/dryrun → perf/results/ec2-baseline/dryrun/20260927-235347/target (4521 bytes)
+2026-09-28T00:00:03 check-artifacts perf/results/ec2-baseline/dryrun/20260927-235347: missing=none
+2026-09-28T00:00:36 $ run-ec2.py run s1 1
+2026-09-28T00:00:36 === s1-r1 시작 (KST 2026-09-28T00:00:36+09:00)
+2026-09-28T00:00:36 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh clean s1-r1 s1-r1-noload
+2026-09-28T00:00:40 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh restore
+2026-09-28T00:01:35 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s1-r1-warmup s1-mixed.js none MODE=constant RATE=20 DURATION=2m
+2026-09-28T00:03:59 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh hot-id
+2026-09-28T00:04:03 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh boundary s1-r1 100221
+2026-09-28T00:04:07 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-start s1-r1
+2026-09-28T00:04:11 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s1-r1 s1-mixed.js s1 MODE=ramp
+2026-09-28T00:10:51 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-stop s1-r1
+2026-09-28T00:10:55 ssm i-096e37176e24102ff: cat /opt/perf-out/s1-r1/k6-start.txt
+2026-09-28T00:10:59 ssm i-096e37176e24102ff: cat /opt/perf-out/s1-r1/k6-end.txt
+2026-09-28T00:11:02 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh analyze s1-r1 s1
+2026-09-28T00:11:06 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh export s1-r1
+2026-09-28T00:11:10 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh integrity s1-r1
+2026-09-28T00:11:14 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s1-r1 ledgerReconciliationJob s1-r1-recon
+2026-09-28T01:01:54 ssm i-096e37176e24102ff: echo '== node_memory_MemAvailable_bytes{job="target-node"}'; curl -s --get localhost:9090/api/v1/query --data-urlencode 'query=node_memory_MemAvailable_bytes{job="target-node"}' | python3 -c "import json,sys; [print(r['metric'].get('name',r['metric'].get('job','')), r['value'][1]) for r in json.load(sys.stdin)['data']['result']]" ; echo '== sum by (name) (container_memory_working_set_bytes{job="target-cadvisor",name!=""})'; curl -s --get localhost:9090/api/v1/query --data-urlencode 'query=sum by (name) (container_memory_working_set_bytes{job="target-cadvisor",name!=""})' | python3 -c "import json,sys; [print(r['metric'].get('name',r['metric'].get('job','')), r['value'][1]) for r in json.load(sys.stdin)['data']['result']]" ; echo '== rate(node_vmstat_pgmajfault{job="target-node"}[5m])'; curl -s --get localhost:9090/api/v1/query --data-urlencode 'query=rate(node_vmstat_pgmajfault{job="target-node"}[5m])' | python3 -c "import json,sys; [print(r['metric'].get('name',r['metric'].get('job','')), r['value'][1]) for r in json.load(sys.stdin)['data']['result']]" ; echo '== 1-avg(rate(node_cpu_seconds_total{job="target-node",mode="idle"}[5m]))'; curl -s --get localhost:9090/api/v1/query --data-urlencode 'query=1-avg(rate(node_cpu_seconds_total{job="target-node",mode="idle"}[5m]))' | python3 -c "import json,sys; [print(r['metric'].get('name',r['metric'].get('job','')), r['value'][1]) for r in json.load(sys.stdin)['data']['result']]" ; echo '== avg(rate(node_cpu_seconds_total{job="target-node",mode="iowait"}[5m]))'; curl -s --get localhost:9090/api/v1/query --data-urlencode 'query=avg(rate(node_cpu_seconds_total{job="target-node",mode="iowait"}[5m]))' | python3 -c "import json,sys; [print(r['metric'].get('name',r['metric'].get('job','')), r['value'][1]) for r in json.load(sys.stdin)['data']['result']]" ; echo '== up{job=~"target.*|api"}'; curl -s --get localhost:9090/api/v1/query --data-urlencode 'query=up{job=~"target.*|api"}' | python3 -c "import json,sys; [print(r['metric'].get('name',r['metric'].get('job','')), r['value'][1]) for r in json.load(sys.stdin)['data']['result']]"
+2026-09-28T01:02:07 ssm i-096e37176e24102ff: echo '== node_memory_MemAvailable_bytes{job="target-node"}'; curl -s --get localhost:9090/api/v1/query_range --data-urlencode 'query=node_memory_MemAvailable_bytes{job="target-node"}' --data-urlencode start=2026-09-27T15:08:00Z --data-urlencode end=2026-09-27T15:30:00Z --data-urlencode step=60 | python3 -c "import json,sys,time; [print(' '.join(time.strftime('%H:%M',time.gmtime(float(t)))+'='+str(round(float(v)/1e6,1) if float(v)>1e4 else round(float(v),2)) for t,v in r['values'])) for r in json.load(sys.stdin)['data']['result']]" ; echo '== rate(node_vmstat_pgmajfault{job="target-node"}[1m])'; curl -s --get localhost:9090/api/v1/query_range --data-urlencode 'query=rate(node_vmstat_pgmajfault{job="target-node"}[1m])' --data-urlencode start=2026-09-27T15:08:00Z --data-urlencode end=2026-09-27T15:30:00Z --data-urlencode step=60 | python3 -c "import json,sys,time; [print(' '.join(time.strftime('%H:%M',time.gmtime(float(t)))+'='+str(round(float(v)/1e6,1) if float(v)>1e4 else round(float(v),2)) for t,v in r['values'])) for r in json.load(sys.stdin)['data']['result']]" ; echo '== sum(container_memory_working_set_bytes{job="target-cadvisor",name=~"perf-api.*"})'; curl -s --get localhost:9090/api/v1/query_range --data-urlencode 'query=sum(container_memory_working_set_bytes{job="target-cadvisor",name=~"perf-api.*"})' --data-urlencode start=2026-09-27T15:08:00Z --data-urlencode end=2026-09-27T15:30:00Z --data-urlencode step=60 | python3 -c "import json,sys,time; [print(' '.join(time.strftime('%H:%M',time.gmtime(float(t)))+'='+str(round(float(v)/1e6,1) if float(v)>1e4 else round(float(v),2)) for t,v in r['values'])) for r in json.load(sys.stdin)['data']['result']]" ; echo '== max(container_memory_working_set_bytes{job="target-cadvisor",name!~"perf-(api|postgres|caddy|redis|cadvisor|node-exporter|postgres-exporter|metrics-proxy)-1"})'; curl -s --get localhost:9090/api/v1/query_range --data-urlencode 'query=max(container_memory_working_set_bytes{job="target-cadvisor",name!~"perf-(api|postgres|caddy|redis|cadvisor|node-exporter|postgres-exporter|metrics-proxy)-1"})' --data-urlencode start=2026-09-27T15:08:00Z --data-urlencode end=2026-09-27T15:30:00Z --data-urlencode step=60 | python3 -c "import json,sys,time; [print(' '.join(time.strftime('%H:%M',time.gmtime(float(t)))+'='+str(round(float(v)/1e6,1) if float(v)>1e4 else round(float(v),2)) for t,v in r['values'])) for r in json.load(sys.stdin)['data']['result']]" ; echo '== sum(container_memory_working_set_bytes{job="target-cadvisor",name="perf-postgres-1"})'; curl -s --get localhost:9090/api/v1/query_range --data-urlencode 'query=sum(container_memory_working_set_bytes{job="target-cadvisor",name="perf-postgres-1"})' --data-urlencode start=2026-09-27T15:08:00Z --data-urlencode end=2026-09-27T15:30:00Z --data-urlencode step=60 | python3 -c "import json,sys,time; [print(' '.join(time.strftime('%H:%M',time.gmtime(float(t)))+'='+str(round(float(v)/1e6,1) if float(v)>1e4 else round(float(v),2)) for t,v in r['values'])) for r in json.load(sys.stdin)['data']['result']]" ; echo '== up{job="target-node"}'; curl -s --get localhost:9090/api/v1/query_range --data-urlencode 'query=up{job="target-node"}' --data-urlencode start=2026-09-27T15:08:00Z --data-urlencode end=2026-09-27T15:30:00Z --data-urlencode step=60 | python3 -c "import json,sys,time; [print(' '.join(time.strftime('%H:%M',time.gmtime(float(t)))+'='+str(round(float(v)/1e6,1) if float(v)>1e4 else round(float(v),2)) for t,v in r['values'])) for r in json.load(sys.stdin)['data']['result']]"
+2026-09-28T01:07:22 ssm i-096e37176e24102ff: python3 /opt/jbank/perf/ec2/k6_monitor.py export s1-r1 $(cat /opt/perf-out/s1-r1/k6-start.txt) 2026-09-27T15:30:00Z /opt/jbank/infra/compose/perf/loadgen/provisioning/dashboards/json/jbank-perf.json | head -3
+2026-09-28T01:07:25 ssm i-096e37176e24102ff: cd /opt/perf-out/s1-r1 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T01:07:29 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T01:07:33 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T01:07:37 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=2 count=1 2>/dev/null
+2026-09-28T01:07:41 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=3 count=1 2>/dev/null
+2026-09-28T01:07:44 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=4 count=1 2>/dev/null
+2026-09-28T01:07:48 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=5 count=1 2>/dev/null
+2026-09-28T01:07:52 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=6 count=1 2>/dev/null
+2026-09-28T01:07:56 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=7 count=1 2>/dev/null
+2026-09-28T01:07:59 수집 i-096e37176e24102ff:/opt/perf-out/s1-r1 → perf/results/ec2-baseline/s1/incident-r1-memory/loadgen (112921 bytes)
+2026-09-28T01:07:59 ssm i-062a05cde1f7675e4: cd /opt/perf-out/s1-r1 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T01:08:03 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T01:08:07 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T01:08:11 수집 i-062a05cde1f7675e4:/opt/perf-out/s1-r1 → perf/results/ec2-baseline/s1/incident-r1-memory/target (20285 bytes)
+2026-09-28T01:08:22 $ run-ec2.py setup
+2026-09-28T01:08:23 ssm i-062a05cde1f7675e4: runuser -u ec2-user -- git -C /opt/jbank fetch -q origin perf/ec2-load-test && runuser -u ec2-user -- git -C /opt/jbank checkout -q -f 9c0a52ef5adc33552700c579c8c118b66ea71a28 && git -c safe.directory='*' -C /opt/jbank rev-parse HEAD
+2026-09-28T01:08:27 ssm i-096e37176e24102ff: runuser -u ec2-user -- git -C /opt/jbank fetch -q origin perf/ec2-load-test && runuser -u ec2-user -- git -C /opt/jbank checkout -q -f 9c0a52ef5adc33552700c579c8c118b66ea71a28 && git -c safe.directory='*' -C /opt/jbank rev-parse HEAD
+2026-09-28T01:08:31 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh setup
+2026-09-28T01:08:34 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh environment
+2026-09-28T01:08:38 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh setup 172.31.63.69
+2026-09-28T01:08:42 ssm i-062a05cde1f7675e4: cd /opt/perf-out/env && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T01:08:46 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T01:08:49 수집 i-062a05cde1f7675e4:/opt/perf-out/env → perf/results/ec2-baseline/env/target (1919 bytes)
+2026-09-28T01:08:49 ssm i-096e37176e24102ff: cd /opt/perf-out/env && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T01:08:53 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T01:08:57 수집 i-096e37176e24102ff:/opt/perf-out/env → perf/results/ec2-baseline/env/loadgen (3243 bytes)
+2026-09-28T01:08:57 $ run-ec2.py run s1 1
+2026-09-28T01:08:57 === s1-r1 시작 (KST 2026-09-28T01:08:57+09:00)
+2026-09-28T01:08:57 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh clean s1-r1 s1-r1-noload
+2026-09-28T01:09:01 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh restore
+2026-09-28T01:09:55 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s1-r1-warmup s1-mixed.js none MODE=constant RATE=20 DURATION=2m
+2026-09-28T01:12:27 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh hot-id
+2026-09-28T01:12:31 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh boundary s1-r1 100221
+2026-09-28T01:12:35 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-start s1-r1
+2026-09-28T01:12:38 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s1-r1 s1-mixed.js s1 MODE=ramp
+2026-09-28T01:19:26 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-stop s1-r1
+2026-09-28T01:19:29 ssm i-096e37176e24102ff: cat /opt/perf-out/s1-r1/k6-start.txt
+2026-09-28T01:19:33 ssm i-096e37176e24102ff: cat /opt/perf-out/s1-r1/k6-end.txt
+2026-09-28T01:19:37 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh analyze s1-r1 s1
+2026-09-28T01:19:41 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh export s1-r1
+2026-09-28T01:19:44 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh integrity s1-r1
+2026-09-28T01:19:48 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh stop-api
+2026-09-28T01:20:02 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s1-r1 ledgerReconciliationJob s1-r1-recon
+2026-09-28T01:20:43 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh logs s1-r1 2026-09-27T16:10:06Z
+2026-09-28T01:20:46 ssm i-096e37176e24102ff: cd /opt/perf-out/s1-r1 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T01:20:50 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T01:20:54 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T01:20:58 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=2 count=1 2>/dev/null
+2026-09-28T01:21:01 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=3 count=1 2>/dev/null
+2026-09-28T01:21:05 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=4 count=1 2>/dev/null
+2026-09-28T01:21:09 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=5 count=1 2>/dev/null
+2026-09-28T01:21:13 수집 i-096e37176e24102ff:/opt/perf-out/s1-r1 → perf/results/ec2-baseline/s1/r1/loadgen (86915 bytes)
+2026-09-28T01:21:13 ssm i-096e37176e24102ff: cd /opt/perf-out/s1-r1-warmup && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T01:21:16 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T01:21:20 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T01:21:24 수집 i-096e37176e24102ff:/opt/perf-out/s1-r1-warmup → perf/results/ec2-baseline/s1/r1/warmup (28009 bytes)
+2026-09-28T01:21:24 ssm i-062a05cde1f7675e4: cd /opt/perf-out/s1-r1 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T01:21:28 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T01:21:31 수집 i-062a05cde1f7675e4:/opt/perf-out/s1-r1 → perf/results/ec2-baseline/s1/r1/target (5149 bytes)
+2026-09-28T01:21:32 check-artifacts perf/results/ec2-baseline/s1/r1: missing=none
+2026-09-28T01:21:32 $ run-ec2.py run s1 2
+2026-09-28T01:21:33 === s1-r2 시작 (KST 2026-09-28T01:21:33+09:00)
+2026-09-28T01:21:33 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh clean s1-r2 s1-r2-noload
+2026-09-28T01:21:36 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh restore
+2026-09-28T01:22:21 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s1-r2-warmup s1-mixed.js none MODE=constant RATE=20 DURATION=2m
+2026-09-28T01:24:46 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh hot-id
+2026-09-28T01:24:49 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh boundary s1-r2 100221
+2026-09-28T01:24:53 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-start s1-r2
+2026-09-28T01:24:57 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s1-r2 s1-mixed.js s1 MODE=ramp
+2026-09-28T01:31:37 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-stop s1-r2
+2026-09-28T01:31:41 ssm i-096e37176e24102ff: cat /opt/perf-out/s1-r2/k6-start.txt
+2026-09-28T01:31:45 ssm i-096e37176e24102ff: cat /opt/perf-out/s1-r2/k6-end.txt
+2026-09-28T01:31:48 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh analyze s1-r2 s1
+2026-09-28T01:31:52 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh export s1-r2
+2026-09-28T01:31:56 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh integrity s1-r2
+2026-09-28T01:32:00 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh stop-api
+2026-09-28T01:32:14 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s1-r2 ledgerReconciliationJob s1-r2-recon
+2026-09-28T01:32:51 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh logs s1-r2 2026-09-27T16:22:19Z
+2026-09-28T01:32:55 ssm i-096e37176e24102ff: cd /opt/perf-out/s1-r2 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T01:32:59 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T01:33:02 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T01:33:06 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=2 count=1 2>/dev/null
+2026-09-28T01:33:10 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=3 count=1 2>/dev/null
+2026-09-28T01:33:14 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=4 count=1 2>/dev/null
+2026-09-28T01:33:17 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=5 count=1 2>/dev/null
+2026-09-28T01:33:21 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=6 count=1 2>/dev/null
+2026-09-28T01:33:25 수집 i-096e37176e24102ff:/opt/perf-out/s1-r2 → perf/results/ec2-baseline/s1/r2/loadgen (97826 bytes)
+2026-09-28T01:33:25 ssm i-096e37176e24102ff: cd /opt/perf-out/s1-r2-warmup && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T01:33:29 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T01:33:32 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T01:33:36 수집 i-096e37176e24102ff:/opt/perf-out/s1-r2-warmup → perf/results/ec2-baseline/s1/r2/warmup (27853 bytes)
+2026-09-28T01:33:36 ssm i-062a05cde1f7675e4: cd /opt/perf-out/s1-r2 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T01:33:40 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T01:33:44 수집 i-062a05cde1f7675e4:/opt/perf-out/s1-r2 → perf/results/ec2-baseline/s1/r2/target (5147 bytes)
+2026-09-28T01:33:45 check-artifacts perf/results/ec2-baseline/s1/r2: missing=none
+2026-09-28T01:33:45 $ run-ec2.py run s1 3
+2026-09-28T01:33:45 === s1-r3 시작 (KST 2026-09-28T01:33:45+09:00)
+2026-09-28T01:33:45 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh clean s1-r3 s1-r3-noload
+2026-09-28T01:33:49 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh restore
+2026-09-28T01:34:33 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s1-r3-warmup s1-mixed.js none MODE=constant RATE=20 DURATION=2m
+2026-09-28T01:37:01 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh hot-id
+2026-09-28T01:37:05 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh boundary s1-r3 100221
+2026-09-28T01:37:09 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-start s1-r3
+2026-09-28T01:37:12 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s1-r3 s1-mixed.js s1 MODE=ramp
+2026-09-28T01:43:57 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-stop s1-r3
+2026-09-28T01:44:00 ssm i-096e37176e24102ff: cat /opt/perf-out/s1-r3/k6-start.txt
+2026-09-28T01:44:04 ssm i-096e37176e24102ff: cat /opt/perf-out/s1-r3/k6-end.txt
+2026-09-28T01:44:08 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh analyze s1-r3 s1
+2026-09-28T01:44:12 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh export s1-r3
+2026-09-28T01:44:15 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh integrity s1-r3
+2026-09-28T01:44:19 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh stop-api
+2026-09-28T01:44:33 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s1-r3 ledgerReconciliationJob s1-r3-recon
+2026-09-28T01:45:14 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh logs s1-r3 2026-09-27T16:34:39Z
+2026-09-28T01:45:18 ssm i-096e37176e24102ff: cd /opt/perf-out/s1-r3 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T01:45:21 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T01:45:25 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T01:45:29 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=2 count=1 2>/dev/null
+2026-09-28T01:45:33 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=3 count=1 2>/dev/null
+2026-09-28T01:45:36 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=4 count=1 2>/dev/null
+2026-09-28T01:45:40 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=5 count=1 2>/dev/null
+2026-09-28T01:45:44 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=6 count=1 2>/dev/null
+2026-09-28T01:45:48 수집 i-096e37176e24102ff:/opt/perf-out/s1-r3 → perf/results/ec2-baseline/s1/r3/loadgen (103979 bytes)
+2026-09-28T01:45:48 ssm i-096e37176e24102ff: cd /opt/perf-out/s1-r3-warmup && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T01:45:51 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T01:45:55 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T01:45:59 수집 i-096e37176e24102ff:/opt/perf-out/s1-r3-warmup → perf/results/ec2-baseline/s1/r3/warmup (27849 bytes)
+2026-09-28T01:45:59 ssm i-062a05cde1f7675e4: cd /opt/perf-out/s1-r3 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T01:46:03 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T01:46:06 수집 i-062a05cde1f7675e4:/opt/perf-out/s1-r3 → perf/results/ec2-baseline/s1/r3/target (5236 bytes)
+2026-09-28T01:46:07 check-artifacts perf/results/ec2-baseline/s1/r3: missing=none
+2026-09-28T01:46:07 $ run-ec2.py run s2 1
+2026-09-28T01:46:08 === s2-r1 시작 (KST 2026-09-28T01:46:08+09:00)
+2026-09-28T01:46:08 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh clean s2-r1 s2-r1-noload
+2026-09-28T01:46:12 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh restore
+2026-09-28T01:46:56 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s2-r1-warmup s1-mixed.js none MODE=constant RATE=20 DURATION=2m
+2026-09-28T01:49:24 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh hot-id
+2026-09-28T01:49:28 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh boundary s2-r1 100221
+2026-09-28T01:49:31 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-start s2-r1
+2026-09-28T01:49:35 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s2-r1 s2-hot-account.js s2
+2026-09-28T01:56:16 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-stop s2-r1
+2026-09-28T01:56:20 ssm i-096e37176e24102ff: cat /opt/perf-out/s2-r1/k6-start.txt
+2026-09-28T01:56:23 ssm i-096e37176e24102ff: cat /opt/perf-out/s2-r1/k6-end.txt
+2026-09-28T01:56:27 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh analyze s2-r1 s2
+2026-09-28T01:56:31 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh export s2-r1
+2026-09-28T01:56:35 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh integrity s2-r1
+2026-09-28T01:56:38 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh stop-api
+2026-09-28T01:56:52 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s2-r1 ledgerReconciliationJob s2-r1-recon
+2026-09-28T01:57:33 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh logs s2-r1 2026-09-27T16:46:57Z
+2026-09-28T01:57:37 ssm i-096e37176e24102ff: cd /opt/perf-out/s2-r1 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T01:57:41 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T01:57:44 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T01:57:48 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=2 count=1 2>/dev/null
+2026-09-28T01:57:52 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=3 count=1 2>/dev/null
+2026-09-28T01:57:56 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=4 count=1 2>/dev/null
+2026-09-28T01:57:59 수집 i-096e37176e24102ff:/opt/perf-out/s2-r1 → perf/results/ec2-baseline/s2/r1/loadgen (65596 bytes)
+2026-09-28T01:57:59 ssm i-096e37176e24102ff: cd /opt/perf-out/s2-r1-warmup && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T01:58:03 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T01:58:07 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T01:58:11 수집 i-096e37176e24102ff:/opt/perf-out/s2-r1-warmup → perf/results/ec2-baseline/s2/r1/warmup (27890 bytes)
+2026-09-28T01:58:11 ssm i-062a05cde1f7675e4: cd /opt/perf-out/s2-r1 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T01:58:14 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T01:58:18 수집 i-062a05cde1f7675e4:/opt/perf-out/s2-r1 → perf/results/ec2-baseline/s2/r1/target (9062 bytes)
+2026-09-28T01:58:19 check-artifacts perf/results/ec2-baseline/s2/r1: missing=none
+2026-09-28T01:58:19 $ run-ec2.py run s2 2
+2026-09-28T01:58:20 === s2-r2 시작 (KST 2026-09-28T01:58:20+09:00)
+2026-09-28T01:58:20 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh clean s2-r2 s2-r2-noload
+2026-09-28T01:58:23 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh restore
+2026-09-28T01:59:07 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s2-r2-warmup s1-mixed.js none MODE=constant RATE=20 DURATION=2m
+2026-09-28T02:01:36 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh hot-id
+2026-09-28T02:01:40 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh boundary s2-r2 100221
+2026-09-28T02:01:43 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-start s2-r2
+2026-09-28T02:01:47 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s2-r2 s2-hot-account.js s2
+2026-09-28T02:07:30 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-stop s2-r2
+2026-09-28T02:07:34 ssm i-096e37176e24102ff: cat /opt/perf-out/s2-r2/k6-start.txt
+2026-09-28T02:07:38 ssm i-096e37176e24102ff: cat /opt/perf-out/s2-r2/k6-end.txt
+2026-09-28T02:07:42 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh analyze s2-r2 s2
+2026-09-28T02:07:45 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh export s2-r2
+2026-09-28T02:07:49 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh integrity s2-r2
+2026-09-28T02:07:53 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh stop-api
+2026-09-28T02:08:07 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s2-r2 ledgerReconciliationJob s2-r2-recon
+2026-09-28T02:08:44 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh logs s2-r2 2026-09-27T16:59:11Z
+2026-09-28T02:08:48 ssm i-096e37176e24102ff: cd /opt/perf-out/s2-r2 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T02:08:52 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T02:08:55 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T02:08:59 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=2 count=1 2>/dev/null
+2026-09-28T02:09:03 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=3 count=1 2>/dev/null
+2026-09-28T02:09:07 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=4 count=1 2>/dev/null
+2026-09-28T02:09:10 수집 i-096e37176e24102ff:/opt/perf-out/s2-r2 → perf/results/ec2-baseline/s2/r2/loadgen (60693 bytes)
+2026-09-28T02:09:10 ssm i-096e37176e24102ff: cd /opt/perf-out/s2-r2-warmup && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T02:09:14 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T02:09:18 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T02:09:22 수집 i-096e37176e24102ff:/opt/perf-out/s2-r2-warmup → perf/results/ec2-baseline/s2/r2/warmup (27863 bytes)
+2026-09-28T02:09:22 ssm i-062a05cde1f7675e4: cd /opt/perf-out/s2-r2 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T02:09:25 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T02:09:29 수집 i-062a05cde1f7675e4:/opt/perf-out/s2-r2 → perf/results/ec2-baseline/s2/r2/target (5988 bytes)
+2026-09-28T02:09:30 check-artifacts perf/results/ec2-baseline/s2/r2: missing=none
+2026-09-28T02:09:30 $ run-ec2.py run s2 3
+2026-09-28T02:09:31 === s2-r3 시작 (KST 2026-09-28T02:09:31+09:00)
+2026-09-28T02:09:31 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh clean s2-r3 s2-r3-noload
+2026-09-28T02:09:34 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh restore
+2026-09-28T02:10:19 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s2-r3-warmup s1-mixed.js none MODE=constant RATE=20 DURATION=2m
+2026-09-28T02:12:44 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh hot-id
+2026-09-28T02:12:47 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh boundary s2-r3 100221
+2026-09-28T02:12:51 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-start s2-r3
+2026-09-28T02:12:55 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s2-r3 s2-hot-account.js s2
+2026-09-28T02:20:36 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-stop s2-r3
+2026-09-28T02:20:40 ssm i-096e37176e24102ff: cat /opt/perf-out/s2-r3/k6-start.txt
+2026-09-28T02:20:43 ssm i-096e37176e24102ff: cat /opt/perf-out/s2-r3/k6-end.txt
+2026-09-28T02:20:47 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh analyze s2-r3 s2
+2026-09-28T02:20:51 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh export s2-r3
+2026-09-28T02:20:55 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh integrity s2-r3
+2026-09-28T02:20:58 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh stop-api
+2026-09-28T02:21:12 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s2-r3 ledgerReconciliationJob s2-r3-recon
+2026-09-28T02:21:50 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh logs s2-r3 2026-09-27T17:10:18Z
+2026-09-28T02:21:53 ssm i-096e37176e24102ff: cd /opt/perf-out/s2-r3 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T02:21:57 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T02:22:01 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T02:22:05 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=2 count=1 2>/dev/null
+2026-09-28T02:22:08 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=3 count=1 2>/dev/null
+2026-09-28T02:22:12 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=4 count=1 2>/dev/null
+2026-09-28T02:22:16 수집 i-096e37176e24102ff:/opt/perf-out/s2-r3 → perf/results/ec2-baseline/s2/r3/loadgen (67665 bytes)
+2026-09-28T02:22:16 ssm i-096e37176e24102ff: cd /opt/perf-out/s2-r3-warmup && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T02:22:20 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T02:22:23 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T02:22:27 수집 i-096e37176e24102ff:/opt/perf-out/s2-r3-warmup → perf/results/ec2-baseline/s2/r3/warmup (27985 bytes)
+2026-09-28T02:22:27 ssm i-062a05cde1f7675e4: cd /opt/perf-out/s2-r3 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T02:22:31 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T02:22:35 수집 i-062a05cde1f7675e4:/opt/perf-out/s2-r3 → perf/results/ec2-baseline/s2/r3/target (8099 bytes)
+2026-09-28T02:22:36 check-artifacts perf/results/ec2-baseline/s2/r3: missing=none
+2026-09-28T02:22:36 $ run-ec2.py run s3 1
+2026-09-28T02:22:36 === s3-r1 시작 (KST 2026-09-28T02:22:36+09:00)
+2026-09-28T02:22:36 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh clean s3-r1 s3-r1-noload
+2026-09-28T02:22:40 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh restore
+2026-09-28T02:23:24 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s3-r1-warmup s1-mixed.js none MODE=constant RATE=20 DURATION=2m
+2026-09-28T02:25:56 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh hot-id
+2026-09-28T02:25:59 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh boundary s3-r1 100221
+2026-09-28T02:26:03 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-start s3-r1
+2026-09-28T02:26:07 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s3-r1 s3-spike.js none
+2026-09-28T02:31:57 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-stop s3-r1
+2026-09-28T02:32:01 ssm i-096e37176e24102ff: cat /opt/perf-out/s3-r1/k6-start.txt
+2026-09-28T02:32:04 ssm i-096e37176e24102ff: cat /opt/perf-out/s3-r1/k6-end.txt
+2026-09-28T02:32:08 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh analyze s3-r1 s3
+2026-09-28T02:32:12 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh export s3-r1
+2026-09-28T02:32:16 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh integrity s3-r1
+2026-09-28T02:32:20 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh stop-api
+2026-09-28T02:32:33 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s3-r1 ledgerReconciliationJob s3-r1-recon
+2026-09-28T02:33:14 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh logs s3-r1 2026-09-27T17:23:37Z
+2026-09-28T02:33:18 ssm i-096e37176e24102ff: cd /opt/perf-out/s3-r1 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T02:33:22 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T02:33:25 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T02:33:29 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=2 count=1 2>/dev/null
+2026-09-28T02:33:33 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=3 count=1 2>/dev/null
+2026-09-28T02:33:37 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=4 count=1 2>/dev/null
+2026-09-28T02:33:40 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=5 count=1 2>/dev/null
+2026-09-28T02:33:44 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=6 count=1 2>/dev/null
+2026-09-28T02:33:48 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=7 count=1 2>/dev/null
+2026-09-28T02:33:52 수집 i-096e37176e24102ff:/opt/perf-out/s3-r1 → perf/results/ec2-baseline/s3/r1/loadgen (113894 bytes)
+2026-09-28T02:33:52 ssm i-096e37176e24102ff: cd /opt/perf-out/s3-r1-warmup && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T02:33:55 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T02:33:59 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T02:34:03 수집 i-096e37176e24102ff:/opt/perf-out/s3-r1-warmup → perf/results/ec2-baseline/s3/r1/warmup (27944 bytes)
+2026-09-28T02:34:03 ssm i-062a05cde1f7675e4: cd /opt/perf-out/s3-r1 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T02:34:07 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T02:34:10 수집 i-062a05cde1f7675e4:/opt/perf-out/s3-r1 → perf/results/ec2-baseline/s3/r1/target (4918 bytes)
+2026-09-28T02:34:11 check-artifacts perf/results/ec2-baseline/s3/r1: missing=none
+2026-09-28T02:34:11 $ run-ec2.py run s3 2
+2026-09-28T02:34:12 === s3-r2 시작 (KST 2026-09-28T02:34:12+09:00)
+2026-09-28T02:34:12 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh clean s3-r2 s3-r2-noload
+2026-09-28T02:34:16 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh restore
+2026-09-28T02:35:00 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s3-r2-warmup s1-mixed.js none MODE=constant RATE=20 DURATION=2m
+2026-09-28T02:37:28 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh hot-id
+2026-09-28T02:37:32 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh boundary s3-r2 100221
+2026-09-28T02:37:35 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-start s3-r2
+2026-09-28T02:37:39 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s3-r2 s3-spike.js none
+2026-09-28T02:43:23 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-stop s3-r2
+2026-09-28T02:43:27 ssm i-096e37176e24102ff: cat /opt/perf-out/s3-r2/k6-start.txt
+2026-09-28T02:43:30 ssm i-096e37176e24102ff: cat /opt/perf-out/s3-r2/k6-end.txt
+2026-09-28T02:43:34 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh analyze s3-r2 s3
+2026-09-28T02:43:38 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh export s3-r2
+2026-09-28T02:43:42 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh integrity s3-r2
+2026-09-28T02:43:45 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh stop-api
+2026-09-28T02:43:59 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s3-r2 ledgerReconciliationJob s3-r2-recon
+2026-09-28T02:44:40 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh logs s3-r2 2026-09-27T17:35:01Z
+2026-09-28T02:44:44 ssm i-096e37176e24102ff: cd /opt/perf-out/s3-r2 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T02:44:47 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T02:44:51 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T02:44:55 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=2 count=1 2>/dev/null
+2026-09-28T02:44:59 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=3 count=1 2>/dev/null
+2026-09-28T02:45:02 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=4 count=1 2>/dev/null
+2026-09-28T02:45:06 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=5 count=1 2>/dev/null
+2026-09-28T02:45:10 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=6 count=1 2>/dev/null
+2026-09-28T02:45:14 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=7 count=1 2>/dev/null
+2026-09-28T02:45:17 수집 i-096e37176e24102ff:/opt/perf-out/s3-r2 → perf/results/ec2-baseline/s3/r2/loadgen (117117 bytes)
+2026-09-28T02:45:17 ssm i-096e37176e24102ff: cd /opt/perf-out/s3-r2-warmup && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T02:45:21 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T02:45:25 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T02:45:29 수집 i-096e37176e24102ff:/opt/perf-out/s3-r2-warmup → perf/results/ec2-baseline/s3/r2/warmup (27977 bytes)
+2026-09-28T02:45:29 ssm i-062a05cde1f7675e4: cd /opt/perf-out/s3-r2 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T02:45:32 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T02:45:36 수집 i-062a05cde1f7675e4:/opt/perf-out/s3-r2 → perf/results/ec2-baseline/s3/r2/target (5123 bytes)
+2026-09-28T02:45:37 check-artifacts perf/results/ec2-baseline/s3/r2: missing=none
+2026-09-28T02:45:37 $ run-ec2.py run s3 3
+2026-09-28T02:45:38 === s3-r3 시작 (KST 2026-09-28T02:45:38+09:00)
+2026-09-28T02:45:38 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh clean s3-r3 s3-r3-noload
+2026-09-28T02:45:41 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh restore
+2026-09-28T02:46:26 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s3-r3-warmup s1-mixed.js none MODE=constant RATE=20 DURATION=2m
+2026-09-28T02:48:51 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh hot-id
+2026-09-28T02:48:54 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh boundary s3-r3 100221
+2026-09-28T02:48:58 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-start s3-r3
+2026-09-28T02:49:02 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s3-r3 s3-spike.js none
+2026-09-28T02:54:45 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-stop s3-r3
+2026-09-28T02:54:49 ssm i-096e37176e24102ff: cat /opt/perf-out/s3-r3/k6-start.txt
+2026-09-28T02:54:53 ssm i-096e37176e24102ff: cat /opt/perf-out/s3-r3/k6-end.txt
+2026-09-28T02:54:57 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh analyze s3-r3 s3
+2026-09-28T02:55:00 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh export s3-r3
+2026-09-28T02:55:04 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh integrity s3-r3
+2026-09-28T02:55:08 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh stop-api
+2026-09-28T02:55:22 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s3-r3 ledgerReconciliationJob s3-r3-recon
+2026-09-28T02:56:13 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh logs s3-r3 2026-09-27T17:46:25Z
+2026-09-28T02:56:17 ssm i-096e37176e24102ff: cd /opt/perf-out/s3-r3 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T02:56:20 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T02:56:24 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T02:56:28 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=2 count=1 2>/dev/null
+2026-09-28T02:56:32 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=3 count=1 2>/dev/null
+2026-09-28T02:56:35 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=4 count=1 2>/dev/null
+2026-09-28T02:56:39 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=5 count=1 2>/dev/null
+2026-09-28T02:56:43 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=6 count=1 2>/dev/null
+2026-09-28T02:56:47 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=7 count=1 2>/dev/null
+2026-09-28T02:56:50 수집 i-096e37176e24102ff:/opt/perf-out/s3-r3 → perf/results/ec2-baseline/s3/r3/loadgen (114567 bytes)
+2026-09-28T02:56:50 ssm i-096e37176e24102ff: cd /opt/perf-out/s3-r3-warmup && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T02:56:54 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T02:56:58 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T02:57:01 수집 i-096e37176e24102ff:/opt/perf-out/s3-r3-warmup → perf/results/ec2-baseline/s3/r3/warmup (27962 bytes)
+2026-09-28T02:57:01 ssm i-062a05cde1f7675e4: cd /opt/perf-out/s3-r3 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T02:57:05 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T02:57:09 수집 i-062a05cde1f7675e4:/opt/perf-out/s3-r3 → perf/results/ec2-baseline/s3/r3/target (4998 bytes)
+2026-09-28T02:57:10 check-artifacts perf/results/ec2-baseline/s3/r3: missing=none
+2026-09-28T02:57:20 $ run-ec2.py run s2 4
+2026-09-28T02:57:21 === s2-r4 시작 (KST 2026-09-28T02:57:21+09:00)
+2026-09-28T02:57:21 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh clean s2-r4 s2-r4-noload
+2026-09-28T02:57:25 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh restore
+2026-09-28T02:58:09 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s2-r4-warmup s1-mixed.js none MODE=constant RATE=20 DURATION=2m
+2026-09-28T03:00:41 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh hot-id
+2026-09-28T03:00:44 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh boundary s2-r4 100221
+2026-09-28T03:00:48 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-start s2-r4
+2026-09-28T03:00:52 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s2-r4 s2-hot-account.js s2
+2026-09-28T03:08:33 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-stop s2-r4
+2026-09-28T03:08:37 ssm i-096e37176e24102ff: cat /opt/perf-out/s2-r4/k6-start.txt
+2026-09-28T03:08:41 ssm i-096e37176e24102ff: cat /opt/perf-out/s2-r4/k6-end.txt
+2026-09-28T03:08:44 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh analyze s2-r4 s2
+2026-09-28T03:08:48 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh export s2-r4
+2026-09-28T03:08:52 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh integrity s2-r4
+2026-09-28T03:08:56 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh stop-api
+2026-09-28T03:09:10 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s2-r4 ledgerReconciliationJob s2-r4-recon
+2026-09-28T03:09:47 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh logs s2-r4 2026-09-27T17:58:16Z
+2026-09-28T03:09:51 ssm i-096e37176e24102ff: cd /opt/perf-out/s2-r4 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T03:09:54 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T03:09:58 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T03:10:02 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=2 count=1 2>/dev/null
+2026-09-28T03:10:06 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=3 count=1 2>/dev/null
+2026-09-28T03:10:09 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=4 count=1 2>/dev/null
+2026-09-28T03:10:13 수집 i-096e37176e24102ff:/opt/perf-out/s2-r4 → perf/results/ec2-baseline/s2/r4/loadgen (67725 bytes)
+2026-09-28T03:10:13 ssm i-096e37176e24102ff: cd /opt/perf-out/s2-r4-warmup && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T03:10:17 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T03:10:21 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T03:10:24 수집 i-096e37176e24102ff:/opt/perf-out/s2-r4-warmup → perf/results/ec2-baseline/s2/r4/warmup (28043 bytes)
+2026-09-28T03:10:24 ssm i-062a05cde1f7675e4: cd /opt/perf-out/s2-r4 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T03:10:28 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T03:10:32 수집 i-062a05cde1f7675e4:/opt/perf-out/s2-r4 → perf/results/ec2-baseline/s2/r4/target (9043 bytes)
+2026-09-28T03:10:33 check-artifacts perf/results/ec2-baseline/s2/r4: missing=none
+2026-09-28T03:10:33 $ run-ec2.py run s5 1 --rate 35
+2026-09-28T03:10:33 === s5-r1 시작 (KST 2026-09-28T03:10:33+09:00)
+2026-09-28T03:10:33 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh clean s5-r1 s5-r1-noload
+2026-09-28T03:10:37 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh restore
+2026-09-28T03:11:28 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s5-r1-warmup s1-mixed.js none MODE=constant RATE=20 DURATION=2m
+2026-09-28T03:13:56 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh hot-id
+2026-09-28T03:14:00 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh boundary s5-r1 100221
+2026-09-28T03:14:04 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-start s5-r1
+2026-09-28T03:14:08 ssm(async) i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s5-r1 s1-mixed.js none MODE=constant RATE=35 DURATION=20m
+2026-09-28T03:19:08 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s5-r1 ctrDetectionJob s5-r1-load-ctrDetectionJob --run-date
+2026-09-28T03:19:56 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s5-r1 fdsDetectionJob s5-r1-load-fdsDetectionJob --run-date
+2026-09-28T03:21:10 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s5-r1 ledgerReconciliationJob s5-r1-load-ledgerReconciliationJob
+2026-09-28T03:34:32 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-stop s5-r1
+2026-09-28T03:34:36 ssm i-096e37176e24102ff: cat /opt/perf-out/s5-r1/k6-start.txt
+2026-09-28T03:34:40 ssm i-096e37176e24102ff: cat /opt/perf-out/s5-r1/k6-end.txt
+2026-09-28T03:34:44 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh analyze s5-r1 s5 load-ctrDetectionJob:1790533149.0673122:1790533194.7869415,load-fdsDetectionJob:1790533196.790461:1790533266.9824183,load-ledgerReconciliationJob:1790533271.2457423:1790533321.175141
+2026-09-28T03:34:47 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh export s5-r1
+2026-09-28T03:34:51 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh integrity s5-r1
+2026-09-28T03:34:55 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh stop-api
+2026-09-28T03:35:09 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s5-r1 ledgerReconciliationJob s5-r1-recon
+2026-09-28T03:35:49 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh logs s5-r1 2026-09-27T18:11:30Z
+2026-09-28T03:35:53 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh restore
+2026-09-28T03:36:37 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s5-r1-noload s1-mixed.js none MODE=constant RATE=35 DURATION=5m
+2026-09-28T03:42:08 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s5-r1-noload ctrDetectionJob s5-r1-noload-noload-ctrDetectionJob --run-date
+2026-09-28T03:42:42 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s5-r1-noload fdsDetectionJob s5-r1-noload-noload-fdsDetectionJob --run-date
+2026-09-28T03:43:33 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s5-r1-noload ledgerReconciliationJob s5-r1-noload-noload-ledgerReconciliationJob
+2026-09-28T03:44:13 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh explain s5-r1-noload 2026-09-27T18:42:07Z 2026-09-27T18:44:14Z
+2026-09-28T03:44:27 ssm i-062a05cde1f7675e4: cd /opt/perf-out/s5-r1-noload && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T03:44:31 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T03:44:35 수집 i-062a05cde1f7675e4:/opt/perf-out/s5-r1-noload → perf/results/ec2-baseline/s5/r1/noload/target (6619 bytes)
+2026-09-28T03:44:35 ssm i-096e37176e24102ff: cd /opt/perf-out/s5-r1 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T03:44:38 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T03:44:42 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T03:44:46 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=2 count=1 2>/dev/null
+2026-09-28T03:44:50 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=3 count=1 2>/dev/null
+2026-09-28T03:44:54 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=4 count=1 2>/dev/null
+2026-09-28T03:44:57 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=5 count=1 2>/dev/null
+2026-09-28T03:45:01 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=6 count=1 2>/dev/null
+2026-09-28T03:45:05 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=7 count=1 2>/dev/null
+2026-09-28T03:45:08 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=8 count=1 2>/dev/null
+2026-09-28T03:45:12 수집 i-096e37176e24102ff:/opt/perf-out/s5-r1 → perf/results/ec2-baseline/s5/r1/loadgen (133509 bytes)
+2026-09-28T03:45:12 ssm i-096e37176e24102ff: cd /opt/perf-out/s5-r1-warmup && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T03:45:16 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T03:45:20 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T03:45:23 수집 i-096e37176e24102ff:/opt/perf-out/s5-r1-warmup → perf/results/ec2-baseline/s5/r1/warmup (27959 bytes)
+2026-09-28T03:45:23 ssm i-062a05cde1f7675e4: cd /opt/perf-out/s5-r1 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T03:45:27 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T03:45:31 수집 i-062a05cde1f7675e4:/opt/perf-out/s5-r1 → perf/results/ec2-baseline/s5/r1/target (9353 bytes)
+2026-09-28T03:45:32 check-artifacts perf/results/ec2-baseline/s5/r1: missing=none
+2026-09-28T03:45:32 $ run-ec2.py run s5 2 --rate 35
+2026-09-28T03:45:32 === s5-r2 시작 (KST 2026-09-28T03:45:32+09:00)
+2026-09-28T03:45:32 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh clean s5-r2 s5-r2-noload
+2026-09-28T03:45:36 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh restore
+2026-09-28T03:46:31 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s5-r2-warmup s1-mixed.js none MODE=constant RATE=20 DURATION=2m
+2026-09-28T03:48:55 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh hot-id
+2026-09-28T03:48:59 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh boundary s5-r2 100221
+2026-09-28T03:49:03 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-start s5-r2
+2026-09-28T03:49:07 ssm(async) i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s5-r2 s1-mixed.js none MODE=constant RATE=35 DURATION=20m
+2026-09-28T03:54:07 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s5-r2 ctrDetectionJob s5-r2-load-ctrDetectionJob --run-date
+2026-09-28T03:54:51 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s5-r2 fdsDetectionJob s5-r2-load-fdsDetectionJob --run-date
+2026-09-28T03:55:59 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s5-r2 ledgerReconciliationJob s5-r2-load-ledgerReconciliationJob
+2026-09-28T04:09:30 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-stop s5-r2
+2026-09-28T04:09:34 ssm i-096e37176e24102ff: cat /opt/perf-out/s5-r2/k6-start.txt
+2026-09-28T04:09:38 ssm i-096e37176e24102ff: cat /opt/perf-out/s5-r2/k6-end.txt
+2026-09-28T04:09:41 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh analyze s5-r2 s5 load-ctrDetectionJob:1790535248.1104903:1790535291.1945312,load-fdsDetectionJob:1790535292.4185693:1790535356.721093,load-ledgerReconciliationJob:1790535360.3567185:1790535417.6762364
+2026-09-28T04:09:45 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh export s5-r2
+2026-09-28T04:09:49 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh integrity s5-r2
+2026-09-28T04:09:53 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh stop-api
+2026-09-28T04:10:07 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s5-r2 ledgerReconciliationJob s5-r2-recon
+2026-09-28T04:10:44 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh logs s5-r2 2026-09-27T18:46:27Z
+2026-09-28T04:10:48 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh restore
+2026-09-28T04:11:32 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s5-r2-noload s1-mixed.js none MODE=constant RATE=35 DURATION=5m
+2026-09-28T04:16:59 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s5-r2-noload ctrDetectionJob s5-r2-noload-noload-ctrDetectionJob --run-date
+2026-09-28T04:17:33 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s5-r2-noload fdsDetectionJob s5-r2-noload-noload-fdsDetectionJob --run-date
+2026-09-28T04:18:21 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s5-r2-noload ledgerReconciliationJob s5-r2-noload-noload-ledgerReconciliationJob
+2026-09-28T04:19:01 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh explain s5-r2-noload 2026-09-27T19:16:59Z 2026-09-27T19:19:01Z
+2026-09-28T04:19:15 ssm i-062a05cde1f7675e4: cd /opt/perf-out/s5-r2-noload && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T04:19:19 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T04:19:23 수집 i-062a05cde1f7675e4:/opt/perf-out/s5-r2-noload → perf/results/ec2-baseline/s5/r2/noload/target (6590 bytes)
+2026-09-28T04:19:23 ssm i-096e37176e24102ff: cd /opt/perf-out/s5-r2 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T04:19:27 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T04:19:30 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T04:19:34 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=2 count=1 2>/dev/null
+2026-09-28T04:19:38 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=3 count=1 2>/dev/null
+2026-09-28T04:19:42 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=4 count=1 2>/dev/null
+2026-09-28T04:19:45 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=5 count=1 2>/dev/null
+2026-09-28T04:19:49 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=6 count=1 2>/dev/null
+2026-09-28T04:19:53 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=7 count=1 2>/dev/null
+2026-09-28T04:19:57 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=8 count=1 2>/dev/null
+2026-09-28T04:20:00 수집 i-096e37176e24102ff:/opt/perf-out/s5-r2 → perf/results/ec2-baseline/s5/r2/loadgen (133773 bytes)
+2026-09-28T04:20:00 ssm i-096e37176e24102ff: cd /opt/perf-out/s5-r2-warmup && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T04:20:04 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T04:20:08 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T04:20:11 수집 i-096e37176e24102ff:/opt/perf-out/s5-r2-warmup → perf/results/ec2-baseline/s5/r2/warmup (27901 bytes)
+2026-09-28T04:20:11 ssm i-062a05cde1f7675e4: cd /opt/perf-out/s5-r2 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T04:20:15 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T04:20:19 수집 i-062a05cde1f7675e4:/opt/perf-out/s5-r2 → perf/results/ec2-baseline/s5/r2/target (9311 bytes)
+2026-09-28T04:20:20 check-artifacts perf/results/ec2-baseline/s5/r2: missing=none
+2026-09-28T04:20:20 $ run-ec2.py run s5 3 --rate 35
+2026-09-28T04:20:21 === s5-r3 시작 (KST 2026-09-28T04:20:21+09:00)
+2026-09-28T04:20:21 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh clean s5-r3 s5-r3-noload
+2026-09-28T04:20:24 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh restore
+2026-09-28T04:21:19 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s5-r3-warmup s1-mixed.js none MODE=constant RATE=20 DURATION=2m
+2026-09-28T04:23:43 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh hot-id
+2026-09-28T04:23:47 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh boundary s5-r3 100221
+2026-09-28T04:23:51 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-start s5-r3
+2026-09-28T04:23:55 ssm(async) i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s5-r3 s1-mixed.js none MODE=constant RATE=35 DURATION=20m
+2026-09-28T04:28:55 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s5-r3 ctrDetectionJob s5-r3-load-ctrDetectionJob --run-date
+2026-09-28T04:29:39 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s5-r3 fdsDetectionJob s5-r3-load-fdsDetectionJob --run-date
+2026-09-28T04:30:50 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s5-r3 ledgerReconciliationJob s5-r3-load-ledgerReconciliationJob
+2026-09-28T04:44:18 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh sampler-stop s5-r3
+2026-09-28T04:44:22 ssm i-096e37176e24102ff: cat /opt/perf-out/s5-r3/k6-start.txt
+2026-09-28T04:44:25 ssm i-096e37176e24102ff: cat /opt/perf-out/s5-r3/k6-end.txt
+2026-09-28T04:44:29 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh analyze s5-r3 s5 load-ctrDetectionJob:1790537336.1913488:1790537378.6263936,load-fdsDetectionJob:1790537380.5100055:1790537447.6167805,load-ledgerReconciliationJob:1790537451.6780515:1790537504.6859097
+2026-09-28T04:44:33 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh export s5-r3
+2026-09-28T04:44:37 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh integrity s5-r3
+2026-09-28T04:44:40 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh stop-api
+2026-09-28T04:44:54 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s5-r3 ledgerReconciliationJob s5-r3-recon
+2026-09-28T04:45:35 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh logs s5-r3 2026-09-27T19:21:16Z
+2026-09-28T04:45:39 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh restore
+2026-09-28T04:46:23 ssm i-096e37176e24102ff: bash /opt/jbank/perf/ec2/loadgen.sh k6 s5-r3-noload s1-mixed.js none MODE=constant RATE=35 DURATION=5m
+2026-09-28T04:51:50 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s5-r3-noload ctrDetectionJob s5-r3-noload-noload-ctrDetectionJob --run-date
+2026-09-28T04:52:24 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s5-r3-noload fdsDetectionJob s5-r3-noload-noload-fdsDetectionJob --run-date
+2026-09-28T04:53:08 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh batch s5-r3-noload ledgerReconciliationJob s5-r3-noload-noload-ledgerReconciliationJob
+2026-09-28T04:53:49 ssm i-062a05cde1f7675e4: bash /opt/jbank/perf/ec2/target.sh explain s5-r3-noload 2026-09-27T19:51:49Z 2026-09-27T19:53:46Z
+2026-09-28T04:54:02 ssm i-062a05cde1f7675e4: cd /opt/perf-out/s5-r3-noload && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T04:54:06 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T04:54:10 수집 i-062a05cde1f7675e4:/opt/perf-out/s5-r3-noload → perf/results/ec2-baseline/s5/r3/noload/target (6609 bytes)
+2026-09-28T04:54:10 ssm i-096e37176e24102ff: cd /opt/perf-out/s5-r3 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T04:54:14 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T04:54:17 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T04:54:21 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=2 count=1 2>/dev/null
+2026-09-28T04:54:25 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=3 count=1 2>/dev/null
+2026-09-28T04:54:29 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=4 count=1 2>/dev/null
+2026-09-28T04:54:32 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=5 count=1 2>/dev/null
+2026-09-28T04:54:36 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=6 count=1 2>/dev/null
+2026-09-28T04:54:40 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=7 count=1 2>/dev/null
+2026-09-28T04:54:44 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=8 count=1 2>/dev/null
+2026-09-28T04:54:47 수집 i-096e37176e24102ff:/opt/perf-out/s5-r3 → perf/results/ec2-baseline/s5/r3/loadgen (132592 bytes)
+2026-09-28T04:54:47 ssm i-096e37176e24102ff: cd /opt/perf-out/s5-r3-warmup && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T04:54:51 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T04:54:55 ssm i-096e37176e24102ff: dd if=/tmp/perf-fetch.b64 bs=20000 skip=1 count=1 2>/dev/null
+2026-09-28T04:54:59 수집 i-096e37176e24102ff:/opt/perf-out/s5-r3-warmup → perf/results/ec2-baseline/s5/r3/warmup (27837 bytes)
+2026-09-28T04:54:59 ssm i-062a05cde1f7675e4: cd /opt/perf-out/s5-r3 && tar czf - . | base64 -w0 > /tmp/perf-fetch.b64 && stat -c %s /tmp/perf-fetch.b64
+2026-09-28T04:55:02 ssm i-062a05cde1f7675e4: dd if=/tmp/perf-fetch.b64 bs=20000 skip=0 count=1 2>/dev/null
+2026-09-28T04:55:06 수집 i-062a05cde1f7675e4:/opt/perf-out/s5-r3 → perf/results/ec2-baseline/s5/r3/target (9343 bytes)
+2026-09-28T04:55:07 check-artifacts perf/results/ec2-baseline/s5/r3: missing=none
+2026-09-28T04:55:17 $ run-ec2.py down
+2026-09-28T04:55:17 terraform destroy (perf)
+2026-09-28T04:55:55 destroy 확인: state=비어 있음, live=['arn:aws:ec2:ap-northeast-2:489470371163:volume/vol-090b0fd33cd5bd7c7', 'arn:aws:ec2:ap-northeast-2:489470371163:volume/vol-02842ad1180e1e79b', 'arn:aws:ec2:ap-northeast-2:489470371163:security-group-rule/sgr-086a129fc8e50335a', 'arn:aws:ec2:ap-northeast-2:489470371163:security-group-rule/sgr-027d858379dc31f9a', 'arn:aws:ec2:ap-northeast-2:489470371163:security-group-rule/sgr-05e68a1dd23c9cc2e', 'arn:aws:ec2:ap-northeast-2:489470371163:security-group-rule/sgr-04f1d9baa0b3380e8', 'arn:aws:ec2:ap-northeast-2:489470371163:security-group-rule/sgr-0c3293551757aeb7f']

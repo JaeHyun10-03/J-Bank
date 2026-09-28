@@ -1,0 +1,1 @@
+2026-09-27 17:55:53.456 UTC [1362] LOG:  duration: 456.948 ms  execute <unnamed>: select a1_0.account_id,a1_0.account_number,a1_0.account_type,a1_0.closed_at,a1_0.created_at,a1_0.current_balance_cache,a1_0.customer_id,a1_0.hold_amount,a1_0.opened_at,a1_0.status,a1_0.updated_at from accounts a1_0

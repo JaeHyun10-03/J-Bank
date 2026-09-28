@@ -1,0 +1,44 @@
+time="2026-09-27T18:49:07Z" level=warning msg="Legacy env var detected, use --features or K6_FEATURES instead" env=K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM feature=native-histograms lifecycle=deprecated_alias source=env_legacy_alias
+time="2026-09-27T18:49:07Z" level=info msg="Experimental feature enabled" feature=native-histograms lifecycle=experimental
+time="2026-09-27T18:49:27Z" level=info msg="SCENARIO_START 2026-09-27T18:49:27.995Z" source=console
+time="2026-09-27T19:01:40Z" level=warning msg="Request Failed" error="Post \"https://172.31.63.69/api/v1/auth/login\": request timeout"
+time="2026-09-27T19:01:40Z" level=warning msg="Request Failed" error="Post \"https://172.31.63.69/api/v1/auth/login\": request timeout"
+time="2026-09-27T19:01:41Z" level=warning msg="Request Failed" error="Post \"https://172.31.63.69/api/v1/auth/login\": request timeout"
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 42421  34.768554/s
+    checks_succeeded...: 99.99% 42418 out of 42421
+    checks_failed......: 0.00%  3 out of 42421
+
+    ✓ setup-login 200
+    ✓ transfer 201
+    ✓ history 200
+    ✓ balance 200
+    ✓ customer-accounts 200
+    ✓ account 200
+    ✗ login 200
+      ↳  99% — ✓ 4230 / ✗ 1
+    ✗ relogin 200
+      ↳  99% — ✓ 212 / ✗ 2
+
+    HTTP
+    http_req_duration..............: min=1.93ms med=4.94ms avg=64.33ms p(90)=84.62ms p(95)=105.77ms p(99)=1.51s    max=10s   
+      { expected_response:true }...: min=1.93ms med=4.94ms avg=63.63ms p(90)=84.62ms p(95)=105.67ms p(99)=1.47s    max=9.91s 
+    http_req_failed................: 0.00%  3 out of 42421
+    http_reqs......................: 42421  34.768554/s
+
+    EXECUTION
+    dropped_iterations.............: 12     0.009835/s
+    iteration_duration.............: min=2.08ms med=5.1ms  avg=64.76ms p(90)=84.16ms p(95)=103.12ms p(99)=714.94ms max=12.23s
+    iterations.....................: 41989  34.414484/s
+    vus............................: 1      min=0          max=206
+    vus_max........................: 212    min=200        max=212
+
+    NETWORK
+    data_received..................: 51 MB  42 kB/s
+    data_sent......................: 4.5 MB 3.7 kB/s
+
+
+
