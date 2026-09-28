@@ -258,7 +258,8 @@ def recover_target(i):
     else:
         raise SystemExit("재부팅 후 SSM 등록 시간 초과")
     ssm(inst, "cd /opt/jbank/infra/compose/perf && docker compose -f docker-compose.target.yml --env-file .env up -d "
-              "&& for n in $(seq 1 60); do curl -fsS localhost:8080/actuator/health/readiness >/dev/null && exit 0; sleep 5; done; exit 1")
+              "&& for n in $(seq 1 60); do docker compose -f docker-compose.target.yml exec -T api "
+              "wget -qO- http://localhost:9095/actuator/health/readiness >/dev/null && exit 0; sleep 5; done; exit 1")
 
 
 def cloudwatch_credit(i, start, end):

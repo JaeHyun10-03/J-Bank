@@ -16,7 +16,8 @@ disk() { echo "disk $(date -Is) $1: $(df -B1 --output=avail / | tail -1) bytes f
 
 wait_ready() {
   for _ in $(seq 1 60); do
-    if curl -fsS http://localhost:8080/actuator/health/readiness >/dev/null 2>&1; then
+    # readiness는 호스트에 매핑하지 않은 관리 포트(9095)에 있어 컨테이너 안에서 조회한다.
+    if "${DC[@]}" exec -T api wget -qO- http://localhost:9095/actuator/health/readiness >/dev/null 2>&1; then
       echo "readiness UP $(date -Is)"; return 0
     fi
     sleep 5

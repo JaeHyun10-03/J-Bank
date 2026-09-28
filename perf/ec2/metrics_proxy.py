@@ -16,6 +16,8 @@ import urllib.error
 import urllib.request
 
 API = os.environ.get("API_URL", "http://api:8080")
+# 지표는 관리 포트(9095, 별도 커넥터)에서 가져온다. 로그인은 본 포트에만 있다.
+METRICS_URL = os.environ.get("METRICS_URL", "http://api:9095/actuator/prometheus")
 LOGIN_ID = "perf-metrics"
 PASSWORD = os.environ["METRICS_PASSWORD"]
 lock = threading.Lock()
@@ -23,7 +25,8 @@ state = {"cookie": None, "at": 0.0}
 
 
 def call(method, path, body=None, cookie=None):
-    req = urllib.request.Request(API + path, method=method,
+    url = path if path.startswith("http") else API + path
+    req = urllib.request.Request(url, method=method,
                                  data=json.dumps(body).encode() if body is not None else None)
     req.add_header("Content-Type", "application/json")
     if cookie:
@@ -71,9 +74,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.send_error(404)
             return
         try:
-            status, headers, body = call("GET", "/actuator/prometheus", cookie=cookie())
+            status, headers, body = call("GET", METRICS_URL, cookie=cookie())
             if status == 401:
-                status, headers, body = call("GET", "/actuator/prometheus", cookie=cookie(force=True))
+                status, headers, body = call("GET", METRICS_URL, cookie=cookie(force=True))
         except OSError as e:
             status, headers, body = 502, None, str(e).encode()
         self.send_response(status)
