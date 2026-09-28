@@ -1,0 +1,20 @@
+## 대상 환경 2026-09-28T00:56:58+00:00
+- 저장소 커밋: a2f21f753c242d860a70fe491d03d6d6c38019f1
+- compose 파일 sha256: 993d1c8d8351dd1374394fea37f4f1599a1d625351b3dc42a10bde5784e11cec
+- 인스턴스 유형: t3.small
+- /perf-api-1: ghcr.io/jaehyun10-03/jbank-api:490ed107ae325866110b81d9ed6acbb79978aa54 @ sha256:52003c92379fae80c28cd3c3ddbcc0d63ff242817f2b650b8be86a8ec76ec742
+- /perf-caddy-1: caddy:2 @ sha256:2d8b1708bf8008935c0e2a9b6564f7f080cf9a73af3b27718f286230449b7101
+- /perf-cadvisor-1: gcr.io/cadvisor/cadvisor:v0.49.1 @ sha256:c02cf39d3dba9fcf5531f23358e33377e50fcc6065d97a27e68a4242229c67a0
+- /perf-metrics-proxy-1: python:3.12-alpine @ sha256:8614a50e05881ad79bcf2d4f82028b65a463c03d2d666d255a4332e3d2a0c0ba
+- /perf-node-exporter-1: prom/node-exporter:v1.8.2 @ sha256:71dc9668b154bd072420bf69f59140ceeac04b88cf300bfa24053eb02a04f169
+- /perf-postgres-1: postgres:16 @ sha256:1b3c642526f8d274b12bdcd93b90aeb7e68a1f59eb20613adb96ed561c01d98c
+- /perf-postgres-exporter-1: quay.io/prometheuscommunity/postgres-exporter:v0.15.0 @ sha256:7d5355bcdf04d228744876e7035303abbf8ebbd0f7ee1f121882526c88c3f2e0
+- /perf-redis-1: redis:7 @ sha256:64035c2c9726d90bea2a217d43da49d7a3f13dde8647c1f409059e02e0e61287
+- digest postgres:16: postgres@sha256:1a6ab3f5345eb6dbe04a1349529caabdb0ab09293a09590fad07b2246bfa4b54
+- digest redis:7: redis@sha256:c6eabf748fc7a61dbb5a705c78bcf3d6377b1127a97d0ce965c11c44ba46896f
+- digest prom/node-exporter:v1.8.2: prom/node-exporter@sha256:4032c6d5bfd752342c3e631c2f1de93ba6b86c41db6b167b9a35372c139e7706
+- digest gcr.io/cadvisor/cadvisor:v0.49.1: gcr.io/cadvisor/cadvisor@sha256:3cde6faf0791ebf7b41d6f8ae7145466fed712ea6f252c935294d2608b1af388
+- digest python:3.12-alpine: python@sha256:4c47124a8391cb7a9f571164147d154777cf012a4ece5f86097130d7a4478111
+- digest quay.io/prometheuscommunity/postgres-exporter:v0.15.0: quay.io/prometheuscommunity/postgres-exporter@sha256:386b12d19eab2a37d7cd8ca8b4c7491cc7a830d9581f49af6c98a393da9605e6
+- digest caddy:2: caddy@sha256:0c994536bddb66445885237f1a5dcc1916bccea922661c76b4e9fc24061f9b52
+- digest ghcr.io/jaehyun10-03/jbank-api:490ed107ae325866110b81d9ed6acbb79978aa54: ghcr.io/jaehyun10-03/jbank-api@sha256:d188d995ca47f5b85909a5ffa19ab243c6d891f04669a1fb4a956a57a3c35f5b

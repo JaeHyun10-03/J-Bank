@@ -1,0 +1,3 @@
+s5-r1-noload-noload-ctrDetectionJob: 고액현금거래 판별 완료: 기준일=2026-09-28, 신규 적재 200건
+s5-r1-noload-noload-fdsDetectionJob: 이상거래 탐지 완료: 기준일=2026-09-28, 대상 거래 5772건, 신규 적재 1718건
+s5-r1-noload-noload-ledgerReconciliationJob: 원장 정합성 대사 완료: 계좌 불일치 100000건, 전체 차변/대변 불일치 있음

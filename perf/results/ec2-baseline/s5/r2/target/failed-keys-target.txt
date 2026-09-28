@@ -1,0 +1,6 @@
+CREATE TABLE
+COPY 0
+Output format is unaligned.
+Field separator is "=".
+failed_keys_total=0
+failed_keys_committed=0

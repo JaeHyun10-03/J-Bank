@@ -1,0 +1,29 @@
+-- select coalesce(t1_0.from_account_id,t1_0.to_account_id),sum(t1_0.amount) from transactions t1_0 where t1_0.transaction_type in ('DEPOSIT','WITHDRAWAL') and t1_0.status='COMPLETED' and t1_0.processed_at>='2026-09-28 00:00:00+00' and t1_0.processed_at<'2026-09-29 00:00:00+00' group by coalesce(t1_0.from_account_id,t1_0.to_account_id)
+                                                                                                                                        QUERY PLAN                                                                                                                                         
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ GroupAggregate  (cost=237311.88..237311.90 rows=1 width=40) (actual time=8682.987..8698.405 rows=649 loops=1)
+   Group Key: (COALESCE(from_account_id, to_account_id))
+   Buffers: shared hit=251 read=152710
+   ->  Sort  (cost=237311.88..237311.88 rows=1 width=16) (actual time=8682.926..8697.879 rows=649 loops=1)
+         Sort Key: (COALESCE(from_account_id, to_account_id))
+         Sort Method: quicksort  Memory: 53kB
+         Buffers: shared hit=251 read=152710
+         ->  Gather  (cost=1000.00..237311.87 rows=1 width=16) (actual time=125.312..8697.269 rows=649 loops=1)
+               Workers Planned: 2
+               Workers Launched: 2
+               Buffers: shared hit=248 read=152710
+               ->  Parallel Seq Scan on transactions t1_0  (cost=0.00..236311.77 rows=1 width=16) (actual time=147.147..8656.832 rows=216 loops=3)
+                     Filter: (((transaction_type)::text = ANY ('{DEPOSIT,WITHDRAWAL}'::text[])) AND (processed_at >= '2026-09-28 00:00:00+00'::timestamp with time zone) AND (processed_at < '2026-09-29 00:00:00+00'::timestamp with time zone) AND ((status)::text = 'COMPLETED'::text))
+                     Rows Removed by Filter: 3333890
+                     Buffers: shared hit=248 read=152710
+ Planning:
+   Buffers: shared hit=235
+ Planning Time: 0.765 ms
+ JIT:
+   Functions: 17
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 3.933 ms, Inlining 0.000 ms, Optimization 23.214 ms, Emission 247.206 ms, Total 274.352 ms
+ Execution Time: 9105.098 ms
+(23 rows)
+
+
