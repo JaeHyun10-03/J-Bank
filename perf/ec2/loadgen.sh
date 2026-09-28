@@ -97,6 +97,9 @@ case "$cmd" in
     python3 "$REPO/perf/ec2/k6_monitor.py" export "$run" \
       "$(cat "$OUT/$run/k6-start.txt")" "$(cat "$OUT/$run/k6-end.txt")" \
       "$COMPOSE_DIR/loadgen/provisioning/dashboards/json/jbank-perf.json"
+    # 수집 대상별 결측 검사(REQ-05). 결과는 prometheus/gaps.txt.
+    python3 "$REPO/perf/ec2/k6_monitor.py" gaps "$run" \
+      "$(cat "$OUT/$run/k6-start.txt")" "$(cat "$OUT/$run/k6-end.txt")"
     ;;
 
   *)

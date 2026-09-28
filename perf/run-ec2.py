@@ -305,7 +305,14 @@ def cmd_run(args):
     target_sh(i, "restore")
     k6_run(i, f"{run}-warmup", "s1-mixed.js", "none", "MODE=constant RATE=20 DURATION=2m")
     hot_id = ssm(i["loadgen_instance_id"], "bash /opt/jbank/perf/ec2/loadgen.sh hot-id", echo=False).strip()
-    target_sh(i, f"boundary {run} {hot_id}")
+    try:
+        target_sh(i, f"boundary {run} {hot_id}")
+    except SystemExit as e:
+        # 프록시 수집 확인에 실패하면 회차를 시작하지 않는다. 회차 수에 넣지 않고 1회만 다시 시도한다.
+        log(f"경계 확인 실패, 회차 미시작 — 1회 재시도: {str(e)[:200]}")
+        target_sh(i, "restore")
+        k6_run(i, f"{run}-warmup", "s1-mixed.js", "none", "MODE=constant RATE=20 DURATION=2m")
+        target_sh(i, f"boundary {run} {hot_id}")
     target_sh(i, f"sampler-start {run}")
 
     windows = []
@@ -362,7 +369,9 @@ def cmd_run(args):
     fetch_dir(i["loadgen_instance_id"], f"/opt/perf-out/{run}-warmup", os.path.join(local, "warmup"))
     fetch_dir(i["target_instance_id"], f"/opt/perf-out/{run}", os.path.join(local, "target"))
     credit = cloudwatch_credit(i, start, end)
-    write_round_docs(local, run, scen, args, start, end, kst_now, credit)
+    loadgen_type = aws("ec2", "describe-instances", "--instance-ids", i["loadgen_instance_id"])[
+        "Reservations"][0]["Instances"][0]["InstanceType"]
+    write_round_docs(local, run, scen, args, start, end, kst_now, credit, loadgen_type)
     check_artifacts(local, scen, args.dry)
 
 
@@ -383,7 +392,7 @@ def k6_fail_201(summary_path):
                if k.endswith(" 201"))
 
 
-def write_round_docs(local, run, scen, args, start, end, kst_now, credit):
+def write_round_docs(local, run, scen, args, start, end, kst_now, credit, loadgen_type):
     target = dict(line.split("=", 1) for line in
                   open(os.path.join(local, "target/integrity-target.txt"), encoding="utf-8").read().split()
                   if "=" in line)
@@ -429,6 +438,7 @@ def write_round_docs(local, run, scen, args, start, end, kst_now, credit):
     with open(os.path.join(local, "environment.md"), "w", encoding="utf-8") as f:
         f.write(f"# {run} 측정 조건 (PERF-01)\n\n")
         f.write(f"- 시나리오: {scen}, 회차: {args.round}, S5 요청률: {args.rate}\n")
+        f.write(f"- 부하 발생기 인스턴스 유형: {loadgen_type}\n")
         f.write(f"- 로컬 저장소 커밋: {sh(['git', 'rev-parse', 'HEAD']).stdout.strip()}\n")
         f.write(f"- 시작(KST): {kst_now.isoformat(timespec='seconds')}\n")
         f.write(f"- k6 구간(UTC epoch): {start} ~ {end}\n")
@@ -438,7 +448,7 @@ def write_round_docs(local, run, scen, args, start, end, kst_now, credit):
 
 
 REQUIRED = ["loadgen/k6-summary.json", "loadgen/analysis.json", "loadgen/prometheus/query_range.json.gz",
-            "loadgen/k6-start.txt", "loadgen/k6-end.txt", "target/pg_stat_activity.csv",
+            "loadgen/k6-start.txt", "loadgen/k6-end.txt", "loadgen/prometheus/gaps.txt", "target/pg_stat_activity.csv",
             "target/integrity-target.txt", "target/failed-keys-target.txt", "loadgen/failed-transfers.txt",
             "target/postgres-excerpt.log", "target/api-errors-excerpt.log",
             "target/log-counts.txt", "target/boundary.env", "integrity.md", "environment.md"]
@@ -446,11 +456,18 @@ REQUIRED = ["loadgen/k6-summary.json", "loadgen/analysis.json", "loadgen/prometh
 
 def check_artifacts(local, scen, dry):
     need = list(REQUIRED) + (["loadgen/monitor.log"] if scen in ("s1", "s2") and not dry else []) \
-        + (["noload/target/batch-explain.txt", "target/batch.txt"] if scen == "s5" and not dry else [])
+        + (["noload/target/batch-explain.txt", "target/batch.txt", "target/batch-counts.txt",
+            "noload/target/batch-counts.txt"] if scen == "s5" and not dry else [])
     missing = [p for p in need if not os.path.exists(os.path.join(local, p))]
+    gaps_path = os.path.join(local, "loadgen/prometheus/gaps.txt")
+    invalid = "unknown"
+    if os.path.exists(gaps_path):
+        invalid = next((ln.split("=", 1)[1].strip() for ln in open(gaps_path, encoding="utf-8")
+                        if ln.startswith("invalid=")), "unknown")
     with open(os.path.join(local, "artifacts.txt"), "w", encoding="utf-8") as f:
         f.write("missing=" + (",".join(missing) or "none") + "\n")
-    log(f"check-artifacts {os.path.relpath(local, ROOT)}: missing={missing or 'none'}")
+        f.write(f"metrics_gap_invalid={invalid}\n")
+    log(f"check-artifacts {os.path.relpath(local, ROOT)}: missing={missing or 'none'} metrics_gap_invalid={invalid}")
     if missing:
         raise SystemExit("필수 결과물 누락")
 

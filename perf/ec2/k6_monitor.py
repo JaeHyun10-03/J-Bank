@@ -202,11 +202,76 @@ def analyze(mode, run, start_iso, end_iso, windows_arg=""):
         result["overall"] = window_stats(run, "", start, end)
         result["overall_system"] = system_stats(run, start, end)
         result["windows"] = {}
+        wins = []
         for item in filter(None, windows_arg.split(",")):
             label, s, e = item.split(":")
             s, e = float(s), float(e)
+            wins.append((s, e))
             result["windows"][label] = {**window_stats(run, "", s, e), **system_stats(run, s, e)}
+        if wins:
+            # 배치 구간 밖의 포화 여부(REQ-09): 배치 전·후 구간의 Hikari 대기·Tomcat 최댓값.
+            first, last = min(w[0] for w in wins), max(w[1] for w in wins)
+            outside = {}
+            for label, (s, e) in (("before_batches", (start + SKIP, first)), ("after_batches", (last, end))):
+                if e - s > 15:
+                    st = system_stats(run, s, e)
+                    outside[label] = {k: st[k] for k in ("hikari_pending_max", "tomcat_busy_max", "target_cpu_avg")}
+                    outside[label]["p95_s"] = window_stats(run, "", s, e)["p95_s"]
+            result["outside_batches"] = outside
+        # 분당 재로그인 건수(REQ-09, 1차 12분 동시 재로그인 포화 재발 확인).
+        series = query_range(f'sum(increase(k6_http_reqs_total{{run="{run}",name="relogin"}}[1m]))', start + 60, end, 60)
+        result["relogin_per_minute"] = [round(float(v)) for _, v in (series[0]["values"] if series else [])]
     print(json.dumps(result, ensure_ascii=False))
+
+
+# 결측 판정(task.md "수집 대상별 연속성"): 대상별 대표 지표의 샘플 나이와 스크랩 job의 up.
+GAP_LIMIT = 15
+REPRESENTATIVE = {
+    "api": 'hikaricp_connections_active{job="api"}',
+    "target-node": 'node_cpu_seconds_total{job="target-node",cpu="0",mode="idle"}',
+    "target-cadvisor": 'container_memory_working_set_bytes{job="target-cadvisor",name!=""}',
+    "target-postgres": 'pg_up{job="target-postgres"}',
+    "loadgen-node": 'node_cpu_seconds_total{job="loadgen-node",cpu="0",mode="idle"}',
+}
+
+
+def gaps(run, start_iso, end_iso):
+    start, end = ts(start_iso) + SKIP, ts(end_iso)
+    targets = dict(REPRESENTATIVE)
+    targets["k6"] = f'k6_http_reqs_total{{run="{run}"}}'
+    lines, invalid = [], False
+    for job, rep in targets.items():
+        # 샘플 나이(초). 스크랩 실패·원격 쓰기 중단이면 값이 없거나 나이가 커진다.
+        age = query_range(f"min(time() - timestamp({rep}))", start, end, 5)
+        age_pts = {round(float(t)): float(v) for t, v in (age[0]["values"] if age else [])}
+        up_pts = {}
+        if job != "k6":
+            up = query_range(f'min(up{{job="{job}"}})', start, end, 5)
+            up_pts = {round(float(t)): float(v) for t, v in (up[0]["values"] if up else [])}
+        bad, t = [], start
+        while t <= end:
+            k = round(t)
+            missing = k not in age_pts or age_pts[k] > GAP_LIMIT or (job != "k6" and up_pts.get(k, 0) < 1)
+            bad.append((k, missing))
+            t += 5
+        spans, cur = [], None
+        for k, missing in bad:
+            if missing and cur is None:
+                cur = k
+            elif not missing and cur is not None:
+                spans.append((cur, k))
+                cur = None
+        if cur is not None:
+            spans.append((cur, round(end)))
+        long_spans = [(a - round(start - SKIP), b - round(start - SKIP)) for a, b in spans if b - a > GAP_LIMIT]
+        invalid = invalid or bool(long_spans)
+        lines.append(f"{job} gaps_over_{GAP_LIMIT}s={long_spans}")
+    lines.append(f"invalid={'yes' if invalid else 'no'}")
+    os.makedirs(f"{OUT}/{run}/prometheus", exist_ok=True)
+    with open(f"{OUT}/{run}/prometheus/gaps.txt", "w", encoding="utf-8") as f:
+        f.write("# 측정 구간(시작 후 10초부터) 수집 대상별 15초 초과 연속 결측, 오프셋은 측정 시작 기준 초\n")
+        f.write("\n".join(lines) + "\n")
+    print("\n".join(lines))
 
 
 def export(run, start_iso, end_iso, dashboard_path):
@@ -235,6 +300,8 @@ if __name__ == "__main__":
         watch(sys.argv[2], sys.argv[3], int(sys.argv[4]), sys.argv[5])
     elif command == "analyze":
         analyze(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6] if len(sys.argv) > 6 else "")
+    elif command == "gaps":
+        gaps(sys.argv[2], sys.argv[3], sys.argv[4])
     elif command == "export":
         export(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
     else:

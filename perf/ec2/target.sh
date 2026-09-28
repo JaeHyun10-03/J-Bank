@@ -185,13 +185,16 @@ SQL
     timeout 1800 "${DC[@]}" --env-file .env run --rm --no-deps api java -jar /app/app.jar "${args[@]}" \
       > "$OUT/$run/batch-$perf_run.full.log" 2>&1
     code=$?
+    end=$(date +%s.%N)
     set -e
     # 대사 잡은 시드 계좌 약 10만 개의 기준 불일치를 한 줄씩 WARN으로 남긴다. 건수만 남기고 나머지 줄은 보존한다.
     full="$OUT/$run/batch-$perf_run.full.log"
     { echo "계좌 잔액 불일치 WARN 줄 수: $(grep -c '계좌 잔액 불일치' "$full" || true)"
       grep -v '계좌 잔액 불일치' "$full"; } > "$OUT/$run/batch-$perf_run.log"
     rm -f "$full"
-    end=$(date +%s.%N)
+    # 배치가 처리한 건수(REQ-09). 배치 로그의 "…완료" 메시지를 그대로 옮긴다.
+    msg=$(grep -o '"message":"[^"]*완료[^"]*"' "$OUT/$run/batch-$perf_run.log" | tail -1 | sed 's/^"message":"//; s/"$//')
+    echo "$perf_run: ${msg:-(완료 메시지 없음)}" | tee -a "$OUT/$run/batch-counts.txt"
     echo "batch job=$job perfRun=$perf_run exit=$code seconds=$(awk "BEGIN{print $end - $start}") start=$start end=$end" \
       | tee -a "$OUT/$run/batch.txt"
     exit $code
