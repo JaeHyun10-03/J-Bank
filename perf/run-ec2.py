@@ -33,6 +33,7 @@ RESULTS = os.path.join(ROOT, "perf/results/ec2-baseline")
 REGION = "ap-northeast-2"
 GIT_REF = "perf/ec2-load-test"
 CHUNK = 20000
+UPLOAD_CHUNK = 8000  # SSM 명령 매개변수 크기 한도 안쪽
 
 
 def log(msg):
@@ -120,6 +121,21 @@ def fetch_dir(instance, remote_dir, local_dir):
                 raise SystemExit(f"허용하지 않는 tar 항목: {m.name}")
         tar.extractall(local_dir)
     log(f"수집 {instance}:{remote_dir} → {os.path.relpath(local_dir, ROOT)} ({len(data)} bytes)")
+
+
+def copy_file(src, src_path, dst, dst_path):
+    """한 인스턴스의 파일을 다른 인스턴스로 옮긴다. 두 인스턴스 사이에는 경로가 없어(인바운드 없음)
+    SSM 출력으로 받아 SSM 명령으로 나눠 올린다. 실패 이체 멱등키처럼 작은 파일용."""
+    tmp = "/tmp/perf-copy.b64"
+    size = int(ssm(src, f"base64 -w0 {src_path} > {tmp} && stat -c %s {tmp}", echo=False).strip())
+    data = "".join(ssm(src, f"dd if={tmp} bs={CHUNK} skip={n} count=1 2>/dev/null", echo=False).strip()
+                   for n in range((size + CHUNK - 1) // CHUNK))
+    up = "/tmp/perf-upload.b64"
+    ssm(dst, f": > {up}", echo=False)
+    for n in range(0, len(data), UPLOAD_CHUNK):
+        ssm(dst, f"printf '%s' '{data[n:n + UPLOAD_CHUNK]}' >> {up}", echo=False)
+    ssm(dst, f"mkdir -p $(dirname {dst_path}) && base64 -d {up} > {dst_path} && wc -l < {dst_path}")
+    log(f"복사 {src}:{src_path} → {dst}:{dst_path} ({len(data)} b64 bytes)")
 
 
 def target_sh(i, args, **kw):
@@ -323,6 +339,9 @@ def cmd_run(args):
     loadgen_sh(i, f"analyze {run} {mode} {win_arg}".rstrip())
     loadgen_sh(i, f"export {run}")
     target_sh(i, f"integrity {run}")
+    copy_file(i["loadgen_instance_id"], f"/opt/perf-out/{run}/failed-transfers.txt",
+              i["target_instance_id"], f"/opt/perf-out/{run}/failed-transfers.txt")
+    target_sh(i, f"failed-keys {run}")
     target_sh(i, "stop-api")
     target_sh(i, f"batch {run} ledgerReconciliationJob {run}-recon", timeout=2400)
     since = dt.datetime.fromtimestamp(start - 180, dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -353,21 +372,47 @@ def k6_success_201(summary_path):
                if k.endswith(" 201"))
 
 
+def k6_check(summary_path, name, field="passes"):
+    summary = json.load(open(summary_path))
+    return summary.get("root_group", {}).get("checks", {}).get(name, {}).get(field, 0)
+
+
+def k6_fail_201(summary_path):
+    summary = json.load(open(summary_path))
+    return sum(v.get("fails", 0) for k, v in summary.get("root_group", {}).get("checks", {}).items()
+               if k.endswith(" 201"))
+
+
 def write_round_docs(local, run, scen, args, start, end, kst_now, credit):
     target = dict(line.split("=", 1) for line in
                   open(os.path.join(local, "target/integrity-target.txt"), encoding="utf-8").read().split()
                   if "=" in line)
     ok201 = k6_success_201(os.path.join(local, "loadgen/k6-summary.json"))
+    fail201 = k6_fail_201(os.path.join(local, "loadgen/k6-summary.json"))
+    hot201 = k6_check(os.path.join(local, "loadgen/k6-summary.json"), "hot-transfer 201")
+    fk = dict(line.split("=", 1) for line in
+              open(os.path.join(local, "target/failed-keys-target.txt"), encoding="utf-8").read().split()
+              if "=" in line)
     completed = int(target["new_transfer_completed"])
+    fk_total, fk_committed = int(fk.get("failed_keys_total", -1)), int(fk.get("failed_keys_committed", 0))
+    in_flight = completed - ok201 - fk_committed
+    by_status = ", ".join(f"{k[len('failed_status_'):-len('_total')]}: {v}건 중 반영 {fk.get(k[:-len('_total')] + '_committed', '0')}"
+                          for k, v in sorted(fk.items()) if k.startswith("failed_status_") and k.endswith("_total"))
     rows = [
         ("k6 이체 성공(201) 수 vs 새 COMPLETED 이체 수", f"{ok201} vs {completed}",
-         "같음" if ok201 == completed else f"차이 {completed - ok201} (실패 응답이 실제 반영된 건수)"),
+         "같음" if ok201 == completed else f"차이 {completed - ok201} (아래 두 행으로 나뉨)"),
+        ("실패 이체 멱등키 기록 수 vs k6 이체 체크 실패 수(자기 검증)", f"{fk_total} vs {fail201}",
+         "같음" if fk_total == fail201 else "다름(키 기록 유실)"),
+        ("실패 응답인데 실제 반영된 이체(멱등키 대조)", f"{fk_committed} ({by_status or '실패 없음'})", ""),
+        ("k6 중단 순간 처리 중이던 요청의 반영(잔차 = 새 완료 − 201 − 실패 중 반영)", str(in_flight), ""),
         ("새 원장 행 수 vs 2 × 새 이체 수", f"{target['new_ledger_rows']} vs {2 * completed}",
          "같음" if int(target["new_ledger_rows"]) == 2 * completed else "다름"),
         ("새 원장 차변 합 = 대변 합", f"{target['new_ledger_debit']} / {target['new_ledger_credit']}",
          "같음" if target["new_ledger_debit"] == target["new_ledger_credit"] else "다름"),
-        ("핫 계좌 잔액 증가분 vs 핫 계좌 성공 이체 금액 합", f"{target['hot_balance_delta']} vs {target['hot_completed_amount_sum']}",
+        ("핫 계좌 잔액 증가분 vs 핫 계좌 성공 이체 금액 합(DB)", f"{target['hot_balance_delta']} vs {target['hot_completed_amount_sum']}",
          "같음" if float(target["hot_balance_delta"]) == float(target["hot_completed_amount_sum"]) else "다름"),
+        ("핫 계좌 잔액 증가분 vs k6 hot-transfer 201 × 1,000원", f"{target['hot_balance_delta']} vs {hot201 * 1000}",
+         "같음" if float(target["hot_balance_delta"]) == hot201 * 1000 else "다름(실패 응답 반영·중단 잔차 포함)"),
         ("기준 대사 대비 새 불일치 계좌", target["new_mismatch_accounts"], "0" if target["new_mismatch_accounts"] == "0" else "원인 분석 대상"),
         ("기준 불일치 계좌 중 증가분 불일치", target["baseline_account_delta_mismatch"], ""),
         ("전체 차변·대변 증가분", f"{target['global_debit_delta']} / {target['global_credit_delta']}",
@@ -394,7 +439,8 @@ def write_round_docs(local, run, scen, args, start, end, kst_now, credit):
 
 REQUIRED = ["loadgen/k6-summary.json", "loadgen/analysis.json", "loadgen/prometheus/query_range.json.gz",
             "loadgen/k6-start.txt", "loadgen/k6-end.txt", "target/pg_stat_activity.csv",
-            "target/integrity-target.txt", "target/postgres-excerpt.log", "target/api-errors-excerpt.log",
+            "target/integrity-target.txt", "target/failed-keys-target.txt", "loadgen/failed-transfers.txt",
+            "target/postgres-excerpt.log", "target/api-errors-excerpt.log",
             "target/log-counts.txt", "target/boundary.env", "integrity.md", "environment.md"]
 
 

@@ -73,6 +73,10 @@ case "$cmd" in
     wait "$k6_pid"; code=$?
     set -e
     date -u +%Y-%m-%dT%H:%M:%SZ > "$OUT/$run/k6-end.txt"
+    # 실패 이체 멱등키(lib/ec2.js의 FAILKEY 로그)를 "키 상태 요청이름" 한 줄씩 뽑는다.
+    grep -o 'FAILKEY [0-9a-f-]* [0-9]* [a-z-]*' "$OUT/$run/k6.log" | awk '{print $2, $3, $4}' \
+      > "$OUT/$run/failed-transfers.txt" || true
+    echo "failed transfer keys: $(wc -l < "$OUT/$run/failed-transfers.txt")"
     # --summary-export에는 setup() 반환값(perf 고객 전원의 로그인 토큰)이 그대로 들어간다. 결과물에 남기지 않는다.
     python3 -c "import json,sys; p=sys.argv[1]; d=json.load(open(p)); d['setup_data']={}; json.dump(d, open(p,'w'), indent=2)" \
       "$OUT/$run/k6-summary.json" 2>/dev/null || true

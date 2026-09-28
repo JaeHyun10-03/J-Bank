@@ -107,6 +107,7 @@ function get(path, headers, name) {
 export function transfer(data, user, toAccountNumber, name) {
   const headers = session(data, user);
   if (!headers) return;
+  const key = uuidv4();
   const res = http.post(
     `${BASE_URL}/api/v1/transfers`,
     JSON.stringify({
@@ -116,12 +117,14 @@ export function transfer(data, user, toAccountNumber, name) {
       memo: "k6 ec2",
     }),
     {
-      headers: Object.assign({ "Idempotency-Key": uuidv4() }, headers),
+      headers: Object.assign({ "Idempotency-Key": key }, headers),
       tags: { name },
       timeout: REQUEST_TIMEOUT,
     },
   );
-  check(res, { [`${name} 201`]: (r) => r.status === 201 });
+  const ok = check(res, { [`${name} 201`]: (r) => r.status === 201 });
+  // 실패 응답(timeout 상태 0·5xx 등)의 멱등키를 남긴다. 측정 후 DB와 대조해 실제로 반영됐는지 센다(REQ-10 (4)).
+  if (!ok) console.log(`FAILKEY ${key} ${res.status} ${name}`);
 }
 
 export function balance(data, user, name) {

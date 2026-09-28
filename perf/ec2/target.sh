@@ -244,6 +244,30 @@ SELECT 'duplicate_idempotency_keys', count(*) FROM (
 SQL
     ;;
 
+  failed-keys)
+    # 실패 이체 멱등키 대조(REQ-10 (4)). run-ec2.py가 부하 발생기에서 받아 $OUT/$run/failed-transfers.txt로 올린다.
+    run="$1"; f="$OUT/$run/failed-transfers.txt"
+    [ -f "$f" ] || { echo "failed_keys_file=missing" | tee "$OUT/$run/failed-keys-target.txt"; exit 1; }
+    {
+      echo "CREATE TEMP TABLE perf_failed(idempotency_key text, status int, name text);"
+      echo "COPY perf_failed FROM STDIN WITH (DELIMITER ' ');"
+      cat "$f"
+      echo '\.'
+      cat <<'SQL'
+\pset format unaligned
+\pset fieldsep '='
+\pset tuples_only on
+SELECT 'failed_keys_total', count(*) FROM perf_failed;
+SELECT 'failed_keys_committed', count(*) FROM perf_failed f
+  JOIN transactions t ON t.idempotency_key = f.idempotency_key AND t.status = 'COMPLETED';
+SELECT 'failed_status_' || f.status || '_total', count(*) FROM perf_failed f GROUP BY f.status ORDER BY f.status;
+SELECT 'failed_status_' || f.status || '_committed', count(t.transaction_id) FROM perf_failed f
+  LEFT JOIN transactions t ON t.idempotency_key = f.idempotency_key AND t.status = 'COMPLETED'
+  GROUP BY f.status ORDER BY f.status;
+SQL
+    } | psql_q | tee "$OUT/$run/failed-keys-target.txt"
+    ;;
+
   logs)
     # 측정 구간 로그 발췌(REQ-12). since는 ISO 시각.
     run="$1"; since="$2"
