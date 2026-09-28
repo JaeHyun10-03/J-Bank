@@ -1,0 +1,12 @@
+2026-09-28 01:01:08.522607+00,Client,ClientRead,idle,11
+2026-09-28 01:01:08.522607+00,-,-,active,1
+2026-09-28 01:01:18.964041+00,Client,ClientRead,idle,10
+2026-09-28 01:01:18.964041+00,-,-,active,1
+2026-09-28 01:01:18.964041+00,Client,ClientRead,idle in transaction,1
+2026-09-28 01:01:29.286476+00,Client,ClientRead,idle,10
+2026-09-28 01:01:29.286476+00,-,-,active,1
+2026-09-28 01:01:29.286476+00,Client,ClientRead,idle in transaction,1
+2026-09-28 01:01:39.565603+00,Client,ClientRead,idle,11
+2026-09-28 01:01:39.565603+00,-,-,active,1
+2026-09-28 01:01:49.860462+00,Client,ClientRead,idle,11
+2026-09-28 01:01:49.860462+00,-,-,active,1
