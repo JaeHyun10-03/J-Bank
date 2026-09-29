@@ -1,0 +1,18 @@
+# 인스턴스 부팅 후 한 번: 최신 이미지 반영 + 밀린 배치(boot.sh). install-host.sh가 설치한다.
+# enable만 하고 배포 때 다시 기동하지 않는다(oneshot을 재시작하면 배치가 또 돈다).
+[Unit]
+Description=J-Bank boot sync and batch catch-up
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ec2-user
+ExecStart=/usr/local/lib/jbank/boot.sh
+TimeoutStartSec=3600
+StandardOutput=append:/var/log/jbank/boot.log
+StandardError=append:/var/log/jbank/boot.log
+
+[Install]
+WantedBy=multi-user.target
