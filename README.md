@@ -49,7 +49,7 @@ flowchart TB
 
     subgraph EC2["EC2 t3.small · ap-northeast-2 · Docker Compose"]
         Caddy["Caddy<br/>TLS 자동발급 · api.j-bank.site"] --> API["jbank-api<br/>계좌·거래·원장·인증·상품"]
-        Cron["crontab<br/>이자·정합성대사·CTR·FDS 배치"] -.같은 이미지 일회성 컨테이너.-> API
+        Boot["부팅 작업(systemd)<br/>최신 이미지 반영 · 이자·정합성대사·CTR·FDS 배치"] -.같은 이미지 일회성 컨테이너.-> API
         API --> PG[("PostgreSQL 16")]
         API --> Redis[("Redis 7<br/>분산락·세션·OTP")]
         Prom["Prometheus"] -.스크랩.-> API
@@ -61,6 +61,8 @@ flowchart TB
 프론트엔드(Vercel)와 백엔드(AWS)를 분리 배포하되, 원장·개인정보를 다루는 컴포넌트는 전부 AWS 안에 둡니다. 백엔드는 EC2 한 대 위의 Docker Compose로 돌고, 외부 진입은 Caddy의 80/443만 열려 있습니다(SSH 폐쇄, 운영 접근·배포는 SSM). 상품·계약은 jbank-api 내부 도메인으로 관리하고, 가입 계약·출금·원장을 하나의 DB 트랜잭션으로 처리합니다.
 
 `v1.0.0`까지는 EKS·RDS·ElastiCache·ALB·ArgoCD(GitOps) 구성으로 실제 클러스터에 배포해 무중단 배포까지 검증했습니다. 그 뒤 앱 규모 대비 월 $200 수준의 고정비와 플랫폼 운영 부담이 본래 심화 주제(거래 코어 정합성·동시성)를 잠식한다고 판단해 현재 구성으로 낮췄습니다 — 판단 근거와 트레이드오프는 [ADR 0010](docs/adr/0010-ec2-single-instance.md), 현재 구성 상세는 [인프라아키텍처 문서](docs/06_J-Bank_인프라아키텍처.md), 원래 설계는 `v1.0.0` 태그의 같은 문서에 있습니다.
+
+**데모 서버는 평일 09:00~18:00(KST)에만 켜져 있습니다.** 그 밖의 시간에는 사이트에 운영 시간 안내가 뜹니다. 꺼진 동안의 배포는 다음 부팅 때 반영되고, 배치는 켜진 직후 밀린 날짜까지 따라잡습니다([ADR 0011](docs/adr/0011-ec2-weekday-hours.md)).
 
 ## 기술 스택
 
