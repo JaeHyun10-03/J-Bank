@@ -183,6 +183,13 @@ data "aws_iam_policy_document" "deploy" {
     actions   = ["ssm:GetCommandInvocation", "ssm:ListCommandInvocations"]
     resources = ["*"]
   }
+  # 운영 시간 밖(schedule.tf)에는 인스턴스가 꺼져 있다. 배포 전에 켜져 있는지, SSM 에이전트가
+  # 붙었는지 본다. 두 액션 모두 리소스를 지정할 수 없는 읽기 전용이다.
+  statement {
+    effect    = "Allow"
+    actions   = ["ec2:DescribeInstances", "ssm:DescribeInstanceInformation"]
+    resources = ["*"]
+  }
 }
 
 resource "aws_iam_role_policy" "deploy" {
