@@ -1,0 +1,6 @@
+api_log_lines=0
+postgres_log_lines=396
+slow_statements=197
+lock_wait_lines=0
+api_error_lines=0
+api_warn_lines=0

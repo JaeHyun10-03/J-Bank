@@ -1,5 +1,11 @@
 # EC2 부하 테스트 개선 전 기준선 — 회차별 결과
 
+> **결함이 있는 1차 측정 기록이다. 기준선 수치는 [../summary.md](../summary.md)와 [../bottleneck-analysis.md](../bottleneck-analysis.md)(2026-09-28 재측정)만 쓴다.**
+> 1차의 결함: (1) api 지표를 본 포트 Tomcat 경유로 수집해 포화 구간(S1 후반, S3 스파이크 전 구간)에 지표가 비었다,
+> (2) setup 토큰이 같은 기준 시각이라 S5 12분 시점에 약 200 VU가 동시에 재로그인해 포화가 생겼다,
+> (3) "실패 응답인데 반영" 수치에 k6를 멈춘 순간 처리 중이던 요청이 섞였다(멱등키 대조 없음),
+> (4) 배치 처리 건수를 적지 않았다. 아래 본문 수치는 당시 기록 그대로 두었다. 메모리 스래싱 사고(`s1/incident-r1-memory/`)는 재현된 사실로 인용한다.
+
 측정일 2026-09-27~28(KST). 조건은 `.claude/tasks/ec2-load-test/task.md`의 "측정 조건", 절차는 `perf/README.md`의
 "EC2 부하 테스트" 절. 원인 분석은 [bottleneck-analysis.md](bottleneck-analysis.md).
 

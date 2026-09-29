@@ -43,7 +43,7 @@ case "$cmd" in
 
   k6)
     # k6 실행. 사용법: k6 <run> <스크립트> [모니터 모드] [KEY=VALUE...]
-    #   모니터 모드 s1|s2: 단계별 무너짐을 판정해 한 단계 더 간 뒤 k6를 멈춘다. none: 끝까지 실행.
+    #   모니터 모드 s1|s2|s2f: 단계별 무너짐을 판정해 한 단계 더 간 뒤 k6를 멈춘다. none: 끝까지 실행.
     run="$1"; script="$2"; monitor="${3:-none}"; shift 3 || shift $#
     # 같은 이름으로 다시 돌린 회차의 이전 파일이 섞이지 않게 비우고 시작한다(백그라운드 k6가 로그를
     # 비우기 전에 옛 SCENARIO_START를 읽는 경쟁도 이것으로 막는다).
@@ -52,6 +52,14 @@ case "$cmd" in
     : > "$OUT/$run/k6.log"
     env_args=()
     for kv in "$@"; do env_args+=(-e "$kv"); done
+    # S2 램프 값을 받았으면 감시·분석이 같은 단계를 쓰도록 ramp.json으로 남긴다(k6_monitor.ramp).
+    python3 - "$OUT/$run/ramp.json" "$@" <<'PY'
+import json, sys
+keys = {"S2_START": "start", "S2_STEP": "step", "S2_MAX": "max"}
+ramp = {keys[k]: int(v) for k, v in (a.split("=", 1) for a in sys.argv[2:]) if k in keys}
+if ramp:
+    json.dump(ramp, open(sys.argv[1], "w"))
+PY
     export K6_PROMETHEUS_RW_SERVER_URL=http://localhost:9090/api/v1/write
     export K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM=true
     export K6_PROMETHEUS_RW_PUSH_INTERVAL=5s
@@ -85,7 +93,7 @@ case "$cmd" in
     ;;
 
   analyze)
-    # 사용법: analyze <run> <모드 s1|s2|s3|s5|warmup> [label:시작epoch:끝epoch,...]
+    # 사용법: analyze <run> <모드 s1|s2|s2f|s3|s5|warmup> [label:시작epoch:끝epoch,...]
     run="$1"; mode="$2"; windows="${3:-}"
     python3 "$REPO/perf/ec2/k6_monitor.py" analyze "$mode" "$run" \
       "$(cat "$OUT/$run/k6-start.txt")" "$(cat "$OUT/$run/k6-end.txt")" "$windows" | tee "$OUT/$run/analysis.json"

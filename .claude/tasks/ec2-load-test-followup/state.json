@@ -1,0 +1,46 @@
+{
+  "id": "ec2-load-test-followup",
+  "phase": "done",
+  "spec_protocol": 1,
+  "base_head": "575c634d7d160c26b2d55c4e6023e01f5d263a51",
+  "base_status": "?? perf/results/ec2-baseline/dryrun/artifacts.txt\n?? perf/results/ec2-baseline/dryrun/environment.md\n?? perf/results/ec2-baseline/dryrun/integrity.md\n?? perf/results/ec2-baseline/dryrun/loadgen/analysis.json\n?? perf/results/ec2-baseline/dryrun/loadgen/k6-end.txt\n?? perf/results/ec2-baseline/dryrun/loadgen/k6-exit.txt\n?? perf/results/ec2-baseline/dryrun/loadgen/k6-start.txt\n?? perf/results/ec2-baseline/dryrun/loadgen/k6-summary.json\n?? perf/results/ec2-baseline/dryrun/loadgen/prometheus/query_range.json.gz\n?? perf/results/ec2-baseline/dryrun/target/batch.txt\n?? perf/results/ec2-baseline/dryrun/target/boundary.env\n?? perf/results/ec2-baseline/dryrun/target/integrity-target.txt\n?? perf/results/ec2-baseline/dryrun/target/log-counts.txt\n?? perf/results/ec2-baseline/dryrun/target/pg_stat_activity.csv\n?? perf/results/ec2-baseline/dryrun/warmup/k6-end.txt\n?? perf/results/ec2-baseline/dryrun/warmup/k6-exit.txt\n?? perf/results/ec2-baseline/dryrun/warmup/k6-start.txt\n?? perf/results/ec2-baseline/dryrun/warmup/k6-summary.json\n",
+  "updated_at": "2026-09-28T06:05:00.995413+00:00",
+  "verifier_calls": [
+    {
+      "at": "2026-09-28T05:47:47.456989+00:00",
+      "phase": "planning",
+      "stage": "plan",
+      "attempt": 0,
+      "snapshot": null,
+      "plan_snapshot": "1716c55b7855c7b438a4326b25a37681482093c4225ab000c8cbda67c3066db2"
+    },
+    {
+      "at": "2026-09-28T05:53:20.731312+00:00",
+      "phase": "planning",
+      "stage": "plan",
+      "attempt": 0,
+      "snapshot": null,
+      "plan_snapshot": "25b244dea7babf0d73046d6a8db41c9cd720b6000f47301e7efb1f3b43f0ea00"
+    },
+    {
+      "at": "2026-09-28T05:58:36.161786+00:00",
+      "phase": "reviewing",
+      "stage": "result",
+      "attempt": 1,
+      "snapshot": "c13f91b0157164118552b44b5c8e4acc2135e0f33a5baed10fc14f27a14f68b5",
+      "plan_snapshot": null
+    },
+    {
+      "at": "2026-09-28T06:03:44.735562+00:00",
+      "phase": "reviewing",
+      "stage": "result",
+      "attempt": 2,
+      "snapshot": "705b2e247d6d5cdab3ea407f07e0a0725aed43b2e1579ef17252f456125f034d",
+      "plan_snapshot": null
+    }
+  ],
+  "approved_plan_snapshot": "25b244dea7babf0d73046d6a8db41c9cd720b6000f47301e7efb1f3b43f0ea00",
+  "started": true,
+  "verify_attempts": 2,
+  "review_attempts": 2
+}

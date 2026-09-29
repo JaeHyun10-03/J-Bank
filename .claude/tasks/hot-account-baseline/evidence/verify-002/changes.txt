@@ -1,0 +1,597 @@
+# 작업 시작 HEAD
+af895cd7a7a36d29a4c0b08cb37e6980c88d199d
+# 작업 시작 시 변경 상태
+?? perf/results/ec2-baseline/dryrun/artifacts.txt
+?? perf/results/ec2-baseline/dryrun/environment.md
+?? perf/results/ec2-baseline/dryrun/integrity.md
+?? perf/results/ec2-baseline/dryrun/loadgen/analysis.json
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-summary.json
+?? perf/results/ec2-baseline/dryrun/loadgen/prometheus/query_range.json.gz
+?? perf/results/ec2-baseline/dryrun/target/batch.txt
+?? perf/results/ec2-baseline/dryrun/target/boundary.env
+?? perf/results/ec2-baseline/dryrun/target/integrity-target.txt
+?? perf/results/ec2-baseline/dryrun/target/log-counts.txt
+?? perf/results/ec2-baseline/dryrun/target/pg_stat_activity.csv
+?? perf/results/ec2-baseline/dryrun/warmup/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-summary.json
+
+# 현재 git status --porcelain
+?? perf/results/ec2-baseline/dryrun/artifacts.txt
+?? perf/results/ec2-baseline/dryrun/environment.md
+?? perf/results/ec2-baseline/dryrun/integrity.md
+?? perf/results/ec2-baseline/dryrun/loadgen/analysis.json
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-summary.json
+?? perf/results/ec2-baseline/dryrun/loadgen/prometheus/query_range.json.gz
+?? perf/results/ec2-baseline/dryrun/target/batch.txt
+?? perf/results/ec2-baseline/dryrun/target/boundary.env
+?? perf/results/ec2-baseline/dryrun/target/integrity-target.txt
+?? perf/results/ec2-baseline/dryrun/target/log-counts.txt
+?? perf/results/ec2-baseline/dryrun/target/pg_stat_activity.csv
+?? perf/results/ec2-baseline/dryrun/warmup/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-summary.json
+
+# 작업 시작 HEAD부터 현재 파일까지의 이름·상태
+M	perf/README.md
+M	perf/ec2/k6_monitor.py
+M	perf/ec2/loadgen.sh
+M	perf/k6/s2-hot-account.js
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/artifacts.txt
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/environment.md
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/integrity.md
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/loadgen/analysis.json
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/loadgen/failed-transfers.txt
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/loadgen/k6-end.txt
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/loadgen/k6-exit.txt
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/loadgen/k6-start.txt
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/loadgen/k6-summary.json
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/loadgen/k6.log
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/loadgen/monitor.log
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/loadgen/prometheus/gaps.txt
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/loadgen/ramp.json
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/target/api-errors-excerpt.log
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/target/batch-counts.txt
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/target/batch-dryrun-recon.log
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/target/batch.txt
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/target/boundary.env
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/target/disk.log
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/target/failed-keys-target.txt
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/target/failed-transfers.txt
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/target/integrity-target.txt
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/target/log-counts.txt
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/target/pg_stat_activity.csv
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/target/postgres-excerpt.log
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/warmup/failed-transfers.txt
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/warmup/k6-end.txt
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/warmup/k6-exit.txt
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/warmup/k6-start.txt
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/warmup/k6-summary.json
+A	perf/results/ec2-hot-account/dryrun/20260928-154742/warmup/k6.log
+A	perf/results/ec2-hot-account/env/commands.log
+A	perf/results/ec2-hot-account/env/destroy.md
+A	perf/results/ec2-hot-account/env/infra.md
+A	perf/results/ec2-hot-account/env/loadgen/accounts.json
+A	perf/results/ec2-hot-account/env/loadgen/k6-version.txt
+A	perf/results/ec2-hot-account/env/loadgen/prepare.log
+A	perf/results/ec2-hot-account/env/loadgen/restore-verify.log
+A	perf/results/ec2-hot-account/env/loadgen/target-ip
+A	perf/results/ec2-hot-account/env/target/baseline.log
+A	perf/results/ec2-hot-account/env/target/disk.log
+A	perf/results/ec2-hot-account/env/target/environment-target.md
+A	perf/results/ec2-hot-account/env/target/seed.log
+A	perf/results/ec2-hot-account/s2f/r1/artifacts.txt
+A	perf/results/ec2-hot-account/s2f/r1/environment.md
+A	perf/results/ec2-hot-account/s2f/r1/integrity.md
+A	perf/results/ec2-hot-account/s2f/r1/loadgen/analysis.json
+A	perf/results/ec2-hot-account/s2f/r1/loadgen/failed-transfers.txt
+A	perf/results/ec2-hot-account/s2f/r1/loadgen/k6-end.txt
+A	perf/results/ec2-hot-account/s2f/r1/loadgen/k6-exit.txt
+A	perf/results/ec2-hot-account/s2f/r1/loadgen/k6-start.txt
+A	perf/results/ec2-hot-account/s2f/r1/loadgen/k6-summary.json
+A	perf/results/ec2-hot-account/s2f/r1/loadgen/k6.log
+A	perf/results/ec2-hot-account/s2f/r1/loadgen/monitor.log
+A	perf/results/ec2-hot-account/s2f/r1/loadgen/prometheus/gaps.txt
+A	perf/results/ec2-hot-account/s2f/r1/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-hot-account/s2f/r1/loadgen/ramp.json
+A	perf/results/ec2-hot-account/s2f/r1/target/api-errors-excerpt.log
+A	perf/results/ec2-hot-account/s2f/r1/target/batch-counts.txt
+A	perf/results/ec2-hot-account/s2f/r1/target/batch-s2f-r1-recon.log
+A	perf/results/ec2-hot-account/s2f/r1/target/batch.txt
+A	perf/results/ec2-hot-account/s2f/r1/target/boundary.env
+A	perf/results/ec2-hot-account/s2f/r1/target/disk.log
+A	perf/results/ec2-hot-account/s2f/r1/target/failed-keys-target.txt
+A	perf/results/ec2-hot-account/s2f/r1/target/failed-transfers.txt
+A	perf/results/ec2-hot-account/s2f/r1/target/integrity-target.txt
+A	perf/results/ec2-hot-account/s2f/r1/target/log-counts.txt
+A	perf/results/ec2-hot-account/s2f/r1/target/pg_stat_activity.csv
+A	perf/results/ec2-hot-account/s2f/r1/target/postgres-excerpt.log
+A	perf/results/ec2-hot-account/s2f/r1/warmup/failed-transfers.txt
+A	perf/results/ec2-hot-account/s2f/r1/warmup/k6-end.txt
+A	perf/results/ec2-hot-account/s2f/r1/warmup/k6-exit.txt
+A	perf/results/ec2-hot-account/s2f/r1/warmup/k6-start.txt
+A	perf/results/ec2-hot-account/s2f/r1/warmup/k6-summary.json
+A	perf/results/ec2-hot-account/s2f/r1/warmup/k6.log
+A	perf/results/ec2-hot-account/s2f/r2/artifacts.txt
+A	perf/results/ec2-hot-account/s2f/r2/environment.md
+A	perf/results/ec2-hot-account/s2f/r2/integrity.md
+A	perf/results/ec2-hot-account/s2f/r2/loadgen/analysis.json
+A	perf/results/ec2-hot-account/s2f/r2/loadgen/failed-transfers.txt
+A	perf/results/ec2-hot-account/s2f/r2/loadgen/k6-end.txt
+A	perf/results/ec2-hot-account/s2f/r2/loadgen/k6-exit.txt
+A	perf/results/ec2-hot-account/s2f/r2/loadgen/k6-start.txt
+A	perf/results/ec2-hot-account/s2f/r2/loadgen/k6-summary.json
+A	perf/results/ec2-hot-account/s2f/r2/loadgen/k6.log
+A	perf/results/ec2-hot-account/s2f/r2/loadgen/monitor.log
+A	perf/results/ec2-hot-account/s2f/r2/loadgen/prometheus/gaps.txt
+A	perf/results/ec2-hot-account/s2f/r2/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-hot-account/s2f/r2/loadgen/ramp.json
+A	perf/results/ec2-hot-account/s2f/r2/target/api-errors-excerpt.log
+A	perf/results/ec2-hot-account/s2f/r2/target/batch-counts.txt
+A	perf/results/ec2-hot-account/s2f/r2/target/batch-s2f-r2-recon.log
+A	perf/results/ec2-hot-account/s2f/r2/target/batch.txt
+A	perf/results/ec2-hot-account/s2f/r2/target/boundary.env
+A	perf/results/ec2-hot-account/s2f/r2/target/disk.log
+A	perf/results/ec2-hot-account/s2f/r2/target/failed-keys-target.txt
+A	perf/results/ec2-hot-account/s2f/r2/target/failed-transfers.txt
+A	perf/results/ec2-hot-account/s2f/r2/target/integrity-target.txt
+A	perf/results/ec2-hot-account/s2f/r2/target/log-counts.txt
+A	perf/results/ec2-hot-account/s2f/r2/target/pg_stat_activity.csv
+A	perf/results/ec2-hot-account/s2f/r2/target/postgres-excerpt.log
+A	perf/results/ec2-hot-account/s2f/r2/warmup/failed-transfers.txt
+A	perf/results/ec2-hot-account/s2f/r2/warmup/k6-end.txt
+A	perf/results/ec2-hot-account/s2f/r2/warmup/k6-exit.txt
+A	perf/results/ec2-hot-account/s2f/r2/warmup/k6-start.txt
+A	perf/results/ec2-hot-account/s2f/r2/warmup/k6-summary.json
+A	perf/results/ec2-hot-account/s2f/r2/warmup/k6.log
+A	perf/results/ec2-hot-account/s2f/r3/artifacts.txt
+A	perf/results/ec2-hot-account/s2f/r3/environment.md
+A	perf/results/ec2-hot-account/s2f/r3/integrity.md
+A	perf/results/ec2-hot-account/s2f/r3/loadgen/analysis.json
+A	perf/results/ec2-hot-account/s2f/r3/loadgen/failed-transfers.txt
+A	perf/results/ec2-hot-account/s2f/r3/loadgen/k6-end.txt
+A	perf/results/ec2-hot-account/s2f/r3/loadgen/k6-exit.txt
+A	perf/results/ec2-hot-account/s2f/r3/loadgen/k6-start.txt
+A	perf/results/ec2-hot-account/s2f/r3/loadgen/k6-summary.json
+A	perf/results/ec2-hot-account/s2f/r3/loadgen/k6.log
+A	perf/results/ec2-hot-account/s2f/r3/loadgen/monitor.log
+A	perf/results/ec2-hot-account/s2f/r3/loadgen/prometheus/gaps.txt
+A	perf/results/ec2-hot-account/s2f/r3/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-hot-account/s2f/r3/loadgen/ramp.json
+A	perf/results/ec2-hot-account/s2f/r3/target/api-errors-excerpt.log
+A	perf/results/ec2-hot-account/s2f/r3/target/batch-counts.txt
+A	perf/results/ec2-hot-account/s2f/r3/target/batch-s2f-r3-recon.log
+A	perf/results/ec2-hot-account/s2f/r3/target/batch.txt
+A	perf/results/ec2-hot-account/s2f/r3/target/boundary.env
+A	perf/results/ec2-hot-account/s2f/r3/target/disk.log
+A	perf/results/ec2-hot-account/s2f/r3/target/failed-keys-target.txt
+A	perf/results/ec2-hot-account/s2f/r3/target/failed-transfers.txt
+A	perf/results/ec2-hot-account/s2f/r3/target/integrity-target.txt
+A	perf/results/ec2-hot-account/s2f/r3/target/log-counts.txt
+A	perf/results/ec2-hot-account/s2f/r3/target/pg_stat_activity.csv
+A	perf/results/ec2-hot-account/s2f/r3/target/postgres-excerpt.log
+A	perf/results/ec2-hot-account/s2f/r3/warmup/failed-transfers.txt
+A	perf/results/ec2-hot-account/s2f/r3/warmup/k6-end.txt
+A	perf/results/ec2-hot-account/s2f/r3/warmup/k6-exit.txt
+A	perf/results/ec2-hot-account/s2f/r3/warmup/k6-start.txt
+A	perf/results/ec2-hot-account/s2f/r3/warmup/k6-summary.json
+A	perf/results/ec2-hot-account/s2f/r3/warmup/k6.log
+A	perf/results/ec2-hot-account/s2f/r4/artifacts.txt
+A	perf/results/ec2-hot-account/s2f/r4/environment.md
+A	perf/results/ec2-hot-account/s2f/r4/integrity.md
+A	perf/results/ec2-hot-account/s2f/r4/loadgen/analysis.json
+A	perf/results/ec2-hot-account/s2f/r4/loadgen/failed-transfers.txt
+A	perf/results/ec2-hot-account/s2f/r4/loadgen/k6-end.txt
+A	perf/results/ec2-hot-account/s2f/r4/loadgen/k6-exit.txt
+A	perf/results/ec2-hot-account/s2f/r4/loadgen/k6-start.txt
+A	perf/results/ec2-hot-account/s2f/r4/loadgen/k6-summary.json
+A	perf/results/ec2-hot-account/s2f/r4/loadgen/k6.log
+A	perf/results/ec2-hot-account/s2f/r4/loadgen/monitor.log
+A	perf/results/ec2-hot-account/s2f/r4/loadgen/prometheus/gaps.txt
+A	perf/results/ec2-hot-account/s2f/r4/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-hot-account/s2f/r4/loadgen/ramp.json
+A	perf/results/ec2-hot-account/s2f/r4/target/api-errors-excerpt.log
+A	perf/results/ec2-hot-account/s2f/r4/target/batch-counts.txt
+A	perf/results/ec2-hot-account/s2f/r4/target/batch-s2f-r4-recon.log
+A	perf/results/ec2-hot-account/s2f/r4/target/batch.txt
+A	perf/results/ec2-hot-account/s2f/r4/target/boundary.env
+A	perf/results/ec2-hot-account/s2f/r4/target/disk.log
+A	perf/results/ec2-hot-account/s2f/r4/target/failed-keys-target.txt
+A	perf/results/ec2-hot-account/s2f/r4/target/failed-transfers.txt
+A	perf/results/ec2-hot-account/s2f/r4/target/integrity-target.txt
+A	perf/results/ec2-hot-account/s2f/r4/target/log-counts.txt
+A	perf/results/ec2-hot-account/s2f/r4/target/pg_stat_activity.csv
+A	perf/results/ec2-hot-account/s2f/r4/target/postgres-excerpt.log
+A	perf/results/ec2-hot-account/s2f/r4/warmup/failed-transfers.txt
+A	perf/results/ec2-hot-account/s2f/r4/warmup/k6-end.txt
+A	perf/results/ec2-hot-account/s2f/r4/warmup/k6-exit.txt
+A	perf/results/ec2-hot-account/s2f/r4/warmup/k6-start.txt
+A	perf/results/ec2-hot-account/s2f/r4/warmup/k6-summary.json
+A	perf/results/ec2-hot-account/s2f/r4/warmup/k6.log
+A	perf/results/ec2-hot-account/s2f/r5/artifacts.txt
+A	perf/results/ec2-hot-account/s2f/r5/environment.md
+A	perf/results/ec2-hot-account/s2f/r5/integrity.md
+A	perf/results/ec2-hot-account/s2f/r5/loadgen/analysis.json
+A	perf/results/ec2-hot-account/s2f/r5/loadgen/failed-transfers.txt
+A	perf/results/ec2-hot-account/s2f/r5/loadgen/k6-end.txt
+A	perf/results/ec2-hot-account/s2f/r5/loadgen/k6-exit.txt
+A	perf/results/ec2-hot-account/s2f/r5/loadgen/k6-start.txt
+A	perf/results/ec2-hot-account/s2f/r5/loadgen/k6-summary.json
+A	perf/results/ec2-hot-account/s2f/r5/loadgen/k6.log
+A	perf/results/ec2-hot-account/s2f/r5/loadgen/monitor.log
+A	perf/results/ec2-hot-account/s2f/r5/loadgen/prometheus/gaps.txt
+A	perf/results/ec2-hot-account/s2f/r5/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-hot-account/s2f/r5/loadgen/ramp.json
+A	perf/results/ec2-hot-account/s2f/r5/target/api-errors-excerpt.log
+A	perf/results/ec2-hot-account/s2f/r5/target/batch-counts.txt
+A	perf/results/ec2-hot-account/s2f/r5/target/batch-s2f-r5-recon.log
+A	perf/results/ec2-hot-account/s2f/r5/target/batch.txt
+A	perf/results/ec2-hot-account/s2f/r5/target/boundary.env
+A	perf/results/ec2-hot-account/s2f/r5/target/disk.log
+A	perf/results/ec2-hot-account/s2f/r5/target/failed-keys-target.txt
+A	perf/results/ec2-hot-account/s2f/r5/target/failed-transfers.txt
+A	perf/results/ec2-hot-account/s2f/r5/target/integrity-target.txt
+A	perf/results/ec2-hot-account/s2f/r5/target/log-counts.txt
+A	perf/results/ec2-hot-account/s2f/r5/target/pg_stat_activity.csv
+A	perf/results/ec2-hot-account/s2f/r5/target/postgres-excerpt.log
+A	perf/results/ec2-hot-account/s2f/r5/warmup/failed-transfers.txt
+A	perf/results/ec2-hot-account/s2f/r5/warmup/k6-end.txt
+A	perf/results/ec2-hot-account/s2f/r5/warmup/k6-exit.txt
+A	perf/results/ec2-hot-account/s2f/r5/warmup/k6-start.txt
+A	perf/results/ec2-hot-account/s2f/r5/warmup/k6-summary.json
+A	perf/results/ec2-hot-account/s2f/r5/warmup/k6.log
+A	perf/results/ec2-hot-account/s2f/r6/artifacts.txt
+A	perf/results/ec2-hot-account/s2f/r6/environment.md
+A	perf/results/ec2-hot-account/s2f/r6/integrity.md
+A	perf/results/ec2-hot-account/s2f/r6/loadgen/analysis.json
+A	perf/results/ec2-hot-account/s2f/r6/loadgen/failed-transfers.txt
+A	perf/results/ec2-hot-account/s2f/r6/loadgen/k6-end.txt
+A	perf/results/ec2-hot-account/s2f/r6/loadgen/k6-exit.txt
+A	perf/results/ec2-hot-account/s2f/r6/loadgen/k6-start.txt
+A	perf/results/ec2-hot-account/s2f/r6/loadgen/k6-summary.json
+A	perf/results/ec2-hot-account/s2f/r6/loadgen/k6.log
+A	perf/results/ec2-hot-account/s2f/r6/loadgen/monitor.log
+A	perf/results/ec2-hot-account/s2f/r6/loadgen/prometheus/gaps.txt
+A	perf/results/ec2-hot-account/s2f/r6/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-hot-account/s2f/r6/loadgen/ramp.json
+A	perf/results/ec2-hot-account/s2f/r6/target/api-errors-excerpt.log
+A	perf/results/ec2-hot-account/s2f/r6/target/batch-counts.txt
+A	perf/results/ec2-hot-account/s2f/r6/target/batch-s2f-r6-recon.log
+A	perf/results/ec2-hot-account/s2f/r6/target/batch.txt
+A	perf/results/ec2-hot-account/s2f/r6/target/boundary.env
+A	perf/results/ec2-hot-account/s2f/r6/target/disk.log
+A	perf/results/ec2-hot-account/s2f/r6/target/failed-keys-target.txt
+A	perf/results/ec2-hot-account/s2f/r6/target/failed-transfers.txt
+A	perf/results/ec2-hot-account/s2f/r6/target/integrity-target.txt
+A	perf/results/ec2-hot-account/s2f/r6/target/log-counts.txt
+A	perf/results/ec2-hot-account/s2f/r6/target/pg_stat_activity.csv
+A	perf/results/ec2-hot-account/s2f/r6/target/postgres-excerpt.log
+A	perf/results/ec2-hot-account/s2f/r6/warmup/failed-transfers.txt
+A	perf/results/ec2-hot-account/s2f/r6/warmup/k6-end.txt
+A	perf/results/ec2-hot-account/s2f/r6/warmup/k6-exit.txt
+A	perf/results/ec2-hot-account/s2f/r6/warmup/k6-start.txt
+A	perf/results/ec2-hot-account/s2f/r6/warmup/k6-summary.json
+A	perf/results/ec2-hot-account/s2f/r6/warmup/k6.log
+A	perf/results/ec2-hot-account/s2f/r7/artifacts.txt
+A	perf/results/ec2-hot-account/s2f/r7/environment.md
+A	perf/results/ec2-hot-account/s2f/r7/integrity.md
+A	perf/results/ec2-hot-account/s2f/r7/loadgen/analysis.json
+A	perf/results/ec2-hot-account/s2f/r7/loadgen/failed-transfers.txt
+A	perf/results/ec2-hot-account/s2f/r7/loadgen/k6-end.txt
+A	perf/results/ec2-hot-account/s2f/r7/loadgen/k6-exit.txt
+A	perf/results/ec2-hot-account/s2f/r7/loadgen/k6-start.txt
+A	perf/results/ec2-hot-account/s2f/r7/loadgen/k6-summary.json
+A	perf/results/ec2-hot-account/s2f/r7/loadgen/k6.log
+A	perf/results/ec2-hot-account/s2f/r7/loadgen/monitor.log
+A	perf/results/ec2-hot-account/s2f/r7/loadgen/prometheus/gaps.txt
+A	perf/results/ec2-hot-account/s2f/r7/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-hot-account/s2f/r7/loadgen/ramp.json
+A	perf/results/ec2-hot-account/s2f/r7/target/api-errors-excerpt.log
+A	perf/results/ec2-hot-account/s2f/r7/target/batch-counts.txt
+A	perf/results/ec2-hot-account/s2f/r7/target/batch-s2f-r7-recon.log
+A	perf/results/ec2-hot-account/s2f/r7/target/batch.txt
+A	perf/results/ec2-hot-account/s2f/r7/target/boundary.env
+A	perf/results/ec2-hot-account/s2f/r7/target/disk.log
+A	perf/results/ec2-hot-account/s2f/r7/target/failed-keys-target.txt
+A	perf/results/ec2-hot-account/s2f/r7/target/failed-transfers.txt
+A	perf/results/ec2-hot-account/s2f/r7/target/integrity-target.txt
+A	perf/results/ec2-hot-account/s2f/r7/target/log-counts.txt
+A	perf/results/ec2-hot-account/s2f/r7/target/pg_stat_activity.csv
+A	perf/results/ec2-hot-account/s2f/r7/target/postgres-excerpt.log
+A	perf/results/ec2-hot-account/s2f/r7/warmup/failed-transfers.txt
+A	perf/results/ec2-hot-account/s2f/r7/warmup/k6-end.txt
+A	perf/results/ec2-hot-account/s2f/r7/warmup/k6-exit.txt
+A	perf/results/ec2-hot-account/s2f/r7/warmup/k6-start.txt
+A	perf/results/ec2-hot-account/s2f/r7/warmup/k6-summary.json
+A	perf/results/ec2-hot-account/s2f/r7/warmup/k6.log
+A	perf/results/ec2-hot-account/summary.md
+M	perf/run-ec2.py
+M	perf/run-ec2.sh
+
+# 작업 시작 HEAD부터 현재 파일까지의 통계
+ perf/README.md                                     |   21 +
+ perf/ec2/k6_monitor.py                             |   63 +-
+ perf/ec2/loadgen.sh                                |   12 +-
+ perf/k6/s2-hot-account.js                          |   12 +-
+ .../dryrun/20260928-154742/artifacts.txt           |    2 +
+ .../dryrun/20260928-154742/environment.md          |   10 +
+ .../dryrun/20260928-154742/integrity.md            |   23 +
+ .../dryrun/20260928-154742/loadgen/analysis.json   |    1 +
+ .../20260928-154742/loadgen/failed-transfers.txt   |    0
+ .../dryrun/20260928-154742/loadgen/k6-end.txt      |    1 +
+ .../dryrun/20260928-154742/loadgen/k6-exit.txt     |    1 +
+ .../dryrun/20260928-154742/loadgen/k6-start.txt    |    1 +
+ .../dryrun/20260928-154742/loadgen/k6-summary.json |  169 ++
+ .../dryrun/20260928-154742/loadgen/k6.log          |   36 +
+ .../dryrun/20260928-154742/loadgen/monitor.log     |    3 +
+ .../20260928-154742/loadgen/prometheus/gaps.txt    |    8 +
+ .../loadgen/prometheus/query_range.json.gz         |  Bin 0 -> 22581 bytes
+ .../dryrun/20260928-154742/loadgen/ramp.json       |    1 +
+ .../20260928-154742/target/api-errors-excerpt.log  |    0
+ .../dryrun/20260928-154742/target/batch-counts.txt |    1 +
+ .../20260928-154742/target/batch-dryrun-recon.log  |   61 +
+ .../dryrun/20260928-154742/target/batch.txt        |    1 +
+ .../dryrun/20260928-154742/target/boundary.env     |    5 +
+ .../dryrun/20260928-154742/target/disk.log         |    2 +
+ .../20260928-154742/target/failed-keys-target.txt  |    6 +
+ .../20260928-154742/target/failed-transfers.txt    |    0
+ .../20260928-154742/target/integrity-target.txt    |   16 +
+ .../dryrun/20260928-154742/target/log-counts.txt   |    6 +
+ .../20260928-154742/target/pg_stat_activity.csv    |  467 ++++
+ .../20260928-154742/target/postgres-excerpt.log    |   22 +
+ .../20260928-154742/warmup/failed-transfers.txt    |    0
+ .../dryrun/20260928-154742/warmup/k6-end.txt       |    1 +
+ .../dryrun/20260928-154742/warmup/k6-exit.txt      |    1 +
+ .../dryrun/20260928-154742/warmup/k6-start.txt     |    1 +
+ .../dryrun/20260928-154742/warmup/k6-summary.json  |  197 ++
+ .../dryrun/20260928-154742/warmup/k6.log           |   40 +
+ perf/results/ec2-hot-account/env/commands.log      |  343 +++
+ perf/results/ec2-hot-account/env/destroy.md        |    8 +
+ perf/results/ec2-hot-account/env/infra.md          |   15 +
+ .../ec2-hot-account/env/loadgen/accounts.json      | 1332 ++++++++++
+ .../ec2-hot-account/env/loadgen/k6-version.txt     |    1 +
+ .../ec2-hot-account/env/loadgen/prepare.log        |    1 +
+ .../ec2-hot-account/env/loadgen/restore-verify.log |    3 +
+ perf/results/ec2-hot-account/env/loadgen/target-ip |    1 +
+ .../ec2-hot-account/env/target/baseline.log        |   18 +
+ perf/results/ec2-hot-account/env/target/disk.log   |    5 +
+ .../env/target/environment-target.md               |   20 +
+ perf/results/ec2-hot-account/env/target/seed.log   |   42 +
+ perf/results/ec2-hot-account/s2f/r1/artifacts.txt  |    2 +
+ perf/results/ec2-hot-account/s2f/r1/environment.md |   10 +
+ perf/results/ec2-hot-account/s2f/r1/integrity.md   |   23 +
+ .../ec2-hot-account/s2f/r1/loadgen/analysis.json   |    1 +
+ .../s2f/r1/loadgen/failed-transfers.txt            |    0
+ .../ec2-hot-account/s2f/r1/loadgen/k6-end.txt      |    1 +
+ .../ec2-hot-account/s2f/r1/loadgen/k6-exit.txt     |    1 +
+ .../ec2-hot-account/s2f/r1/loadgen/k6-start.txt    |    1 +
+ .../ec2-hot-account/s2f/r1/loadgen/k6-summary.json |  180 ++
+ perf/results/ec2-hot-account/s2f/r1/loadgen/k6.log |   39 +
+ .../ec2-hot-account/s2f/r1/loadgen/monitor.log     |    9 +
+ .../s2f/r1/loadgen/prometheus/gaps.txt             |    8 +
+ .../s2f/r1/loadgen/prometheus/query_range.json.gz  |  Bin 0 -> 42533 bytes
+ .../ec2-hot-account/s2f/r1/loadgen/ramp.json       |    1 +
+ .../s2f/r1/target/api-errors-excerpt.log           |    0
+ .../ec2-hot-account/s2f/r1/target/batch-counts.txt |    1 +
+ .../s2f/r1/target/batch-s2f-r1-recon.log           |   61 +
+ .../ec2-hot-account/s2f/r1/target/batch.txt        |    1 +
+ .../ec2-hot-account/s2f/r1/target/boundary.env     |    5 +
+ .../results/ec2-hot-account/s2f/r1/target/disk.log |    1 +
+ .../s2f/r1/target/failed-keys-target.txt           |    6 +
+ .../s2f/r1/target/failed-transfers.txt             |    0
+ .../s2f/r1/target/integrity-target.txt             |   16 +
+ .../ec2-hot-account/s2f/r1/target/log-counts.txt   |    6 +
+ .../s2f/r1/target/pg_stat_activity.csv             |  170 ++
+ .../s2f/r1/target/postgres-excerpt.log             |  131 +
+ .../s2f/r1/warmup/failed-transfers.txt             |    0
+ .../ec2-hot-account/s2f/r1/warmup/k6-end.txt       |    1 +
+ .../ec2-hot-account/s2f/r1/warmup/k6-exit.txt      |    1 +
+ .../ec2-hot-account/s2f/r1/warmup/k6-start.txt     |    1 +
+ .../ec2-hot-account/s2f/r1/warmup/k6-summary.json  |  197 ++
+ perf/results/ec2-hot-account/s2f/r1/warmup/k6.log  |   40 +
+ perf/results/ec2-hot-account/s2f/r2/artifacts.txt  |    2 +
+ perf/results/ec2-hot-account/s2f/r2/environment.md |   10 +
+ perf/results/ec2-hot-account/s2f/r2/integrity.md   |   23 +
+ .../ec2-hot-account/s2f/r2/loadgen/analysis.json   |    1 +
+ .../s2f/r2/loadgen/failed-transfers.txt            |   11 +
+ .../ec2-hot-account/s2f/r2/loadgen/k6-end.txt      |    1 +
+ .../ec2-hot-account/s2f/r2/loadgen/k6-exit.txt     |    1 +
+ .../ec2-hot-account/s2f/r2/loadgen/k6-start.txt    |    1 +
+ .../ec2-hot-account/s2f/r2/loadgen/k6-summary.json |  173 ++
+ perf/results/ec2-hot-account/s2f/r2/loadgen/k6.log |   49 +
+ .../ec2-hot-account/s2f/r2/loadgen/monitor.log     |    8 +
+ .../s2f/r2/loadgen/prometheus/gaps.txt             |    8 +
+ .../s2f/r2/loadgen/prometheus/query_range.json.gz  |  Bin 0 -> 43866 bytes
+ .../ec2-hot-account/s2f/r2/loadgen/ramp.json       |    1 +
+ .../s2f/r2/target/api-errors-excerpt.log           |    0
+ .../ec2-hot-account/s2f/r2/target/batch-counts.txt |    1 +
+ .../s2f/r2/target/batch-s2f-r2-recon.log           |   61 +
+ .../ec2-hot-account/s2f/r2/target/batch.txt        |    1 +
+ .../ec2-hot-account/s2f/r2/target/boundary.env     |    5 +
+ .../results/ec2-hot-account/s2f/r2/target/disk.log |    1 +
+ .../s2f/r2/target/failed-keys-target.txt           |    8 +
+ .../s2f/r2/target/failed-transfers.txt             |   11 +
+ .../s2f/r2/target/integrity-target.txt             |   16 +
+ .../ec2-hot-account/s2f/r2/target/log-counts.txt   |    6 +
+ .../s2f/r2/target/pg_stat_activity.csv             |  146 ++
+ .../s2f/r2/target/postgres-excerpt.log             |  197 ++
+ .../s2f/r2/warmup/failed-transfers.txt             |    0
+ .../ec2-hot-account/s2f/r2/warmup/k6-end.txt       |    1 +
+ .../ec2-hot-account/s2f/r2/warmup/k6-exit.txt      |    1 +
+ .../ec2-hot-account/s2f/r2/warmup/k6-start.txt     |    1 +
+ .../ec2-hot-account/s2f/r2/warmup/k6-summary.json  |  197 ++
+ perf/results/ec2-hot-account/s2f/r2/warmup/k6.log  |   40 +
+ perf/results/ec2-hot-account/s2f/r3/artifacts.txt  |    2 +
+ perf/results/ec2-hot-account/s2f/r3/environment.md |   10 +
+ perf/results/ec2-hot-account/s2f/r3/integrity.md   |   23 +
+ .../ec2-hot-account/s2f/r3/loadgen/analysis.json   |    1 +
+ .../s2f/r3/loadgen/failed-transfers.txt            |  588 +++++
+ .../ec2-hot-account/s2f/r3/loadgen/k6-end.txt      |    1 +
+ .../ec2-hot-account/s2f/r3/loadgen/k6-exit.txt     |    1 +
+ .../ec2-hot-account/s2f/r3/loadgen/k6-start.txt    |    1 +
+ .../ec2-hot-account/s2f/r3/loadgen/k6-summary.json |  180 ++
+ perf/results/ec2-hot-account/s2f/r3/loadgen/k6.log | 2583 ++++++++++++++++++++
+ .../ec2-hot-account/s2f/r3/loadgen/monitor.log     |   13 +
+ .../s2f/r3/loadgen/prometheus/gaps.txt             |    8 +
+ .../s2f/r3/loadgen/prometheus/query_range.json.gz  |  Bin 0 -> 62555 bytes
+ .../ec2-hot-account/s2f/r3/loadgen/ramp.json       |    1 +
+ .../s2f/r3/target/api-errors-excerpt.log           |    0
+ .../ec2-hot-account/s2f/r3/target/batch-counts.txt |    1 +
+ .../s2f/r3/target/batch-s2f-r3-recon.log           |   61 +
+ .../ec2-hot-account/s2f/r3/target/batch.txt        |    1 +
+ .../ec2-hot-account/s2f/r3/target/boundary.env     |    5 +
+ .../results/ec2-hot-account/s2f/r3/target/disk.log |    1 +
+ .../s2f/r3/target/failed-keys-target.txt           |    8 +
+ .../s2f/r3/target/failed-transfers.txt             |  588 +++++
+ .../s2f/r3/target/integrity-target.txt             |   16 +
+ .../ec2-hot-account/s2f/r3/target/log-counts.txt   |    6 +
+ .../s2f/r3/target/pg_stat_activity.csv             |  266 ++
+ .../s2f/r3/target/postgres-excerpt.log             |  139 ++
+ .../s2f/r3/warmup/failed-transfers.txt             |    0
+ .../ec2-hot-account/s2f/r3/warmup/k6-end.txt       |    1 +
+ .../ec2-hot-account/s2f/r3/warmup/k6-exit.txt      |    1 +
+ .../ec2-hot-account/s2f/r3/warmup/k6-start.txt     |    1 +
+ .../ec2-hot-account/s2f/r3/warmup/k6-summary.json  |  197 ++
+ perf/results/ec2-hot-account/s2f/r3/warmup/k6.log  |   40 +
+ perf/results/ec2-hot-account/s2f/r4/artifacts.txt  |    2 +
+ perf/results/ec2-hot-account/s2f/r4/environment.md |   10 +
+ perf/results/ec2-hot-account/s2f/r4/integrity.md   |   23 +
+ .../ec2-hot-account/s2f/r4/loadgen/analysis.json   |    1 +
+ .../s2f/r4/loadgen/failed-transfers.txt            |    5 +
+ .../ec2-hot-account/s2f/r4/loadgen/k6-end.txt      |    1 +
+ .../ec2-hot-account/s2f/r4/loadgen/k6-exit.txt     |    1 +
+ .../ec2-hot-account/s2f/r4/loadgen/k6-start.txt    |    1 +
+ .../ec2-hot-account/s2f/r4/loadgen/k6-summary.json |  180 ++
+ perf/results/ec2-hot-account/s2f/r4/loadgen/k6.log |   44 +
+ .../ec2-hot-account/s2f/r4/loadgen/monitor.log     |    9 +
+ .../s2f/r4/loadgen/prometheus/gaps.txt             |    8 +
+ .../s2f/r4/loadgen/prometheus/query_range.json.gz  |  Bin 0 -> 46741 bytes
+ .../ec2-hot-account/s2f/r4/loadgen/ramp.json       |    1 +
+ .../s2f/r4/target/api-errors-excerpt.log           |    0
+ .../ec2-hot-account/s2f/r4/target/batch-counts.txt |    1 +
+ .../s2f/r4/target/batch-s2f-r4-recon.log           |   61 +
+ .../ec2-hot-account/s2f/r4/target/batch.txt        |    1 +
+ .../ec2-hot-account/s2f/r4/target/boundary.env     |    5 +
+ .../results/ec2-hot-account/s2f/r4/target/disk.log |    1 +
+ .../s2f/r4/target/failed-keys-target.txt           |    8 +
+ .../s2f/r4/target/failed-transfers.txt             |    5 +
+ .../s2f/r4/target/integrity-target.txt             |   16 +
+ .../ec2-hot-account/s2f/r4/target/log-counts.txt   |    6 +
+ .../s2f/r4/target/pg_stat_activity.csv             |  166 ++
+ .../s2f/r4/target/postgres-excerpt.log             |   92 +
+ .../s2f/r4/warmup/failed-transfers.txt             |    0
+ .../ec2-hot-account/s2f/r4/warmup/k6-end.txt       |    1 +
+ .../ec2-hot-account/s2f/r4/warmup/k6-exit.txt      |    1 +
+ .../ec2-hot-account/s2f/r4/warmup/k6-start.txt     |    1 +
+ .../ec2-hot-account/s2f/r4/warmup/k6-summary.json  |  197 ++
+ perf/results/ec2-hot-account/s2f/r4/warmup/k6.log  |   40 +
+ perf/results/ec2-hot-account/s2f/r5/artifacts.txt  |    2 +
+ perf/results/ec2-hot-account/s2f/r5/environment.md |   10 +
+ perf/results/ec2-hot-account/s2f/r5/integrity.md   |   23 +
+ .../ec2-hot-account/s2f/r5/loadgen/analysis.json   |    1 +
+ .../s2f/r5/loadgen/failed-transfers.txt            |    1 +
+ .../ec2-hot-account/s2f/r5/loadgen/k6-end.txt      |    1 +
+ .../ec2-hot-account/s2f/r5/loadgen/k6-exit.txt     |    1 +
+ .../ec2-hot-account/s2f/r5/loadgen/k6-start.txt    |    1 +
+ .../ec2-hot-account/s2f/r5/loadgen/k6-summary.json |  173 ++
+ perf/results/ec2-hot-account/s2f/r5/loadgen/k6.log |   39 +
+ .../ec2-hot-account/s2f/r5/loadgen/monitor.log     |    7 +
+ .../s2f/r5/loadgen/prometheus/gaps.txt             |    8 +
+ .../s2f/r5/loadgen/prometheus/query_range.json.gz  |  Bin 0 -> 39858 bytes
+ .../ec2-hot-account/s2f/r5/loadgen/ramp.json       |    1 +
+ .../s2f/r5/target/api-errors-excerpt.log           |    0
+ .../ec2-hot-account/s2f/r5/target/batch-counts.txt |    1 +
+ .../s2f/r5/target/batch-s2f-r5-recon.log           |   61 +
+ .../ec2-hot-account/s2f/r5/target/batch.txt        |    1 +
+ .../ec2-hot-account/s2f/r5/target/boundary.env     |    5 +
+ .../results/ec2-hot-account/s2f/r5/target/disk.log |    1 +
+ .../s2f/r5/target/failed-keys-target.txt           |    8 +
+ .../s2f/r5/target/failed-transfers.txt             |    1 +
+ .../s2f/r5/target/integrity-target.txt             |   16 +
+ .../ec2-hot-account/s2f/r5/target/log-counts.txt   |    6 +
+ .../s2f/r5/target/pg_stat_activity.csv             |  123 +
+ .../s2f/r5/target/postgres-excerpt.log             |  241 ++
+ .../s2f/r5/warmup/failed-transfers.txt             |    0
+ .../ec2-hot-account/s2f/r5/warmup/k6-end.txt       |    1 +
+ .../ec2-hot-account/s2f/r5/warmup/k6-exit.txt      |    1 +
+ .../ec2-hot-account/s2f/r5/warmup/k6-start.txt     |    1 +
+ .../ec2-hot-account/s2f/r5/warmup/k6-summary.json  |  197 ++
+ perf/results/ec2-hot-account/s2f/r5/warmup/k6.log  |   40 +
+ perf/results/ec2-hot-account/s2f/r6/artifacts.txt  |    2 +
+ perf/results/ec2-hot-account/s2f/r6/environment.md |   10 +
+ perf/results/ec2-hot-account/s2f/r6/integrity.md   |   23 +
+ .../ec2-hot-account/s2f/r6/loadgen/analysis.json   |    1 +
+ .../s2f/r6/loadgen/failed-transfers.txt            |    0
+ .../ec2-hot-account/s2f/r6/loadgen/k6-end.txt      |    1 +
+ .../ec2-hot-account/s2f/r6/loadgen/k6-exit.txt     |    1 +
+ .../ec2-hot-account/s2f/r6/loadgen/k6-start.txt    |    1 +
+ .../ec2-hot-account/s2f/r6/loadgen/k6-summary.json |  180 ++
+ perf/results/ec2-hot-account/s2f/r6/loadgen/k6.log |   39 +
+ .../ec2-hot-account/s2f/r6/loadgen/monitor.log     |    9 +
+ .../s2f/r6/loadgen/prometheus/gaps.txt             |    8 +
+ .../s2f/r6/loadgen/prometheus/query_range.json.gz  |  Bin 0 -> 46368 bytes
+ .../ec2-hot-account/s2f/r6/loadgen/ramp.json       |    1 +
+ .../s2f/r6/target/api-errors-excerpt.log           |    0
+ .../ec2-hot-account/s2f/r6/target/batch-counts.txt |    1 +
+ .../s2f/r6/target/batch-s2f-r6-recon.log           |   61 +
+ .../ec2-hot-account/s2f/r6/target/batch.txt        |    1 +
+ .../ec2-hot-account/s2f/r6/target/boundary.env     |    5 +
+ .../results/ec2-hot-account/s2f/r6/target/disk.log |    1 +
+ .../s2f/r6/target/failed-keys-target.txt           |    6 +
+ .../s2f/r6/target/failed-transfers.txt             |    0
+ .../s2f/r6/target/integrity-target.txt             |   16 +
+ .../ec2-hot-account/s2f/r6/target/log-counts.txt   |    6 +
+ .../s2f/r6/target/pg_stat_activity.csv             |  159 ++
+ .../s2f/r6/target/postgres-excerpt.log             |   60 +
+ .../s2f/r6/warmup/failed-transfers.txt             |    0
+ .../ec2-hot-account/s2f/r6/warmup/k6-end.txt       |    1 +
+ .../ec2-hot-account/s2f/r6/warmup/k6-exit.txt      |    1 +
+ .../ec2-hot-account/s2f/r6/warmup/k6-start.txt     |    1 +
+ .../ec2-hot-account/s2f/r6/warmup/k6-summary.json  |  197 ++
+ perf/results/ec2-hot-account/s2f/r6/warmup/k6.log  |   40 +
+ perf/results/ec2-hot-account/s2f/r7/artifacts.txt  |    2 +
+ perf/results/ec2-hot-account/s2f/r7/environment.md |   10 +
+ perf/results/ec2-hot-account/s2f/r7/integrity.md   |   23 +
+ .../ec2-hot-account/s2f/r7/loadgen/analysis.json   |    1 +
+ .../s2f/r7/loadgen/failed-transfers.txt            |    1 +
+ .../ec2-hot-account/s2f/r7/loadgen/k6-end.txt      |    1 +
+ .../ec2-hot-account/s2f/r7/loadgen/k6-exit.txt     |    1 +
+ .../ec2-hot-account/s2f/r7/loadgen/k6-start.txt    |    1 +
+ .../ec2-hot-account/s2f/r7/loadgen/k6-summary.json |  169 ++
+ perf/results/ec2-hot-account/s2f/r7/loadgen/k6.log |   38 +
+ .../ec2-hot-account/s2f/r7/loadgen/monitor.log     |    7 +
+ .../s2f/r7/loadgen/prometheus/gaps.txt             |    8 +
+ .../s2f/r7/loadgen/prometheus/query_range.json.gz  |  Bin 0 -> 39624 bytes
+ .../ec2-hot-account/s2f/r7/loadgen/ramp.json       |    1 +
+ .../s2f/r7/target/api-errors-excerpt.log           |    0
+ .../ec2-hot-account/s2f/r7/target/batch-counts.txt |    1 +
+ .../s2f/r7/target/batch-s2f-r7-recon.log           |   61 +
+ .../ec2-hot-account/s2f/r7/target/batch.txt        |    1 +
+ .../ec2-hot-account/s2f/r7/target/boundary.env     |    5 +
+ .../results/ec2-hot-account/s2f/r7/target/disk.log |    1 +
+ .../s2f/r7/target/failed-keys-target.txt           |    8 +
+ .../s2f/r7/target/failed-transfers.txt             |    1 +
+ .../s2f/r7/target/integrity-target.txt             |   16 +
+ .../ec2-hot-account/s2f/r7/target/log-counts.txt   |    6 +
+ .../s2f/r7/target/pg_stat_activity.csv             |  122 +
+ .../s2f/r7/target/postgres-excerpt.log             |   85 +
+ .../s2f/r7/warmup/failed-transfers.txt             |    0
+ .../ec2-hot-account/s2f/r7/warmup/k6-end.txt       |    1 +
+ .../ec2-hot-account/s2f/r7/warmup/k6-exit.txt      |    1 +
+ .../ec2-hot-account/s2f/r7/warmup/k6-start.txt     |    1 +
+ .../ec2-hot-account/s2f/r7/warmup/k6-summary.json  |  197 ++
+ perf/results/ec2-hot-account/s2f/r7/warmup/k6.log  |   40 +
+ perf/results/ec2-hot-account/summary.md            |   84 +
+ perf/run-ec2.py                                    |   36 +-
+ perf/run-ec2.sh                                    |    9 +-
+ 275 files changed, 13215 insertions(+), 36 deletions(-)
+

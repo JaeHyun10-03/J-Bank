@@ -1,0 +1,8 @@
+# 측정 구간(시작 후 10초부터) 수집 대상별 15초 초과 연속 결측, 오프셋은 측정 시작 기준 초
+api gaps_over_15s=[]
+target-node gaps_over_15s=[]
+target-cadvisor gaps_over_15s=[]
+target-postgres gaps_over_15s=[]
+loadgen-node gaps_over_15s=[]
+k6 gaps_over_15s=[]
+invalid=no

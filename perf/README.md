@@ -404,7 +404,7 @@ perf/run-ec2.sh up          # apply + 생성 조건 기록(env/infra.md)
 perf/run-ec2.sh setup       # 두 인스턴스 저장소 동기화, 스택 기동, 이미지 digest 기록
 perf/run-ec2.sh prepare     # 시드(약 6분) → 가입·입금 준비 → 기준 대사 → postgres 중지·복사본 → 복원 검증
 perf/run-ec2.sh s1 --dry-run  # 짧은 수집 경로 확인(기준선 제외)
-perf/run-ec2.sh s1 1        # 회차: 복원 → 예열 2분 → 경계 기록 → 측정 → 분석·수집 → 정합성 → api 정지 → 대사 → 로그
+perf/run-ec2.sh s1 1        # 회차: 복원 → 예열 2분 → 경계 기록 → 측정 → 분석·수집 → api 정지 → 정합성·실패 키 대조 → 대사 → 로그
 perf/run-ec2.sh s2 1
 perf/run-ec2.sh s3 1
 perf/run-ec2.sh s5 1 --rate 35   # S1 최대 지속 가능 요청률 최솟값의 70%
@@ -420,6 +420,31 @@ AWS-StartPortForwardingSession --parameters '{"portNumber":["3000"],"localPortNu
 부하 발생기에서 한 번 발생) 그 인스턴스를 `aws ec2 reboot-instances`로 재부팅한 뒤 `up`을 다시 실행한다(apply는 변경 없음).
 회차의 정합성 표는 `perf/run-ec2.py regen-integrity <회차 폴더...>`로 받아 둔 원자료에서 다시 만들 수 있다.
 
+로컬 맥이 잠들면 SSM 명령 사이가 벌어져 예열과 측정 사이 간격이 달라진다(2026-09-28 s2f r1, 덮개 닫힘·배터리). 전원을 연결하고
+`caffeinate -is`로 감싸 실행한다.
+
+#### 핫 계좌 정밀 측정(s2f)
+
+S2를 초당 40건에서 시작해 10건 간격(상한 400)으로 올린다. 램프는 k6 환경변수 `S2_START`·`S2_STEP`·`S2_MAX`로 넘기고, 부하
+발생기가 회차 폴더의 `ramp.json`에 남겨 감시·분석이 같은 단계를 쓴다. 결과 루트와 인스턴스가 체크아웃할 브랜치는 환경변수로
+바꾼다(기본값은 위 기준선과 같음). 브랜치를 먼저 push한다.
+
+```bash
+export PERF_RESULTS=perf/results/ec2-hot-account PERF_GIT_REF=perf/hot-account-baseline
+perf/run-ec2.sh up && perf/run-ec2.sh setup && perf/run-ec2.sh prepare
+perf/run-ec2.sh s2f --dry-run   # 상한 60(40·50·60)으로 s2f 경로 확인(기준선 제외)
+perf/run-ec2.sh s2f 1           # 회차 절차는 위와 같음
+perf/run-ec2.sh down
+```
+
+분석 결과에는 단계별 성공(201) 처리율 `success_tps`, 최대 처리 TPS, k6 요약 교차 확인값(`k6_hot_201_passes`·`k6_dropped_total`)이
+추가된다. 결과: `perf/results/ec2-hot-account/summary.md`.
+
+2026-09-28 기준선 이후 후처리 순서를 "정합성 → api 정지"에서 "api 정지 → 정합성"으로 바꿨다. 이후 측정은 api를 먼저 멈춰
+대기열 요청이 커밋되지 않고 끊기므로, "실패 키 중 반영" 수가 기준선보다 조금 작게 나올 수 있다(기준선의 중단 잔차는 모두 0 이상).
+비교할 때 이 조건 차이를 적는다. 다음 드라이런에서는 정지된 api의 로그 발췌가 실제로 되는지(`target/log-counts.txt`의 `api_log_lines` > 0 — 앱 로그 형식
+`"log.level"` 줄 수라 compose 에러 메시지만으로는 0보다 커지지 않는다) 함께 본다.
+
 ### 결과 요약 (2026-09-28 재측정, 개선 전 기준선)
 
 회차별 표는 `perf/results/ec2-baseline/summary.md`, 원인 분석은 `bottleneck-analysis.md`. 결함이 있던 1차 측정은
@@ -429,6 +454,7 @@ AWS-StartPortForwardingSession --parameters '{"portNumber":["3000"],"localPortNu
 | --- | --- | --- | --- |
 | S1 혼합 | 초당 100건(3/3) | 초당 50건 | CPU 포화(80~84%, 다음 단계 98%). 로그인 서버 p95 315ms로 이체·잔액의 8~26배 |
 | S2 핫 계좌 | 초당 80건(80~100) | 초당 60건 | 행 락 대기 0.77s → Hikari 대기 99 → 무관한 잔액 조회 p95 8→1,397ms(전파 3/3), CPU 46%로 여유 |
+| S2 정밀(s2f, 10건 간격 유효 6회) | 중앙값 95(80~140) | 중앙값 85 | 최대 처리 TPS 중앙값 103.8(87.7~140.6), 전파 7/7, CPU 44~66%. `ec2-hot-account/summary.md` |
 | S3 스파이크 | 목표 500 중 172건/s 처리, 오류 88% | — | Tomcat 200·Hikari 대기 192, 회복 100초(3/3 미회복) |
 | S5 배치 중첩(초당 35건) | 무너지지 않음 | — | CTR 쿼리 Parallel Seq Scan 9.1초, 배치 1.3~1.5배 느려짐, 배치 구간 p95 최대 220ms |
 

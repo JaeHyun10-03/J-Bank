@@ -1,0 +1,8 @@
+- 2026-09-28T23:38:01 destroy 후 state list: (비어 있음); 종료 상태가 아닌 perf 태그 리소스: ['arn:aws:ec2:ap-northeast-2:489470371163:security-group-rule/sgr-04806019977a7a279', 'arn:aws:ec2:ap-northeast-2:489470371163:security-group-rule/sgr-07a4992a1201fa757', 'arn:aws:ec2:ap-northeast-2:489470371163:security-group-rule/sgr-04e6864a554a9070f', 'arn:aws:ec2:ap-northeast-2:489470371163:security-group-rule/sgr-077d5df5ce794bfcd', 'arn:aws:ec2:ap-northeast-2:489470371163:volume/vol-0a595637001e5049d', 'arn:aws:ec2:ap-northeast-2:489470371163:volume/vol-0fe260bba51874085', 'arn:aws:ec2:ap-northeast-2:489470371163:security-group-rule/sgr-0c4328881757c1626']
+  - 직접 조회 2026-09-28T23:38:14: vol-0a595637001e5049d 없음
+  - 직접 조회 2026-09-28T23:38:14: vol-0fe260bba51874085 없음
+  - 직접 조회 2026-09-28T23:38:14: sgr-04806019977a7a279 없음
+  - 직접 조회 2026-09-28T23:38:14: sgr-07a4992a1201fa757 없음
+  - 직접 조회 2026-09-28T23:38:14: sgr-04e6864a554a9070f 없음
+  - 직접 조회 2026-09-28T23:38:14: sgr-077d5df5ce794bfcd 없음
+  - 직접 조회 2026-09-28T23:38:14: sgr-0c4328881757c1626 없음

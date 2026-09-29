@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """부하 발생기에서 도는 k6 감시·분석·원자료 수집(perf/README.md "EC2 부하 테스트" 절).
 
-  watch   <s1|s2> <run> <k6 pid> <시작 ISO>  : 단계가 끝날 때마다 무너짐을 판정하고, 무너진 뒤
+  watch   <s1|s2|s2f> <run> <k6 pid> <시작 ISO>  : 단계가 끝날 때마다 무너짐을 판정하고, 무너진 뒤
                                               한 단계를 더 채우면 k6에 SIGINT를 보낸다(task.md 측정 조건).
-  analyze <s1|s2|s3|s5|warmup> <run> <시작> <끝> [label:시작epoch:끝epoch,...]
+  analyze <s1|s2|s2f|s3|s5|warmup> <run> <시작> <끝> [label:시작epoch:끝epoch,...]
                                             : 단계·구간별 지표를 계산해 JSON 한 줄과 표를 출력한다.
   export  <run> <시작> <끝> <대시보드 JSON>   : 대시보드 전 패널 쿼리의 query_range 원자료를 저장한다.
 
@@ -28,10 +28,21 @@ ERR_LIMIT = 0.01
 SKIP = 10  # 단계 시작 후 제외 구간(초)
 
 # 시나리오별 단계 정의(k6 스크립트와 같아야 한다): (앞선 구간 초, 단계 길이 초, 시작 요청률, 증가폭, 상한)
+# 회차 폴더에 ramp.json(loadgen.sh가 S2_START·S2_STEP·S2_MAX로 기록)이 있으면 그 값이 우선한다.
 RAMPS = {
-    "s1": {"lead": 0, "stage": 120, "step": 50, "max": 1000, "scenario": "mixed"},
-    "s2": {"lead": 60, "stage": 60, "step": 20, "max": 400, "scenario": "hot_transfer"},
+    "s1": {"lead": 0, "stage": 120, "start": 50, "step": 50, "max": 1000, "scenario": "mixed"},
+    "s2": {"lead": 60, "stage": 60, "start": 20, "step": 20, "max": 400, "scenario": "hot_transfer"},
+    "s2f": {"lead": 60, "stage": 60, "start": 40, "step": 10, "max": 400, "scenario": "hot_transfer"},
 }
+HOT_MODES = ("s2", "s2f")
+
+
+def ramp(mode, run):
+    cfg = dict(RAMPS[mode])
+    path = f"{OUT}/{run}/ramp.json"
+    if os.path.exists(path):
+        cfg.update(json.load(open(path, encoding="utf-8")))
+    return cfg
 
 
 def ts(iso):
@@ -63,6 +74,7 @@ def window_stats(run, sel, start, end):
     failed = query(f'sum(increase(k6_http_reqs_total{{{base},expected_response="false"}}[{d}s]))', end) or 0
     stats = {
         "requests": round(total),
+        "failed": round(failed),
         "rps": round(total / d, 1),
         "error_rate": round(failed / total, 4) if total else None,
         "p95_s": query(f"histogram_quantile(0.95, sum(increase(k6_http_req_duration_seconds{{{base}}}[{d}s])))", end),
@@ -107,13 +119,12 @@ def collapsed(stats, system):
     return reasons
 
 
-def stage_windows(mode, start, end):
-    cfg = RAMPS[mode]
+def stage_windows(cfg, start, end):
     out, i = [], 0
     while True:
         s = start + cfg["lead"] + i * cfg["stage"]
         e = s + cfg["stage"]
-        rate = cfg["step"] * (i + 1)
+        rate = cfg["start"] + cfg["step"] * i
         if rate > cfg["max"] or s + SKIP >= end:
             break
         out.append((rate, s + SKIP, min(e, end)))
@@ -121,19 +132,26 @@ def stage_windows(mode, start, end):
     return out
 
 
-def evaluate_stage(mode, run, rate, s, e):
-    cfg = RAMPS[mode]
+def hot_success(run, s, e):
+    """[s, e] 구간 hot-transfer 성공(201) 건수 추정(increase 외삽)."""
+    d = max(int(e - s), 1)
+    return query(f'sum(increase(k6_http_reqs_total{{run="{run}",name="hot-transfer",status="201"}}[{d}s]))', e) or 0
+
+
+def evaluate_stage(mode, cfg, run, rate, s, e):
     stats = window_stats(run, f'scenario="{cfg["scenario"]}"', s, e)
     system = system_stats(run, s, e)
     row = {"target_rps": rate, "window": [s, e], **stats, **system, "collapse": collapsed(stats, system)}
-    if mode == "s2":
+    if mode in HOT_MODES:
         row["parallel_balance"] = window_stats(run, 'scenario="parallel_balance"', s, e)
+        # 단계 성공 처리율. 드롭이 있으면 목표 부하를 다 받지 못한 상태의 값이다(task.md).
+        row["success_tps"] = round(hot_success(run, s, e) / max(e - s, 1), 1)
     return row
 
 
 def watch(mode, run, pid, start_iso):
     start = ts(start_iso)
-    cfg = RAMPS[mode]
+    cfg = ramp(mode, run)
     collapse_stage = None
     i = 0
     while True:
@@ -145,7 +163,7 @@ def watch(mode, run, pid, start_iso):
                 print("k6 종료 감지", flush=True)
                 return
             time.sleep(5)
-        row = evaluate_stage(mode, run, cfg["step"] * (i + 1), s + SKIP, e)
+        row = evaluate_stage(mode, cfg, run, cfg["start"] + cfg["step"] * i, s + SKIP, e)
         print(json.dumps(row), flush=True)
         if collapse_stage is None and row["collapse"]:
             collapse_stage = i
@@ -160,7 +178,9 @@ def analyze(mode, run, start_iso, end_iso, windows_arg=""):
     start, end = ts(start_iso), ts(end_iso)
     result = {"run": run, "mode": mode, "start": start_iso, "end": end_iso}
     if mode in RAMPS:
-        rows = [evaluate_stage(mode, run, rate, s, e) for rate, s, e in stage_windows(mode, start, end)]
+        cfg = ramp(mode, run)
+        result["ramp"] = {k: cfg[k] for k in ("start", "step", "max")}
+        rows = [evaluate_stage(mode, cfg, run, rate, s, e) for rate, s, e in stage_windows(cfg, start, end)]
         result["stages"] = rows
         first = next((r for r in rows if r["collapse"]), None)
         result["collapse_rps"] = first["target_rps"] if first else None
@@ -168,7 +188,22 @@ def analyze(mode, run, start_iso, end_iso, windows_arg=""):
         prev = [r for r in rows if not r["collapse"] and (first is None or r["target_rps"] < first["target_rps"])]
         result["max_sustainable_rps"] = prev[-1]["target_rps"] if prev else None
         result["loadgen_cpu_max"] = max((r["loadgen_cpu_max"] or 0) for r in rows) if rows else None
-        if mode == "s2":
+        if mode in HOT_MODES:
+            # k6를 멈춘 뒤 남은 짧은 꼬리 구간은 처리율이 부정확하므로 단계를 다 채운 구간만 본다.
+            full = [r for r in rows if r["window"][1] - r["window"][0] >= cfg["stage"] - SKIP]
+            best = max(full, key=lambda r: r["success_tps"], default=None)
+            result["max_success_tps"] = best["success_tps"] if best else None
+            result["max_success_tps_stage"] = best["target_rps"] if best else None
+            result["dropped_stage_est"] = {r["target_rps"]: r["dropped_iterations"] for r in rows}
+            # 교차 확인: 이체 구간 전체 성공 추정 합과 k6 요약의 확정값(201 check passes·드롭 수).
+            result["success_total_est"] = round(hot_success(run, start + cfg["lead"], end))
+            try:
+                summary = json.load(open(f"{OUT}/{run}/k6-summary.json", encoding="utf-8"))
+                check = summary.get("root_group", {}).get("checks", {}).get("hot-transfer 201", {})
+                result["k6_hot_201_passes"] = check.get("passes")
+                result["k6_dropped_total"] = summary.get("metrics", {}).get("dropped_iterations", {}).get("count", 0)
+            except (OSError, ValueError):
+                result["k6_hot_201_passes"] = result["k6_dropped_total"] = None
             pre = window_stats(run, 'scenario="parallel_balance"', start, start + 60)
             result["parallel_pre_p95_s"] = pre["p95_s"]
             for r in rows:
