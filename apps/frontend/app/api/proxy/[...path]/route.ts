@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isBackendConnectError } from "@/lib/backend-offline";
 
 /**
  * 프론트(Vercel)와 백엔드(AWS)가 다른 오리진이라 쿠키 기반 인증이 그대로는 안 먹힌다.
@@ -15,12 +16,22 @@ async function proxy(request: NextRequest, { params }: { params: { path: string[
   headers.delete("content-length");
 
   const hasBody = !["GET", "HEAD"].includes(request.method);
-  const backendResponse = await fetch(targetUrl, {
-    method: request.method,
-    headers,
-    body: hasBody ? await request.arrayBuffer() : undefined,
-    redirect: "manual",
-  });
+  let backendResponse: Response;
+  try {
+    backendResponse = await fetch(targetUrl, {
+      method: request.method,
+      headers,
+      body: hasBody ? await request.arrayBuffer() : undefined,
+      redirect: "manual",
+    });
+  } catch (error) {
+    // 운영 인스턴스가 꺼진 시간(평일 09~18시 외)에는 연결 단계에서 실패한다. 화면이 운영 시간
+    // 안내를 띄울 수 있게 구분된 코드로 돌려준다. 그 밖의 오류는 그대로 던진다.
+    if (isBackendConnectError(error)) {
+      return NextResponse.json({ code: "SERVER_OFFLINE" }, { status: 503 });
+    }
+    throw error;
+  }
 
   const responseHeaders = new Headers(backendResponse.headers);
   responseHeaders.delete("set-cookie");

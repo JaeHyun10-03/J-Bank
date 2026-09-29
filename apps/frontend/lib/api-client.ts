@@ -1,4 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import { mayBeOffline, useServerStatus } from "./server-status";
 
 /**
  * 모든 API 호출은 same-site 프록시(`/api/proxy`)를 거친다 — 백엔드 오리진과 직접
@@ -60,6 +61,12 @@ apiClient.interceptors.response.use(
     // 로그인 자체가 401이면 자격증명이 틀린 것이지 인증 쿠키 만료가 아니다 — 재발급을
     // 시도하면 안 되고, 호출한 화면이 AUTH_001/AUTH_002로 직접 처리하게 그대로 흘려보낸다.
     const skipRefresh = config?.url === "/auth/refresh" || config?.url === "/auth/login";
+
+    // 서버가 꺼졌을 수 있는 실패면 상태를 확인해 운영 시간 안내를 띄운다. 오류 자체는 그대로
+    // 호출한 화면에 전달한다.
+    if (mayBeOffline(error.response?.status)) {
+      void useServerStatus.getState().check();
+    }
 
     if (error.response?.status !== 401 || !config || config._retried || skipRefresh) {
       return Promise.reject(error);
