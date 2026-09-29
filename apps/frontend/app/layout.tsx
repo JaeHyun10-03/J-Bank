@@ -4,6 +4,7 @@ import { Gothic_A1 } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { Providers } from "@/components/providers";
 import { DemoDisclaimerBanner, DemoDisclaimerFooter } from "@/components/demo-disclaimer";
+import { ServerOfflineNotice } from "@/components/server-offline-notice";
 
 const gothicA1 = Gothic_A1({
   subsets: ["latin"],
@@ -70,6 +71,7 @@ export default function RootLayout({
     <html lang="ko" className={cn("font-sans", gothicA1.variable)}>
       <body className="antialiased">
         <DemoDisclaimerBanner />
+        <ServerOfflineNotice />
         <Providers>{children}</Providers>
         <DemoDisclaimerFooter />
       </body>
