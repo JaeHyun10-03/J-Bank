@@ -16,7 +16,8 @@ SSM 출력으로 나눠 받아온다(추가 IAM 권한·SSH 없음). 명령은 p
 
 모든 명령은 <결과 루트>/env/commands.log에 실행 기록을 남긴다(REQ-13).
 환경변수: PERF_RESULTS(결과 루트, 저장소 루트 기준, 기본 perf/results/ec2-baseline),
-PERF_GIT_REF(인스턴스가 체크아웃할 원격 브랜치, 기본 perf/ec2-load-test. 실행 전에 push해 둔다).
+PERF_GIT_REF(인스턴스가 체크아웃할 원격 브랜치, 기본 perf/ec2-load-test. 실행 전에 push해 둔다),
+PERF_BUILD_IMAGE=1(GHCR 이미지 대신 대상 인스턴스에서 체크아웃한 코드로 api 이미지를 빌드).
 """
 import argparse
 import base64
@@ -214,7 +215,8 @@ def cmd_setup(_):
         ssm(inst, f"runuser -u ec2-user -- git -C /opt/jbank fetch -q origin {GIT_REF} && "
                   f"runuser -u ec2-user -- git -C /opt/jbank checkout -q -f {sha} && "
                   f"git -c safe.directory='*' -C /opt/jbank rev-parse HEAD")
-    target_sh(i, "setup")
+    # PERF_BUILD_IMAGE=1: main에 없는 브랜치 코드를 대상 인스턴스에서 빌드해 잰다(target.sh setup build).
+    target_sh(i, "setup build" if os.environ.get("PERF_BUILD_IMAGE") == "1" else "setup", timeout=3600)
     target_sh(i, "environment")
     loadgen_sh(i, f"setup {i['target_private_ip']}")
     fetch_env(i)

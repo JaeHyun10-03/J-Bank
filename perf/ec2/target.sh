@@ -30,12 +30,19 @@ wait_ready() {
 cmd="$1"; shift
 case "$cmd" in
   setup)
+    # setup build: GHCR 이미지 대신 체크아웃한 저장소로 api 이미지를 여기서 빌드한다(main에 없는 브랜치 코드
+    # 측정용 — 브랜치 이미지를 GHCR에 올리면 운영이 받는 :latest를 덮을 수 있다). 태그는 perf-<커밋>.
+    if [ "${1:-}" = build ]; then
+      tag="perf-$(git -c safe.directory='*' -C "$REPO" rev-parse --short HEAD)"
+      docker build -q -t "ghcr.io/jaehyun10-03/jbank-api:$tag" "$REPO/apps/jbank-api"
+      echo "IMAGE_TAG=$tag" > /tmp/perf-image-tag
+    fi
     # 비밀값은 이 인스턴스 안에서만 만든다(운영 값과 무관, 저장소·결과물로 나가지 않는다).
     if [ ! -f .env ]; then
       umask 077
       {
         echo "PERF_HOST=$(hostname -I | awk '{print $1}')"
-        grep '^IMAGE_TAG=' target.env.example
+        if [ -f /tmp/perf-image-tag ]; then cat /tmp/perf-image-tag; else grep '^IMAGE_TAG=' target.env.example; fi
         echo "DB_PASSWORD=$(openssl rand -hex 24)"
         echo "PII_ENCRYPTION_KEY=$(openssl rand -base64 32)"
         echo "RESIDENT_REG_NO_HASH_KEY=$(openssl rand -base64 32)"
