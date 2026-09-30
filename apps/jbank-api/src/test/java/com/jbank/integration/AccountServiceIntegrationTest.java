@@ -30,11 +30,17 @@ import com.jbank.global.response.PageResponse;
 import com.jbank.support.audit.AuditLogListener;
 import com.jbank.support.audit.domain.AuditLog;
 import com.jbank.support.audit.repository.AuditLogRepository;
+import com.jbank.transfer.domain.PendingCredit;
+import com.jbank.transfer.domain.Transaction;
+import com.jbank.transfer.domain.TransactionType;
+import com.jbank.transfer.repository.PendingCreditRepository;
+import com.jbank.transfer.repository.TransactionRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -76,6 +82,8 @@ class AccountServiceIntegrationTest {
   @Autowired private AccountService accountService;
   @Autowired private AccountNumberGenerator accountNumberGenerator;
   @Autowired private AuditLogRepository auditLogRepository;
+  @Autowired private TransactionRepository transactionRepository;
+  @Autowired private PendingCreditRepository pendingCreditRepository;
 
   @Test
   void 정상_고객이면_잔액0원_계좌를_개설한다() {
@@ -299,6 +307,68 @@ class AccountServiceIntegrationTest {
             ex ->
                 assertThat(((AccountException) ex).getErrorCode())
                     .isEqualTo(ErrorCode.ACC_008_BALANCE_NOT_ZERO));
+  }
+
+  @Test
+  void 반영을_기다리는_입금이_있으면_보이는_잔액이_0원이어도_해지를_거절한다() {
+    Long customerId = saveCustomer(KycGrade.GENERAL, RiskLevel.LOW, CustomerStatus.ACTIVE);
+    Account to = saveZeroAccount(customerId);
+    Account from = saveZeroAccount(customerId);
+    Transaction transfer =
+        transactionRepository.saveAndFlush(
+            new Transaction(
+                TransactionType.TRANSFER,
+                from.getAccountId(),
+                to.getAccountId(),
+                new BigDecimal("100.00"),
+                UUID.randomUUID().toString(),
+                null));
+    pendingCreditRepository.saveAndFlush(
+        new PendingCredit(
+            transfer.getTransactionId(), to.getAccountId(), new BigDecimal("100.00")));
+
+    assertThatThrownBy(() -> accountService.close(to.getAccountId(), customerId))
+        .isInstanceOf(AccountException.class)
+        .satisfies(
+            ex ->
+                assertThat(((AccountException) ex).getErrorCode())
+                    .isEqualTo(ErrorCode.ACC_012_PENDING_CREDIT_EXISTS));
+  }
+
+  @Test
+  void 이_계좌로_들어올_인증_대기_이체가_있으면_해지를_거절한다() {
+    Long customerId = saveCustomer(KycGrade.GENERAL, RiskLevel.LOW, CustomerStatus.ACTIVE);
+    Account to = saveZeroAccount(customerId);
+    Account from = saveZeroAccount(customerId);
+    Transaction transfer =
+        new Transaction(
+            TransactionType.TRANSFER,
+            from.getAccountId(),
+            to.getAccountId(),
+            new BigDecimal("20000000.00"),
+            UUID.randomUUID().toString(),
+            null);
+    transfer.markPendingOtp();
+    transactionRepository.saveAndFlush(transfer);
+
+    assertThatThrownBy(() -> accountService.close(to.getAccountId(), customerId))
+        .isInstanceOf(AccountException.class)
+        .satisfies(
+            ex ->
+                assertThat(((AccountException) ex).getErrorCode())
+                    .isEqualTo(ErrorCode.ACC_012_PENDING_CREDIT_EXISTS));
+  }
+
+  private Account saveZeroAccount(Long customerId) {
+    return accountRepository.saveAndFlush(
+        new Account(
+            accountNumberGenerator.generate(),
+            customerId,
+            AccountType.CHECKING,
+            AccountStatus.ACTIVE,
+            BigDecimal.ZERO,
+            BigDecimal.ZERO,
+            OffsetDateTime.now()));
   }
 
   @Test

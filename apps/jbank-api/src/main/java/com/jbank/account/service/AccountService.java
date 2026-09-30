@@ -149,6 +149,11 @@ public class AccountService {
     if (account.getHoldAmount().compareTo(BigDecimal.ZERO) != 0) {
       throw new AccountException(ErrorCode.ACC_010_HOLD_AMOUNT_REMAINS);
     }
+    // 보이는 잔액이 0이어도 반영을 기다리는 입금이나 인증 대기 중인 입금이 있으면 해지하지 않는다 — 해지 뒤
+    // 도착한 입금은 반영할 곳이 없다. 계좌를 FOR UPDATE로 잡은 뒤라 이 확인과 새 입금 사이 순서가 정해진다.
+    if (accountRepository.hasIncomingInProgress(accountId)) {
+      throw new AccountException(ErrorCode.ACC_012_PENDING_CREDIT_EXISTS);
+    }
 
     AccountStatus previousStatus = account.getStatus();
     account.close();

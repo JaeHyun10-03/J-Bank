@@ -50,6 +50,15 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
       nativeQuery = true)
   Optional<Account> lockForStatusChange(@Param("accountId") Long accountId);
 
+  // 해지 전 확인: 아직 반영되지 않은 입금 대기나, 이 계좌로 들어올 OTP 인증 대기 이체가 있는가(ADR 0012).
+  // 이체 도메인을 참조하지 않으려고 테이블을 직접 본다.
+  @Query(
+      value =
+          "select exists(select 1 from pending_credits where account_id = :accountId and applied_at is null) "
+              + "or exists(select 1 from transactions where to_account_id = :accountId and status = 'PENDING_OTP')",
+      nativeQuery = true)
+  boolean hasIncomingInProgress(@Param("accountId") Long accountId);
+
   // 입금·출금은 단일 계좌만 잠그면 되므로 accountId 기준 락 조회를 별도로 둔다(FR-TXN-002).
   @Timed(
       value = "db.lock.wait",
