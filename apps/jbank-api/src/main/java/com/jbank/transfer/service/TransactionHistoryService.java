@@ -5,12 +5,15 @@ import com.jbank.account.domain.AccountException;
 import com.jbank.account.repository.AccountRepository;
 import com.jbank.global.exception.ErrorCode;
 import com.jbank.global.response.PageResponse;
+import com.jbank.transfer.domain.PendingCredit;
 import com.jbank.transfer.domain.Transaction;
 import com.jbank.transfer.domain.TransactionType;
 import com.jbank.transfer.dto.TransactionHistoryFilter;
 import com.jbank.transfer.dto.TransactionSummaryResponse;
 import com.jbank.transfer.repository.TransactionRepository;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,6 +81,18 @@ public class TransactionHistoryService {
           }
         }
       }
+      // 이체 입금은 수신 계좌에 비동기로 반영된다(ADR 0012). 반영 전에는 받는 사람의 잔액에도 내역에도
+      // 보이지 않게, 이 계좌가 받을 미반영 입금 대기가 있는 거래는 뺀다. 반영 뒤에는 원래 거래 시각 위치에 나타난다.
+      Subquery<Long> unapplied = query.subquery(Long.class);
+      Root<PendingCredit> credit = unapplied.from(PendingCredit.class);
+      unapplied
+          .select(credit.get("pendingCreditId"))
+          .where(
+              cb.equal(credit.get("transactionId"), root.get("transactionId")),
+              cb.equal(credit.get("accountId"), accountId),
+              cb.isNull(credit.get("appliedAt")));
+      predicates.add(cb.not(cb.exists(unapplied)));
+
       if (from != null) {
         predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), from));
       }
