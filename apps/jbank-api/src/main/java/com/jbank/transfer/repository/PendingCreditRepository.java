@@ -40,9 +40,10 @@ public interface PendingCreditRepository extends JpaRepository<PendingCredit, Lo
 
   @Query(
       value =
-          "select count(*) > 0 from pending_credits where account_id = :accountId and applied_at is null",
+          "select count(*) from pending_credits where applied_at is null "
+              + "and created_at < clock_timestamp() - make_interval(secs => :seconds)",
       nativeQuery = true)
-  boolean existsUnappliedForAccount(@Param("accountId") Long accountId);
+  long countUnappliedOlderThan(@Param("seconds") long seconds);
 
   /** [미반영 수, 가장 오래된 미반영의 나이(초)] — 지표 캐시용. */
   @Query(

@@ -48,6 +48,7 @@ import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
@@ -93,6 +94,7 @@ class LedgerReconciliationJobIntegrationTest {
   @Autowired private TransactionRepository transactionRepository;
   @Autowired private LedgerEntryRepository ledgerEntryRepository;
   @Autowired private RedissonClient redissonClient;
+  @Autowired private JdbcTemplate jdbcTemplate;
 
   private ListAppender<ILoggingEvent> appender;
 
@@ -208,6 +210,30 @@ class LedgerReconciliationJobIntegrationTest {
     } finally {
       release.countDown();
       lockHolder.shutdown();
+    }
+  }
+
+  @Test
+  void 일분_넘게_반영되지_않은_입금이_있으면_경고한다() throws Exception {
+    Long customerId = saveCustomer();
+    Account to = saveAccount(customerId, BigDecimal.ZERO);
+    Transaction transaction = saveCompletedTransaction(null, to, new BigDecimal("100.00"));
+    jdbcTemplate.update(
+        "insert into pending_credits (transaction_id, account_id, amount, created_at) "
+            + "values (?, ?, 100.00, clock_timestamp() - interval '2 minutes')",
+        transaction.getTransactionId(),
+        to.getAccountId());
+    try {
+      jobLauncherTestUtils.launchJob(
+          new JobParametersBuilder().addString("runDate", "2026-08-16").toJobParameters());
+
+      assertThat(appender.list)
+          .anyMatch(
+              event ->
+                  event.getLevel() == Level.WARN
+                      && event.getFormattedMessage().contains("1분 넘게 반영되지 않은 입금 대기: 1건"));
+    } finally {
+      jdbcTemplate.update("delete from pending_credits where account_id = ?", to.getAccountId());
     }
   }
 
