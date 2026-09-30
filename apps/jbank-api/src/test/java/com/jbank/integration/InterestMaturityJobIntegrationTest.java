@@ -45,12 +45,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 /** 이자 계산·만기 처리 배치 잡(구현계획 W5)이 실제로 이자를 지급하고 재실행을 막는지 검증한다. */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+// 입금 반영 워커는 끄고, 반영이 필요하면 테스트가 반영 서비스를 직접 부른다(ADR 0012).
+@TestPropertySource(properties = "jbank.transfer.credit-worker.enabled=false")
 @SpringBatchTest
 class InterestMaturityJobIntegrationTest {
 

@@ -30,6 +30,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.containers.GenericContainer;
@@ -40,6 +41,8 @@ import org.testcontainers.containers.PostgreSQLContainer;
  * 거래내역조회→상품가입. 계좌개설이 인증을 요구해 로그인이 계좌개설보다 먼저다.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+// 입금 반영 워커는 끄고, 반영이 필요하면 테스트가 반영 서비스를 직접 부른다(ADR 0012).
+@TestPropertySource(properties = "jbank.transfer.credit-worker.enabled=false")
 @AutoConfigureMockMvc
 class FullFlowIntegrationTest {
 

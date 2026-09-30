@@ -37,11 +37,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 /** 고액현금거래 판별 배치 잡(구현계획 W5)이 기준 금액 초과 여부를 정확히 판별하고 재실행에 안전한지 검증한다. */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+// 입금 반영 워커는 끄고, 반영이 필요하면 테스트가 반영 서비스를 직접 부른다(ADR 0012).
+@TestPropertySource(properties = "jbank.transfer.credit-worker.enabled=false")
 @SpringBatchTest
 class CtrDetectionJobIntegrationTest {
 

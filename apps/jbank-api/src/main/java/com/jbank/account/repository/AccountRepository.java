@@ -31,6 +31,16 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
   @Query("select a from Account a where a.accountNumber = :accountNumber")
   Optional<Account> findByAccountNumberForUpdate(@Param("accountNumber") String accountNumber);
 
+  // 입금 반영 워커와 이체 송금 계좌가 잔액을 바꿀 때 쓴다. FOR NO KEY UPDATE는 이체가 수신 계좌에 거는
+  // FOR KEY SHARE와 충돌하지 않아, 핫 계좌 반영 중에도 그 계좌로 가는 이체가 줄 서지 않는다(ADR 0012).
+  @Timed(
+      value = "db.lock.wait",
+      extraTags = {"repository", "account", "method", "lockForBalanceUpdate"})
+  @Query(
+      value = "select * from accounts where account_id = :accountId for no key update",
+      nativeQuery = true)
+  Optional<Account> lockForBalanceUpdate(@Param("accountId") Long accountId);
+
   // 입금·출금은 단일 계좌만 잠그면 되므로 accountId 기준 락 조회를 별도로 둔다(FR-TXN-002).
   @Timed(
       value = "db.lock.wait",
