@@ -16,7 +16,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -51,7 +50,9 @@ public class CreditApplier {
   }
 
   /** 이 계좌의 미반영 입금을 최대 {@link #BATCH_LIMIT}건 반영하고 반영한 건수를 돌려준다. */
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  // 워커는 트랜잭션 밖에서 계좌마다 부르므로 호출마다 새 트랜잭션이 된다. 테스트처럼 이미 트랜잭션 안이면
+  // 그 안에서 반영한다(이체와 같은 트랜잭션에서 방금 만든 대기를 볼 수 있게).
+  @Transactional
   public int applyForAccount(Long accountId) {
     // 이 트랜잭션에서 계좌를 처음 읽는 쿼리가 곧 락 쿼리여야 한다 — 먼저 다른 방법으로 읽어 두면
     // 영속성 컨텍스트가 옛 잔액을 돌려준다.
@@ -84,7 +85,10 @@ public class CreditApplier {
     pendingCreditRepository.markApplied(
         pending.stream().map(PendingCredit::getPendingCreditId).toList());
     for (PendingCredit credit : pending) {
-      applyLag.record(Duration.between(credit.getCreatedAt(), occurredAt).abs());
+      // 같은 트랜잭션에서 방금 만든 대기면 DB가 넣은 생성 시각이 엔티티에 없다(워커는 항상 새 트랜잭션).
+      if (credit.getCreatedAt() != null) {
+        applyLag.record(Duration.between(credit.getCreatedAt(), occurredAt).abs());
+      }
     }
     return pending.size();
   }

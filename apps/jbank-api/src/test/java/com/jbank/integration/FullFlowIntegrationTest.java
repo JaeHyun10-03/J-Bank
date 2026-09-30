@@ -18,6 +18,7 @@ import com.jbank.product.dto.ProductSubscribeRequest;
 import com.jbank.product.repository.ProductRepository;
 import com.jbank.transfer.dto.DepositRequest;
 import com.jbank.transfer.dto.TransferRequest;
+import com.jbank.transfer.service.CreditApplier;
 import jakarta.servlet.http.Cookie;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -67,6 +68,7 @@ class FullFlowIntegrationTest {
     registry.add("jbank.jwt.secret", () -> "test-secret-key-at-least-32-bytes-long-for-hs256");
   }
 
+  @Autowired private CreditApplier creditApplier;
   @Autowired private MockMvc mockMvc;
   @Autowired private ObjectMapper objectMapper;
   @Autowired private ProductRepository productRepository;
@@ -135,6 +137,8 @@ class FullFlowIntegrationTest {
                 .cookie(accessToken, csrfCookie)
                 .header("X-CSRF-TOKEN", csrfToken))
         .andExpect(status().isCreated());
+    // 입금은 반영 워커가 따로 한다(ADR 0012). 테스트에서는 워커를 끄고 여기서 반영한다.
+    creditApplier.applyForAccount(accountB);
 
     JsonNode balanceA = getJson("/api/v1/accounts/" + accountA + "/balance", accessToken);
     assertThat(new BigDecimal(balanceA.get("data").get("balance").asText()))

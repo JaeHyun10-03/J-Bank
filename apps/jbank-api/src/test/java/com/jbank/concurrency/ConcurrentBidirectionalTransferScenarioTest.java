@@ -61,6 +61,8 @@ class ConcurrentBidirectionalTransferScenarioTest extends AbstractConcurrencyTes
     } finally {
       executor.shutdown();
     }
+    // 입금은 반영 워커가 따로 한다(ADR 0012). 반영까지 끝난 상태에서 불변식을 본다.
+    applyAllPendingCredits();
 
     Account updatedA = accountRepository.findById(a.getAccountId()).orElseThrow();
     Account updatedB = accountRepository.findById(b.getAccountId()).orElseThrow();

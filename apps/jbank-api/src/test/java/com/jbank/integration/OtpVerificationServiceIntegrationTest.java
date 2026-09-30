@@ -23,11 +23,13 @@ import com.jbank.transfer.domain.TransactionException;
 import com.jbank.transfer.domain.TransactionStatus;
 import com.jbank.transfer.dto.TransferResponse;
 import com.jbank.transfer.repository.TransactionRepository;
+import com.jbank.transfer.service.CreditApplier;
 import com.jbank.transfer.service.IdempotencyRecovery;
 import com.jbank.transfer.service.OtpService;
 import com.jbank.transfer.service.OtpVerificationService;
 import com.jbank.transfer.service.PendingOtpCancellationService;
 import com.jbank.transfer.service.TransferService;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -62,6 +64,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
   TransferService.class,
   PendingOtpCancellationService.class,
   OtpVerificationService.class,
+  CreditApplier.class,
+  SimpleMeterRegistry.class,
   OtpVerificationServiceIntegrationTest.RedisTestConfig.class
 })
 class OtpVerificationServiceIntegrationTest {
@@ -101,6 +105,7 @@ class OtpVerificationServiceIntegrationTest {
   @Autowired private TransferService transferService;
   @Autowired private OtpService otpService;
   @Autowired private OtpVerificationService otpVerificationService;
+  @Autowired private CreditApplier creditApplier;
   @Autowired private RedissonClient redissonClient;
 
   @Test
@@ -115,6 +120,8 @@ class OtpVerificationServiceIntegrationTest {
         otpVerificationService.verify(transactionId, code, from.getCustomerId());
 
     assertThat(response.status()).isEqualTo(TransactionStatus.COMPLETED);
+    assertThat(ledgerEntryRepository.findByAccountId(to.getAccountId())).isEmpty(); // 입금 대기
+    creditApplier.applyForAccount(to.getAccountId());
     Account updatedFrom = accountRepository.findById(from.getAccountId()).orElseThrow();
     Account updatedTo = accountRepository.findById(to.getAccountId()).orElseThrow();
     assertThat(updatedFrom.getHoldAmount()).isEqualByComparingTo("0.00");

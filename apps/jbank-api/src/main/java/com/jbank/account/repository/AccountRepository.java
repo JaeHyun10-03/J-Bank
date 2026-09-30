@@ -41,6 +41,30 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
       nativeQuery = true)
   Optional<Account> lockForBalanceUpdate(@Param("accountId") Long accountId);
 
+  // 이체의 송금 계좌. 잔액을 바꾸므로 NO KEY UPDATE(워커 반영과 같은 모드).
+  @Timed(
+      value = "db.lock.wait",
+      extraTags = {"repository", "account", "method", "lockSenderByAccountNumber"})
+  @Query(
+      value = "select * from accounts where account_number = :accountNumber for no key update",
+      nativeQuery = true)
+  Optional<Account> lockSenderByAccountNumber(@Param("accountNumber") String accountNumber);
+
+  // 이체의 수신 계좌. 존재·상태만 확인하고 잔액은 바꾸지 않으므로 KEY SHARE로 읽는다 — 워커 반영·다른 이체의
+  // NO KEY UPDATE와 충돌하지 않고 해지·상태 변경의 FOR UPDATE와만 충돌한다(ADR 0012).
+  @Timed(
+      value = "db.lock.wait",
+      extraTags = {"repository", "account", "method", "lockReceiverByAccountNumber"})
+  @Query(
+      value = "select * from accounts where account_number = :accountNumber for key share",
+      nativeQuery = true)
+  Optional<Account> lockReceiverByAccountNumber(@Param("accountNumber") String accountNumber);
+
+  @Query(
+      value = "select * from accounts where account_id = :accountId for key share",
+      nativeQuery = true)
+  Optional<Account> lockReceiverById(@Param("accountId") Long accountId);
+
   // 해지·상태 변경용. FOR UPDATE는 잔액 갱신(NO KEY UPDATE)과 이체의 수신 계좌 읽기(KEY SHARE) 모두와
   // 충돌해, 검사하는 동안 잔액이 바뀌거나 새 입금이 들어오지 못하게 한다. 이 트랜잭션에서 계좌를 처음 읽는
   // 쿼리여야 한다 — 먼저 findById로 읽어 두면 영속성 컨텍스트가 옛 값을 돌려줘 전체 컬럼 UPDATE가 동시

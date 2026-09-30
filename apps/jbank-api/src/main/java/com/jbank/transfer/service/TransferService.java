@@ -9,15 +9,16 @@ import com.jbank.global.exception.ErrorCode;
 import com.jbank.ledger.domain.EntryType;
 import com.jbank.ledger.domain.LedgerEntry;
 import com.jbank.ledger.repository.LedgerEntryRepository;
+import com.jbank.transfer.domain.PendingCredit;
 import com.jbank.transfer.domain.Transaction;
 import com.jbank.transfer.domain.TransactionException;
 import com.jbank.transfer.domain.TransactionStatus;
 import com.jbank.transfer.domain.TransactionType;
 import com.jbank.transfer.dto.TransferResponse;
+import com.jbank.transfer.repository.PendingCreditRepository;
 import com.jbank.transfer.repository.TransactionRepository;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -30,6 +31,7 @@ public class TransferService {
   private final AccountRepository accountRepository;
   private final TransactionRepository transactionRepository;
   private final LedgerEntryRepository ledgerEntryRepository;
+  private final PendingCreditRepository pendingCreditRepository;
   private final IdempotencyRecovery idempotencyRecovery;
   private final ApplicationEventPublisher eventPublisher;
   private final OtpService otpService;
@@ -39,6 +41,7 @@ public class TransferService {
       AccountRepository accountRepository,
       TransactionRepository transactionRepository,
       LedgerEntryRepository ledgerEntryRepository,
+      PendingCreditRepository pendingCreditRepository,
       IdempotencyRecovery idempotencyRecovery,
       ApplicationEventPublisher eventPublisher,
       OtpService otpService,
@@ -46,6 +49,7 @@ public class TransferService {
     this.accountRepository = accountRepository;
     this.transactionRepository = transactionRepository;
     this.ledgerEntryRepository = ledgerEntryRepository;
+    this.pendingCreditRepository = pendingCreditRepository;
     this.idempotencyRecovery = idempotencyRecovery;
     this.eventPublisher = eventPublisher;
     this.otpService = otpService;
@@ -69,11 +73,18 @@ public class TransferService {
       throw new TransactionException(ErrorCode.TXN_002_SAME_ACCOUNT_TRANSFER);
     }
 
-    List<String> lockOrder = List.of(fromAccountNumber, toAccountNumber).stream().sorted().toList();
-    Account first = lockAccount(lockOrder.get(0), toAccountNumber);
-    Account second = lockAccount(lockOrder.get(1), toAccountNumber);
-    Account from = fromAccountNumber.equals(first.getAccountNumber()) ? first : second;
-    Account to = fromAccountNumber.equals(first.getAccountNumber()) ? second : first;
+    // 두 계좌를 계좌번호 순서로 잠근다(FR-TXN-003). 송금 계좌는 잔액을 바꾸므로 NO KEY UPDATE, 수신 계좌는
+    // 존재·상태만 확인하므로 KEY SHARE다 — 입금은 반영 워커가 따로 하므로(ADR 0012) 한 계좌로 이체가 몰려도
+    // 수신 계좌 행에서 줄 서지 않는다.
+    Account from;
+    Account to;
+    if (fromAccountNumber.compareTo(toAccountNumber) < 0) {
+      from = lockSender(fromAccountNumber);
+      to = lockReceiver(toAccountNumber);
+    } else {
+      to = lockReceiver(toAccountNumber);
+      from = lockSender(fromAccountNumber);
+    }
 
     if (!from.getCustomerId().equals(requestingCustomerId)) {
       throw new AccountException(ErrorCode.COMMON_003_FORBIDDEN);
@@ -138,20 +149,17 @@ public class TransferService {
       throw new TransactionException(ErrorCode.TXN_005_TRANSACTION_NOT_PENDING);
     }
 
-    List<Long> lockOrder =
-        List.of(transaction.getFromAccountId(), transaction.getToAccountId()).stream()
-            .sorted()
-            .toList();
-    Account first =
-        accountRepository
-            .findByIdForUpdate(lockOrder.get(0))
-            .orElseThrow(() -> new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
-    Account second =
-        accountRepository
-            .findByIdForUpdate(lockOrder.get(1))
-            .orElseThrow(() -> new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
-    Account from = transaction.getFromAccountId().equals(first.getAccountId()) ? first : second;
-    Account to = transaction.getFromAccountId().equals(first.getAccountId()) ? second : first;
+    // 즉시 이체와 같은 락 모드(송금 NO KEY UPDATE, 수신 KEY SHARE). 수신 계좌 상태는 다시 보지 않는다 —
+    // 인증 대기 이체가 들어올 계좌는 해지가 거절되므로(ACC_012) 여기서 해지된 계좌를 만날 수 없다.
+    Account from;
+    Account to;
+    if (transaction.getFromAccountId() < transaction.getToAccountId()) {
+      from = lockSender(transaction.getFromAccountId());
+      to = lockReceiver(transaction.getToAccountId());
+    } else {
+      to = lockReceiver(transaction.getToAccountId());
+      from = lockSender(transaction.getFromAccountId());
+    }
 
     from.release(transaction.getAmount());
     executeTransfer(transaction, from, to);
@@ -162,7 +170,6 @@ public class TransferService {
     BigDecimal amount = transaction.getAmount();
     OffsetDateTime occurredAt = OffsetDateTime.now();
     from.debit(amount);
-    to.credit(amount);
     ledgerEntryRepository.save(
         new LedgerEntry(
             from.getAccountId(),
@@ -171,14 +178,10 @@ public class TransferService {
             amount,
             from.getCurrentBalanceCache(),
             occurredAt));
-    ledgerEntryRepository.save(
-        new LedgerEntry(
-            to.getAccountId(),
-            transaction.getTransactionId(),
-            EntryType.CREDIT,
-            amount,
-            to.getCurrentBalanceCache(),
-            occurredAt));
+    // 수신 측은 입금 대기로 남기고 반영 워커가 대변 원장·잔액에 반영한다(ADR 0012). 같은 트랜잭션이라
+    // 송금이 커밋되면 입금 대기도 반드시 남는다.
+    pendingCreditRepository.save(
+        new PendingCredit(transaction.getTransactionId(), to.getAccountId(), amount));
     transaction.complete(occurredAt);
     eventPublisher.publishEvent(
         new TransferCompletedEvent(
@@ -189,14 +192,29 @@ public class TransferService {
             occurredAt));
   }
 
-  private Account lockAccount(String accountNumber, String toAccountNumber) {
+  private Account lockSender(String accountNumber) {
     return accountRepository
-        .findByAccountNumberForUpdate(accountNumber)
+        .lockSenderByAccountNumber(accountNumber)
+        .orElseThrow(() -> new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
+  }
+
+  private Account lockReceiver(String accountNumber) {
+    return accountRepository
+        .lockReceiverByAccountNumber(accountNumber)
         .orElseThrow(
-            () ->
-                accountNumber.equals(toAccountNumber)
-                    ? new TransactionException(ErrorCode.TXN_003_COUNTERPARTY_ACCOUNT_NOT_FOUND)
-                    : new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
+            () -> new TransactionException(ErrorCode.TXN_003_COUNTERPARTY_ACCOUNT_NOT_FOUND));
+  }
+
+  private Account lockSender(Long accountId) {
+    return accountRepository
+        .lockForBalanceUpdate(accountId)
+        .orElseThrow(() -> new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
+  }
+
+  private Account lockReceiver(Long accountId) {
+    return accountRepository
+        .lockReceiverById(accountId)
+        .orElseThrow(() -> new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
   }
 
   private BigDecimal resolveFromBalance(Transaction transaction, Long requestingCustomerId) {

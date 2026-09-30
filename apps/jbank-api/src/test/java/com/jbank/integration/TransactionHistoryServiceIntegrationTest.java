@@ -23,12 +23,14 @@ import com.jbank.transfer.dto.TransactionHistoryFilter;
 import com.jbank.transfer.dto.TransactionSummaryResponse;
 import com.jbank.transfer.repository.PendingCreditRepository;
 import com.jbank.transfer.repository.TransactionRepository;
+import com.jbank.transfer.service.CreditApplier;
 import com.jbank.transfer.service.DepositService;
 import com.jbank.transfer.service.IdempotencyRecovery;
 import com.jbank.transfer.service.OtpService;
 import com.jbank.transfer.service.TransactionHistoryService;
 import com.jbank.transfer.service.TransferService;
 import com.jbank.transfer.service.WithdrawalService;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -65,6 +67,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
   WithdrawalService.class,
   TransferService.class,
   TransactionHistoryService.class,
+  CreditApplier.class,
+  SimpleMeterRegistry.class,
   TransactionHistoryServiceIntegrationTest.RedisTestConfig.class
 })
 class TransactionHistoryServiceIntegrationTest {
@@ -106,6 +110,7 @@ class TransactionHistoryServiceIntegrationTest {
   @Autowired private TransferService transferService;
   @Autowired private TransactionHistoryService transactionHistoryService;
   @Autowired private PendingCreditRepository pendingCreditRepository;
+  @Autowired private CreditApplier creditApplier;
 
   @Test
   void 필터가_없으면_계좌에_관련된_모든_거래를_반환한다() {
@@ -174,6 +179,7 @@ class TransactionHistoryServiceIntegrationTest {
         UUID.randomUUID().toString(),
         null,
         a.getCustomerId());
+    creditApplier.applyForAccount(b.getAccountId());
 
     PageResponse<TransactionSummaryResponse> aOut =
         transactionHistoryService.getHistory(
