@@ -12,6 +12,8 @@ PGDATA_BASE=/opt/perf-pgdata.base
 
 psql_q() { "${DC[@]}" exec -T postgres psql -U jbank -d jbank -v ON_ERROR_STOP=1 "$@"; }
 psql_val() { psql_q -tA -c "$1"; }
+# 입금 비동기 반영(ADR 0012) 이후 이미지에만 있는 테이블. 이전 이미지로 기준선을 다시 잴 때도 스크립트가 돌게 한다.
+has_pending() { [ "$(psql_val "SELECT to_regclass('pending_credits') IS NOT NULL")" = t ]; }
 disk() { echo "disk $(date -Is) $1: $(df -B1 --output=avail / | tail -1) bytes free"; }
 
 wait_ready() {
@@ -149,7 +151,17 @@ SQL
     done
     [ "$ok" = 1 ] || { echo "metrics-proxy 수집 확인 실패 — 이 회차는 시작하지 않는다" >&2; exit 3; }
     echo "metrics-proxy 재로그인·수집 확인 $(date -Is)"
+    # 예열 이체의 입금이 경계 뒤에 반영되면 경계 이후 원장 식이 어긋난다. 미반영이 0이 될 때까지 기다린다(최대 60초).
+    pending=0
+    if has_pending; then
+      for _ in $(seq 1 60); do
+        pending=$(psql_val "SELECT count(*) FROM pending_credits WHERE applied_at IS NULL")
+        [ "$pending" = 0 ] && break
+        sleep 1
+      done
+    fi
     {
+      echo "B_PENDING=$pending"
       echo "B_TX=$(psql_val 'SELECT coalesce(max(transaction_id), 0) FROM transactions')"
       echo "B_LE=$(psql_val 'SELECT coalesce(max(entry_id), 0) FROM ledger_entries')"
       echo "HOT_ID=$hot_id"
@@ -246,6 +258,23 @@ SELECT 'global_credit_delta', (SELECT coalesce(sum(amount), 0) FROM ledger_entri
 SELECT 'duplicate_idempotency_keys', count(*) FROM (
   SELECT idempotency_key FROM transactions WHERE transaction_id > :b_tx GROUP BY 1 HAVING count(*) > 1) d;
 SQL
+    if has_pending; then
+      psql_q -v b_tx="$B_TX" -v hot_id="$HOT_ID" < "$REPO/perf/ec2/sql/credit-integrity.sql" \
+        | tee -a "$OUT/$run/integrity-target.txt"
+    fi
+    ;;
+
+  credit-dump)
+    # 반영 지연 원자료: 경계 이후 입금 대기의 생성·반영 시각(epoch). run-ec2.py가 단계별 p95를 계산한다.
+    run="$1"
+    # shellcheck disable=SC1090
+    source "$OUT/$run/boundary.env"
+    if has_pending; then
+      psql_q -tA -F, -c "SELECT transaction_id, account_id, extract(epoch FROM created_at),
+        coalesce(extract(epoch FROM applied_at)::text, '') FROM pending_credits
+        WHERE transaction_id > $B_TX ORDER BY transaction_id" > "$OUT/$run/pending-credits.csv"
+      echo "pending-credits rows=$(wc -l < "$OUT/$run/pending-credits.csv")"
+    fi
     ;;
 
   failed-keys)

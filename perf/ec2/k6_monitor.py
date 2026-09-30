@@ -146,6 +146,9 @@ def evaluate_stage(mode, cfg, run, rate, s, e):
         row["parallel_balance"] = window_stats(run, 'scenario="parallel_balance"', s, e)
         # 단계 성공 처리율. 드롭이 있으면 목표 부하를 다 받지 못한 상태의 값이다(task.md).
         row["success_tps"] = round(hot_success(run, s, e) / max(e - s, 1), 1)
+        # 보조: 재로그인(BCrypt)이 섞이지 않은 이체만의 p95. 판정은 기준선과 같은 위 p95로 한다(ADR 0012 비교 조건).
+        row["p95_no_relogin_s"] = window_stats(
+            run, f'scenario="{cfg["scenario"]}",name!="relogin"', s, e)["p95_s"]
     return row
 
 
