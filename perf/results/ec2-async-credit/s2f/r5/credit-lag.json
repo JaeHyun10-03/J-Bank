@@ -1,0 +1,140 @@
+{
+ "stages": [
+  {
+   "target_rps": 40,
+   "count": 1999,
+   "unapplied": 0,
+   "p95_ms": 214.5,
+   "max_ms": 568.5
+  },
+  {
+   "target_rps": 50,
+   "count": 2500,
+   "unapplied": 0,
+   "p95_ms": 212.7,
+   "max_ms": 409.5
+  },
+  {
+   "target_rps": 60,
+   "count": 3000,
+   "unapplied": 0,
+   "p95_ms": 243.7,
+   "max_ms": 1057.8
+  },
+  {
+   "target_rps": 70,
+   "count": 3500,
+   "unapplied": 0,
+   "p95_ms": 223.5,
+   "max_ms": 736.7
+  },
+  {
+   "target_rps": 80,
+   "count": 4000,
+   "unapplied": 0,
+   "p95_ms": 219.0,
+   "max_ms": 502.1
+  },
+  {
+   "target_rps": 90,
+   "count": 4495,
+   "unapplied": 0,
+   "p95_ms": 224.0,
+   "max_ms": 498.1
+  },
+  {
+   "target_rps": 100,
+   "count": 5000,
+   "unapplied": 0,
+   "p95_ms": 220.5,
+   "max_ms": 425.0
+  },
+  {
+   "target_rps": 110,
+   "count": 5142,
+   "unapplied": 0,
+   "p95_ms": 262.7,
+   "max_ms": 9861.7
+  },
+  {
+   "target_rps": 120,
+   "count": 6000,
+   "unapplied": 0,
+   "p95_ms": 317.8,
+   "max_ms": 1553.5
+  },
+  {
+   "target_rps": 130,
+   "count": 6500,
+   "unapplied": 0,
+   "p95_ms": 315.2,
+   "max_ms": 755.2
+  },
+  {
+   "target_rps": 140,
+   "count": 6999,
+   "unapplied": 0,
+   "p95_ms": 404.0,
+   "max_ms": 1557.1
+  },
+  {
+   "target_rps": 150,
+   "count": 7499,
+   "unapplied": 0,
+   "p95_ms": 283.7,
+   "max_ms": 786.3
+  },
+  {
+   "target_rps": 160,
+   "count": 7837,
+   "unapplied": 0,
+   "p95_ms": 2046.0,
+   "max_ms": 3688.9
+  },
+  {
+   "target_rps": 170,
+   "count": 8501,
+   "unapplied": 0,
+   "p95_ms": 434.4,
+   "max_ms": 1135.1
+  },
+  {
+   "target_rps": 180,
+   "count": 8898,
+   "unapplied": 0,
+   "p95_ms": 1270.8,
+   "max_ms": 2948.3
+  },
+  {
+   "target_rps": 190,
+   "count": 9471,
+   "unapplied": 0,
+   "p95_ms": 677.2,
+   "max_ms": 2268.8
+  },
+  {
+   "target_rps": 200,
+   "count": 9981,
+   "unapplied": 0,
+   "p95_ms": 1277.1,
+   "max_ms": 2759.4
+  },
+  {
+   "target_rps": 210,
+   "count": 10065,
+   "unapplied": 0,
+   "p95_ms": 1118.4,
+   "max_ms": 6722.7
+  },
+  {
+   "target_rps": 220,
+   "count": 66,
+   "unapplied": 0,
+   "p95_ms": 13449.0,
+   "max_ms": 13896.1
+  }
+ ],
+ "judge_p95_ms": 2046.0,
+ "total": 134927,
+ "unapplied_total": 246
+}

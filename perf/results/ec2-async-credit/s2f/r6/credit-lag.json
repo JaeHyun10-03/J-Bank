@@ -1,0 +1,84 @@
+{
+ "stages": [
+  {
+   "target_rps": 40,
+   "count": 2001,
+   "unapplied": 0,
+   "p95_ms": 210.7,
+   "max_ms": 331.7
+  },
+  {
+   "target_rps": 50,
+   "count": 2500,
+   "unapplied": 0,
+   "p95_ms": 212.1,
+   "max_ms": 281.4
+  },
+  {
+   "target_rps": 60,
+   "count": 3000,
+   "unapplied": 0,
+   "p95_ms": 222.5,
+   "max_ms": 797.7
+  },
+  {
+   "target_rps": 70,
+   "count": 3500,
+   "unapplied": 0,
+   "p95_ms": 249.4,
+   "max_ms": 913.0
+  },
+  {
+   "target_rps": 80,
+   "count": 4000,
+   "unapplied": 0,
+   "p95_ms": 220.6,
+   "max_ms": 556.6
+  },
+  {
+   "target_rps": 90,
+   "count": 4500,
+   "unapplied": 0,
+   "p95_ms": 237.3,
+   "max_ms": 542.4
+  },
+  {
+   "target_rps": 100,
+   "count": 5001,
+   "unapplied": 0,
+   "p95_ms": 264.1,
+   "max_ms": 1312.9
+  },
+  {
+   "target_rps": 110,
+   "count": 5499,
+   "unapplied": 0,
+   "p95_ms": 265.5,
+   "max_ms": 671.8
+  },
+  {
+   "target_rps": 120,
+   "count": 5831,
+   "unapplied": 0,
+   "p95_ms": 3206.0,
+   "max_ms": 8498.4
+  },
+  {
+   "target_rps": 130,
+   "count": 6501,
+   "unapplied": 0,
+   "p95_ms": 501.6,
+   "max_ms": 1458.5
+  },
+  {
+   "target_rps": 140,
+   "count": 836,
+   "unapplied": 0,
+   "p95_ms": 294.7,
+   "max_ms": 434.1
+  }
+ ],
+ "judge_p95_ms": 265.5,
+ "total": 52987,
+ "unapplied_total": 0
+}

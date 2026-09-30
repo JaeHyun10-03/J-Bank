@@ -1,0 +1,41 @@
+time="2026-09-30T13:41:03Z" level=warning msg="Legacy env var detected, use --features or K6_FEATURES instead" env=K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM feature=native-histograms lifecycle=deprecated_alias source=env_legacy_alias
+time="2026-09-30T13:41:03Z" level=info msg="Experimental feature enabled" feature=native-histograms lifecycle=experimental
+time="2026-09-30T13:41:24Z" level=info msg="SCENARIO_START 2026-09-30T13:41:24.183Z" source=console
+time="2026-09-30T13:51:40Z" level=info msg="FAILKEY 7e2df704-cad9-4e3f-a519-e38f0cfe8fc2 0 hot-transfer" source=console
+time="2026-09-30T13:51:40Z" level=info msg="FAILKEY 93b3c132-b2e3-44d7-bf65-a0c0cc2b155b 0 hot-transfer" source=console
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 57825   90.847752/s
+    checks_succeeded...: 100.00% 57825 out of 57825
+    checks_failed......: 0.00%   0 out of 57825
+
+    ✓ setup-login 200
+    ✓ parallel-balance 200
+    ✓ hot-transfer 201
+    ✓ relogin 200
+
+    CUSTOM
+    relogin_after_minutes..........: min=9.037648 med=10.481911 avg=10.456949 p(90)=11.646947 p(95)=11.715959 p(99)=11.920974 max=11.998474
+
+    HTTP
+    http_req_duration..............: min=1.9ms    med=8.09ms    avg=22.32ms   p(90)=23.18ms   p(95)=42.78ms   p(99)=348.57ms  max=2.18s    
+      { expected_response:true }...: min=1.9ms    med=8.09ms    avg=22.32ms   p(90)=23.18ms   p(95)=42.78ms   p(99)=348.57ms  max=2.18s    
+    http_req_failed................: 0.00% 0 out of 57825
+    http_reqs......................: 57825 90.847752/s
+
+    EXECUTION
+    dropped_iterations.............: 34    0.053417/s
+    iteration_duration.............: min=2.07ms   med=8.36ms    avg=22.36ms   p(90)=22.83ms   p(95)=40.19ms   p(99)=351.08ms  max=2.32s    
+    iterations.....................: 57531 90.385854/s
+    vus............................: 2     min=0          max=125
+    vus_max........................: 151   min=120        max=151
+
+    NETWORK
+    data_received..................: 20 MB 32 kB/s
+    data_sent......................: 11 MB 17 kB/s
+
+
+
+time="2026-09-30T13:51:40Z" level=error msg="test run was aborted because k6 received a 'interrupt' signal"

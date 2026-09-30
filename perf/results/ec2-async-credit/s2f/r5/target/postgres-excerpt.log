@@ -1,0 +1,8 @@
+2026-09-30 15:11:08.242 UTC [3410] LOG:  duration: 948.066 ms  statement: SELECT 'hot_completed_amount_sum', coalesce(sum(amount), 0) FROM transactions
+2026-09-30 15:11:08.614 UTC [3410] LOG:  duration: 209.173 ms  statement: WITH cur AS (
+2026-09-30 15:11:10.151 UTC [3439] LOG:  duration: 880.574 ms  statement: WITH t AS (
+2026-09-30 15:35:11.922 UTC [5996] ERROR:  trailing junk after numeric literal at or near "136026jbank136026" at character 97
+2026-09-30 15:36:27.782 UTC [3439] ERROR:  canceling statement due to user request
+2026-09-30 15:37:14.979 UTC [6255] LOG:  duration: 491.301 ms  statement: WITH t AS (
+2026-09-30 15:38:01.487 UTC [6363] LOG:  duration: 562.134 ms  statement: SELECT transaction_id, account_id, extract(epoch FROM created_at),
+2026-09-30 15:38:29.563 UTC [6399] LOG:  duration: 344.702 ms  execute <unnamed>: select a1_0.account_id,a1_0.account_number,a1_0.account_type,a1_0.closed_at,a1_0.created_at,a1_0.current_balance_cache,a1_0.customer_id,a1_0.hold_amount,a1_0.opened_at,a1_0.status,a1_0.updated_at from accounts a1_0

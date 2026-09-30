@@ -1,0 +1,28 @@
+{
+ "stages": [
+  {
+   "target_rps": 40,
+   "count": 2000,
+   "unapplied": 0,
+   "p95_ms": 214.3,
+   "max_ms": 476.1
+  },
+  {
+   "target_rps": 50,
+   "count": 2500,
+   "unapplied": 0,
+   "p95_ms": 226.0,
+   "max_ms": 1536.8
+  },
+  {
+   "target_rps": 60,
+   "count": 3001,
+   "unapplied": 0,
+   "p95_ms": 212.5,
+   "max_ms": 509.3
+  }
+ ],
+ "judge_p95_ms": 226.0,
+ "total": 8989,
+ "unapplied_total": 0
+}
