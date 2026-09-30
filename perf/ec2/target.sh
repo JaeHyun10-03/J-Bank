@@ -266,7 +266,7 @@ SELECT 'duplicate_idempotency_keys', count(*) FROM (
   SELECT idempotency_key FROM transactions WHERE transaction_id > :b_tx GROUP BY 1 HAVING count(*) > 1) d;
 SQL
     if has_pending; then
-      psql_q -v b_tx="$B_TX" -v hot_id="$HOT_ID" < "$REPO/perf/ec2/sql/credit-integrity.sql" \
+      psql_q -v b_tx="$B_TX" -v b_le="$B_LE" -v hot_id="$HOT_ID" < "$REPO/perf/ec2/sql/credit-integrity.sql" \
         | tee -a "$OUT/$run/integrity-target.txt"
     fi
     ;;

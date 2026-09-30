@@ -23,7 +23,7 @@ INSERT INTO pending_credits VALUES (11,2,100,now()),(12,2,200,NULL),(13,2,300,no
 INSERT INTO ledger_entries (transaction_id, entry_type, amount) VALUES
   (11,'DEBIT',100),(11,'CREDIT',100),(12,'DEBIT',200),(13,'DEBIT',300),(13,'CREDIT',300),(13,'CREDIT',300),(14,'DEBIT',50),(15,'DEBIT',1000);
 SQL
-out=$(q -v b_tx=10 -v hot_id=1 < "$HERE/../sql/credit-integrity.sql")
+out=$(q -v b_tx=10 -v b_le=0 -v hot_id=1 < "$HERE/../sql/credit-integrity.sql")
 echo "$out"
 expect() { grep -qx "$1" <<<"$out" || { echo "FAIL: $1 기대"; exit 1; }; }
 expect "new_unapplied_count=2"
