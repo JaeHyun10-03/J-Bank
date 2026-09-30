@@ -114,7 +114,7 @@ public class AccountService {
       Long accountId, AccountStatusChangeRequest request) {
     Account account =
         accountRepository
-            .findById(accountId)
+            .lockForStatusChange(accountId)
             .orElseThrow(() -> new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
 
     AccountStatus previousStatus = account.getStatus();
@@ -135,7 +135,7 @@ public class AccountService {
   public AccountCloseResponse close(Long accountId, Long requestingCustomerId) {
     Account account =
         accountRepository
-            .findById(accountId)
+            .lockForStatusChange(accountId)
             .orElseThrow(() -> new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
     if (!account.getCustomerId().equals(requestingCustomerId)) {
       throw new AccountException(ErrorCode.COMMON_003_FORBIDDEN);

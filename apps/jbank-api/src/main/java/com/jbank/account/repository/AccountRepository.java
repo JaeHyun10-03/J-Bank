@@ -41,6 +41,15 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
       nativeQuery = true)
   Optional<Account> lockForBalanceUpdate(@Param("accountId") Long accountId);
 
+  // 해지·상태 변경용. FOR UPDATE는 잔액 갱신(NO KEY UPDATE)과 이체의 수신 계좌 읽기(KEY SHARE) 모두와
+  // 충돌해, 검사하는 동안 잔액이 바뀌거나 새 입금이 들어오지 못하게 한다. 이 트랜잭션에서 계좌를 처음 읽는
+  // 쿼리여야 한다 — 먼저 findById로 읽어 두면 영속성 컨텍스트가 옛 값을 돌려줘 전체 컬럼 UPDATE가 동시
+  // 잔액 갱신을 덮어쓴다(ADR 0012).
+  @Query(
+      value = "select * from accounts where account_id = :accountId for update",
+      nativeQuery = true)
+  Optional<Account> lockForStatusChange(@Param("accountId") Long accountId);
+
   // 입금·출금은 단일 계좌만 잠그면 되므로 accountId 기준 락 조회를 별도로 둔다(FR-TXN-002).
   @Timed(
       value = "db.lock.wait",
