@@ -1,0 +1,101 @@
+# 작업 시작 HEAD
+fa97aef8147f2228d2a95086092bdce2d05fa7ba
+# 작업 시작 시 변경 상태
+?? perf/results/ec2-baseline/dryrun/artifacts.txt
+?? perf/results/ec2-baseline/dryrun/environment.md
+?? perf/results/ec2-baseline/dryrun/integrity.md
+?? perf/results/ec2-baseline/dryrun/loadgen/analysis.json
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-summary.json
+?? perf/results/ec2-baseline/dryrun/loadgen/prometheus/query_range.json.gz
+?? perf/results/ec2-baseline/dryrun/target/batch.txt
+?? perf/results/ec2-baseline/dryrun/target/boundary.env
+?? perf/results/ec2-baseline/dryrun/target/integrity-target.txt
+?? perf/results/ec2-baseline/dryrun/target/log-counts.txt
+?? perf/results/ec2-baseline/dryrun/target/pg_stat_activity.csv
+?? perf/results/ec2-baseline/dryrun/warmup/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-summary.json
+
+# 현재 git status --porcelain
+?? perf/results/ec2-baseline/dryrun/artifacts.txt
+?? perf/results/ec2-baseline/dryrun/environment.md
+?? perf/results/ec2-baseline/dryrun/integrity.md
+?? perf/results/ec2-baseline/dryrun/loadgen/analysis.json
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-summary.json
+?? perf/results/ec2-baseline/dryrun/loadgen/prometheus/query_range.json.gz
+?? perf/results/ec2-baseline/dryrun/target/batch.txt
+?? perf/results/ec2-baseline/dryrun/target/boundary.env
+?? perf/results/ec2-baseline/dryrun/target/integrity-target.txt
+?? perf/results/ec2-baseline/dryrun/target/log-counts.txt
+?? perf/results/ec2-baseline/dryrun/target/pg_stat_activity.csv
+?? perf/results/ec2-baseline/dryrun/warmup/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-summary.json
+
+# 작업 시작 HEAD부터 현재 파일까지의 이름·상태
+A	.github/scripts/deploy-ec2.sh
+M	.github/workflows/backend-cd.yml
+M	README.md
+A	apps/frontend/app/api/proxy/[...path]/route.test.ts
+M	apps/frontend/app/api/proxy/[...path]/route.ts
+A	apps/frontend/app/api/server-status/route.test.ts
+A	apps/frontend/app/api/server-status/route.ts
+M	apps/frontend/app/layout.tsx
+A	apps/frontend/components/server-offline-notice.test.tsx
+A	apps/frontend/components/server-offline-notice.tsx
+M	apps/frontend/lib/api-client.ts
+A	apps/frontend/lib/backend-offline.ts
+A	apps/frontend/lib/server-status.test.ts
+A	apps/frontend/lib/server-status.ts
+M	"docs/06_J-Bank_\354\235\270\355\224\204\353\235\274\354\225\204\355\202\244\355\205\215\354\262\230.md"
+A	docs/adr/0011-ec2-weekday-hours.md
+A	infra/compose/host/batch_dates.py
+A	infra/compose/host/boot.sh
+A	infra/compose/host/install-host.sh
+A	infra/compose/host/jbank-boot.service
+A	infra/compose/host/sync-latest.sh
+M	infra/compose/run-batch.sh
+A	infra/compose/tests/boot-test.sh
+A	infra/compose/tests/cd-skip-test.sh
+M	infra/terraform/modules/ec2/main.tf
+A	infra/terraform/modules/ec2/schedule.tf
+M	infra/terraform/modules/ec2/user_data.sh.tpl
+
+# 작업 시작 HEAD부터 현재 파일까지의 통계
+ .github/scripts/deploy-ec2.sh                      |  52 +++++++
+ .github/workflows/backend-cd.yml                   |  44 ++----
+ README.md                                          |   4 +-
+ .../frontend/app/api/proxy/[...path]/route.test.ts |  46 ++++++
+ apps/frontend/app/api/proxy/[...path]/route.ts     |  23 ++-
+ apps/frontend/app/api/server-status/route.test.ts  |  30 ++++
+ apps/frontend/app/api/server-status/route.ts       |  23 +++
+ apps/frontend/app/layout.tsx                       |   2 +
+ .../components/server-offline-notice.test.tsx      |  33 +++++
+ apps/frontend/components/server-offline-notice.tsx |  24 +++
+ apps/frontend/lib/api-client.ts                    |   7 +
+ apps/frontend/lib/backend-offline.ts               |  18 +++
+ apps/frontend/lib/server-status.test.ts            |  31 ++++
+ apps/frontend/lib/server-status.ts                 |  28 ++++
+ ...225\204\355\202\244\355\205\215\354\262\230.md" |   5 +-
+ docs/adr/0011-ec2-weekday-hours.md                 |  51 +++++++
+ infra/compose/host/batch_dates.py                  |  54 +++++++
+ infra/compose/host/boot.sh                         |  91 ++++++++++++
+ infra/compose/host/install-host.sh                 |  30 ++++
+ infra/compose/host/jbank-boot.service              |  18 +++
+ infra/compose/host/sync-latest.sh                  |  40 +++++
+ infra/compose/run-batch.sh                         |   8 +-
+ infra/compose/tests/boot-test.sh                   | 162 +++++++++++++++++++++
+ infra/compose/tests/cd-skip-test.sh                |  69 +++++++++
+ infra/terraform/modules/ec2/main.tf                |   7 +
+ infra/terraform/modules/ec2/schedule.tf            |  73 ++++++++++
+ infra/terraform/modules/ec2/user_data.sh.tpl       |  22 +--
+ 27 files changed, 937 insertions(+), 58 deletions(-)
+
