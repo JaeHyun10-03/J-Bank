@@ -1,0 +1,129 @@
+# 작업 시작 HEAD
+de2b827e2f80f0c461795018b9176ee434027648
+# 작업 시작 시 변경 상태
+?? perf/results/ec2-baseline/dryrun/artifacts.txt
+?? perf/results/ec2-baseline/dryrun/environment.md
+?? perf/results/ec2-baseline/dryrun/integrity.md
+?? perf/results/ec2-baseline/dryrun/loadgen/analysis.json
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-summary.json
+?? perf/results/ec2-baseline/dryrun/loadgen/prometheus/query_range.json.gz
+?? perf/results/ec2-baseline/dryrun/target/batch.txt
+?? perf/results/ec2-baseline/dryrun/target/boundary.env
+?? perf/results/ec2-baseline/dryrun/target/integrity-target.txt
+?? perf/results/ec2-baseline/dryrun/target/log-counts.txt
+?? perf/results/ec2-baseline/dryrun/target/pg_stat_activity.csv
+?? perf/results/ec2-baseline/dryrun/warmup/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-summary.json
+
+# 현재 git status --porcelain
+?? perf/results/ec2-baseline/dryrun/artifacts.txt
+?? perf/results/ec2-baseline/dryrun/environment.md
+?? perf/results/ec2-baseline/dryrun/integrity.md
+?? perf/results/ec2-baseline/dryrun/loadgen/analysis.json
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-summary.json
+?? perf/results/ec2-baseline/dryrun/loadgen/prometheus/query_range.json.gz
+?? perf/results/ec2-baseline/dryrun/target/batch.txt
+?? perf/results/ec2-baseline/dryrun/target/boundary.env
+?? perf/results/ec2-baseline/dryrun/target/integrity-target.txt
+?? perf/results/ec2-baseline/dryrun/target/log-counts.txt
+?? perf/results/ec2-baseline/dryrun/target/pg_stat_activity.csv
+?? perf/results/ec2-baseline/dryrun/warmup/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-summary.json
+
+# 작업 시작 HEAD부터 현재 파일까지의 이름·상태
+A	apps/frontend/lib/domain-error-map.test.ts
+M	apps/frontend/lib/domain-error-map.ts
+M	apps/jbank-api/src/main/java/com/jbank/account/repository/AccountRepository.java
+M	apps/jbank-api/src/main/java/com/jbank/account/service/AccountService.java
+M	apps/jbank-api/src/main/java/com/jbank/batch/reconciliation/LedgerReconciliationJobConfig.java
+M	apps/jbank-api/src/main/java/com/jbank/batch/reconciliation/LedgerReconciliationTasklet.java
+M	apps/jbank-api/src/main/java/com/jbank/global/exception/ErrorCode.java
+A	apps/jbank-api/src/main/java/com/jbank/transfer/domain/PendingCredit.java
+A	apps/jbank-api/src/main/java/com/jbank/transfer/repository/PendingCreditRepository.java
+A	apps/jbank-api/src/main/java/com/jbank/transfer/service/CreditApplier.java
+A	apps/jbank-api/src/main/java/com/jbank/transfer/service/PendingCreditWorker.java
+M	apps/jbank-api/src/main/java/com/jbank/transfer/service/TransactionHistoryService.java
+M	apps/jbank-api/src/main/java/com/jbank/transfer/service/TransferService.java
+M	apps/jbank-api/src/main/resources/application-batch.yml
+M	apps/jbank-api/src/main/resources/application.yml
+A	apps/jbank-api/src/main/resources/db/migration/V18__create_pending_credits.sql
+A	apps/jbank-api/src/test/java/com/jbank/batch/reconciliation/LedgerReconciliationTaskletTest.java
+M	apps/jbank-api/src/test/java/com/jbank/concurrency/AbstractConcurrencyTest.java
+A	apps/jbank-api/src/test/java/com/jbank/concurrency/AccountStatusChangeRaceScenarioTest.java
+M	apps/jbank-api/src/test/java/com/jbank/concurrency/ConcurrentBidirectionalTransferScenarioTest.java
+M	apps/jbank-api/src/test/java/com/jbank/concurrency/ConcurrentLedgerReconciliationScenarioTest.java
+A	apps/jbank-api/src/test/java/com/jbank/concurrency/PendingCreditApplyScenarioTest.java
+A	apps/jbank-api/src/test/java/com/jbank/concurrency/ReceiverLockScenarioTest.java
+M	apps/jbank-api/src/test/java/com/jbank/integration/AccountServiceIntegrationTest.java
+M	apps/jbank-api/src/test/java/com/jbank/integration/CtrDetectionJobIntegrationTest.java
+M	apps/jbank-api/src/test/java/com/jbank/integration/FdsDetectionJobIntegrationTest.java
+M	apps/jbank-api/src/test/java/com/jbank/integration/FullFlowIntegrationTest.java
+M	apps/jbank-api/src/test/java/com/jbank/integration/InterestMaturityJobIntegrationTest.java
+M	apps/jbank-api/src/test/java/com/jbank/integration/LedgerReconciliationJobIntegrationTest.java
+M	apps/jbank-api/src/test/java/com/jbank/integration/OtpVerificationServiceIntegrationTest.java
+M	apps/jbank-api/src/test/java/com/jbank/integration/TransactionHistoryServiceIntegrationTest.java
+M	apps/jbank-api/src/test/java/com/jbank/integration/TransferServiceIntegrationTest.java
+A	apps/jbank-api/src/test/java/com/jbank/transfer/PendingCreditWorkerConfigTest.java
+M	"docs/03_J-Bank_API\354\204\244\352\263\204.md"
+M	"docs/04_J-Bank_\355\231\224\353\251\264\355\224\214\353\241\234\354\232\260\354\260\250\355\212\270.md"
+M	perf/ec2/k6_monitor.py
+A	perf/ec2/sql/credit-integrity.sql
+M	perf/ec2/target.sh
+A	perf/ec2/tests/integrity-sql-test.sh
+A	perf/ec2/tests/test_async_credit.py
+M	perf/run-ec2.py
+
+# 작업 시작 HEAD부터 현재 파일까지의 통계
+ apps/frontend/lib/domain-error-map.test.ts         |   9 +
+ apps/frontend/lib/domain-error-map.ts              |   3 +
+ .../account/repository/AccountRepository.java      |  52 +++++
+ .../com/jbank/account/service/AccountService.java  |   9 +-
+ .../LedgerReconciliationJobConfig.java             |  13 +-
+ .../LedgerReconciliationTasklet.java               |  23 +-
+ .../java/com/jbank/global/exception/ErrorCode.java |   1 +
+ .../com/jbank/transfer/domain/PendingCredit.java   |  71 ++++++
+ .../repository/PendingCreditRepository.java        |  55 +++++
+ .../com/jbank/transfer/service/CreditApplier.java  |  95 ++++++++
+ .../transfer/service/PendingCreditWorker.java      |  73 ++++++
+ .../service/TransactionHistoryService.java         |  15 ++
+ .../jbank/transfer/service/TransferService.java    |  88 ++++---
+ .../src/main/resources/application-batch.yml       |   6 +
+ apps/jbank-api/src/main/resources/application.yml  |   4 +
+ .../db/migration/V18__create_pending_credits.sql   |  17 ++
+ .../LedgerReconciliationTaskletTest.java           |  73 ++++++
+ .../jbank/concurrency/AbstractConcurrencyTest.java |  23 ++
+ .../AccountStatusChangeRaceScenarioTest.java       | 102 +++++++++
+ ...oncurrentBidirectionalTransferScenarioTest.java |   2 +
+ ...ConcurrentLedgerReconciliationScenarioTest.java |   2 +
+ .../PendingCreditApplyScenarioTest.java            | 202 +++++++++++++++++
+ .../concurrency/ReceiverLockScenarioTest.java      | 252 +++++++++++++++++++++
+ .../integration/AccountServiceIntegrationTest.java |  70 ++++++
+ .../CtrDetectionJobIntegrationTest.java            |   3 +
+ .../FdsDetectionJobIntegrationTest.java            |   3 +
+ .../jbank/integration/FullFlowIntegrationTest.java |   7 +
+ .../InterestMaturityJobIntegrationTest.java        |   3 +
+ .../LedgerReconciliationJobIntegrationTest.java    |  29 +++
+ .../OtpVerificationServiceIntegrationTest.java     |   7 +
+ .../TransactionHistoryServiceIntegrationTest.java  |  42 ++++
+ .../TransferServiceIntegrationTest.java            |  29 ++-
+ .../transfer/PendingCreditWorkerConfigTest.java    |  52 +++++
+ "docs/03_J-Bank_API\354\204\244\352\263\204.md"    |   3 +-
+ ...241\234\354\232\260\354\260\250\355\212\270.md" |   1 +
+ perf/ec2/k6_monitor.py                             |   3 +
+ perf/ec2/sql/credit-integrity.sql                  |  29 +++
+ perf/ec2/target.sh                                 |  38 +++-
+ perf/ec2/tests/integrity-sql-test.sh               |  35 +++
+ perf/ec2/tests/test_async_credit.py                | 129 +++++++++++
+ perf/run-ec2.py                                    |  93 ++++++--
+ 41 files changed, 1703 insertions(+), 63 deletions(-)
+
