@@ -8,6 +8,7 @@
 | v1.1 | 2026-07-21 | 프론트엔드 호스팅을 Vercel로 분리하는 결정을 13절에 반영. 원장·개인정보 처리 영역은 AWS에 유지하는 경계를 명시 |
 | v1.2 | 2026-07-26 | 프로젝트명을 J-Bank로 변경. 배치 워크로드를 API와 같은 이미지로 운영하는 방식을 명시 |
 | v2.0 | 2026-09-17 | EKS·RDS·ElastiCache·ALB·ArgoCD 구성을 단일 EC2 + Docker Compose로 교체(ADR 0010). v1.x의 설계 원문은 `v1.0.0` 태그의 이 문서에 있다 |
+| v2.1 | 2026-10-01 | api actuator를 Compose 내부 전용 관리 포트 9095로 분리하고 Prometheus가 인증 없이 수집하도록 변경(ADR 0013) |
 
 ## 관련 문서
 
@@ -15,6 +16,7 @@
 - J-Bank_구현계획.md
 - J-Bank_폴더구조.md
 - adr/0010-ec2-single-instance.md
+- adr/0013-management-port-metrics.md
 
 ---
 
@@ -38,14 +40,14 @@ v1.x 설계에서 배운 것(GitOps에서 이미지 태그를 어떻게 전달�
       │              │    │      │                                       │
       │ /api/proxy   └────┼──────┘                        api ──▶ postgres :5432
       │ (서버사이드)        │                              api ──▶ redis :6379
-      └────HTTPS──────────▶│                       prometheus ──▶ api /actuator/prometheus
+      └────HTTPS──────────▶│                       prometheus ──▶ api :9095/actuator/prometheus
                           │                          grafana ──▶ prometheus
                           └──────────────────────────────────────────────┘
                                      ▲ SSM Run Command (배포)     ▲ SSM Session (운영 접근)
   GitHub Actions ─── GHCR 이미지 푸시 ┘                            운영자 ┘
 ```
 
-한 대의 EC2 위에서 여섯 컨테이너가 돈다. 외부에서 들어오는 경로는 caddy의 80/443 하나뿐이고, 나머지 서비스는 Compose 내부 네트워크로만 통신한다. 프론트엔드는 Vercel에 있고 브라우저가 API를 직접 부르지 않는다 — Next.js 라우트(`/api/proxy`)가 서버사이드에서 `BACKEND_API_URL`로 프록시하므로 브라우저 기준 동일 출처이고 CORS가 발생하지 않는다(v1.x와 같은 구조).
+한 대의 EC2 위에서 여섯 컨테이너가 돈다. 외부에서 들어오는 경로는 caddy의 80/443 하나뿐이고, 나머지 서비스는 Compose 내부 네트워크로만 통신한다. api는 업무 API를 본 포트 8080에, actuator를 관리 포트 9095에 둔다. caddy는 8080만 프록시하고 9095는 호스트에 매핑하지 않는다. 프론트엔드는 Vercel에 있고 브라우저가 API를 직접 부르지 않는다 — Next.js 라우트(`/api/proxy`)가 서버사이드에서 `BACKEND_API_URL`로 프록시하므로 브라우저 기준 동일 출처이고 CORS가 발생하지 않는다(v1.x와 같은 구조).
 
 ## 3. 컴포넌트
 
@@ -69,13 +71,14 @@ RDS·ElastiCache 대신 같은 호스트의 컨테이너를 쓴다. 데이터는
 
 - 기본 VPC의 퍼블릭 서브넷. NAT Gateway, 프라이빗 서브넷, VPC 엔드포인트 없음.
 - 보안그룹 인바운드는 80/443만. **SSH 포트는 열지 않는다.** 운영 접근은 SSM Session Manager(`aws ssm start-session --target <instance-id>`), 배포는 SSM Run Command.
+- api의 actuator는 관리 포트 9095(`MANAGEMENT_SERVER_PORT`)에만 있다. 호스트 포트 매핑과 caddy 프록시가 없어 Compose 내부에서만 닿는다. 이 포트의 `/actuator/prometheus`만 인증 없이 열리고 나머지 actuator 경로는 인증을 요구한다. 본 포트에는 상태 확인용 `/readyz`·`/livez`만 공개한다(ADR 0013).
 - IMDSv2 강제, EBS 암호화, 인스턴스 역할은 `AmazonSSMManagedInstanceCore`만.
 - 비밀값(DB 비밀번호, PII 암호화 키, JWT 시크릿, Grafana 비밀번호)은 `infra/compose/.env`(chmod 600, gitignore)에 둔다. Secrets Manager + ESO가 하던 자리다. 키 로테이션은 수동.
 - GitHub Actions → AWS 인증은 v1.x와 같이 OIDC(`infra/terraform/bootstrap/oidc.tf`). 배포 역할은 "이 인스턴스에 `AWS-RunShellScript` 보내기 + 결과 조회 + 인스턴스·SSM 상태 조회"만 허용한다. 인스턴스가 꺼져 있으면 배포를 건너뛰고 다음 부팅 때 `:latest`가 반영된다(ADR 0011).
 
 ### 3.5 관측 — Prometheus·Grafana
 
-api의 `/actuator/prometheus`를 15초마다 스크랩하고(보존 15일), Grafana는 `grafana.j-bank.site`로 노출한다(자체 로그인). 대시보드·datasource 프로비저닝 파일은 로컬 Compose와 같은 `infra/compose/observability/provisioning`을 쓴다. Loki는 제거했다 — 인스턴스 한 대의 로그는 `docker logs`로 충분하고, Grafana 대시보드는 Prometheus만 쓴다.
+api 관리 포트의 `api:9095/actuator/prometheus`를 인증 없이 15초마다 스크랩하고(보존 15일), Grafana는 `grafana.j-bank.site`로 노출한다(자체 로그인). 대시보드·datasource 프로비저닝 파일은 로컬 Compose와 같은 `infra/compose/observability/provisioning`을 쓴다. Loki는 제거했다 — 인스턴스 한 대의 로그는 `docker logs`로 충분하고, Grafana 대시보드는 Prometheus만 쓴다. api 컨테이너 healthcheck도 관리 포트의 readiness(`localhost:9095/actuator/health/readiness`)로 판정한다. Prometheus 설정 파일은 단일 파일 바인드 마운트라 바꾼 뒤 `docker compose restart prometheus`가 필요하다. 로컬 Compose의 Prometheus(`prometheus.yml`, 호스트 8080)는 관리 포트가 없어 지금도 401이다. 로컬에서도 수집하려면 api에 `MANAGEMENT_SERVER_PORT`를 주고 대상을 그 포트로 바꾼다.
 
 ### 3.6 CI/CD와 IaC
 
