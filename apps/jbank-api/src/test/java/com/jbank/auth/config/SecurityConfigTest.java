@@ -42,6 +42,16 @@ class SecurityConfigTest {
   }
 
   @Test
+  void PUBLIC_PATHS는_본_포트_상태_확인_경로를_포함하고_지표는_제외한다() throws Exception {
+    String[] patterns = publicPaths();
+    PathPatternParser parser = new PathPatternParser();
+
+    assertThat(matchesAny(parser, patterns, "/readyz")).isTrue();
+    assertThat(matchesAny(parser, patterns, "/livez")).isTrue();
+    assertThat(matchesAny(parser, patterns, "/actuator/prometheus")).isFalse();
+  }
+
+  @Test
   void PUBLIC_PATHS는_내부_API_경로를_허용하지_않는다() throws Exception {
     String[] patterns = publicPaths();
     PathPatternParser parser = new PathPatternParser();

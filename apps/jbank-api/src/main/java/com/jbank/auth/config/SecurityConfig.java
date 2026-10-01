@@ -33,6 +33,8 @@ public class SecurityConfig {
     "/api/v1/auth/login",
     "/api/v1/auth/refresh",
     "/actuator/health/**", // kubelet이 인증 없이 readiness/liveness probe를 호출해야 함
+    "/readyz", // 본 포트의 상태 확인 경로(관리 포트를 분리해도 본 포트에 남는다)
+    "/livez",
     "/api/v1/products"
   };
 
