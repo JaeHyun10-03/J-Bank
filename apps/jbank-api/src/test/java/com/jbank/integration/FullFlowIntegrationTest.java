@@ -28,7 +28,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
@@ -68,10 +70,17 @@ class FullFlowIntegrationTest {
     registry.add("jbank.jwt.secret", () -> "test-secret-key-at-least-32-bytes-long-for-hs256");
   }
 
+  @Autowired private ApplicationContext applicationContext;
   @Autowired private CreditApplier creditApplier;
   @Autowired private MockMvc mockMvc;
   @Autowired private ObjectMapper objectMapper;
   @Autowired private ProductRepository productRepository;
+
+  // 메모리 기본 사용자가 없어야 기동 로그에 생성 비밀번호가 남지 않는다.
+  @Test
+  void 메모리_기본_사용자_빈이_없다() {
+    assertThat(applicationContext.getBeanNamesForType(UserDetailsService.class)).isEmpty();
+  }
 
   @Test
   void 회원가입부터_상품가입까지_전체_흐름이_성공한다() throws Exception {

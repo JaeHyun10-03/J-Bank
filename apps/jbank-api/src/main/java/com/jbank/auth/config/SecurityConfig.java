@@ -5,6 +5,7 @@ import com.jbank.auth.jwt.JwtTokenProvider;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -33,15 +34,20 @@ public class SecurityConfig {
     "/api/v1/auth/login",
     "/api/v1/auth/refresh",
     "/actuator/health/**", // kubelet이 인증 없이 readiness/liveness probe를 호출해야 함
+    "/readyz", // 본 포트의 상태 확인 경로(관리 포트를 분리해도 본 포트에 남는다)
+    "/livez",
     "/api/v1/products"
   };
 
   private final JwtTokenProvider jwtTokenProvider;
   private final ObjectMapper objectMapper;
+  private final Environment environment;
 
-  public SecurityConfig(JwtTokenProvider jwtTokenProvider, ObjectMapper objectMapper) {
+  public SecurityConfig(
+      JwtTokenProvider jwtTokenProvider, ObjectMapper objectMapper, Environment environment) {
     this.jwtTokenProvider = jwtTokenProvider;
     this.objectMapper = objectMapper;
+    this.environment = environment;
   }
 
   @Bean
@@ -50,7 +56,13 @@ public class SecurityConfig {
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(
-            auth -> auth.requestMatchers(PUBLIC_PATHS).permitAll().anyRequest().authenticated())
+            auth ->
+                auth.requestMatchers(PUBLIC_PATHS)
+                    .permitAll()
+                    .requestMatchers(new PrometheusScrapeRequestMatcher(environment))
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
         .exceptionHandling(
             ex ->
                 ex.authenticationEntryPoint(new RestAuthenticationEntryPoint(objectMapper))

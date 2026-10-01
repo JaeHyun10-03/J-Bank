@@ -9,6 +9,12 @@ describe("서버 상태 확인", () => {
     expect(await (await GET()).json()).toEqual({ online: true });
   });
 
+  it("본 포트의 /readyz를 호출한다", async () => {
+    const fetchSpy = jest.spyOn(global, "fetch").mockResolvedValue(new Response("", { status: 200 }));
+    await GET();
+    expect(String(fetchSpy.mock.calls[0][0])).toMatch(/\/readyz$/);
+  });
+
   it("연결 실패면 offline", async () => {
     jest.spyOn(global, "fetch").mockRejectedValue(new TypeError("fetch failed"));
     expect(await (await GET()).json()).toEqual({ online: false });

@@ -1,0 +1,43 @@
+# AC-05 / OPS-03 / SEC-07: 운영 compose 렌더링 확인 (2026-10-01T08:04:03Z)
+# 명령: (빈 .env, DB_PASSWORD·GRAFANA_ADMIN_PASSWORD 임시값) docker compose -f infra/compose/docker-compose.prod.yml config
+# 렌더링 종료 코드: 0
+
+## api 서비스 렌더링 결과
+  api:
+    depends_on:
+      postgres:
+        condition: service_healthy
+        required: true
+      redis:
+        condition: service_started
+        required: true
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/jbank
+      DB_USERNAME: jbank
+      JAVA_TOOL_OPTIONS: -Xmx512m -XX:MaxMetaspaceSize=128m
+      MANAGEMENT_SERVER_PORT: "9095"
+      REDIS_HOST: redis
+      SPRING_PROFILES_ACTIVE: prod
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -qO- http://localhost:9095/actuator/health/readiness || exit 1
+      timeout: 5s
+      interval: 10s
+      retries: 12
+      start_period: 30s
+    image: ghcr.io/jaehyun10-03/jbank-api:latest
+    networks:
+      default: null
+    restart: unless-stopped
+## api ports 키 존재 여부(없어야 함)
+0
+## 9095가 published로 나오는 서비스(없어야 함)
+없음
+## Caddyfile의 9095 언급(없어야 함)
+없음
+## Caddyfile api 프록시 대상
+4:	reverse_proxy api:8080
+8:	reverse_proxy grafana:3000
+## prometheus.prod.yml 대상
+9:      - targets: ["api:9095"]
