@@ -36,6 +36,10 @@ jbank:
       max-attempts: 5
       cleanup:
         poll-interval-ms: 60000
+    # 이체의 수신 측 반영 워커(ADR 0012). 코드 기본값은 꺼짐이라 테스트·배치에서는 켜지 않는다.
+    credit-worker:
+      enabled: true
+      poll-interval-ms: 200
 
 management:
   endpoints:

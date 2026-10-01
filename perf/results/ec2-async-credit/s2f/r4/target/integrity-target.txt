@@ -1,0 +1,24 @@
+Output format is unaligned.
+Field separator is "=".
+new_transfer_completed=46231
+new_transfer_other_status=0
+new_non_transfer=0
+new_ledger_rows=91476
+new_ledger_debit=46231000.00
+new_ledger_credit=45245000.00
+new_transfer_amount_sum=46231000.00
+hot_completed_amount_sum=46231000.00
+hot_balance_delta=45245000.00
+new_mismatch_accounts=0
+baseline_account_delta_mismatch=0
+global_debit_delta=46704000.00
+global_credit_delta=45718000.00
+duplicate_idempotency_keys=0
+Output format is unaligned.
+Field separator is "=".
+new_unapplied_count=986
+new_unapplied_sum=986000.00
+hot_unapplied_sum=986000.00
+all_unapplied_sum=986000.00
+transfer_pending_row_mismatch=0
+transfer_credit_entry_mismatch=0

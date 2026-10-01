@@ -34,11 +34,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 /** 이상거래 탐지 배치 잡(구현계획 W7, FR-SUP-003)이 세 룰을 정확히 판별하고 재실행에 안전한지 검증한다. */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+// 입금 반영 워커는 끄고, 반영이 필요하면 테스트가 반영 서비스를 직접 부른다(ADR 0012).
+@TestPropertySource(properties = "jbank.transfer.credit-worker.enabled=false")
 @SpringBatchTest
 class FdsDetectionJobIntegrationTest {
 

@@ -13,12 +13,16 @@ import com.jbank.customer.domain.KycGrade;
 import com.jbank.customer.domain.RiskLevel;
 import com.jbank.customer.repository.CustomerRepository;
 import com.jbank.ledger.repository.LedgerEntryRepository;
+import com.jbank.transfer.repository.PendingCreditRepository;
 import com.jbank.transfer.repository.TransactionRepository;
+import com.jbank.transfer.service.CreditApplier;
 import com.jbank.transfer.service.DepositService;
 import com.jbank.transfer.service.IdempotencyRecovery;
 import com.jbank.transfer.service.OtpService;
 import com.jbank.transfer.service.TransferService;
 import com.jbank.transfer.service.WithdrawalService;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -60,6 +64,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
   DepositService.class,
   WithdrawalService.class,
   TransferService.class,
+  CreditApplier.class,
   AbstractConcurrencyTest.RedisTestConfig.class
 })
 abstract class AbstractConcurrencyTest {
@@ -83,6 +88,11 @@ abstract class AbstractConcurrencyTest {
           .setAddress("redis://" + REDIS.getHost() + ":" + REDIS.getMappedPort(6379));
       return Redisson.create(config);
     }
+
+    @Bean
+    MeterRegistry meterRegistry() {
+      return new SimpleMeterRegistry();
+    }
   }
 
   @DynamicPropertySource
@@ -101,6 +111,19 @@ abstract class AbstractConcurrencyTest {
   @Autowired protected DepositService depositService;
   @Autowired protected WithdrawalService withdrawalService;
   @Autowired protected TransferService transferService;
+  @Autowired protected CreditApplier creditApplier;
+  @Autowired protected PendingCreditRepository pendingCreditRepository;
+
+  /** 미반영 입금을 모두 반영한다. 테스트에서는 워커 대신 이 호출로 반영 시점을 정한다. */
+  protected void applyAllPendingCredits() {
+    int applied;
+    do {
+      applied = 0;
+      for (Long accountId : pendingCreditRepository.findAccountIdsWithUnapplied(100)) {
+        applied += creditApplier.applyForAccount(accountId);
+      }
+    } while (applied > 0);
+  }
 
   protected Account saveAccount(BigDecimal balance) {
     Long customerId = saveCustomer();

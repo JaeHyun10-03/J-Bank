@@ -18,6 +18,7 @@ import com.jbank.product.dto.ProductSubscribeRequest;
 import com.jbank.product.repository.ProductRepository;
 import com.jbank.transfer.dto.DepositRequest;
 import com.jbank.transfer.dto.TransferRequest;
+import com.jbank.transfer.service.CreditApplier;
 import jakarta.servlet.http.Cookie;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -30,6 +31,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.containers.GenericContainer;
@@ -40,6 +42,8 @@ import org.testcontainers.containers.PostgreSQLContainer;
  * 거래내역조회→상품가입. 계좌개설이 인증을 요구해 로그인이 계좌개설보다 먼저다.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+// 입금 반영 워커는 끄고, 반영이 필요하면 테스트가 반영 서비스를 직접 부른다(ADR 0012).
+@TestPropertySource(properties = "jbank.transfer.credit-worker.enabled=false")
 @AutoConfigureMockMvc
 class FullFlowIntegrationTest {
 
@@ -64,6 +68,7 @@ class FullFlowIntegrationTest {
     registry.add("jbank.jwt.secret", () -> "test-secret-key-at-least-32-bytes-long-for-hs256");
   }
 
+  @Autowired private CreditApplier creditApplier;
   @Autowired private MockMvc mockMvc;
   @Autowired private ObjectMapper objectMapper;
   @Autowired private ProductRepository productRepository;
@@ -132,6 +137,8 @@ class FullFlowIntegrationTest {
                 .cookie(accessToken, csrfCookie)
                 .header("X-CSRF-TOKEN", csrfToken))
         .andExpect(status().isCreated());
+    // 입금은 반영 워커가 따로 한다(ADR 0012). 테스트에서는 워커를 끄고 여기서 반영한다.
+    creditApplier.applyForAccount(accountB);
 
     JsonNode balanceA = getJson("/api/v1/accounts/" + accountA + "/balance", accessToken);
     assertThat(new BigDecimal(balanceA.get("data").get("balance").asText()))

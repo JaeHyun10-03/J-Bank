@@ -23,10 +23,13 @@ import com.jbank.support.audit.repository.AuditLogRepository;
 import com.jbank.transfer.domain.TransactionException;
 import com.jbank.transfer.domain.TransactionStatus;
 import com.jbank.transfer.dto.TransferResponse;
+import com.jbank.transfer.repository.PendingCreditRepository;
 import com.jbank.transfer.repository.TransactionRepository;
+import com.jbank.transfer.service.CreditApplier;
 import com.jbank.transfer.service.IdempotencyRecovery;
 import com.jbank.transfer.service.OtpService;
 import com.jbank.transfer.service.TransferService;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -58,6 +61,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
   IdempotencyRecovery.class,
   OtpService.class,
   TransferService.class,
+  CreditApplier.class,
+  SimpleMeterRegistry.class,
   AuditLogListener.class,
   TransferServiceIntegrationTest.RedisTestConfig.class
 })
@@ -96,11 +101,13 @@ class TransferServiceIntegrationTest {
   @Autowired private TransactionRepository transactionRepository;
   @Autowired private LedgerEntryRepository ledgerEntryRepository;
   @Autowired private TransferService transferService;
+  @Autowired private CreditApplier creditApplier;
+  @Autowired private PendingCreditRepository pendingCreditRepository;
   @Autowired private AuditLogRepository auditLogRepository;
   @Autowired private OtpService otpService;
 
   @Test
-  void 정상_이체는_잔액을_옮기고_원장_두_건을_남긴다() {
+  void 정상_이체는_송금을_확정하고_입금은_반영_뒤에_잔액과_원장에_남는다() {
     Account from = saveAccount(new BigDecimal("100000.00"), BigDecimal.ZERO, AccountStatus.ACTIVE);
     Account to = saveAccount(new BigDecimal("5000.00"), BigDecimal.ZERO, AccountStatus.ACTIVE);
 
@@ -115,11 +122,23 @@ class TransferServiceIntegrationTest {
 
     assertThat(response.status()).isEqualTo(TransactionStatus.COMPLETED);
     assertThat(response.fromAccountBalanceAfter()).isEqualByComparingTo("70000.00");
-    Account updatedFrom = accountRepository.findById(from.getAccountId()).orElseThrow();
-    Account updatedTo = accountRepository.findById(to.getAccountId()).orElseThrow();
-    assertThat(updatedFrom.getCurrentBalanceCache()).isEqualByComparingTo("70000.00");
-    assertThat(updatedTo.getCurrentBalanceCache()).isEqualByComparingTo("35000.00");
+    // 이체 직후: 송금은 확정, 입금은 대기(ADR 0012)
+    assertThat(
+            accountRepository.findById(from.getAccountId()).orElseThrow().getCurrentBalanceCache())
+        .isEqualByComparingTo("70000.00");
+    assertThat(accountRepository.findById(to.getAccountId()).orElseThrow().getCurrentBalanceCache())
+        .isEqualByComparingTo("5000.00");
     assertThat(ledgerEntryRepository.findByAccountId(from.getAccountId())).hasSize(1);
+    assertThat(ledgerEntryRepository.findByAccountId(to.getAccountId())).isEmpty();
+    assertThat(pendingCreditRepository.findAll())
+        .filteredOn(p -> p.getAccountId().equals(to.getAccountId()))
+        .singleElement()
+        .satisfies(p -> assertThat(p.getAmount()).isEqualByComparingTo("30000.00"));
+
+    creditApplier.applyForAccount(to.getAccountId());
+
+    assertThat(accountRepository.findById(to.getAccountId()).orElseThrow().getCurrentBalanceCache())
+        .isEqualByComparingTo("35000.00");
     assertThat(ledgerEntryRepository.findByAccountId(to.getAccountId())).hasSize(1);
     assertThat(auditLogRepository.findAll())
         .anySatisfy(

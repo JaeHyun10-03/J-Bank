@@ -2,6 +2,7 @@
 
 상태는 workflow.py 명령으로 갱신합니다.
 
+- [async-credit](async-credit/task.md): done
 - [ec2-load-test](ec2-load-test/task.md): done
 - [ec2-load-test-followup](ec2-load-test-followup/task.md): done
 - [ec2-weekday-schedule](ec2-weekday-schedule/task.md): done

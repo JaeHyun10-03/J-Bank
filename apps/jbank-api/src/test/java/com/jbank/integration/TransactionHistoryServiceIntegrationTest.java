@@ -16,20 +16,26 @@ import com.jbank.customer.domain.RiskLevel;
 import com.jbank.customer.repository.CustomerRepository;
 import com.jbank.global.response.PageResponse;
 import com.jbank.ledger.repository.LedgerEntryRepository;
+import com.jbank.transfer.domain.PendingCredit;
+import com.jbank.transfer.domain.Transaction;
 import com.jbank.transfer.domain.TransactionType;
 import com.jbank.transfer.dto.TransactionHistoryFilter;
 import com.jbank.transfer.dto.TransactionSummaryResponse;
+import com.jbank.transfer.repository.PendingCreditRepository;
 import com.jbank.transfer.repository.TransactionRepository;
+import com.jbank.transfer.service.CreditApplier;
 import com.jbank.transfer.service.DepositService;
 import com.jbank.transfer.service.IdempotencyRecovery;
 import com.jbank.transfer.service.OtpService;
 import com.jbank.transfer.service.TransactionHistoryService;
 import com.jbank.transfer.service.TransferService;
 import com.jbank.transfer.service.WithdrawalService;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.redisson.Redisson;
@@ -61,6 +67,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
   WithdrawalService.class,
   TransferService.class,
   TransactionHistoryService.class,
+  CreditApplier.class,
+  SimpleMeterRegistry.class,
   TransactionHistoryServiceIntegrationTest.RedisTestConfig.class
 })
 class TransactionHistoryServiceIntegrationTest {
@@ -101,6 +109,8 @@ class TransactionHistoryServiceIntegrationTest {
   @Autowired private WithdrawalService withdrawalService;
   @Autowired private TransferService transferService;
   @Autowired private TransactionHistoryService transactionHistoryService;
+  @Autowired private PendingCreditRepository pendingCreditRepository;
+  @Autowired private CreditApplier creditApplier;
 
   @Test
   void 필터가_없으면_계좌에_관련된_모든_거래를_반환한다() {
@@ -169,6 +179,7 @@ class TransactionHistoryServiceIntegrationTest {
         UUID.randomUUID().toString(),
         null,
         a.getCustomerId());
+    creditApplier.applyForAccount(b.getAccountId());
 
     PageResponse<TransactionSummaryResponse> aOut =
         transactionHistoryService.getHistory(
@@ -198,6 +209,37 @@ class TransactionHistoryServiceIntegrationTest {
     assertThat(aOut.totalElements()).isEqualTo(1);
     assertThat(aIn.totalElements()).isEqualTo(0);
     assertThat(bIn.totalElements()).isEqualTo(1);
+  }
+
+  @Test
+  void 반영_전_이체_입금은_받는_계좌_내역에서_빠지고_반영_후에_보인다() {
+    Account a = saveAccount(new BigDecimal("100000.00"));
+    Account b = saveAccount(new BigDecimal("100000.00"));
+    Transaction transfer =
+        transactionRepository.saveAndFlush(
+            new Transaction(
+                TransactionType.TRANSFER,
+                a.getAccountId(),
+                b.getAccountId(),
+                new BigDecimal("3000.00"),
+                UUID.randomUUID().toString(),
+                null));
+    PendingCredit credit =
+        pendingCreditRepository.saveAndFlush(
+            new PendingCredit(
+                transfer.getTransactionId(), b.getAccountId(), new BigDecimal("3000.00")));
+
+    assertThat(historyOf(b).totalElements()).isZero();
+    assertThat(historyOf(a).totalElements()).isEqualTo(1); // 보낸 쪽은 바로 보인다
+
+    pendingCreditRepository.markApplied(List.of(credit.getPendingCreditId()));
+
+    assertThat(historyOf(b).totalElements()).isEqualTo(1);
+  }
+
+  private PageResponse<TransactionSummaryResponse> historyOf(Account account) {
+    return transactionHistoryService.getHistory(
+        account.getAccountId(), null, null, null, PageRequest.of(0, 20), account.getCustomerId());
   }
 
   private Account saveAccount(BigDecimal balance) {

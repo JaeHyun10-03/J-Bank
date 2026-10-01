@@ -229,6 +229,7 @@ flowchart TD
     SubmitClose --> CloseResult{"처리 결과"}
     CloseResult -- "ACC_008 잔액이 0원 아님" --> BalanceError["잔액을 0원으로 만든 후 재시도 안내"] --> AccountDetail
     CloseResult -- "ACC_010 지급정지 금액 잔존" --> HoldError["인증 대기 중인 이체가 있다는 안내, 완료 또는 취소 후 재시도 유도"] --> AccountDetail
+    CloseResult -- "ACC_012 처리 중인 입금" --> PendingCreditError["처리 중인 입금이 있다는 안내, 잠시 후 재시도 유도"] --> AccountDetail
     CloseResult -- 성공 --> CloseComplete["해지완료 화면"]
     CloseComplete --> Home["홈 화면 - 계좌목록에서 제외"]
 ```

@@ -16,7 +16,8 @@ SSM 출력으로 나눠 받아온다(추가 IAM 권한·SSH 없음). 명령은 p
 
 모든 명령은 <결과 루트>/env/commands.log에 실행 기록을 남긴다(REQ-13).
 환경변수: PERF_RESULTS(결과 루트, 저장소 루트 기준, 기본 perf/results/ec2-baseline),
-PERF_GIT_REF(인스턴스가 체크아웃할 원격 브랜치, 기본 perf/ec2-load-test. 실행 전에 push해 둔다).
+PERF_GIT_REF(인스턴스가 체크아웃할 원격 브랜치, 기본 perf/ec2-load-test. 실행 전에 push해 둔다),
+PERF_BUILD_IMAGE=1(GHCR 이미지 대신 대상 인스턴스에서 체크아웃한 코드로 api 이미지를 빌드).
 """
 import argparse
 import base64
@@ -214,7 +215,8 @@ def cmd_setup(_):
         ssm(inst, f"runuser -u ec2-user -- git -C /opt/jbank fetch -q origin {GIT_REF} && "
                   f"runuser -u ec2-user -- git -C /opt/jbank checkout -q -f {sha} && "
                   f"git -c safe.directory='*' -C /opt/jbank rev-parse HEAD")
-    target_sh(i, "setup")
+    # PERF_BUILD_IMAGE=1: main에 없는 브랜치 코드를 대상 인스턴스에서 빌드해 잰다(target.sh setup build).
+    target_sh(i, "setup build" if os.environ.get("PERF_BUILD_IMAGE") == "1" else "setup", timeout=3600)
     target_sh(i, "environment")
     loadgen_sh(i, f"setup {i['target_private_ip']}")
     fetch_env(i)
@@ -362,6 +364,7 @@ def cmd_run(args):
     copy_file(i["loadgen_instance_id"], f"/opt/perf-out/{run}/failed-transfers.txt",
               i["target_instance_id"], f"/opt/perf-out/{run}/failed-transfers.txt")
     target_sh(i, f"failed-keys {run}")
+    target_sh(i, f"credit-dump {run}")
     target_sh(i, f"batch {run} ledgerReconciliationJob {run}-recon", timeout=2400)
     since = dt.datetime.fromtimestamp(start - 180, dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     target_sh(i, f"logs {run} {since}")
@@ -404,8 +407,57 @@ def k6_fail_201(summary_path):
                if k.endswith(" 201"))
 
 
+def credit_lag(local):
+    """경계 이후 입금 대기의 생성→반영 지연(DB 시각)을 단계별로 요약한다(ADR 0012, REQ-07).
+    판정값은 무너지기 전 단계들의 p95 최댓값. 원자료가 없으면(이전 이미지) None."""
+    path = os.path.join(local, "target/pending-credits.csv")
+    analysis_path = os.path.join(local, "loadgen/analysis.json")
+    if not os.path.exists(path) or not os.path.exists(analysis_path):
+        return None
+    rows = []
+    for line in open(path, encoding="utf-8"):
+        parts = line.strip().split(",")
+        if len(parts) == 4:
+            rows.append((float(parts[2]), float(parts[3]) if parts[3] else None))
+    analysis = json.load(open(analysis_path, encoding="utf-8"))
+    collapse = analysis.get("collapse_rps")
+
+    def p95(values):
+        values = sorted(values)
+        return values[max(0, int(round(0.95 * len(values))) - 1)] if values else None
+
+    stages = []
+    for stage in analysis.get("stages", []):
+        s, e = stage["window"]
+        lags = [(a - c) * 1000 for c, a in rows if a is not None and s <= c < e]
+        pending = sum(1 for c, a in rows if a is None and s <= c < e)
+        stages.append({"target_rps": stage["target_rps"], "count": len(lags), "unapplied": pending,
+                       "p95_ms": round(p95(lags), 1) if lags else None,
+                       "max_ms": round(max(lags), 1) if lags else None})
+    pre = [st["p95_ms"] for st in stages
+           if st["p95_ms"] is not None and (collapse is None or st["target_rps"] < collapse)]
+    return {"stages": stages, "judge_p95_ms": max(pre) if pre else None,
+            "total": len(rows), "unapplied_total": sum(1 for _, a in rows if a is None)}
+
+
+def write_credit_lag(local, run):
+    lag = credit_lag(local)
+    if lag is None:
+        return
+    with open(os.path.join(local, "credit-lag.json"), "w", encoding="utf-8") as f:
+        json.dump(lag, f, ensure_ascii=False, indent=1)
+    with open(os.path.join(local, "credit-lag.md"), "w", encoding="utf-8") as f:
+        f.write(f"# {run} 입금 반영 지연 (DB created_at → applied_at, REQ-07)\n\n")
+        f.write(f"- 경계 이후 입금 대기 {lag['total']}건, api 정지 시점 미반영 {lag['unapplied_total']}건\n")
+        f.write(f"- 판정값(무너지기 전 단계 p95 최댓값): {lag['judge_p95_ms']} ms (목표 1,000 ms 이내)\n\n")
+        f.write("| 단계 목표 | 반영 건수 | 미반영 | p95 ms | 최대 ms |\n| --- | --- | --- | --- | --- |\n")
+        for st in lag["stages"]:
+            f.write(f"| {st['target_rps']} | {st['count']} | {st['unapplied']} | {st['p95_ms']} | {st['max_ms']} |\n")
+
+
 def write_round_docs(local, run, scen, args, start, end, kst_now, credit, loadgen_type):
     write_integrity(local, run)
+    write_credit_lag(local, run)
     write_environment(local, run, scen, args, start, end, kst_now, credit, loadgen_type)
 
 
@@ -420,6 +472,13 @@ def write_integrity(local, run):
               open(os.path.join(local, "target/failed-keys-target.txt"), encoding="utf-8").read().split()
               if "=" in line)
     completed = int(target["new_transfer_completed"])
+    # 입금 비동기 반영(ADR 0012) 뒤에는 api를 멈춘 시점에 반영되지 않은 입금 대기가 남는다. 이전 이미지 결과에는
+    # 이 값이 없으므로 0으로 둔다.
+    unapplied = int(target.get("new_unapplied_count", 0))
+    unapplied_sum = float(target.get("new_unapplied_sum", 0))
+    hot_unapplied = float(target.get("hot_unapplied_sum", 0))
+    all_unapplied = float(target.get("all_unapplied_sum", 0))
+    hot_received = float(target["hot_balance_delta"]) + hot_unapplied
     fk_total, fk_committed = int(fk.get("failed_keys_total", -1)), int(fk.get("failed_keys_committed", 0))
     in_flight = completed - ok201 - fk_committed
     by_status = ", ".join(f"{k[len('failed_status_'):-len('_total')]}: {v}건 중 반영 {fk.get(k[:-len('_total')] + '_committed', '0')}"
@@ -434,18 +493,24 @@ def write_integrity(local, run):
         ("실패 키 중 DB 반영(멱등키 대조, k6 중단 순간 끊긴 요청의 키 포함)", f"{fk_committed} ({by_status or '실패 없음'})",
          f"실패 응답(체크 실패) 중 반영 하한 {max(fk_committed - max(fk_total - fail201, 0), 0)}"),
         ("키가 남지 않은 중단 순간 요청의 반영(잔차 = 새 완료 − 201 − 실패 키 중 반영)", str(in_flight), ""),
-        ("새 원장 행 수 vs 2 × 새 이체 수", f"{target['new_ledger_rows']} vs {2 * completed}",
-         "같음" if int(target["new_ledger_rows"]) == 2 * completed else "다름"),
-        ("새 원장 차변 합 = 대변 합", f"{target['new_ledger_debit']} / {target['new_ledger_credit']}",
-         "같음" if target["new_ledger_debit"] == target["new_ledger_credit"] else "다름"),
-        ("핫 계좌 잔액 증가분 vs 핫 계좌 성공 이체 금액 합(DB)", f"{target['hot_balance_delta']} vs {target['hot_completed_amount_sum']}",
-         "같음" if float(target["hot_balance_delta"]) == float(target["hot_completed_amount_sum"]) else "다름"),
-        ("핫 계좌 잔액 증가분 vs k6 hot-transfer 201 × 1,000원", f"{target['hot_balance_delta']} vs {hot201 * 1000}",
-         "같음" if float(target["hot_balance_delta"]) == hot201 * 1000 else "다름(실패 응답 반영·중단 잔차 포함)"),
+        ("api 정지 시점 미반영 입금 대기(경계 이후)", f"{unapplied}건 / {unapplied_sum:.2f}", "아래 식에 포함"),
+        ("새 원장 행 수 vs 2 × 새 이체 수 − 미반영", f"{target['new_ledger_rows']} vs {2 * completed - unapplied}",
+         "같음" if int(target["new_ledger_rows"]) == 2 * completed - unapplied else "다름"),
+        ("새 원장 차변 합 = 대변 합 + 미반영", f"{target['new_ledger_debit']} / {target['new_ledger_credit']} + {unapplied_sum:.2f}",
+         "같음" if float(target["new_ledger_debit"]) == float(target["new_ledger_credit"]) + unapplied_sum else "다름"),
+        ("핫 계좌 잔액 증가분 + 미반영 vs 핫 계좌 성공 이체 금액 합(DB)", f"{hot_received:.2f} vs {target['hot_completed_amount_sum']}",
+         "같음" if hot_received == float(target["hot_completed_amount_sum"]) else "다름"),
+        ("핫 계좌 잔액 증가분 + 미반영 vs k6 hot-transfer 201 × 1,000원", f"{hot_received:.2f} vs {hot201 * 1000}",
+         "같음" if hot_received == hot201 * 1000 else "다름(실패 응답 반영·중단 잔차 포함)"),
+        ("완료 이체별 입금 대기 1건 아님 / 대변 원장 수 불일치(반영 1, 미반영 0)",
+         f"{target.get('transfer_pending_row_mismatch', '-')} / {target.get('transfer_credit_entry_mismatch', '-')}",
+         "해당 없음(입금 대기 이전 이미지)" if "transfer_pending_row_mismatch" not in target else
+         "중복·유실 없음" if target["transfer_pending_row_mismatch"] == "0"
+         and target["transfer_credit_entry_mismatch"] == "0" else "원인 분석 대상"),
         ("기준 대사 대비 새 불일치 계좌", target["new_mismatch_accounts"], "0" if target["new_mismatch_accounts"] == "0" else "원인 분석 대상"),
         ("기준 불일치 계좌 중 증가분 불일치", target["baseline_account_delta_mismatch"], ""),
-        ("전체 차변·대변 증가분", f"{target['global_debit_delta']} / {target['global_credit_delta']}",
-         "같음" if target["global_debit_delta"] == target["global_credit_delta"] else "다름"),
+        ("전체 차변·대변 증가분(+ 미반영 전체)", f"{target['global_debit_delta']} / {target['global_credit_delta']} + {all_unapplied:.2f}",
+         "같음" if float(target["global_debit_delta"]) == float(target["global_credit_delta"]) + all_unapplied else "다름"),
         ("경계 이후 멱등키 중복", target["duplicate_idempotency_keys"], ""),
         ("경계 이후 COMPLETED 아닌 이체", target["new_transfer_other_status"], ""),
     ]
@@ -533,7 +598,9 @@ def main():
     log(f"$ run-ec2.py {' '.join(sys.argv[1:])}")
     if args.cmd == "regen-integrity":
         for d in args.dirs:
-            write_integrity(d, os.path.basename(os.path.dirname(d)) + "-" + os.path.basename(d))
+            name = os.path.basename(os.path.dirname(d)) + "-" + os.path.basename(d)
+            write_integrity(d, name)
+            write_credit_lag(d, name)
         return
     if args.cmd == "dry-run":
         # s2f만 자기 경로로 드라이런하고, 나머지는 기존처럼 짧은 S1로 수집 경로를 본다.

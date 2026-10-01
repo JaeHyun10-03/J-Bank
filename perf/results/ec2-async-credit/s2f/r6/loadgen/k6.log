@@ -1,0 +1,39 @@
+time="2026-09-30T15:50:22Z" level=warning msg="Legacy env var detected, use --features or K6_FEATURES instead" env=K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM feature=native-histograms lifecycle=deprecated_alias source=env_legacy_alias
+time="2026-09-30T15:50:22Z" level=info msg="Experimental feature enabled" feature=native-histograms lifecycle=experimental
+time="2026-09-30T15:50:43Z" level=info msg="SCENARIO_START 2026-09-30T15:50:43.458Z" source=console
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 66944   96.105818/s
+    checks_succeeded...: 100.00% 66944 out of 66944
+    checks_failed......: 0.00%   0 out of 66944
+
+    ✓ setup-login 200
+    ✓ parallel-balance 200
+    ✓ hot-transfer 201
+    ✓ relogin 200
+
+    CUSTOM
+    relogin_after_minutes..........: min=9.022405 med=10.606963 avg=10.535782 p(90)=11.682846 p(95)=11.838152 p(99)=11.951175 max=11.979788
+
+    HTTP
+    http_req_duration..............: min=1.87ms   med=8.21ms    avg=53.81ms   p(90)=28.5ms    p(95)=75.56ms   p(99)=1.23s     max=7.59s    
+      { expected_response:true }...: min=1.87ms   med=8.21ms    avg=53.81ms   p(90)=28.5ms    p(95)=75.56ms   p(99)=1.23s     max=7.59s    
+    http_req_failed................: 0.00% 0 out of 66944
+    http_reqs......................: 66944 96.105818/s
+
+    EXECUTION
+    dropped_iterations.............: 197   0.282816/s
+    iteration_duration.............: min=1.99ms   med=8.43ms    avg=54.22ms   p(90)=27.69ms   p(95)=65.45ms   p(99)=1.21s     max=9.39s    
+    iterations.....................: 66474 95.431079/s
+    vus............................: 7     min=0          max=291
+    vus_max........................: 312   min=120        max=312
+
+    NETWORK
+    data_received..................: 24 MB 34 kB/s
+    data_sent......................: 13 MB 18 kB/s
+
+
+
+time="2026-09-30T16:01:59Z" level=error msg="test run was aborted because k6 received a 'interrupt' signal"

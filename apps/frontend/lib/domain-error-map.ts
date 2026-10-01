@@ -44,6 +44,9 @@ const DOMAIN_ERROR_MAP: Record<string, DomainErrorEntry> = {
   ACC_010_HOLD_AMOUNT_REMAINS: {
     message: "인증 대기 중인 이체가 있습니다. 완료하거나 취소한 후 다시 시도해주세요.",
   },
+  ACC_012_PENDING_CREDIT_EXISTS: {
+    message: "처리 중인 입금이 있습니다. 잠시 후 다시 시도해주세요.",
+  },
 };
 
 export function resolveDomainError(error: ErrorDetail | undefined): DomainErrorEntry {

@@ -1,0 +1,657 @@
+# 작업 시작 HEAD
+de2b827e2f80f0c461795018b9176ee434027648
+# 작업 시작 시 변경 상태
+?? perf/results/ec2-baseline/dryrun/artifacts.txt
+?? perf/results/ec2-baseline/dryrun/environment.md
+?? perf/results/ec2-baseline/dryrun/integrity.md
+?? perf/results/ec2-baseline/dryrun/loadgen/analysis.json
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-summary.json
+?? perf/results/ec2-baseline/dryrun/loadgen/prometheus/query_range.json.gz
+?? perf/results/ec2-baseline/dryrun/target/batch.txt
+?? perf/results/ec2-baseline/dryrun/target/boundary.env
+?? perf/results/ec2-baseline/dryrun/target/integrity-target.txt
+?? perf/results/ec2-baseline/dryrun/target/log-counts.txt
+?? perf/results/ec2-baseline/dryrun/target/pg_stat_activity.csv
+?? perf/results/ec2-baseline/dryrun/warmup/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-summary.json
+
+# 현재 git status --porcelain
+?? perf/results/ec2-baseline/dryrun/artifacts.txt
+?? perf/results/ec2-baseline/dryrun/environment.md
+?? perf/results/ec2-baseline/dryrun/integrity.md
+?? perf/results/ec2-baseline/dryrun/loadgen/analysis.json
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-summary.json
+?? perf/results/ec2-baseline/dryrun/loadgen/prometheus/query_range.json.gz
+?? perf/results/ec2-baseline/dryrun/target/batch.txt
+?? perf/results/ec2-baseline/dryrun/target/boundary.env
+?? perf/results/ec2-baseline/dryrun/target/integrity-target.txt
+?? perf/results/ec2-baseline/dryrun/target/log-counts.txt
+?? perf/results/ec2-baseline/dryrun/target/pg_stat_activity.csv
+?? perf/results/ec2-baseline/dryrun/warmup/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-summary.json
+
+# 작업 시작 HEAD부터 현재 파일까지의 이름·상태
+M	README.md
+A	apps/frontend/lib/domain-error-map.test.ts
+M	apps/frontend/lib/domain-error-map.ts
+M	apps/jbank-api/src/main/java/com/jbank/account/repository/AccountRepository.java
+M	apps/jbank-api/src/main/java/com/jbank/account/service/AccountService.java
+M	apps/jbank-api/src/main/java/com/jbank/batch/reconciliation/LedgerReconciliationJobConfig.java
+M	apps/jbank-api/src/main/java/com/jbank/batch/reconciliation/LedgerReconciliationTasklet.java
+M	apps/jbank-api/src/main/java/com/jbank/global/exception/ErrorCode.java
+A	apps/jbank-api/src/main/java/com/jbank/transfer/domain/PendingCredit.java
+A	apps/jbank-api/src/main/java/com/jbank/transfer/repository/PendingCreditRepository.java
+A	apps/jbank-api/src/main/java/com/jbank/transfer/service/CreditApplier.java
+A	apps/jbank-api/src/main/java/com/jbank/transfer/service/PendingCreditWorker.java
+M	apps/jbank-api/src/main/java/com/jbank/transfer/service/TransactionHistoryService.java
+M	apps/jbank-api/src/main/java/com/jbank/transfer/service/TransferService.java
+M	apps/jbank-api/src/main/resources/application-batch.yml
+M	apps/jbank-api/src/main/resources/application.yml
+A	apps/jbank-api/src/main/resources/db/migration/V18__create_pending_credits.sql
+A	apps/jbank-api/src/test/java/com/jbank/batch/reconciliation/LedgerReconciliationTaskletTest.java
+M	apps/jbank-api/src/test/java/com/jbank/concurrency/AbstractConcurrencyTest.java
+A	apps/jbank-api/src/test/java/com/jbank/concurrency/AccountStatusChangeRaceScenarioTest.java
+M	apps/jbank-api/src/test/java/com/jbank/concurrency/ConcurrentBidirectionalTransferScenarioTest.java
+M	apps/jbank-api/src/test/java/com/jbank/concurrency/ConcurrentLedgerReconciliationScenarioTest.java
+A	apps/jbank-api/src/test/java/com/jbank/concurrency/PendingCreditApplyScenarioTest.java
+A	apps/jbank-api/src/test/java/com/jbank/concurrency/ReceiverLockScenarioTest.java
+M	apps/jbank-api/src/test/java/com/jbank/integration/AccountServiceIntegrationTest.java
+M	apps/jbank-api/src/test/java/com/jbank/integration/CtrDetectionJobIntegrationTest.java
+M	apps/jbank-api/src/test/java/com/jbank/integration/FdsDetectionJobIntegrationTest.java
+M	apps/jbank-api/src/test/java/com/jbank/integration/FullFlowIntegrationTest.java
+M	apps/jbank-api/src/test/java/com/jbank/integration/InterestMaturityJobIntegrationTest.java
+M	apps/jbank-api/src/test/java/com/jbank/integration/LedgerReconciliationJobIntegrationTest.java
+M	apps/jbank-api/src/test/java/com/jbank/integration/OtpVerificationServiceIntegrationTest.java
+M	apps/jbank-api/src/test/java/com/jbank/integration/TransactionHistoryServiceIntegrationTest.java
+M	apps/jbank-api/src/test/java/com/jbank/integration/TransferServiceIntegrationTest.java
+A	apps/jbank-api/src/test/java/com/jbank/transfer/PendingCreditWorkerConfigTest.java
+A	apps/jbank-api/src/test/java/com/jbank/transfer/service/PendingCreditWorkerTest.java
+M	"docs/03_J-Bank_API\354\204\244\352\263\204.md"
+M	"docs/04_J-Bank_\355\231\224\353\251\264\355\224\214\353\241\234\354\232\260\354\260\250\355\212\270.md"
+A	docs/adr/0012-async-credit.md
+A	"docs/devlog/2026-10-01_\354\236\205\352\270\210\353\271\204\353\217\231\352\270\260\353\260\230\354\230\201.md"
+M	infra/compose/perf/loadgen/provisioning/dashboards/json/jbank-perf.json
+M	perf/README.md
+M	perf/ec2/k6_monitor.py
+A	perf/ec2/sql/credit-integrity.sql
+M	perf/ec2/target.sh
+A	perf/ec2/tests/integrity-sql-test.sh
+A	perf/ec2/tests/test_async_credit.py
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/artifacts.txt
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/credit-lag.json
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/credit-lag.md
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/environment.md
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/integrity.md
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/loadgen/analysis.json
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/loadgen/failed-transfers.txt
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/loadgen/k6-end.txt
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/loadgen/k6-exit.txt
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/loadgen/k6-start.txt
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/loadgen/k6-summary.json
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/loadgen/k6.log
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/loadgen/monitor.log
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/loadgen/prometheus/gaps.txt
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/loadgen/ramp.json
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/target/api-errors-excerpt.log
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/target/batch-counts.txt
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/target/batch-dryrun-recon.log
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/target/batch.txt
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/target/boundary.env
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/target/disk.log
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/target/failed-keys-target.txt
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/target/failed-transfers.txt
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/target/integrity-target.txt
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/target/log-counts.txt
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/target/pending-credits.csv
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/target/pg_stat_activity.csv
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/target/postgres-excerpt.log
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/warmup/failed-transfers.txt
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/warmup/k6-end.txt
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/warmup/k6-exit.txt
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/warmup/k6-start.txt
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/warmup/k6-summary.json
+A	perf/results/ec2-async-credit/dryrun/20260930-220807/warmup/k6.log
+A	perf/results/ec2-async-credit/env/commands.log
+A	perf/results/ec2-async-credit/env/destroy.md
+A	perf/results/ec2-async-credit/env/infra.md
+A	perf/results/ec2-async-credit/env/loadgen/accounts.json
+A	perf/results/ec2-async-credit/env/loadgen/k6-version.txt
+A	perf/results/ec2-async-credit/env/loadgen/prepare.log
+A	perf/results/ec2-async-credit/env/loadgen/restore-verify.log
+A	perf/results/ec2-async-credit/env/loadgen/target-ip
+A	perf/results/ec2-async-credit/env/target/baseline.log
+A	perf/results/ec2-async-credit/env/target/disk.log
+A	perf/results/ec2-async-credit/env/target/environment-target.md
+A	perf/results/ec2-async-credit/env/target/seed.log
+A	perf/results/ec2-async-credit/s2f/r1/artifacts.txt
+A	perf/results/ec2-async-credit/s2f/r1/credit-lag.json
+A	perf/results/ec2-async-credit/s2f/r1/credit-lag.md
+A	perf/results/ec2-async-credit/s2f/r1/environment.md
+A	perf/results/ec2-async-credit/s2f/r1/integrity.md
+A	perf/results/ec2-async-credit/s2f/r1/loadgen/analysis.json
+A	perf/results/ec2-async-credit/s2f/r1/loadgen/failed-transfers.txt
+A	perf/results/ec2-async-credit/s2f/r1/loadgen/k6-end.txt
+A	perf/results/ec2-async-credit/s2f/r1/loadgen/k6-exit.txt
+A	perf/results/ec2-async-credit/s2f/r1/loadgen/k6-start.txt
+A	perf/results/ec2-async-credit/s2f/r1/loadgen/k6-summary.json
+A	perf/results/ec2-async-credit/s2f/r1/loadgen/k6.log
+A	perf/results/ec2-async-credit/s2f/r1/loadgen/monitor.log
+A	perf/results/ec2-async-credit/s2f/r1/loadgen/prometheus/gaps.txt
+A	perf/results/ec2-async-credit/s2f/r1/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-async-credit/s2f/r1/loadgen/ramp.json
+A	perf/results/ec2-async-credit/s2f/r1/target/api-errors-excerpt.log
+A	perf/results/ec2-async-credit/s2f/r1/target/batch-counts.txt
+A	perf/results/ec2-async-credit/s2f/r1/target/batch-s2f-r1-recon.log
+A	perf/results/ec2-async-credit/s2f/r1/target/batch.txt
+A	perf/results/ec2-async-credit/s2f/r1/target/boundary.env
+A	perf/results/ec2-async-credit/s2f/r1/target/disk.log
+A	perf/results/ec2-async-credit/s2f/r1/target/failed-keys-target.txt
+A	perf/results/ec2-async-credit/s2f/r1/target/failed-transfers.txt
+A	perf/results/ec2-async-credit/s2f/r1/target/integrity-target.txt
+A	perf/results/ec2-async-credit/s2f/r1/target/log-counts.txt
+A	perf/results/ec2-async-credit/s2f/r1/target/pending-credits.csv
+A	perf/results/ec2-async-credit/s2f/r1/target/pg_stat_activity.csv
+A	perf/results/ec2-async-credit/s2f/r1/target/postgres-excerpt.log
+A	perf/results/ec2-async-credit/s2f/r1/warmup/failed-transfers.txt
+A	perf/results/ec2-async-credit/s2f/r1/warmup/k6-end.txt
+A	perf/results/ec2-async-credit/s2f/r1/warmup/k6-exit.txt
+A	perf/results/ec2-async-credit/s2f/r1/warmup/k6-start.txt
+A	perf/results/ec2-async-credit/s2f/r1/warmup/k6-summary.json
+A	perf/results/ec2-async-credit/s2f/r1/warmup/k6.log
+A	perf/results/ec2-async-credit/s2f/r2/artifacts.txt
+A	perf/results/ec2-async-credit/s2f/r2/credit-lag.json
+A	perf/results/ec2-async-credit/s2f/r2/credit-lag.md
+A	perf/results/ec2-async-credit/s2f/r2/environment.md
+A	perf/results/ec2-async-credit/s2f/r2/integrity.md
+A	perf/results/ec2-async-credit/s2f/r2/loadgen/analysis.json
+A	perf/results/ec2-async-credit/s2f/r2/loadgen/failed-transfers.txt
+A	perf/results/ec2-async-credit/s2f/r2/loadgen/k6-end.txt
+A	perf/results/ec2-async-credit/s2f/r2/loadgen/k6-exit.txt
+A	perf/results/ec2-async-credit/s2f/r2/loadgen/k6-start.txt
+A	perf/results/ec2-async-credit/s2f/r2/loadgen/k6-summary.json
+A	perf/results/ec2-async-credit/s2f/r2/loadgen/k6.log
+A	perf/results/ec2-async-credit/s2f/r2/loadgen/monitor.log
+A	perf/results/ec2-async-credit/s2f/r2/loadgen/prometheus/gaps.txt
+A	perf/results/ec2-async-credit/s2f/r2/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-async-credit/s2f/r2/loadgen/ramp.json
+A	perf/results/ec2-async-credit/s2f/r2/target/api-errors-excerpt.log
+A	perf/results/ec2-async-credit/s2f/r2/target/batch-counts.txt
+A	perf/results/ec2-async-credit/s2f/r2/target/batch-s2f-r2-recon.log
+A	perf/results/ec2-async-credit/s2f/r2/target/batch.txt
+A	perf/results/ec2-async-credit/s2f/r2/target/boundary.env
+A	perf/results/ec2-async-credit/s2f/r2/target/disk.log
+A	perf/results/ec2-async-credit/s2f/r2/target/failed-keys-target.txt
+A	perf/results/ec2-async-credit/s2f/r2/target/failed-transfers.txt
+A	perf/results/ec2-async-credit/s2f/r2/target/integrity-target.txt
+A	perf/results/ec2-async-credit/s2f/r2/target/log-counts.txt
+A	perf/results/ec2-async-credit/s2f/r2/target/pending-credits.csv
+A	perf/results/ec2-async-credit/s2f/r2/target/pg_stat_activity.csv
+A	perf/results/ec2-async-credit/s2f/r2/target/postgres-excerpt.log
+A	perf/results/ec2-async-credit/s2f/r2/warmup/failed-transfers.txt
+A	perf/results/ec2-async-credit/s2f/r2/warmup/k6-end.txt
+A	perf/results/ec2-async-credit/s2f/r2/warmup/k6-exit.txt
+A	perf/results/ec2-async-credit/s2f/r2/warmup/k6-start.txt
+A	perf/results/ec2-async-credit/s2f/r2/warmup/k6-summary.json
+A	perf/results/ec2-async-credit/s2f/r2/warmup/k6.log
+A	perf/results/ec2-async-credit/s2f/r3/artifacts.txt
+A	perf/results/ec2-async-credit/s2f/r3/credit-lag.json
+A	perf/results/ec2-async-credit/s2f/r3/credit-lag.md
+A	perf/results/ec2-async-credit/s2f/r3/environment.md
+A	perf/results/ec2-async-credit/s2f/r3/integrity.md
+A	perf/results/ec2-async-credit/s2f/r3/loadgen/analysis.json
+A	perf/results/ec2-async-credit/s2f/r3/loadgen/failed-transfers.txt
+A	perf/results/ec2-async-credit/s2f/r3/loadgen/k6-end.txt
+A	perf/results/ec2-async-credit/s2f/r3/loadgen/k6-exit.txt
+A	perf/results/ec2-async-credit/s2f/r3/loadgen/k6-start.txt
+A	perf/results/ec2-async-credit/s2f/r3/loadgen/k6-summary.json
+A	perf/results/ec2-async-credit/s2f/r3/loadgen/k6.log
+A	perf/results/ec2-async-credit/s2f/r3/loadgen/monitor.log
+A	perf/results/ec2-async-credit/s2f/r3/loadgen/prometheus/gaps.txt
+A	perf/results/ec2-async-credit/s2f/r3/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-async-credit/s2f/r3/loadgen/ramp.json
+A	perf/results/ec2-async-credit/s2f/r3/target/api-errors-excerpt.log
+A	perf/results/ec2-async-credit/s2f/r3/target/batch-counts.txt
+A	perf/results/ec2-async-credit/s2f/r3/target/batch-s2f-r3-recon.log
+A	perf/results/ec2-async-credit/s2f/r3/target/batch.txt
+A	perf/results/ec2-async-credit/s2f/r3/target/boundary.env
+A	perf/results/ec2-async-credit/s2f/r3/target/disk.log
+A	perf/results/ec2-async-credit/s2f/r3/target/failed-keys-target.txt
+A	perf/results/ec2-async-credit/s2f/r3/target/failed-transfers.txt
+A	perf/results/ec2-async-credit/s2f/r3/target/integrity-target.txt
+A	perf/results/ec2-async-credit/s2f/r3/target/log-counts.txt
+A	perf/results/ec2-async-credit/s2f/r3/target/pending-credits.csv
+A	perf/results/ec2-async-credit/s2f/r3/target/pg_stat_activity.csv
+A	perf/results/ec2-async-credit/s2f/r3/target/postgres-excerpt.log
+A	perf/results/ec2-async-credit/s2f/r3/warmup/failed-transfers.txt
+A	perf/results/ec2-async-credit/s2f/r3/warmup/k6-end.txt
+A	perf/results/ec2-async-credit/s2f/r3/warmup/k6-exit.txt
+A	perf/results/ec2-async-credit/s2f/r3/warmup/k6-start.txt
+A	perf/results/ec2-async-credit/s2f/r3/warmup/k6-summary.json
+A	perf/results/ec2-async-credit/s2f/r3/warmup/k6.log
+A	perf/results/ec2-async-credit/s2f/r4/artifacts.txt
+A	perf/results/ec2-async-credit/s2f/r4/credit-lag.json
+A	perf/results/ec2-async-credit/s2f/r4/credit-lag.md
+A	perf/results/ec2-async-credit/s2f/r4/environment.md
+A	perf/results/ec2-async-credit/s2f/r4/integrity.md
+A	perf/results/ec2-async-credit/s2f/r4/loadgen/analysis.json
+A	perf/results/ec2-async-credit/s2f/r4/loadgen/failed-transfers.txt
+A	perf/results/ec2-async-credit/s2f/r4/loadgen/k6-end.txt
+A	perf/results/ec2-async-credit/s2f/r4/loadgen/k6-exit.txt
+A	perf/results/ec2-async-credit/s2f/r4/loadgen/k6-start.txt
+A	perf/results/ec2-async-credit/s2f/r4/loadgen/k6-summary.json
+A	perf/results/ec2-async-credit/s2f/r4/loadgen/k6.log
+A	perf/results/ec2-async-credit/s2f/r4/loadgen/monitor.log
+A	perf/results/ec2-async-credit/s2f/r4/loadgen/prometheus/gaps.txt
+A	perf/results/ec2-async-credit/s2f/r4/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-async-credit/s2f/r4/loadgen/ramp.json
+A	perf/results/ec2-async-credit/s2f/r4/target/api-errors-excerpt.log
+A	perf/results/ec2-async-credit/s2f/r4/target/batch-counts.txt
+A	perf/results/ec2-async-credit/s2f/r4/target/batch-s2f-r4-recon.log
+A	perf/results/ec2-async-credit/s2f/r4/target/batch.txt
+A	perf/results/ec2-async-credit/s2f/r4/target/boundary.env
+A	perf/results/ec2-async-credit/s2f/r4/target/disk.log
+A	perf/results/ec2-async-credit/s2f/r4/target/failed-keys-target.txt
+A	perf/results/ec2-async-credit/s2f/r4/target/failed-transfers.txt
+A	perf/results/ec2-async-credit/s2f/r4/target/integrity-target.txt
+A	perf/results/ec2-async-credit/s2f/r4/target/log-counts.txt
+A	perf/results/ec2-async-credit/s2f/r4/target/pending-credits.csv
+A	perf/results/ec2-async-credit/s2f/r4/target/pg_stat_activity.csv
+A	perf/results/ec2-async-credit/s2f/r4/target/postgres-excerpt.log
+A	perf/results/ec2-async-credit/s2f/r4/warmup/failed-transfers.txt
+A	perf/results/ec2-async-credit/s2f/r4/warmup/k6-end.txt
+A	perf/results/ec2-async-credit/s2f/r4/warmup/k6-exit.txt
+A	perf/results/ec2-async-credit/s2f/r4/warmup/k6-start.txt
+A	perf/results/ec2-async-credit/s2f/r4/warmup/k6-summary.json
+A	perf/results/ec2-async-credit/s2f/r4/warmup/k6.log
+A	perf/results/ec2-async-credit/s2f/r5/artifacts.txt
+A	perf/results/ec2-async-credit/s2f/r5/credit-lag.json
+A	perf/results/ec2-async-credit/s2f/r5/credit-lag.md
+A	perf/results/ec2-async-credit/s2f/r5/environment.md
+A	perf/results/ec2-async-credit/s2f/r5/integrity.md
+A	perf/results/ec2-async-credit/s2f/r5/loadgen/analysis.json
+A	perf/results/ec2-async-credit/s2f/r5/loadgen/failed-transfers.txt
+A	perf/results/ec2-async-credit/s2f/r5/loadgen/k6-end.txt
+A	perf/results/ec2-async-credit/s2f/r5/loadgen/k6-exit.txt
+A	perf/results/ec2-async-credit/s2f/r5/loadgen/k6-start.txt
+A	perf/results/ec2-async-credit/s2f/r5/loadgen/k6-summary.json
+A	perf/results/ec2-async-credit/s2f/r5/loadgen/k6.log
+A	perf/results/ec2-async-credit/s2f/r5/loadgen/monitor.log
+A	perf/results/ec2-async-credit/s2f/r5/loadgen/prometheus/gaps.txt
+A	perf/results/ec2-async-credit/s2f/r5/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-async-credit/s2f/r5/loadgen/ramp.json
+A	perf/results/ec2-async-credit/s2f/r5/target/api-errors-excerpt.log
+A	perf/results/ec2-async-credit/s2f/r5/target/batch-counts.txt
+A	perf/results/ec2-async-credit/s2f/r5/target/batch-s2f-r5-recon.log
+A	perf/results/ec2-async-credit/s2f/r5/target/batch.txt
+A	perf/results/ec2-async-credit/s2f/r5/target/boundary.env
+A	perf/results/ec2-async-credit/s2f/r5/target/disk.log
+A	perf/results/ec2-async-credit/s2f/r5/target/failed-keys-target.txt
+A	perf/results/ec2-async-credit/s2f/r5/target/failed-transfers.txt
+A	perf/results/ec2-async-credit/s2f/r5/target/integrity-target.txt
+A	perf/results/ec2-async-credit/s2f/r5/target/log-counts.txt
+A	perf/results/ec2-async-credit/s2f/r5/target/pending-credits.csv
+A	perf/results/ec2-async-credit/s2f/r5/target/pg_stat_activity.csv
+A	perf/results/ec2-async-credit/s2f/r5/target/postgres-excerpt.log
+A	perf/results/ec2-async-credit/s2f/r5/warmup/failed-transfers.txt
+A	perf/results/ec2-async-credit/s2f/r5/warmup/k6-end.txt
+A	perf/results/ec2-async-credit/s2f/r5/warmup/k6-exit.txt
+A	perf/results/ec2-async-credit/s2f/r5/warmup/k6-start.txt
+A	perf/results/ec2-async-credit/s2f/r5/warmup/k6-summary.json
+A	perf/results/ec2-async-credit/s2f/r5/warmup/k6.log
+A	perf/results/ec2-async-credit/s2f/r6/artifacts.txt
+A	perf/results/ec2-async-credit/s2f/r6/credit-lag.json
+A	perf/results/ec2-async-credit/s2f/r6/credit-lag.md
+A	perf/results/ec2-async-credit/s2f/r6/environment.md
+A	perf/results/ec2-async-credit/s2f/r6/integrity.md
+A	perf/results/ec2-async-credit/s2f/r6/loadgen/analysis.json
+A	perf/results/ec2-async-credit/s2f/r6/loadgen/failed-transfers.txt
+A	perf/results/ec2-async-credit/s2f/r6/loadgen/k6-end.txt
+A	perf/results/ec2-async-credit/s2f/r6/loadgen/k6-exit.txt
+A	perf/results/ec2-async-credit/s2f/r6/loadgen/k6-start.txt
+A	perf/results/ec2-async-credit/s2f/r6/loadgen/k6-summary.json
+A	perf/results/ec2-async-credit/s2f/r6/loadgen/k6.log
+A	perf/results/ec2-async-credit/s2f/r6/loadgen/monitor.log
+A	perf/results/ec2-async-credit/s2f/r6/loadgen/prometheus/gaps.txt
+A	perf/results/ec2-async-credit/s2f/r6/loadgen/prometheus/query_range.json.gz
+A	perf/results/ec2-async-credit/s2f/r6/loadgen/ramp.json
+A	perf/results/ec2-async-credit/s2f/r6/target/api-errors-excerpt.log
+A	perf/results/ec2-async-credit/s2f/r6/target/batch-counts.txt
+A	perf/results/ec2-async-credit/s2f/r6/target/batch-s2f-r6-recon.log
+A	perf/results/ec2-async-credit/s2f/r6/target/batch.txt
+A	perf/results/ec2-async-credit/s2f/r6/target/boundary.env
+A	perf/results/ec2-async-credit/s2f/r6/target/disk.log
+A	perf/results/ec2-async-credit/s2f/r6/target/failed-keys-target.txt
+A	perf/results/ec2-async-credit/s2f/r6/target/failed-transfers.txt
+A	perf/results/ec2-async-credit/s2f/r6/target/integrity-target.txt
+A	perf/results/ec2-async-credit/s2f/r6/target/log-counts.txt
+A	perf/results/ec2-async-credit/s2f/r6/target/pending-credits.csv
+A	perf/results/ec2-async-credit/s2f/r6/target/pg_stat_activity.csv
+A	perf/results/ec2-async-credit/s2f/r6/target/postgres-excerpt.log
+A	perf/results/ec2-async-credit/s2f/r6/warmup/failed-transfers.txt
+A	perf/results/ec2-async-credit/s2f/r6/warmup/k6-end.txt
+A	perf/results/ec2-async-credit/s2f/r6/warmup/k6-exit.txt
+A	perf/results/ec2-async-credit/s2f/r6/warmup/k6-start.txt
+A	perf/results/ec2-async-credit/s2f/r6/warmup/k6-summary.json
+A	perf/results/ec2-async-credit/s2f/r6/warmup/k6.log
+A	perf/results/ec2-async-credit/summary.md
+M	perf/run-ec2.py
+
+# 작업 시작 HEAD부터 현재 파일까지의 통계
+ README.md                                          |      2 +-
+ apps/frontend/lib/domain-error-map.test.ts         |      9 +
+ apps/frontend/lib/domain-error-map.ts              |      3 +
+ .../account/repository/AccountRepository.java      |     52 +
+ .../com/jbank/account/service/AccountService.java  |      9 +-
+ .../LedgerReconciliationJobConfig.java             |     13 +-
+ .../LedgerReconciliationTasklet.java               |     23 +-
+ .../java/com/jbank/global/exception/ErrorCode.java |      1 +
+ .../com/jbank/transfer/domain/PendingCredit.java   |     71 +
+ .../repository/PendingCreditRepository.java        |     55 +
+ .../com/jbank/transfer/service/CreditApplier.java  |     95 +
+ .../transfer/service/PendingCreditWorker.java      |     73 +
+ .../service/TransactionHistoryService.java         |     15 +
+ .../jbank/transfer/service/TransferService.java    |     88 +-
+ .../src/main/resources/application-batch.yml       |      6 +
+ apps/jbank-api/src/main/resources/application.yml  |      4 +
+ .../db/migration/V18__create_pending_credits.sql   |     17 +
+ .../LedgerReconciliationTaskletTest.java           |     73 +
+ .../jbank/concurrency/AbstractConcurrencyTest.java |     23 +
+ .../AccountStatusChangeRaceScenarioTest.java       |    102 +
+ ...oncurrentBidirectionalTransferScenarioTest.java |      2 +
+ ...ConcurrentLedgerReconciliationScenarioTest.java |      2 +
+ .../PendingCreditApplyScenarioTest.java            |    202 +
+ .../concurrency/ReceiverLockScenarioTest.java      |    252 +
+ .../integration/AccountServiceIntegrationTest.java |     70 +
+ .../CtrDetectionJobIntegrationTest.java            |      3 +
+ .../FdsDetectionJobIntegrationTest.java            |      3 +
+ .../jbank/integration/FullFlowIntegrationTest.java |      7 +
+ .../InterestMaturityJobIntegrationTest.java        |      3 +
+ .../LedgerReconciliationJobIntegrationTest.java    |    100 +-
+ .../OtpVerificationServiceIntegrationTest.java     |      7 +
+ .../TransactionHistoryServiceIntegrationTest.java  |     42 +
+ .../TransferServiceIntegrationTest.java            |     29 +-
+ .../transfer/PendingCreditWorkerConfigTest.java    |     52 +
+ .../transfer/service/PendingCreditWorkerTest.java  |     84 +
+ "docs/03_J-Bank_API\354\204\244\352\263\204.md"    |      3 +-
+ ...241\234\354\232\260\354\260\250\355\212\270.md" |      1 +
+ docs/adr/0012-async-credit.md                      |     59 +
+ ...217\231\352\270\260\353\260\230\354\230\201.md" |     50 +
+ .../provisioning/dashboards/json/jbank-perf.json   |    132 +
+ perf/README.md                                     |     16 +
+ perf/ec2/k6_monitor.py                             |      3 +
+ perf/ec2/sql/credit-integrity.sql                  |     37 +
+ perf/ec2/target.sh                                 |     38 +-
+ perf/ec2/tests/integrity-sql-test.sh               |     40 +
+ perf/ec2/tests/test_async_credit.py                |    129 +
+ .../dryrun/20260930-220807/artifacts.txt           |      2 +
+ .../dryrun/20260930-220807/credit-lag.json         |     28 +
+ .../dryrun/20260930-220807/credit-lag.md           |     10 +
+ .../dryrun/20260930-220807/environment.md          |     10 +
+ .../dryrun/20260930-220807/integrity.md            |     25 +
+ .../dryrun/20260930-220807/loadgen/analysis.json   |      1 +
+ .../20260930-220807/loadgen/failed-transfers.txt   |      0
+ .../dryrun/20260930-220807/loadgen/k6-end.txt      |      1 +
+ .../dryrun/20260930-220807/loadgen/k6-exit.txt     |      1 +
+ .../dryrun/20260930-220807/loadgen/k6-start.txt    |      1 +
+ .../dryrun/20260930-220807/loadgen/k6-summary.json |    169 +
+ .../dryrun/20260930-220807/loadgen/k6.log          |     36 +
+ .../dryrun/20260930-220807/loadgen/monitor.log     |      3 +
+ .../20260930-220807/loadgen/prometheus/gaps.txt    |      8 +
+ .../loadgen/prometheus/query_range.json.gz         |    Bin 0 -> 30100 bytes
+ .../dryrun/20260930-220807/loadgen/ramp.json       |      1 +
+ .../20260930-220807/target/api-errors-excerpt.log  |      0
+ .../dryrun/20260930-220807/target/batch-counts.txt |      1 +
+ .../20260930-220807/target/batch-dryrun-recon.log  |     62 +
+ .../dryrun/20260930-220807/target/batch.txt        |      1 +
+ .../dryrun/20260930-220807/target/boundary.env     |      6 +
+ .../dryrun/20260930-220807/target/disk.log         |      1 +
+ .../20260930-220807/target/failed-keys-target.txt  |      6 +
+ .../20260930-220807/target/failed-transfers.txt    |      0
+ .../20260930-220807/target/integrity-target.txt    |     24 +
+ .../dryrun/20260930-220807/target/log-counts.txt   |      6 +
+ .../20260930-220807/target/pending-credits.csv     |   8989 ++
+ .../20260930-220807/target/pg_stat_activity.csv    |     66 +
+ .../20260930-220807/target/postgres-excerpt.log    |      2 +
+ .../20260930-220807/warmup/failed-transfers.txt    |      0
+ .../dryrun/20260930-220807/warmup/k6-end.txt       |      1 +
+ .../dryrun/20260930-220807/warmup/k6-exit.txt      |      1 +
+ .../dryrun/20260930-220807/warmup/k6-start.txt     |      1 +
+ .../dryrun/20260930-220807/warmup/k6-summary.json  |    197 +
+ .../dryrun/20260930-220807/warmup/k6.log           |     40 +
+ perf/results/ec2-async-credit/env/commands.log     |    671 +
+ perf/results/ec2-async-credit/env/destroy.md       |      2 +
+ perf/results/ec2-async-credit/env/infra.md         |     15 +
+ .../ec2-async-credit/env/loadgen/accounts.json     |   1332 +
+ .../ec2-async-credit/env/loadgen/k6-version.txt    |      1 +
+ .../ec2-async-credit/env/loadgen/prepare.log       |      1 +
+ .../env/loadgen/restore-verify.log                 |      3 +
+ .../results/ec2-async-credit/env/loadgen/target-ip |      1 +
+ .../ec2-async-credit/env/target/baseline.log       |     18 +
+ perf/results/ec2-async-credit/env/target/disk.log  |      5 +
+ .../env/target/environment-target.md               |     20 +
+ perf/results/ec2-async-credit/env/target/seed.log  |     42 +
+ perf/results/ec2-async-credit/s2f/r1/artifacts.txt |      2 +
+ .../ec2-async-credit/s2f/r1/credit-lag.json        |     63 +
+ perf/results/ec2-async-credit/s2f/r1/credit-lag.md |     15 +
+ .../results/ec2-async-credit/s2f/r1/environment.md |     10 +
+ perf/results/ec2-async-credit/s2f/r1/integrity.md  |     25 +
+ .../ec2-async-credit/s2f/r1/loadgen/analysis.json  |      1 +
+ .../s2f/r1/loadgen/failed-transfers.txt            |      0
+ .../ec2-async-credit/s2f/r1/loadgen/k6-end.txt     |      1 +
+ .../ec2-async-credit/s2f/r1/loadgen/k6-exit.txt    |      1 +
+ .../ec2-async-credit/s2f/r1/loadgen/k6-start.txt   |      1 +
+ .../s2f/r1/loadgen/k6-summary.json                 |    173 +
+ .../results/ec2-async-credit/s2f/r1/loadgen/k6.log |     38 +
+ .../ec2-async-credit/s2f/r1/loadgen/monitor.log    |      8 +
+ .../s2f/r1/loadgen/prometheus/gaps.txt             |      8 +
+ .../s2f/r1/loadgen/prometheus/query_range.json.gz  |    Bin 0 -> 44955 bytes
+ .../ec2-async-credit/s2f/r1/loadgen/ramp.json      |      1 +
+ .../s2f/r1/target/api-errors-excerpt.log           |      0
+ .../s2f/r1/target/batch-counts.txt                 |      1 +
+ .../s2f/r1/target/batch-s2f-r1-recon.log           |     62 +
+ .../ec2-async-credit/s2f/r1/target/batch.txt       |      1 +
+ .../ec2-async-credit/s2f/r1/target/boundary.env    |      6 +
+ .../ec2-async-credit/s2f/r1/target/disk.log        |      1 +
+ .../s2f/r1/target/failed-keys-target.txt           |      6 +
+ .../s2f/r1/target/failed-transfers.txt             |      0
+ .../s2f/r1/target/integrity-target.txt             |     24 +
+ .../ec2-async-credit/s2f/r1/target/log-counts.txt  |      6 +
+ .../s2f/r1/target/pending-credits.csv              |  31103 ++++
+ .../s2f/r1/target/pg_stat_activity.csv             |    133 +
+ .../s2f/r1/target/postgres-excerpt.log             |      3 +
+ .../s2f/r1/warmup/failed-transfers.txt             |      0
+ .../ec2-async-credit/s2f/r1/warmup/k6-end.txt      |      1 +
+ .../ec2-async-credit/s2f/r1/warmup/k6-exit.txt     |      1 +
+ .../ec2-async-credit/s2f/r1/warmup/k6-start.txt    |      1 +
+ .../ec2-async-credit/s2f/r1/warmup/k6-summary.json |    197 +
+ perf/results/ec2-async-credit/s2f/r1/warmup/k6.log |     40 +
+ perf/results/ec2-async-credit/s2f/r2/artifacts.txt |      2 +
+ .../ec2-async-credit/s2f/r2/credit-lag.json        |     77 +
+ perf/results/ec2-async-credit/s2f/r2/credit-lag.md |     17 +
+ .../results/ec2-async-credit/s2f/r2/environment.md |     10 +
+ perf/results/ec2-async-credit/s2f/r2/integrity.md  |     25 +
+ .../ec2-async-credit/s2f/r2/loadgen/analysis.json  |      1 +
+ .../s2f/r2/loadgen/failed-transfers.txt            |      2 +
+ .../ec2-async-credit/s2f/r2/loadgen/k6-end.txt     |      1 +
+ .../ec2-async-credit/s2f/r2/loadgen/k6-exit.txt    |      1 +
+ .../ec2-async-credit/s2f/r2/loadgen/k6-start.txt   |      1 +
+ .../s2f/r2/loadgen/k6-summary.json                 |    180 +
+ .../results/ec2-async-credit/s2f/r2/loadgen/k6.log |     41 +
+ .../ec2-async-credit/s2f/r2/loadgen/monitor.log    |     10 +
+ .../s2f/r2/loadgen/prometheus/gaps.txt             |      8 +
+ .../s2f/r2/loadgen/prometheus/query_range.json.gz  |    Bin 0 -> 53672 bytes
+ .../ec2-async-credit/s2f/r2/loadgen/ramp.json      |      1 +
+ .../s2f/r2/target/api-errors-excerpt.log           |      0
+ .../s2f/r2/target/batch-counts.txt                 |      1 +
+ .../s2f/r2/target/batch-s2f-r2-recon.log           |     62 +
+ .../ec2-async-credit/s2f/r2/target/batch.txt       |      1 +
+ .../ec2-async-credit/s2f/r2/target/boundary.env    |      6 +
+ .../ec2-async-credit/s2f/r2/target/disk.log        |      1 +
+ .../s2f/r2/target/failed-keys-target.txt           |      8 +
+ .../s2f/r2/target/failed-transfers.txt             |      2 +
+ .../s2f/r2/target/integrity-target.txt             |     24 +
+ .../ec2-async-credit/s2f/r2/target/log-counts.txt  |      6 +
+ .../s2f/r2/target/pending-credits.csv              |  45215 ++++++
+ .../s2f/r2/target/pg_stat_activity.csv             |    166 +
+ .../s2f/r2/target/postgres-excerpt.log             |      3 +
+ .../s2f/r2/warmup/failed-transfers.txt             |      0
+ .../ec2-async-credit/s2f/r2/warmup/k6-end.txt      |      1 +
+ .../ec2-async-credit/s2f/r2/warmup/k6-exit.txt     |      1 +
+ .../ec2-async-credit/s2f/r2/warmup/k6-start.txt    |      1 +
+ .../ec2-async-credit/s2f/r2/warmup/k6-summary.json |    197 +
+ perf/results/ec2-async-credit/s2f/r2/warmup/k6.log |     40 +
+ perf/results/ec2-async-credit/s2f/r3/artifacts.txt |      2 +
+ .../ec2-async-credit/s2f/r3/credit-lag.json        |     56 +
+ perf/results/ec2-async-credit/s2f/r3/credit-lag.md |     14 +
+ .../results/ec2-async-credit/s2f/r3/environment.md |     10 +
+ perf/results/ec2-async-credit/s2f/r3/integrity.md  |     25 +
+ .../ec2-async-credit/s2f/r3/loadgen/analysis.json  |      1 +
+ .../s2f/r3/loadgen/failed-transfers.txt            |      1 +
+ .../ec2-async-credit/s2f/r3/loadgen/k6-end.txt     |      1 +
+ .../ec2-async-credit/s2f/r3/loadgen/k6-exit.txt    |      1 +
+ .../ec2-async-credit/s2f/r3/loadgen/k6-start.txt   |      1 +
+ .../s2f/r3/loadgen/k6-summary.json                 |    173 +
+ .../results/ec2-async-credit/s2f/r3/loadgen/k6.log |     39 +
+ .../ec2-async-credit/s2f/r3/loadgen/monitor.log    |      7 +
+ .../s2f/r3/loadgen/prometheus/gaps.txt             |      8 +
+ .../s2f/r3/loadgen/prometheus/query_range.json.gz  |    Bin 0 -> 40977 bytes
+ .../ec2-async-credit/s2f/r3/loadgen/ramp.json      |      1 +
+ .../s2f/r3/target/api-errors-excerpt.log           |      0
+ .../s2f/r3/target/batch-counts.txt                 |      1 +
+ .../s2f/r3/target/batch-s2f-r3-recon.log           |     62 +
+ .../ec2-async-credit/s2f/r3/target/batch.txt       |      1 +
+ .../ec2-async-credit/s2f/r3/target/boundary.env    |      6 +
+ .../ec2-async-credit/s2f/r3/target/disk.log        |      1 +
+ .../s2f/r3/target/failed-keys-target.txt           |      8 +
+ .../s2f/r3/target/failed-transfers.txt             |      1 +
+ .../s2f/r3/target/integrity-target.txt             |     24 +
+ .../ec2-async-credit/s2f/r3/target/log-counts.txt  |      6 +
+ .../s2f/r3/target/pending-credits.csv              |  24952 ++++
+ .../s2f/r3/target/pg_stat_activity.csv             |    110 +
+ .../s2f/r3/target/postgres-excerpt.log             |      3 +
+ .../s2f/r3/warmup/failed-transfers.txt             |      0
+ .../ec2-async-credit/s2f/r3/warmup/k6-end.txt      |      1 +
+ .../ec2-async-credit/s2f/r3/warmup/k6-exit.txt     |      1 +
+ .../ec2-async-credit/s2f/r3/warmup/k6-start.txt    |      1 +
+ .../ec2-async-credit/s2f/r3/warmup/k6-summary.json |    197 +
+ perf/results/ec2-async-credit/s2f/r3/warmup/k6.log |     40 +
+ perf/results/ec2-async-credit/s2f/r4/artifacts.txt |      2 +
+ .../ec2-async-credit/s2f/r4/credit-lag.json        |     84 +
+ perf/results/ec2-async-credit/s2f/r4/credit-lag.md |     18 +
+ .../results/ec2-async-credit/s2f/r4/environment.md |     10 +
+ perf/results/ec2-async-credit/s2f/r4/integrity.md  |     25 +
+ .../ec2-async-credit/s2f/r4/loadgen/analysis.json  |      1 +
+ .../s2f/r4/loadgen/failed-transfers.txt            |   5972 +
+ .../ec2-async-credit/s2f/r4/loadgen/k6-end.txt     |      1 +
+ .../ec2-async-credit/s2f/r4/loadgen/k6-exit.txt    |      1 +
+ .../ec2-async-credit/s2f/r4/loadgen/k6-start.txt   |      1 +
+ .../s2f/r4/loadgen/k6-summary.json                 |    180 +
+ .../results/ec2-async-credit/s2f/r4/loadgen/k6.log |  15718 ++
+ .../ec2-async-credit/s2f/r4/loadgen/monitor.log    |     11 +
+ .../s2f/r4/loadgen/prometheus/gaps.txt             |      8 +
+ .../s2f/r4/loadgen/prometheus/query_range.json.gz  |    Bin 0 -> 59076 bytes
+ .../ec2-async-credit/s2f/r4/loadgen/ramp.json      |      1 +
+ .../s2f/r4/target/api-errors-excerpt.log           |      0
+ .../s2f/r4/target/batch-counts.txt                 |      1 +
+ .../s2f/r4/target/batch-s2f-r4-recon.log           |     63 +
+ .../ec2-async-credit/s2f/r4/target/batch.txt       |      1 +
+ .../ec2-async-credit/s2f/r4/target/boundary.env    |      6 +
+ .../ec2-async-credit/s2f/r4/target/disk.log        |      1 +
+ .../s2f/r4/target/failed-keys-target.txt           |      8 +
+ .../s2f/r4/target/failed-transfers.txt             |   5972 +
+ .../s2f/r4/target/integrity-target.txt             |     24 +
+ .../ec2-async-credit/s2f/r4/target/log-counts.txt  |      6 +
+ .../s2f/r4/target/pending-credits.csv              |  46231 ++++++
+ .../s2f/r4/target/pg_stat_activity.csv             |    199 +
+ .../s2f/r4/target/postgres-excerpt.log             |      3 +
+ .../s2f/r4/warmup/failed-transfers.txt             |      0
+ .../ec2-async-credit/s2f/r4/warmup/k6-end.txt      |      1 +
+ .../ec2-async-credit/s2f/r4/warmup/k6-exit.txt     |      1 +
+ .../ec2-async-credit/s2f/r4/warmup/k6-start.txt    |      1 +
+ .../ec2-async-credit/s2f/r4/warmup/k6-summary.json |    197 +
+ perf/results/ec2-async-credit/s2f/r4/warmup/k6.log |     40 +
+ perf/results/ec2-async-credit/s2f/r5/artifacts.txt |      2 +
+ .../ec2-async-credit/s2f/r5/credit-lag.json        |    140 +
+ perf/results/ec2-async-credit/s2f/r5/credit-lag.md |     26 +
+ .../results/ec2-async-credit/s2f/r5/environment.md |     10 +
+ perf/results/ec2-async-credit/s2f/r5/integrity.md  |     25 +
+ .../ec2-async-credit/s2f/r5/loadgen/analysis.json  |      1 +
+ .../s2f/r5/loadgen/failed-transfers.txt            |    473 +
+ .../ec2-async-credit/s2f/r5/loadgen/k6-end.txt     |      1 +
+ .../ec2-async-credit/s2f/r5/loadgen/k6-exit.txt    |      1 +
+ .../ec2-async-credit/s2f/r5/loadgen/k6-start.txt   |      1 +
+ .../s2f/r5/loadgen/k6-summary.json                 |    180 +
+ .../results/ec2-async-credit/s2f/r5/loadgen/k6.log |   1438 +
+ .../ec2-async-credit/s2f/r5/loadgen/monitor.log    |     19 +
+ .../s2f/r5/loadgen/prometheus/gaps.txt             |      8 +
+ .../s2f/r5/loadgen/prometheus/query_range.json.gz  |    Bin 0 -> 92603 bytes
+ .../ec2-async-credit/s2f/r5/loadgen/ramp.json      |      1 +
+ .../s2f/r5/target/api-errors-excerpt.log           |      0
+ .../s2f/r5/target/batch-counts.txt                 |      1 +
+ .../s2f/r5/target/batch-s2f-r5-recon.log           |     63 +
+ .../ec2-async-credit/s2f/r5/target/batch.txt       |      1 +
+ .../ec2-async-credit/s2f/r5/target/boundary.env    |      6 +
+ .../ec2-async-credit/s2f/r5/target/disk.log        |      1 +
+ .../s2f/r5/target/failed-keys-target.txt           |      8 +
+ .../s2f/r5/target/failed-transfers.txt             |    473 +
+ .../s2f/r5/target/integrity-target.txt             |     24 +
+ .../ec2-async-credit/s2f/r5/target/log-counts.txt  |      6 +
+ .../s2f/r5/target/pending-credits.csv              | 134927 ++++++++++++++++++
+ .../s2f/r5/target/pg_stat_activity.csv             |    370 +
+ .../s2f/r5/target/postgres-excerpt.log             |      8 +
+ .../s2f/r5/warmup/failed-transfers.txt             |      0
+ .../ec2-async-credit/s2f/r5/warmup/k6-end.txt      |      1 +
+ .../ec2-async-credit/s2f/r5/warmup/k6-exit.txt     |      1 +
+ .../ec2-async-credit/s2f/r5/warmup/k6-start.txt    |      1 +
+ .../ec2-async-credit/s2f/r5/warmup/k6-summary.json |    197 +
+ perf/results/ec2-async-credit/s2f/r5/warmup/k6.log |     40 +
+ perf/results/ec2-async-credit/s2f/r6/artifacts.txt |      2 +
+ .../ec2-async-credit/s2f/r6/credit-lag.json        |     84 +
+ perf/results/ec2-async-credit/s2f/r6/credit-lag.md |     18 +
+ .../results/ec2-async-credit/s2f/r6/environment.md |     10 +
+ perf/results/ec2-async-credit/s2f/r6/integrity.md  |     25 +
+ .../ec2-async-credit/s2f/r6/loadgen/analysis.json  |      1 +
+ .../s2f/r6/loadgen/failed-transfers.txt            |      0
+ .../ec2-async-credit/s2f/r6/loadgen/k6-end.txt     |      1 +
+ .../ec2-async-credit/s2f/r6/loadgen/k6-exit.txt    |      1 +
+ .../ec2-async-credit/s2f/r6/loadgen/k6-start.txt   |      1 +
+ .../s2f/r6/loadgen/k6-summary.json                 |    180 +
+ .../results/ec2-async-credit/s2f/r6/loadgen/k6.log |     39 +
+ .../ec2-async-credit/s2f/r6/loadgen/monitor.log    |     11 +
+ .../s2f/r6/loadgen/prometheus/gaps.txt             |      8 +
+ .../s2f/r6/loadgen/prometheus/query_range.json.gz  |    Bin 0 -> 58475 bytes
+ .../ec2-async-credit/s2f/r6/loadgen/ramp.json      |      1 +
+ .../s2f/r6/target/api-errors-excerpt.log           |      0
+ .../s2f/r6/target/batch-counts.txt                 |      1 +
+ .../s2f/r6/target/batch-s2f-r6-recon.log           |     62 +
+ .../ec2-async-credit/s2f/r6/target/batch.txt       |      1 +
+ .../ec2-async-credit/s2f/r6/target/boundary.env    |      6 +
+ .../ec2-async-credit/s2f/r6/target/disk.log        |      1 +
+ .../s2f/r6/target/failed-keys-target.txt           |      6 +
+ .../s2f/r6/target/failed-transfers.txt             |      0
+ .../s2f/r6/target/integrity-target.txt             |     24 +
+ .../ec2-async-credit/s2f/r6/target/log-counts.txt  |      6 +
+ .../s2f/r6/target/pending-credits.csv              |  52987 +++++++
+ .../s2f/r6/target/pg_stat_activity.csv             |    187 +
+ .../s2f/r6/target/postgres-excerpt.log             |      1 +
+ .../s2f/r6/warmup/failed-transfers.txt             |      0
+ .../ec2-async-credit/s2f/r6/warmup/k6-end.txt      |      1 +
+ .../ec2-async-credit/s2f/r6/warmup/k6-exit.txt     |      1 +
+ .../ec2-async-credit/s2f/r6/warmup/k6-start.txt    |      1 +
+ .../ec2-async-credit/s2f/r6/warmup/k6-summary.json |    197 +
+ perf/results/ec2-async-credit/s2f/r6/warmup/k6.log |     40 +
+ perf/results/ec2-async-credit/summary.md           |     89 +
+ perf/run-ec2.py                                    |     93 +-
+ 305 files changed, 384974 insertions(+), 65 deletions(-)
+

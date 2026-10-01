@@ -1,0 +1,56 @@
+{
+ "stages": [
+  {
+   "target_rps": 40,
+   "count": 2001,
+   "unapplied": 0,
+   "p95_ms": 216.4,
+   "max_ms": 490.7
+  },
+  {
+   "target_rps": 50,
+   "count": 2500,
+   "unapplied": 0,
+   "p95_ms": 214.0,
+   "max_ms": 540.4
+  },
+  {
+   "target_rps": 60,
+   "count": 3000,
+   "unapplied": 0,
+   "p95_ms": 218.4,
+   "max_ms": 628.3
+  },
+  {
+   "target_rps": 70,
+   "count": 3500,
+   "unapplied": 0,
+   "p95_ms": 220.0,
+   "max_ms": 598.6
+  },
+  {
+   "target_rps": 80,
+   "count": 3991,
+   "unapplied": 0,
+   "p95_ms": 408.2,
+   "max_ms": 1883.3
+  },
+  {
+   "target_rps": 90,
+   "count": 4500,
+   "unapplied": 0,
+   "p95_ms": 232.8,
+   "max_ms": 597.5
+  },
+  {
+   "target_rps": 100,
+   "count": 600,
+   "unapplied": 0,
+   "p95_ms": 227.4,
+   "max_ms": 262.4
+  }
+ ],
+ "judge_p95_ms": 220.0,
+ "total": 24952,
+ "unapplied_total": 0
+}

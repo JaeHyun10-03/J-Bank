@@ -1,0 +1,166 @@
+2026-09-30 13:40:59.918903+00,Client,ClientRead,idle,11
+2026-09-30 13:40:59.918903+00,-,-,active,1
+2026-09-30 13:41:10.216824+00,Client,ClientRead,idle,10
+2026-09-30 13:41:10.216824+00,-,-,active,1
+2026-09-30 13:41:10.216824+00,Client,ClientRead,idle in transaction,1
+2026-09-30 13:41:20.614082+00,Client,ClientRead,idle,10
+2026-09-30 13:41:20.614082+00,-,-,active,1
+2026-09-30 13:41:20.614082+00,Client,ClientRead,idle in transaction,1
+2026-09-30 13:41:30.844972+00,Client,ClientRead,idle,11
+2026-09-30 13:41:30.844972+00,-,-,active,1
+2026-09-30 13:41:41.081442+00,Client,ClientRead,idle,11
+2026-09-30 13:41:41.081442+00,-,-,active,1
+2026-09-30 13:41:51.282691+00,Client,ClientRead,idle,11
+2026-09-30 13:41:51.282691+00,-,-,active,1
+2026-09-30 13:42:01.72421+00,Client,ClientRead,idle,11
+2026-09-30 13:42:01.72421+00,-,-,active,1
+2026-09-30 13:42:12.046995+00,Client,ClientRead,idle,11
+2026-09-30 13:42:12.046995+00,-,-,active,1
+2026-09-30 13:42:22.27883+00,Client,ClientRead,idle,11
+2026-09-30 13:42:22.27883+00,-,-,active,1
+2026-09-30 13:42:32.518065+00,Client,ClientRead,idle,10
+2026-09-30 13:42:32.518065+00,-,-,active,1
+2026-09-30 13:42:32.518065+00,-,-,idle in transaction,1
+2026-09-30 13:42:42.781759+00,Client,ClientRead,idle,11
+2026-09-30 13:42:42.781759+00,-,-,active,1
+2026-09-30 13:42:53.177675+00,Client,ClientRead,idle,10
+2026-09-30 13:42:53.177675+00,-,-,active,2
+2026-09-30 13:43:03.607816+00,Client,ClientRead,idle,11
+2026-09-30 13:43:03.607816+00,-,-,active,1
+2026-09-30 13:43:13.912904+00,Client,ClientRead,idle,10
+2026-09-30 13:43:13.912904+00,-,-,active,1
+2026-09-30 13:43:13.912904+00,Client,ClientRead,idle in transaction,1
+2026-09-30 13:43:24.208562+00,Client,ClientRead,idle,11
+2026-09-30 13:43:24.208562+00,-,-,active,1
+2026-09-30 13:43:34.51927+00,Client,ClientRead,idle,11
+2026-09-30 13:43:34.51927+00,-,-,active,1
+2026-09-30 13:43:44.798279+00,Client,ClientRead,idle,11
+2026-09-30 13:43:44.798279+00,-,-,active,1
+2026-09-30 13:43:55.254949+00,Client,ClientRead,idle,10
+2026-09-30 13:43:55.254949+00,-,-,active,1
+2026-09-30 13:43:55.254949+00,IO,WALSync,active,1
+2026-09-30 13:44:05.678185+00,Client,ClientRead,idle,10
+2026-09-30 13:44:05.678185+00,-,-,active,1
+2026-09-30 13:44:05.678185+00,Client,ClientRead,idle in transaction,1
+2026-09-30 13:44:15.962643+00,Client,ClientRead,idle,11
+2026-09-30 13:44:15.962643+00,-,-,active,1
+2026-09-30 13:44:26.31649+00,Client,ClientRead,idle,11
+2026-09-30 13:44:26.31649+00,-,-,active,1
+2026-09-30 13:44:36.595908+00,Client,ClientRead,idle,10
+2026-09-30 13:44:36.595908+00,-,-,active,1
+2026-09-30 13:44:36.595908+00,-,-,idle,1
+2026-09-30 13:44:46.870338+00,Client,ClientRead,idle,11
+2026-09-30 13:44:46.870338+00,-,-,active,1
+2026-09-30 13:44:57.158454+00,Client,ClientRead,idle,11
+2026-09-30 13:44:57.158454+00,-,-,active,1
+2026-09-30 13:45:07.741557+00,Client,ClientRead,idle,9
+2026-09-30 13:45:07.741557+00,Client,ClientRead,idle in transaction,2
+2026-09-30 13:45:07.741557+00,-,-,active,1
+2026-09-30 13:45:18.069209+00,Client,ClientRead,idle,11
+2026-09-30 13:45:18.069209+00,-,-,active,1
+2026-09-30 13:45:28.535625+00,Client,ClientRead,idle,7
+2026-09-30 13:45:28.535625+00,Client,ClientRead,idle in transaction,2
+2026-09-30 13:45:28.535625+00,-,-,active,1
+2026-09-30 13:45:28.535625+00,-,-,idle in transaction,1
+2026-09-30 13:45:28.535625+00,Client,ClientRead,active,1
+2026-09-30 13:45:38.872097+00,Client,ClientRead,idle,11
+2026-09-30 13:45:38.872097+00,-,-,active,1
+2026-09-30 13:45:49.174075+00,Client,ClientRead,idle,10
+2026-09-30 13:45:49.174075+00,-,-,active,1
+2026-09-30 13:45:49.174075+00,-,-,idle in transaction,1
+2026-09-30 13:45:59.468472+00,Client,ClientRead,idle,11
+2026-09-30 13:45:59.468472+00,-,-,active,1
+2026-09-30 13:46:09.755875+00,Client,ClientRead,idle,11
+2026-09-30 13:46:09.755875+00,-,-,active,1
+2026-09-30 13:46:20.028331+00,Client,ClientRead,idle,11
+2026-09-30 13:46:20.028331+00,-,-,active,1
+2026-09-30 13:46:30.379919+00,Client,ClientRead,idle,10
+2026-09-30 13:46:30.379919+00,-,-,active,1
+2026-09-30 13:46:30.379919+00,Client,ClientRead,idle in transaction,1
+2026-09-30 13:46:40.69809+00,Client,ClientRead,idle,11
+2026-09-30 13:46:40.69809+00,-,-,active,1
+2026-09-30 13:46:51.004974+00,Client,ClientRead,idle,11
+2026-09-30 13:46:51.004974+00,-,-,active,1
+2026-09-30 13:47:01.574084+00,Client,ClientRead,idle,10
+2026-09-30 13:47:01.574084+00,-,-,active,2
+2026-09-30 13:47:11.870247+00,Client,ClientRead,idle,11
+2026-09-30 13:47:11.870247+00,-,-,active,1
+2026-09-30 13:47:22.137066+00,Client,ClientRead,idle,10
+2026-09-30 13:47:22.137066+00,-,-,active,2
+2026-09-30 13:47:32.501223+00,Client,ClientRead,idle,11
+2026-09-30 13:47:32.501223+00,-,-,active,1
+2026-09-30 13:47:42.870719+00,Client,ClientRead,idle,10
+2026-09-30 13:47:42.870719+00,-,-,active,1
+2026-09-30 13:47:42.870719+00,IO,WALSync,active,1
+2026-09-30 13:47:53.186924+00,Client,ClientRead,idle,10
+2026-09-30 13:47:53.186924+00,-,-,active,1
+2026-09-30 13:47:53.186924+00,Client,ClientRead,active,1
+2026-09-30 13:48:03.774711+00,Client,ClientRead,idle,7
+2026-09-30 13:48:03.774711+00,-,-,active,3
+2026-09-30 13:48:03.774711+00,Client,ClientRead,idle in transaction,2
+2026-09-30 13:48:14.16772+00,Client,ClientRead,idle,10
+2026-09-30 13:48:14.16772+00,-,-,active,2
+2026-09-30 13:48:24.482902+00,Client,ClientRead,idle,10
+2026-09-30 13:48:24.482902+00,-,-,active,1
+2026-09-30 13:48:24.482902+00,Client,ClientRead,idle in transaction,1
+2026-09-30 13:48:34.970542+00,Client,ClientRead,idle,9
+2026-09-30 13:48:34.970542+00,-,-,active,1
+2026-09-30 13:48:34.970542+00,Client,ClientRead,active,1
+2026-09-30 13:48:34.970542+00,Client,ClientRead,idle in transaction,1
+2026-09-30 13:48:45.397487+00,Client,ClientRead,idle,7
+2026-09-30 13:48:45.397487+00,-,-,active,2
+2026-09-30 13:48:45.397487+00,LWLock,WALWrite,active,2
+2026-09-30 13:48:45.397487+00,-,-,idle,1
+2026-09-30 13:48:45.397487+00,IO,WALWrite,active,1
+2026-09-30 13:48:55.757071+00,Client,ClientRead,idle,10
+2026-09-30 13:48:55.757071+00,-,-,active,1
+2026-09-30 13:48:55.757071+00,Client,ClientRead,idle in transaction,1
+2026-09-30 13:49:06.251787+00,Client,ClientRead,idle,10
+2026-09-30 13:49:06.251787+00,-,-,active,1
+2026-09-30 13:49:06.251787+00,Client,ClientRead,idle in transaction,1
+2026-09-30 13:49:16.635347+00,Client,ClientRead,idle,8
+2026-09-30 13:49:16.635347+00,Client,ClientRead,idle in transaction,2
+2026-09-30 13:49:16.635347+00,-,-,active,1
+2026-09-30 13:49:16.635347+00,-,-,idle in transaction,1
+2026-09-30 13:49:26.976935+00,Client,ClientRead,idle,10
+2026-09-30 13:49:26.976935+00,-,-,active,1
+2026-09-30 13:49:26.976935+00,Client,ClientRead,idle in transaction,1
+2026-09-30 13:49:37.354383+00,Client,ClientRead,idle,9
+2026-09-30 13:49:37.354383+00,Client,ClientRead,idle in transaction,2
+2026-09-30 13:49:37.354383+00,-,-,active,1
+2026-09-30 13:49:47.693909+00,Client,ClientRead,idle,10
+2026-09-30 13:49:47.693909+00,-,-,active,1
+2026-09-30 13:49:47.693909+00,-,-,idle,1
+2026-09-30 13:49:58.033605+00,Client,ClientRead,idle,10
+2026-09-30 13:49:58.033605+00,-,-,active,1
+2026-09-30 13:49:58.033605+00,Client,ClientRead,idle in transaction,1
+2026-09-30 13:50:09.067974+00,Client,ClientRead,idle in transaction,6
+2026-09-30 13:50:09.067974+00,Client,ClientRead,idle,5
+2026-09-30 13:50:09.067974+00,-,-,active,1
+2026-09-30 13:50:19.554341+00,Client,ClientRead,idle,9
+2026-09-30 13:50:19.554341+00,-,-,active,1
+2026-09-30 13:50:19.554341+00,-,-,idle in transaction,1
+2026-09-30 13:50:19.554341+00,IO,WALSync,active,1
+2026-09-30 13:50:30.309062+00,Client,ClientRead,idle in transaction,6
+2026-09-30 13:50:30.309062+00,Client,ClientRead,idle,4
+2026-09-30 13:50:30.309062+00,-,-,active,1
+2026-09-30 13:50:30.309062+00,IO,WALSync,active,1
+2026-09-30 13:50:40.92659+00,Client,ClientRead,idle,10
+2026-09-30 13:50:40.92659+00,-,-,active,1
+2026-09-30 13:50:40.92659+00,Client,ClientRead,idle in transaction,1
+2026-09-30 13:50:51.437496+00,Client,ClientRead,idle,10
+2026-09-30 13:50:51.437496+00,-,-,active,1
+2026-09-30 13:50:51.437496+00,Client,ClientRead,idle in transaction,1
+2026-09-30 13:51:02.83947+00,Client,ClientRead,idle in transaction,8
+2026-09-30 13:51:02.83947+00,Client,ClientRead,idle,3
+2026-09-30 13:51:02.83947+00,-,-,active,1
+2026-09-30 13:51:13.566954+00,Client,ClientRead,idle,8
+2026-09-30 13:51:13.566954+00,-,-,active,2
+2026-09-30 13:51:13.566954+00,Client,ClientRead,idle in transaction,1
+2026-09-30 13:51:13.566954+00,IO,WALSync,active,1
+2026-09-30 13:51:13.566954+00,LWLock,WALWrite,active,1
+2026-09-30 13:51:24.083044+00,Client,ClientRead,idle,10
+2026-09-30 13:51:24.083044+00,-,-,active,2
+2026-09-30 13:51:34.632921+00,Client,ClientRead,idle,10
+2026-09-30 13:51:34.632921+00,-,-,active,1
+2026-09-30 13:51:34.632921+00,Client,ClientRead,active,1

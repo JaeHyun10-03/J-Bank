@@ -1,0 +1,39 @@
+time="2026-09-30T14:03:59Z" level=warning msg="Legacy env var detected, use --features or K6_FEATURES instead" env=K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM feature=native-histograms lifecycle=deprecated_alias source=env_legacy_alias
+time="2026-09-30T14:03:59Z" level=info msg="Experimental feature enabled" feature=native-histograms lifecycle=experimental
+time="2026-09-30T14:04:22Z" level=info msg="SCENARIO_START 2026-09-30T14:04:22.490Z" source=console
+time="2026-09-30T14:11:38Z" level=info msg="FAILKEY f889233d-975e-4ffd-80f4-5656b82de997 0 hot-transfer" source=console
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 33887   73.937829/s
+    checks_succeeded...: 100.00% 33887 out of 33887
+    checks_failed......: 0.00%   0 out of 33887
+
+    ✓ setup-login 200
+    ✓ parallel-balance 200
+    ✓ hot-transfer 201
+
+    CUSTOM
+    relogin_after_minutes..........: min=9.010717 med=10.661791 avg=10.5662 p(90)=11.710656 p(95)=11.829426 p(99)=11.958237 max=11.974591
+
+    HTTP
+    http_req_duration..............: min=1.93ms   med=8.02ms    avg=19.48ms p(90)=18.94ms   p(95)=31.03ms   p(99)=226.41ms  max=2.62s    
+      { expected_response:true }...: min=1.93ms   med=8.02ms    avg=19.48ms p(90)=18.94ms   p(95)=31.03ms   p(99)=226.41ms  max=2.62s    
+    http_req_failed................: 0.00%  0 out of 33887
+    http_reqs......................: 33887  73.937829/s
+
+    EXECUTION
+    dropped_iterations.............: 12     0.026183/s
+    iteration_duration.............: min=2.07ms   med=8.3ms     avg=19.24ms p(90)=18.63ms   p(95)=28.75ms   p(99)=226.71ms  max=2.62s    
+    iterations.....................: 33667  73.457813/s
+    vus............................: 0      min=0          max=126
+    vus_max........................: 132    min=120        max=132
+
+    NETWORK
+    data_received..................: 12 MB  26 kB/s
+    data_sent......................: 6.0 MB 13 kB/s
+
+
+
+time="2026-09-30T14:11:38Z" level=error msg="test run was aborted because k6 received a 'interrupt' signal"

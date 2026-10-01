@@ -2,6 +2,8 @@ package com.jbank.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mockingDetails;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -24,6 +26,7 @@ import com.jbank.ledger.repository.LedgerEntryRepository;
 import com.jbank.transfer.domain.Transaction;
 import com.jbank.transfer.domain.TransactionType;
 import com.jbank.transfer.repository.TransactionRepository;
+import com.jbank.transfer.service.CreditApplier;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -31,6 +34,8 @@ import java.util.Base64;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,13 +53,18 @@ import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 /** 원장 정합성 대사 배치 잡(구현계획 W5)이 불일치를 정확히 로그로 잡아내는지 검증한다. */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+// 입금 반영 워커는 끄고, 반영이 필요하면 테스트가 반영 서비스를 직접 부른다(ADR 0012).
+@TestPropertySource(properties = "jbank.transfer.credit-worker.enabled=false")
 @SpringBatchTest
 class LedgerReconciliationJobIntegrationTest {
 
@@ -88,8 +98,10 @@ class LedgerReconciliationJobIntegrationTest {
   @Autowired private CustomerRepository customerRepository;
   @Autowired private AccountRepository accountRepository;
   @Autowired private TransactionRepository transactionRepository;
-  @Autowired private LedgerEntryRepository ledgerEntryRepository;
+  @MockitoSpyBean private LedgerEntryRepository ledgerEntryRepository;
+  @Autowired private CreditApplier creditApplier;
   @Autowired private RedissonClient redissonClient;
+  @Autowired private JdbcTemplate jdbcTemplate;
 
   private ListAppender<ILoggingEvent> appender;
 
@@ -205,6 +217,92 @@ class LedgerReconciliationJobIntegrationTest {
     } finally {
       release.countDown();
       lockHolder.shutdown();
+    }
+  }
+
+  @Test
+  void 일분_넘게_반영되지_않은_입금이_있으면_경고한다() throws Exception {
+    Long customerId = saveCustomer();
+    Account to = saveAccount(customerId, BigDecimal.ZERO);
+    Transaction transaction = saveCompletedTransaction(null, to, new BigDecimal("100.00"));
+    jdbcTemplate.update(
+        "insert into pending_credits (transaction_id, account_id, amount, created_at) "
+            + "values (?, ?, 100.00, clock_timestamp() - interval '2 minutes')",
+        transaction.getTransactionId(),
+        to.getAccountId());
+    try {
+      jobLauncherTestUtils.launchJob(
+          new JobParametersBuilder().addString("runDate", "2026-08-16").toJobParameters());
+
+      assertThat(appender.list)
+          .anyMatch(
+              event ->
+                  event.getLevel() == Level.WARN
+                      && event.getFormattedMessage().contains("1분 넘게 반영되지 않은 입금 대기: 1건"));
+    } finally {
+      jdbcTemplate.update("delete from pending_credits where account_id = ?", to.getAccountId());
+    }
+  }
+
+  @Test
+  void 대사_도중_입금이_반영돼도_계좌_불일치로_오탐하지_않는다() throws Exception {
+    Long customerId = saveCustomer();
+    Account from = saveAccount(customerId, BigDecimal.ZERO);
+    Account to = saveAccount(customerId, BigDecimal.ZERO);
+    Transaction transaction = saveCompletedTransaction(from, to, new BigDecimal("100.00"));
+    jdbcTemplate.update(
+        "insert into pending_credits (transaction_id, account_id, amount) values (?, ?, 100.00)",
+        transaction.getTransactionId(),
+        to.getAccountId());
+
+    // 원장 합을 읽은 직후, 잔액 캐시를 읽기 전에 다른 트랜잭션이 반영을 커밋한다. 스텝이 REPEATABLE READ가
+    // 아니면 원장 합은 반영 전, 잔액은 반영 후 값을 보게 돼 이 계좌가 불일치로 잡힌다.
+    AtomicBoolean applied = new AtomicBoolean();
+    doAnswer(
+            invocation -> {
+              // 리포지터리 스파이는 실제 빈에 위임하는 기본 응답을 쓴다(인터페이스라 callRealMethod 불가).
+              Object result =
+                  mockingDetails(ledgerEntryRepository)
+                      .getMockCreationSettings()
+                      .getDefaultAnswer()
+                      .answer(invocation);
+              if (applied.compareAndSet(false, true)) {
+                ExecutorService other = Executors.newSingleThreadExecutor();
+                try {
+                  other
+                      .submit(() -> creditApplier.applyForAccount(to.getAccountId()))
+                      .get(30, TimeUnit.SECONDS);
+                } finally {
+                  other.shutdown();
+                }
+              }
+              return result;
+            })
+        .when(ledgerEntryRepository)
+        .sumBalanceByAccount();
+    try {
+      JobExecution execution =
+          jobLauncherTestUtils.launchJob(
+              new JobParametersBuilder().addString("runDate", "2026-08-18").toJobParameters());
+
+      assertThat(execution.getStatus()).isEqualTo(BatchStatus.COMPLETED);
+      assertThat(applied).isTrue();
+      assertThat(
+              accountRepository.findById(to.getAccountId()).orElseThrow().getCurrentBalanceCache())
+          .isEqualByComparingTo("100.00");
+      assertThat(appender.list)
+          .noneMatch(
+              event ->
+                  event.getFormattedMessage().contains("계좌 잔액 불일치")
+                      && event
+                          .getFormattedMessage()
+                          .contains("accountId=" + to.getAccountId() + ","));
+    } finally {
+      // 차변 없는 입금이라 전체 차변/대변 식을 깨므로 다른 테스트를 위해 되돌린다.
+      jdbcTemplate.update("delete from ledger_entries where account_id = ?", to.getAccountId());
+      jdbcTemplate.update("delete from pending_credits where account_id = ?", to.getAccountId());
+      jdbcTemplate.update(
+          "update accounts set current_balance_cache = 0 where account_id = ?", to.getAccountId());
     }
   }
 

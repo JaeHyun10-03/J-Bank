@@ -4,3 +4,9 @@ spring:
   batch:
     job:
       enabled: true
+
+# 배치 JVM은 api와 같은 이미지다. 입금 반영 워커가 여기서도 돌면 원장 대사와 동시에 잔액을 바꾼다(ADR 0012).
+jbank:
+  transfer:
+    credit-worker:
+      enabled: false

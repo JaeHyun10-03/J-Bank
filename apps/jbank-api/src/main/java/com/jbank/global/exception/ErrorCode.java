@@ -22,6 +22,7 @@ public enum ErrorCode {
   ACC_009_ACCOUNT_STATUS_INVALID(HttpStatus.CONFLICT, "정지 또는 해지된 계좌입니다"),
   ACC_010_HOLD_AMOUNT_REMAINS(HttpStatus.CONFLICT, "지급정지 금액이 남아있어 해지할 수 없습니다"),
   ACC_011_DUPLICATE_LOGIN_ID(HttpStatus.CONFLICT, "이미 사용 중인 로그인ID입니다"),
+  ACC_012_PENDING_CREDIT_EXISTS(HttpStatus.CONFLICT, "처리 중인 입금이 있어 해지할 수 없습니다"),
 
   TXN_001_INSUFFICIENT_BALANCE(HttpStatus.CONFLICT, "출금 가능 금액을 초과했습니다"),
   TXN_002_SAME_ACCOUNT_TRANSFER(HttpStatus.BAD_REQUEST, "출금계좌와 입금계좌가 동일합니다"),

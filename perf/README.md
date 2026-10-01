@@ -440,6 +440,22 @@ perf/run-ec2.sh down
 분석 결과에는 단계별 성공(201) 처리율 `success_tps`, 최대 처리 TPS, k6 요약 교차 확인값(`k6_hot_201_passes`·`k6_dropped_total`)이
 추가된다. 결과: `perf/results/ec2-hot-account/summary.md`.
 
+#### main에 없는 코드 측정과 입금 비동기 반영 이후
+
+`PERF_BUILD_IMAGE=1`이면 setup이 GHCR 이미지 대신 체크아웃한 커밋으로 대상 인스턴스에서 api 이미지(`perf-<sha>`)를 빌드한다.
+브랜치 이미지를 GHCR에 올리면 운영이 받는 `:latest`를 덮을 수 있어 이렇게 한다.
+
+```bash
+export PERF_RESULTS=perf/results/ec2-async-credit PERF_GIT_REF=perf/async-credit PERF_BUILD_IMAGE=1
+perf/run-ec2.sh up && perf/run-ec2.sh setup && perf/run-ec2.sh prepare && perf/run-ec2.sh s2f --dry-run && perf/run-ec2.sh s2f 1
+```
+
+입금 비동기 반영(ADR 0012) 이후 이미지는 측정 경계 전에 미반영 입금이 0이 될 때까지 기다리고, 정합성 표에 api 정지 시점의
+미반영 입금을 포함한 식과 완료 이체별 입금 대기·대변 원장 대조(`perf/ec2/sql/credit-integrity.sql`)를 넣는다. 반영 지연은
+`target/pending-credits.csv`(생성·반영 시각)로 단계별 p95를 계산해 `credit-lag.md`에 남긴다. 입금 대기 테이블이 없는 이전 이미지도
+같은 스크립트로 잴 수 있다. 도구 검사: `bash perf/ec2/tests/integrity-sql-test.sh`, `python3 perf/ec2/tests/test_async_credit.py`.
+결과: `perf/results/ec2-async-credit/summary.md`.
+
 2026-09-28 기준선 이후 후처리 순서를 "정합성 → api 정지"에서 "api 정지 → 정합성"으로 바꿨다. 이후 측정은 api를 먼저 멈춰
 대기열 요청이 커밋되지 않고 끊기므로, "실패 키 중 반영" 수가 기준선보다 조금 작게 나올 수 있다(기준선의 중단 잔차는 모두 0 이상).
 비교할 때 이 조건 차이를 적는다. 다음 드라이런에서는 정지된 api의 로그 발췌가 실제로 되는지(`target/log-counts.txt`의 `api_log_lines` > 0 — 앱 로그 형식
