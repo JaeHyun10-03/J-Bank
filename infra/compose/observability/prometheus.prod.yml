@@ -2,7 +2,8 @@ global:
   scrape_interval: 15s
 
 scrape_configs:
+  # api의 관리 포트(Compose 내부 전용). 본 포트 8080에는 actuator가 없다(ADR 0013).
   - job_name: jbank-api
     metrics_path: /actuator/prometheus
     static_configs:
-      - targets: ["api:8080"]
+      - targets: ["api:9095"]
