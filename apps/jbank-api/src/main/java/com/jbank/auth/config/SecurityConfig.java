@@ -5,6 +5,7 @@ import com.jbank.auth.jwt.JwtTokenProvider;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -40,10 +41,13 @@ public class SecurityConfig {
 
   private final JwtTokenProvider jwtTokenProvider;
   private final ObjectMapper objectMapper;
+  private final Environment environment;
 
-  public SecurityConfig(JwtTokenProvider jwtTokenProvider, ObjectMapper objectMapper) {
+  public SecurityConfig(
+      JwtTokenProvider jwtTokenProvider, ObjectMapper objectMapper, Environment environment) {
     this.jwtTokenProvider = jwtTokenProvider;
     this.objectMapper = objectMapper;
+    this.environment = environment;
   }
 
   @Bean
@@ -52,7 +56,13 @@ public class SecurityConfig {
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(
-            auth -> auth.requestMatchers(PUBLIC_PATHS).permitAll().anyRequest().authenticated())
+            auth ->
+                auth.requestMatchers(PUBLIC_PATHS)
+                    .permitAll()
+                    .requestMatchers(new PrometheusScrapeRequestMatcher(environment))
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
         .exceptionHandling(
             ex ->
                 ex.authenticationEntryPoint(new RestAuthenticationEntryPoint(objectMapper))

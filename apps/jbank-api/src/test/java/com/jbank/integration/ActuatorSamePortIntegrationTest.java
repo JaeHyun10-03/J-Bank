@@ -8,6 +8,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Base64;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -17,6 +18,8 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 /** 관리 포트를 분리하지 않은 기본 구성(로컬·테스트)에서 상태 확인 경로를 실제 HTTP로 확인한다. */
+// 테스트는 기본으로 지표 내보내기를 꺼서 prometheus 엔드포인트가 없다. 운영과 같게 켠다.
+@AutoConfigureObservability
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = "jbank.transfer.credit-worker.enabled=false")
 class ActuatorSamePortIntegrationTest {
@@ -55,6 +58,12 @@ class ActuatorSamePortIntegrationTest {
     assertThat(readyz.body()).contains("UP");
     assertThat(livez.statusCode()).isEqualTo(200);
     assertThat(livez.body()).contains("UP");
+  }
+
+  // 관리 포트가 따로 없으면 지표 허용 규칙이 꺼져 지금처럼 인증을 요구한다(설정 누락 시 외부 공개 방지).
+  @Test
+  void 관리_포트를_분리하지_않으면_prometheus는_인증_없이_401이다() throws Exception {
+    assertThat(get("/actuator/prometheus").statusCode()).isEqualTo(401);
   }
 
   private HttpResponse<String> get(String path) throws Exception {
