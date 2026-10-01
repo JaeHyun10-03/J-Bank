@@ -2,10 +2,12 @@ package com.jbank;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@SpringBootApplication
+// 인증은 JWT 쿠키뿐이라 쓰이지 않는 메모리 기본 사용자와 생성 비밀번호 로그를 만들지 않는다.
+@SpringBootApplication(exclude = UserDetailsServiceAutoConfiguration.class)
 @EnableScheduling
 public class JbankApiApplication {
 
