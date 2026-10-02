@@ -1,10 +1,10 @@
 {
   "id": "ops-dashboard-panels",
-  "phase": "implementing",
+  "phase": "done",
   "spec_protocol": 1,
   "base_head": "eda2d136db5b68aa36c8c2c170cc1eb3046762ac",
   "base_status": "",
-  "updated_at": "2026-10-02T01:41:18.366150+00:00",
+  "updated_at": "2026-10-02T02:25:31.541777+00:00",
   "verifier_calls": [
     {
       "at": "2026-10-02T00:33:51.838192+00:00",
@@ -37,10 +37,18 @@
       "attempt": 1,
       "snapshot": "925e6e366ab7ff67daf3f69084df71f0ee491250302e1b4a0302cb974099d7a6",
       "plan_snapshot": null
+    },
+    {
+      "at": "2026-10-02T02:22:51.438827+00:00",
+      "phase": "reviewing",
+      "stage": "result",
+      "attempt": 2,
+      "snapshot": "248c875557c679db36346110f387e53b480255ec4436142130467a29490efb6b",
+      "plan_snapshot": null
     }
   ],
   "approved_plan_snapshot": "f45a5dd096d340a472f57e1e5c941ea4467744660dc53a94f4b3a14d0f52af22",
   "started": true,
-  "verify_attempts": 1,
-  "review_attempts": 1
+  "verify_attempts": 2,
+  "review_attempts": 2
 }
