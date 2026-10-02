@@ -27,3 +27,13 @@
 - 다음 행동: verify → review-begin → verifier 결과 리뷰 → 개발일지·작업 기록 커밋 → PR.
 - verify-001 통과. 결과 리뷰 1/3: verifier 통과 권고(배포 전 범위), 차단·중요 없음. REQ-09 운영 증거가 없어 review fail로 등록(review.md). 개선-4 반영(9c385cc), 개발일지(68fae7c).
 - 남은 일: PR 생성·사용자 병합 → backend-cd 배포 → SSM으로 `docker compose restart prometheus`(실행 직전 사용자 확인) → 운영 확인을 logs/prod-check.md에 기록 → verify → 결과 리뷰 2/3 → review pass → complete → 후속 PR(커밋 10·11).
+- 2026-10-01 사용자 승인으로 브랜치를 fix/prod-metrics-scrape로 바꿔 push, PR JaeHyun10-03/J-Bank#10 생성. 다음 행동: 사용자 병합 → 배포 확인 → prometheus 재시작(직전 확인) → logs/prod-check.md.
+- 2026-10-01 20:52 KST PR #10 병합(81c5f57). backend-cd 성공했지만 인스턴스 stopped라 배포 건너뜀(ADR 0011). 다음 부팅(2026-10-02 09:00 KST) sync-latest가 새 이미지·compose 반영. 다음 행동: 부팅 후 api healthy·이미지 확인 → 사용자 확인 후 prometheus 재시작 → logs/prod-check.md.
+- 후속 작업 후보(이 작업 완료 뒤 plan-task로 새 작업, 이 작업 범위 아님): 운영 대시보드 jbank-transfer에 패널 추가. 2026-10-01 사용자 선택: 입금 반영 상태(미반영 건수·가장 오래된 미반영 나이·반영 지연 p95), API별 지연시간 p95, JVM 힙·GC, 전체 API 에러율. 알림 규칙은 사용자 결정으로 보류(먼 나중).
+
+## 2026-10-02 운영 반영 확인
+
+- 끝낸 일: 09:00 부팅 sync-latest로 81c5f57 반영 확인(api healthy, 9095). 사용자 승인으로 prometheus 재시작, target api:9095 up·up=1·jbank_credit_pending_count 조회. 외부 health 404·prometheus 401·readyz 200·프론트 online, 생성 비밀번호 로그 0건. logs/prod-check.md 기록. 개발일지에 운영 반영 절 추가. 후속 PR 브랜치 chore/prod-metrics-scrape-record.
+- verify-002 통과(백엔드는 입력 불변으로 Gradle UP-TO-DATE, verify-001 실행 결과 유지). 결과 리뷰 2/3 verifier 통과 권고.
+- 남은 한계: 부팅 반영 경로(sync-latest)는 Prometheus 설정 변경 시 재시작하지 않는다(다음 설정 변경 때도 수동 재시작 필요). perf 낡은 주석 3곳 후속.
+- 다음 행동: review pass → complete → 후속 PR. 그 뒤 운영 대시보드 패널 작업 plan-task.
