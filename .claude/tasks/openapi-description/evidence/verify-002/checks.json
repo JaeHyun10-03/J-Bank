@@ -2,10 +2,10 @@
   "passed": true,
   "snapshot": "4bbbca1be6447e14414d236fd29b04f5639eddde9ea8a9b6d9bd354be5d06e5f",
   "unchanged_during_checks": true,
-  "started_at": "2026-10-02T08:18:35.963542+00:00",
-  "finished_at": "2026-10-02T08:19:13.233684+00:00",
+  "started_at": "2026-10-02T08:13:57.140536+00:00",
+  "finished_at": "2026-10-02T08:14:40.563715+00:00",
   "python": "3.9.6",
-  "archive": "verify-003/checks.json",
+  "archive": "verify-002/checks.json",
   "skipped_checks": [],
   "git": {
     "head": "9d0a26d9b70e66af65eabcb5e1c58d544eed7998",
@@ -22,9 +22,9 @@
         ".claude/tests"
       ],
       "exit_code": 0,
-      "log": "verify-003/check-1.log",
-      "log_hash": "e871cdfd8d6d4aa72c5ccc14e43472bd35f8fe44df710732e6ee2f0e6c24740c",
-      "duration_seconds": 21.793
+      "log": "verify-002/check-1.log",
+      "log_hash": "bbe4a896070e9d949ddadc90a0c7173d442214c7c21eaa982945546a8807863f",
+      "duration_seconds": 22.266
     },
     {
       "argv": [
@@ -35,9 +35,9 @@
         "lint"
       ],
       "exit_code": 0,
-      "log": "verify-003/check-2.log",
+      "log": "verify-002/check-2.log",
       "log_hash": "4229503a8faf5a2862b0ec0ea8dc5ecb21e36ef677e84518ca5d7160cf8bf176",
-      "duration_seconds": 1.862
+      "duration_seconds": 2.231
     },
     {
       "argv": [
@@ -47,9 +47,9 @@
         "--noEmit"
       ],
       "exit_code": 0,
-      "log": "verify-003/check-3.log",
+      "log": "verify-002/check-3.log",
       "log_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "duration_seconds": 1.11
+      "duration_seconds": 1.253
     },
     {
       "argv": [
@@ -61,9 +61,9 @@
         "--ci"
       ],
       "exit_code": 0,
-      "log": "verify-003/check-4.log",
-      "log_hash": "f8bc580e76a14f8e6983e18dce90bb0d1aa87ffdb10b2f99fc1c7e76fccb9616",
-      "duration_seconds": 4.011
+      "log": "verify-002/check-4.log",
+      "log_hash": "80733d86e510ae61a5876077a253ba2041ac2a1dc491c40592dfcb4e39c0fa56",
+      "duration_seconds": 4.15
     },
     {
       "argv": [
@@ -74,9 +74,9 @@
         "spotlessCheck"
       ],
       "exit_code": 0,
-      "log": "verify-003/check-5.log",
-      "log_hash": "85d0ba6acb15d0bb03eefc4ccf61db90bd68e5ef40ee79016633ab606c2bd475",
-      "duration_seconds": 1.257
+      "log": "verify-002/check-5.log",
+      "log_hash": "8a2f87a5e23f5763fbefef5790a6c4647142efb661b25c508c52c2480c659a15",
+      "duration_seconds": 5.091
     },
     {
       "argv": [
@@ -87,9 +87,9 @@
         "build"
       ],
       "exit_code": 0,
-      "log": "verify-003/check-6.log",
+      "log": "verify-002/check-6.log",
       "log_hash": "42dddc0a21741a61965e704630dc7cdb7126cfd4dedc30058198d7877337f5a2",
-      "duration_seconds": 6.942
+      "duration_seconds": 8.083
     }
   ]
 }
