@@ -1,0 +1,21 @@
+# 작업 시작 HEAD
+dc2179e0633aac5960dacdb8435849d990bdd965
+# 작업 시작 시 변경 상태
+
+# 현재 git status --porcelain
+
+# 작업 시작 HEAD부터 현재 파일까지의 이름·상태
+M	apps/jbank-api/src/main/java/com/jbank/auth/config/SecurityConfig.java
+M	apps/jbank-api/src/main/java/com/jbank/global/config/OpenApiConfig.java
+M	apps/jbank-api/src/test/java/com/jbank/auth/controller/AuthControllerTest.java
+A	apps/jbank-api/src/test/java/com/jbank/global/config/OpenApiConfigTest.java
+M	contracts/openapi/openapi.yaml
+
+# 작업 시작 HEAD부터 현재 파일까지의 통계
+ .../java/com/jbank/auth/config/SecurityConfig.java |  7 +--
+ .../com/jbank/global/config/OpenApiConfig.java     | 59 ++++++++++++++++++----
+ .../jbank/auth/controller/AuthControllerTest.java  | 39 ++++++++++++++
+ .../com/jbank/global/config/OpenApiConfigTest.java | 58 +++++++++++++++++++++
+ contracts/openapi/openapi.yaml                     | 49 ++++++++++++++----
+ 5 files changed, 189 insertions(+), 23 deletions(-)
+

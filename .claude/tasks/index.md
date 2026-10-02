@@ -7,6 +7,7 @@
 - [ec2-load-test-followup](ec2-load-test-followup/task.md): done
 - [ec2-weekday-schedule](ec2-weekday-schedule/task.md): done
 - [hot-account-baseline](hot-account-baseline/task.md): done
+- [openapi-description](openapi-description/task.md): implementing
 - [ops-dashboard-panels](ops-dashboard-panels/task.md): done
 - [prod-metrics-scrape](prod-metrics-scrape/task.md): done
 - [repo-cleanup](repo-cleanup/task.md): done
