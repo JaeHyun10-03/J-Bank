@@ -40,9 +40,18 @@ info:
     ```json
     { "content": [...], "page": 0, "size": 20, "totalElements": 3, "totalPages": 1 }
     ```
+
+    **8. 이 화면에서 직접 호출하려면**
+    1. `POST /api/v1/customers`로 고객을 등록하고(이미 있으면 생략) `POST /api/v1/auth/login`으로 로그인합니다. 브라우저가 쿠키를 저장합니다.
+    2. 로그인 응답의 `data.csrfToken` 값을 오른쪽 위 **Authorize**의 `X-CSRF-TOKEN`에 넣습니다.
+    3. 이후 요청에는 이 헤더가 자동으로 붙습니다.
+
+    재발급(`/api/v1/auth/refresh`)한 뒤에는 새 `csrfToken`으로 다시 넣고, 페이지를 새로고침해도 다시 넣어야 합니다.
   version: v1
 servers:
 - url: /
+security:
+- X-CSRF-TOKEN: []
 tags:
 - name: 고객
   description: 고객 등록(CDD)과 강화된 고객확인(EDD) API
@@ -1442,3 +1451,9 @@ components:
           $ref: "#/components/schemas/AccountCloseResponse"
         error:
           $ref: "#/components/schemas/ErrorDetail"
+  securitySchemes:
+    X-CSRF-TOKEN:
+      type: apiKey
+      description: 로그인·재발급 응답의 csrfToken
+      name: X-CSRF-TOKEN
+      in: header

@@ -3,6 +3,7 @@ package com.jbank.global.config;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.junit.jupiter.api.Test;
 
 class OpenApiConfigTest {
@@ -31,6 +32,22 @@ class OpenApiConfigTest {
   void 설명은_공통_응답_규칙을_유지한다() {
     assertThat(openApi.getInfo().getDescription())
         .contains("\"success\"", "totalElements", "Idempotency-Key", "오프셋");
+  }
+
+  @Test
+  void Authorize로_X_CSRF_TOKEN_헤더를_입력해_모든_요청에_붙인다() {
+    SecurityScheme scheme = openApi.getComponents().getSecuritySchemes().get("X-CSRF-TOKEN");
+
+    assertThat(scheme.getType()).isEqualTo(SecurityScheme.Type.APIKEY);
+    assertThat(scheme.getIn()).isEqualTo(SecurityScheme.In.HEADER);
+    assertThat(scheme.getName()).isEqualTo("X-CSRF-TOKEN");
+    assertThat(openApi.getSecurity())
+        .anySatisfy(item -> assertThat(item).containsKey("X-CSRF-TOKEN"));
+  }
+
+  @Test
+  void 설명은_Swagger에서_직접_호출하는_순서를_안내한다() {
+    assertThat(openApi.getInfo().getDescription()).contains("Authorize", "csrfToken", "새로고침");
   }
 
   @Test

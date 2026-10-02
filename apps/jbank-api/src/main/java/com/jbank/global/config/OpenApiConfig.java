@@ -1,7 +1,10 @@
 package com.jbank.global.config;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
@@ -10,12 +13,25 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
+  static final String CSRF_SCHEME = "X-CSRF-TOKEN";
+
   @Bean
   public OpenAPI jbankOpenApi() {
     // 요청 주소를 명세 문서 기준 상대 경로로 둔다. 운영은 Caddy가 TLS를 끝내 자동 생성 주소가 http가 되고,
     // https Swagger 화면에서 http로 요청하면 브라우저가 막는다.
     return new OpenAPI()
         .servers(List.of(new Server().url("/")))
+        // Swagger의 Authorize에 csrfToken을 넣으면 모든 요청에 헤더가 붙는다. 검사 대상이 아닌 요청에는 무해하다.
+        .components(
+            new Components()
+                .addSecuritySchemes(
+                    CSRF_SCHEME,
+                    new SecurityScheme()
+                        .type(SecurityScheme.Type.APIKEY)
+                        .in(SecurityScheme.In.HEADER)
+                        .name("X-CSRF-TOKEN")
+                        .description("로그인·재발급 응답의 csrfToken")))
+        .addSecurityItem(new SecurityRequirement().addList(CSRF_SCHEME))
         .info(
             new Info()
                 .title("J-Bank API")
@@ -60,6 +76,13 @@ public class OpenApiConfig {
                     ```json
                     { "content": [...], "page": 0, "size": 20, "totalElements": 3, "totalPages": 1 }
                     ```
+
+                    **8. 이 화면에서 직접 호출하려면**
+                    1. `POST /api/v1/customers`로 고객을 등록하고(이미 있으면 생략) `POST /api/v1/auth/login`으로 로그인합니다. 브라우저가 쿠키를 저장합니다.
+                    2. 로그인 응답의 `data.csrfToken` 값을 오른쪽 위 **Authorize**의 `X-CSRF-TOKEN`에 넣습니다.
+                    3. 이후 요청에는 이 헤더가 자동으로 붙습니다.
+
+                    재발급(`/api/v1/auth/refresh`)한 뒤에는 새 `csrfToken`으로 다시 넣고, 페이지를 새로고침해도 다시 넣어야 합니다.
                     """));
   }
 }
