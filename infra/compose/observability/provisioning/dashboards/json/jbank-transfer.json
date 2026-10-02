@@ -1,5 +1,5 @@
 {
-  "title": "J-Bank 이체 성능",
+  "title": "J-Bank 운영",
   "uid": "jbank-transfer",
   "timezone": "browser",
   "schemaVersion": 39,
@@ -8,11 +8,19 @@
   "time": { "from": "now-30m", "to": "now" },
   "panels": [
     {
+      "id": 100,
+      "title": "이체·DB",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "panels": []
+    },
+    {
       "id": 1,
       "title": "이체 처리시간 백분위",
       "type": "timeseries",
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
       "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
       "targets": [
         {
@@ -37,7 +45,7 @@
       "title": "초당 처리 건수 (TPS)",
       "type": "timeseries",
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 1 },
       "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] },
       "targets": [
         {
@@ -52,7 +60,7 @@
       "title": "에러율",
       "type": "timeseries",
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 9 },
       "fieldConfig": { "defaults": { "unit": "percentunit", "max": 1, "min": 0 }, "overrides": [] },
       "targets": [
         {
@@ -67,7 +75,7 @@
       "title": "DB 커넥션 풀 사용률",
       "type": "timeseries",
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 9 },
       "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
       "targets": [
         {
@@ -97,7 +105,7 @@
       "title": "계좌 락 대기 시간",
       "type": "timeseries",
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 17 },
       "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
       "targets": [
         {
@@ -108,6 +116,167 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "max(db_lock_wait_seconds_max)",
+          "legendFormat": "max"
+        }
+      ]
+    },
+    {
+      "id": 101,
+      "title": "입금 반영 (ADR 0012)",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 25 },
+      "panels": []
+    },
+    {
+      "id": 6,
+      "title": "입금 반영 대기 수",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 26 },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(jbank_credit_pending_count{job=\"jbank-api\"})",
+          "legendFormat": "미반영"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "가장 오래된 미반영 입금 나이",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 26 },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "max(jbank_credit_pending_oldest_seconds{job=\"jbank-api\"})",
+          "legendFormat": "나이"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "입금 반영 지연 (생성→반영)",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 26 },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(jbank_credit_apply_lag_seconds_bucket{job=\"jbank-api\"}[$__rate_interval])))",
+          "legendFormat": "p95"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "max(jbank_credit_apply_lag_seconds_max{job=\"jbank-api\"})",
+          "legendFormat": "max"
+        }
+      ]
+    },
+    {
+      "id": 102,
+      "title": "API 전체",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 34 },
+      "panels": []
+    },
+    {
+      "id": 9,
+      "title": "API별 p95",
+      "description": "상태 확인 경로와 업무 API가 아닌 요청(UNKNOWN: 보안 필터 거부, /**: 매핑 없는 경로)은 뺀다.",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 35 },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "histogram_quantile(0.95, sum by (le, method, uri) (rate(http_server_requests_seconds_bucket{job=\"jbank-api\",uri!~\"/readyz|/livez|/actuator.*|UNKNOWN|/\\\\*\\\\*\"}[$__rate_interval])))",
+          "legendFormat": "{{method}} {{uri}}"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "전체 API 오류율 (5xx·4xx)",
+      "description": "상태 확인 경로를 뺀 전체 요청 대비 비율. 4xx에는 인증 없는 요청 401과 없는 경로 404가 포함된다. 요청이 없으면 값이 없다.",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 35 },
+      "fieldConfig": { "defaults": { "unit": "percentunit" }, "overrides": [] },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "(sum(rate(http_server_requests_seconds_count{job=\"jbank-api\",uri!~\"/readyz|/livez|/actuator.*\",status=~\"5..\"}[$__rate_interval])) or 0 * sum(rate(http_server_requests_seconds_count{job=\"jbank-api\",uri!~\"/readyz|/livez|/actuator.*\"}[$__rate_interval]))) / sum(rate(http_server_requests_seconds_count{job=\"jbank-api\",uri!~\"/readyz|/livez|/actuator.*\"}[$__rate_interval]))",
+          "legendFormat": "5xx"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "(sum(rate(http_server_requests_seconds_count{job=\"jbank-api\",uri!~\"/readyz|/livez|/actuator.*\",status=~\"4..\"}[$__rate_interval])) or 0 * sum(rate(http_server_requests_seconds_count{job=\"jbank-api\",uri!~\"/readyz|/livez|/actuator.*\"}[$__rate_interval]))) / sum(rate(http_server_requests_seconds_count{job=\"jbank-api\",uri!~\"/readyz|/livez|/actuator.*\"}[$__rate_interval]))",
+          "legendFormat": "4xx"
+        }
+      ]
+    },
+    {
+      "id": 103,
+      "title": "JVM",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 43 },
+      "panels": []
+    },
+    {
+      "id": 11,
+      "title": "JVM 힙",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 44 },
+      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(jvm_memory_used_bytes{job=\"jbank-api\",area=\"heap\"})",
+          "legendFormat": "used"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(jvm_memory_max_bytes{job=\"jbank-api\",area=\"heap\"})",
+          "legendFormat": "max"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "GC 멈춤 시간 비율",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 44 },
+      "fieldConfig": { "defaults": { "unit": "percentunit" }, "overrides": [] },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(jvm_gc_pause_seconds_sum{job=\"jbank-api\"}[$__rate_interval]))",
+          "legendFormat": "GC 멈춤"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "title": "GC 최대 멈춤",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 44 },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "max(jvm_gc_pause_seconds_max{job=\"jbank-api\"})",
           "legendFormat": "max"
         }
       ]

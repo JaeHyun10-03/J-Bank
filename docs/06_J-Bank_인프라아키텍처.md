@@ -80,6 +80,17 @@ RDS·ElastiCache 대신 같은 호스트의 컨테이너를 쓴다. 데이터는
 
 api 관리 포트의 `api:9095/actuator/prometheus`를 인증 없이 15초마다 스크랩하고(보존 15일), Grafana는 `grafana.j-bank.site`로 노출한다(자체 로그인). 대시보드·datasource 프로비저닝 파일은 로컬 Compose와 같은 `infra/compose/observability/provisioning`을 쓴다. Loki는 제거했다 — 인스턴스 한 대의 로그는 `docker logs`로 충분하고, Grafana 대시보드는 Prometheus만 쓴다. api 컨테이너 healthcheck도 관리 포트의 readiness(`localhost:9095/actuator/health/readiness`)로 판정한다. Prometheus 설정 파일은 단일 파일 바인드 마운트라 바꾼 뒤 `docker compose restart prometheus`가 필요하다. 로컬 Compose의 Prometheus(`prometheus.yml`, 호스트 8080)는 관리 포트가 없어 지금도 401이다. 로컬에서도 수집하려면 api에 `MANAGEMENT_SERVER_PORT`를 주고 대상을 그 포트로 바꾼다.
 
+대시보드는 `J-Bank 운영`(uid `jbank-transfer`, `dashboards/json/jbank-transfer.json`) 하나다. Grafana가 프로비저닝 폴더를 디렉터리로 마운트하고 30초마다 다시 읽으므로 파일만 바꾸면 재시작 없이 반영된다. 패널은 네 행으로 나뉜다.
+
+| 행 | 패널 |
+| --- | --- |
+| 이체·DB | 이체 p50/95/99·TPS·5xx 비율, Hikari 커넥션 풀, 계좌 락 대기 |
+| 입금 반영 (ADR 0012) | 미반영 건수, 가장 오래된 미반영 나이, 반영 지연 p95·max |
+| API 전체 | method·uri별 p95, 전체 5xx·4xx 비율 |
+| JVM | 힙 used/max, GC 멈춤 시간 비율, GC 최대 멈춤 |
+
+API 행은 상태 확인 경로(`/readyz`·`/livez`·`/actuator/**`)를 뺀다. p95는 업무 API만 보이도록 `UNKNOWN`(보안 필터 거부)·`/**`(매핑 없는 경로)도 빼고, 4xx 비율에는 이 둘이 포함된다. 오류율은 요청이 있고 오류가 없으면 0, 요청이 없으면 빈 그래프다. 알림 규칙은 아직 없다.
+
 ### 3.6 CI/CD와 IaC
 
 | 워크플로 | 트리거 | 하는 일 |
