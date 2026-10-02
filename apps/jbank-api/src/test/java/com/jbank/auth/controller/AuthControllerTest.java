@@ -4,6 +4,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,6 +20,8 @@ import com.jbank.auth.service.AuthService;
 import com.jbank.global.exception.ErrorCode;
 import java.time.OffsetDateTime;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -62,6 +66,41 @@ class AuthControllerTest {
               org.assertj.core.api.Assertions.assertThat(setCookies).contains("refresh_token=");
               org.assertj.core.api.Assertions.assertThat(setCookies).contains("XSRF-TOKEN=");
             });
+  }
+
+  // MockMvc 요청은 http://localhost라 아래 출처는 모두 교차 출처로 판정되어 허용 목록 검사를 거친다.
+  @ParameterizedTest
+  @ValueSource(strings = {"http://localhost:3000", "https://api.j-bank.site"})
+  void 허용한_출처의_로그인_요청은_CORS를_통과한다(String origin) throws Exception {
+    given(authService.login(any()))
+        .willReturn(
+            new AuthResult<>(
+                new LoginResponse("1", "정민성", OffsetDateTime.now(), "csrf-abc"),
+                "access-token",
+                "refresh-token",
+                "csrf-abc"));
+
+    mockMvc
+        .perform(
+            post("/api/v1/auth/login")
+                .header("Origin", origin)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new LoginRequest("user1", "pw"))))
+        .andExpect(status().isOk())
+        .andExpect(header().string("Access-Control-Allow-Origin", origin))
+        .andExpect(header().string("Access-Control-Allow-Credentials", "true"));
+  }
+
+  @Test
+  void 허용하지_않은_출처의_요청은_CORS에서_403으로_막힌다() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/v1/auth/login")
+                .header("Origin", "https://evil.example")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new LoginRequest("user1", "pw"))))
+        .andExpect(status().isForbidden())
+        .andExpect(content().string("Invalid CORS request"));
   }
 
   @Test
