@@ -1,10 +1,10 @@
 {
   "id": "prod-metrics-scrape",
-  "phase": "implementing",
+  "phase": "done",
   "spec_protocol": 1,
   "base_head": "c88dde079789f2cee00a43fc185d5efae7d78b52",
   "base_status": "",
-  "updated_at": "2026-10-01T08:15:11.826135+00:00",
+  "updated_at": "2026-10-02T00:26:08.637237+00:00",
   "verifier_calls": [
     {
       "at": "2026-10-01T07:49:31.866423+00:00",
@@ -21,10 +21,18 @@
       "attempt": 1,
       "snapshot": "f11cad36a23fd22c97e71fb05254fec4be2661af65651e4a1337292bcd197d32",
       "plan_snapshot": null
+    },
+    {
+      "at": "2026-10-02T00:22:02.158402+00:00",
+      "phase": "reviewing",
+      "stage": "result",
+      "attempt": 2,
+      "snapshot": "b8c38b4ef43db85efb6658adca40ca1549cdc3da16ea45a4cc255950f92baa06",
+      "plan_snapshot": null
     }
   ],
   "approved_plan_snapshot": "062bf0ede2e7bcfefed049ee0d5cc79a039bba1f72dd5446be49b9881e165065",
   "started": true,
-  "verify_attempts": 1,
-  "review_attempts": 1
+  "verify_attempts": 2,
+  "review_attempts": 2
 }
