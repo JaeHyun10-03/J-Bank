@@ -1,0 +1,118 @@
+# AC-03 / REQ-07 / OPS-02 계약 스냅샷 확인
+# 방법: 8080은 다른 로컬 프로젝트가 사용 중이라 local 프로필 API를 18080으로 기동하고, Host: localhost:8080 헤더로 /v3/api-docs.yaml을 덤프해 CI(localhost:8080)와 같은 generated server url을 얻음. 스크립트: bootRun --spring.profiles.active=local --server.port=18080, curl -H 'Host: localhost:8080' http://localhost:18080/v3/api-docs.yaml
+
+## 커밋 1 (설명·버전)
+### 변경 전 스냅샷 대비 diff(기대: 설명·버전만)
+# c1-before 2026-10-02T06:22:33Z HEAD dc2179e
+# diff -u contracts/openapi/openapi.yaml <(local 기동 /v3/api-docs.yaml, Host: localhost:8080)
+--- /Users/imjaehyeon/Documents/[01] - Project/j-bank/.claude/worktrees/wizardly-proskuriakova-fd2557/contracts/openapi/openapi.yaml	2026-10-01 14:32:51
++++ /private/tmp/claude-501/-Users-imjaehyeon-Documents--01----Project-j-bank--claude-worktrees-wizardly-proskuriakova-fd2557/a628589f-aba7-4599-a39c-d3b2ebf8e43b/scratchpad/contract/openapi-c1-before.yaml	2026-10-02 15:22:33
+@@ -11,23 +11,36 @@
+     ```
+     `success`만 보고 성공/실패를 먼저 판단하고, 실패면 `error.code`로 분기하세요.
+ 
+-    **2. 인증은 아직 없습니다(W3에서 추가 예정).**
+-    소유자 확인이 필요한 API(계좌 조회/상태변경/해지)는 임시로
+-    `customerId`를 쿼리 파라미터로 직접 받습니다. 로그인 붙기 전까지는
+-    프론트에서 이 값을 그대로 넘겨주세요.
++    **2. 인증은 쿠키로 합니다.**
++    `POST /api/v1/auth/login`이 성공하면 서버가 쿠키 세 개를 내려 줍니다.
++    브라우저가 이후 요청에 자동으로 실어 보내므로 `Authorization` 헤더는 쓰지 않습니다.
++    - `access_token`: 인증 쿠키(HttpOnly)
++    - `refresh_token`: `access_token`이 만료되면 `POST /api/v1/auth/refresh`로 재발급(HttpOnly)
++    - `XSRF-TOKEN`: 위조 방지 토큰(스크립트로 읽을 수 있음)
+ 
+-    **3. 금액은 문자열입니다.**
++    인증 쿠키가 없거나 만료되면 401 `COMMON_002_UNAUTHORIZED`입니다.
++
++    **3. 상태를 바꾸는 요청에는 `X-CSRF-TOKEN` 헤더가 필요합니다.**
++    POST·PATCH·DELETE 요청은 `X-CSRF-TOKEN` 헤더 값이 `XSRF-TOKEN` 쿠키 값과 같아야 합니다.
++    이 값은 로그인·재발급 응답 본문의 `csrfToken`과 같고, 재발급하면 새 값으로 바뀝니다.
++    예외는 로그인과 고객 등록(`POST /api/v1/customers`)입니다.
++    맞지 않으면 403 `COMMON_007_CSRF_TOKEN_INVALID`입니다.
++
++    **4. 이체·입금·출금은 `Idempotency-Key` 헤더가 필수입니다.**
++    클라이언트가 만든 UUID를 넣습니다. 같은 키로 다시 보내면 처음 처리 결과를 돌려주고 두 번 처리하지 않습니다.
++
++    **5. 금액은 문자열입니다.**
+     부동소수점 오차를 피하려고 `"10000.00"`처럼 문자열로 내려갑니다.
+     숫자로 바로 파싱하지 말고 표시용 포맷 함수를 하나 두고 거기서만 다루세요.
+ 
+-    **4. 날짜/시각은 ISO 8601입니다.**
+-    예: `2026-07-21T09:30:00+09:00`.
++    **6. 날짜/시각은 ISO 8601이고 시간대 오프셋이 붙습니다.**
++    예: `2026-10-02T02:21:27Z`, `2026-07-21T09:30:00+09:00`. 오프셋을 보고 변환해서 표시하세요.
+ 
+-    **5. 목록 조회는 페이지 응답입니다.**
++    **7. 목록 조회는 페이지 응답입니다.**
+     ```json
+     { "content": [...], "page": 0, "size": 20, "totalElements": 3, "totalPages": 1 }
+     ```
+-  version: v0 (W1)
++  version: v1
+ servers:
+ - url: http://localhost:8080
+   description: Generated server url
+
+### 스냅샷 갱신 뒤: diff -u contracts/openapi/openapi.yaml 덤프 → (diff 없음)
+### api.ts: npx openapi-typescript contracts/openapi/openapi.yaml -o types/api.ts 재생성 → git diff 변화 없음
+
+## 커밋 2 (servers 상대 경로)
+### 직전 스냅샷 대비 diff(기대: servers만)
+# c2-before 2026-10-02T06:23:27Z HEAD 8071a47
+# diff -u contracts/openapi/openapi.yaml <(local 기동 /v3/api-docs.yaml, Host: localhost:8080)
+--- /Users/imjaehyeon/Documents/[01] - Project/j-bank/.claude/worktrees/wizardly-proskuriakova-fd2557/contracts/openapi/openapi.yaml	2026-10-02 15:22:42
++++ /private/tmp/claude-501/-Users-imjaehyeon-Documents--01----Project-j-bank--claude-worktrees-wizardly-proskuriakova-fd2557/a628589f-aba7-4599-a39c-d3b2ebf8e43b/scratchpad/contract/openapi-c2-before.yaml	2026-10-02 15:23:27
+@@ -42,8 +42,7 @@
+     ```
+   version: v1
+ servers:
+-- url: http://localhost:8080
+-  description: Generated server url
++- url: /
+ tags:
+ - name: 고객
+   description: 고객 등록(CDD)과 강화된 고객확인(EDD) API
+
+### 스냅샷 갱신 뒤 → (diff 없음). api.ts 재생성 → 변화 없음
+
+## 커밋 3 (CORS 허용 출처)
+SecurityConfig는 OpenAPI 출력에 영향이 없다. 아래 커밋 4 직전 덤프(HEAD 406a4b9 + 커밋 4 작업분)의 diff가 커밋 4 변경만 보이므로 커밋 3 상태의 스냅샷은 덤프와 같다.
+
+## 커밋 4 (Authorize 스킴·사용법)
+### 직전 스냅샷 대비 diff(기대: 사용법 문단, security, securitySchemes만)
+# c4-before 2026-10-02T06:24:52Z HEAD 406a4b9
+# diff -u contracts/openapi/openapi.yaml <(local 기동 /v3/api-docs.yaml, Host: localhost:8080)
+--- /Users/imjaehyeon/Documents/[01] - Project/j-bank/.claude/worktrees/wizardly-proskuriakova-fd2557/contracts/openapi/openapi.yaml	2026-10-02 15:23:29
++++ /private/tmp/claude-501/-Users-imjaehyeon-Documents--01----Project-j-bank--claude-worktrees-wizardly-proskuriakova-fd2557/a628589f-aba7-4599-a39c-d3b2ebf8e43b/scratchpad/contract/openapi-c4-before.yaml	2026-10-02 15:24:52
+@@ -40,9 +40,18 @@
+     ```json
+     { "content": [...], "page": 0, "size": 20, "totalElements": 3, "totalPages": 1 }
+     ```
++
++    **8. 이 화면에서 직접 호출하려면**
++    1. `POST /api/v1/customers`로 고객을 등록하고(이미 있으면 생략) `POST /api/v1/auth/login`으로 로그인합니다. 브라우저가 쿠키를 저장합니다.
++    2. 로그인 응답의 `data.csrfToken` 값을 오른쪽 위 **Authorize**의 `X-CSRF-TOKEN`에 넣습니다.
++    3. 이후 요청에는 이 헤더가 자동으로 붙습니다.
++
++    재발급(`/api/v1/auth/refresh`)한 뒤에는 새 `csrfToken`으로 다시 넣고, 페이지를 새로고침해도 다시 넣어야 합니다.
+   version: v1
+ servers:
+ - url: /
++security:
++- X-CSRF-TOKEN: []
+ tags:
+ - name: 고객
+   description: 고객 등록(CDD)과 강화된 고객확인(EDD) API
+@@ -1442,3 +1451,9 @@
+           $ref: "#/components/schemas/AccountCloseResponse"
+         error:
+           $ref: "#/components/schemas/ErrorDetail"
++  securitySchemes:
++    X-CSRF-TOKEN:
++      type: apiKey
++      description: 로그인·재발급 응답의 csrfToken
++      name: X-CSRF-TOKEN
++      in: header
+
+### 스냅샷 갱신 뒤 → (diff 없음). api.ts 재생성 → 변화 없음
