@@ -42,8 +42,7 @@ info:
     ```
   version: v1
 servers:
-- url: http://localhost:8080
-  description: Generated server url
+- url: /
 tags:
 - name: 고객
   description: 고객 등록(CDD)과 강화된 고객확인(EDD) API

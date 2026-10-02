@@ -2,6 +2,8 @@ package com.jbank.global.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.servers.Server;
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -10,7 +12,10 @@ public class OpenApiConfig {
 
   @Bean
   public OpenAPI jbankOpenApi() {
+    // 요청 주소를 명세 문서 기준 상대 경로로 둔다. 운영은 Caddy가 TLS를 끝내 자동 생성 주소가 http가 되고,
+    // https Swagger 화면에서 http로 요청하면 브라우저가 막는다.
     return new OpenAPI()
+        .servers(List.of(new Server().url("/")))
         .info(
             new Info()
                 .title("J-Bank API")

@@ -15,6 +15,11 @@ class OpenApiConfigTest {
   }
 
   @Test
+  void 요청_주소는_명세_문서_기준_상대_경로_하나다() {
+    assertThat(openApi.getServers()).extracting(server -> server.getUrl()).containsExactly("/");
+  }
+
+  @Test
   void 설명은_현재_쿠키_인증과_CSRF_규칙을_안내한다() {
     assertThat(openApi.getInfo().getDescription())
         .contains("access_token", "refresh_token", "XSRF-TOKEN", "/api/v1/auth/refresh")
