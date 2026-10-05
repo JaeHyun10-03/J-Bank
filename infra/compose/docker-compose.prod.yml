@@ -33,13 +33,16 @@ services:
       # 않으면 JVM이 컨테이너 메모리의 1/4만 잡아 오히려 부족하고, 너무 크게 잡으면
       # 이웃을 밀어낸다.
       JAVA_TOOL_OPTIONS: -Xmx512m -XX:MaxMetaspaceSize=128m
+      # actuator를 Compose 내부 전용 관리 포트로 분리한다(ADR 0013). 호스트에 매핑하지 않고
+      # Caddy도 8080만 프록시하므로 외부에서 닿지 않는다. 이 포트의 /actuator/prometheus만 인증 없이 열린다.
+      MANAGEMENT_SERVER_PORT: "9095"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_started
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health/readiness || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9095/actuator/health/readiness || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 12

@@ -384,8 +384,8 @@ docker compose -f infra/compose/docker-compose.yml exec -T postgres psql -U jban
 | --- | --- | --- | --- |
 | 관측 도구 | Prometheus·Grafana가 같은 인스턴스 | 부하 발생기로 옮김 | 관측 도구가 대상 자원을 쓰지 않게. 대신 메모리 여유가 운영보다 크다 |
 | TLS | Let's Encrypt(공인 도메인) | caddy `tls internal` + `default_sni`(사설 IP) | 공인 도메인 없음. IP 접속은 SNI가 없어 default_sni 필요 |
-| api 지표 수집 | `api:8080/actuator/prometheus` | `metrics-proxy`(:9091)가 perf 전용 계정으로 로그인해 관리 포트에서 대신 수집. 재로그인은 백그라운드(발급 5분 뒤부터, 성공 시에만 쿠키 교체), 회차 측정 경계마다 프록시 재시작 후 수집 확인 | `/actuator/prometheus`가 인증을 요구해 직접 긁으면 401. 로그인이 본 포트에만 있어 포화 구간에 실패할 수 있음 |
-| 관리 엔드포인트 | 본 포트(8080) | 별도 관리 포트 9095(`MANAGEMENT_SERVER_PORT`, 호스트 미매핑). 헬스체크·readiness도 이 포트 | 1차 측정에서 본 포트 포화 시 지표 수집이 끊김. 관리 포트는 자체 커넥터·스레드를 쓴다 |
+| api 지표 수집 | `api:9095/actuator/prometheus`(관리 포트, 인증 없이 수집. ADR 0013) | `metrics-proxy`(:9091)가 perf 전용 계정으로 로그인해 관리 포트에서 대신 수집. 재로그인은 백그라운드(발급 5분 뒤부터, 성공 시에만 쿠키 교체), 회차 측정 경계마다 프록시 재시작 후 수집 확인 | 2026-10-01 이전 이미지는 `/actuator/prometheus`가 인증을 요구해 직접 긁으면 401. 로그인이 본 포트에만 있어 포화 구간에 실패할 수 있음. 이후 이미지는 관리 포트에서 인증 없이 수집되므로 프록시 제거는 후속 작업 |
+| 관리 엔드포인트 | 관리 포트 9095(`MANAGEMENT_SERVER_PORT`, 호스트 미매핑). 헬스체크·readiness도 이 포트. 본 포트의 상태 확인 경로는 `/readyz`·`/livez` | 운영과 같은 관리 포트 9095. 헬스체크·readiness도 이 포트 | 1차 측정에서 본 포트 포화 시 지표 수집이 끊김. 관리 포트는 자체 커넥터·스레드를 쓴다 |
 | 부하 발생 | 없음 | 같은 AZ의 별도 EC2(c7i.large)에서 k6 실행 | 부하 발생이 대상 자원을 쓰지 않게 |
 | exporter | 없음 | node_exporter·cAdvisor·postgres_exporter(락 대기 세션 custom query) | 호스트·컨테이너·PG 원인 지표 |
 | PG 로그 | 기본값 | `log_min_duration_statement=200`, `log_lock_waits=on` | 느린 쿼리·락 대기 증거 |

@@ -1,0 +1,95 @@
+{
+  "passed": true,
+  "snapshot": "248c875557c679db36346110f387e53b480255ec4436142130467a29490efb6b",
+  "unchanged_during_checks": true,
+  "started_at": "2026-10-02T02:21:55.887832+00:00",
+  "finished_at": "2026-10-02T02:22:41.723761+00:00",
+  "python": "3.9.6",
+  "archive": "verify-002/checks.json",
+  "skipped_checks": [],
+  "git": {
+    "head": "6aceeb425410f05d75e6e1231394c9a6ece684ed",
+    "dirty": false
+  },
+  "results": [
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        ".claude/tests"
+      ],
+      "exit_code": 0,
+      "log": "verify-002/check-1.log",
+      "log_hash": "d7b150894194bc21fa401e2048cd5dc4b24496d0044372c8bebb28b1c5f412f8",
+      "duration_seconds": 22.745
+    },
+    {
+      "argv": [
+        "npm",
+        "--prefix",
+        "apps/frontend",
+        "run",
+        "lint"
+      ],
+      "exit_code": 0,
+      "log": "verify-002/check-2.log",
+      "log_hash": "4229503a8faf5a2862b0ec0ea8dc5ecb21e36ef677e84518ca5d7160cf8bf176",
+      "duration_seconds": 2.213
+    },
+    {
+      "argv": [
+        "apps/frontend/node_modules/.bin/tsc",
+        "-p",
+        "apps/frontend",
+        "--noEmit"
+      ],
+      "exit_code": 0,
+      "log": "verify-002/check-3.log",
+      "log_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "duration_seconds": 1.052
+    },
+    {
+      "argv": [
+        "npm",
+        "--prefix",
+        "apps/frontend",
+        "test",
+        "--",
+        "--ci"
+      ],
+      "exit_code": 0,
+      "log": "verify-002/check-4.log",
+      "log_hash": "5070d0f4c5f3149e112651071626679351a5375d69b5b173f2b1e0b62f881dec",
+      "duration_seconds": 4.179
+    },
+    {
+      "argv": [
+        "apps/jbank-api/gradlew",
+        "-p",
+        "apps/jbank-api",
+        "test",
+        "spotlessCheck"
+      ],
+      "exit_code": 0,
+      "log": "verify-002/check-5.log",
+      "log_hash": "8a2f87a5e23f5763fbefef5790a6c4647142efb661b25c508c52c2480c659a15",
+      "duration_seconds": 5.089
+    },
+    {
+      "argv": [
+        "npm",
+        "--prefix",
+        "apps/frontend",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "log": "verify-002/check-6.log",
+      "log_hash": "42dddc0a21741a61965e704630dc7cdb7126cfd4dedc30058198d7877337f5a2",
+      "duration_seconds": 10.089
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+# 작업 시작 HEAD
+eda2d136db5b68aa36c8c2c170cc1eb3046762ac
+# 작업 시작 시 변경 상태
+
+# 현재 git status --porcelain
+
+# 작업 시작 HEAD부터 현재 파일까지의 이름·상태
+M	"docs/06_J-Bank_\354\235\270\355\224\204\353\235\274\354\225\204\355\202\244\355\205\215\354\262\230.md"
+A	"docs/devlog/2026-10-02_\354\232\264\354\230\201\353\214\200\354\213\234\353\263\264\353\223\234\355\231\225\354\236\245.md"
+M	docs/devlog/README.md
+M	infra/compose/observability/provisioning/dashboards/json/jbank-transfer.json
+
+# 작업 시작 HEAD부터 현재 파일까지의 통계
+ ...225\204\355\202\244\355\205\215\354\262\230.md" |  11 ++
+ ...263\264\353\223\234\355\231\225\354\236\245.md" |  26 +++
+ docs/devlog/README.md                              |   1 +
+ .../dashboards/json/jbank-transfer.json            | 181 ++++++++++++++++++++-
+ 4 files changed, 213 insertions(+), 6 deletions(-)
+

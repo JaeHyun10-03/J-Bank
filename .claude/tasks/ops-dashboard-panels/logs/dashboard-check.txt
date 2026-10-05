@@ -1,0 +1,144 @@
+# AC-01 / OPS-01 / OPS-03 대시보드 검사 (2026-10-02T01:34:09Z)
+
+## 1. 구조 검사
+# 명령: git show eda2d13:infra/compose/observability/provisioning/dashboards/json/jbank-transfer.json > base.json && python3 check_dashboard.py infra/compose/observability/provisioning/dashboards/json/jbank-transfer.json base.json
+# 스크립트 원문:
+#   # -*- coding: utf-8 -*-
+#   """ops-dashboard-panels AC-01 구조 검사. 사용: python3 check_dashboard.py <새 파일> <기준 파일(git show eda2d13:...)>"""
+#   import json
+#   import sys
+#   
+#   new = json.load(open(sys.argv[1], encoding='utf-8'))
+#   base = json.load(open(sys.argv[2], encoding='utf-8'))
+#   fails = []
+#   
+#   
+#   def check(cond, msg):
+#       print(('OK   ' if cond else 'FAIL ') + msg)
+#       if not cond:
+#           fails.append(msg)
+#   
+#   
+#   panels = new['panels']
+#   check(new['title'] == 'J-Bank 운영', '제목 J-Bank 운영: ' + new['title'])
+#   check(new['uid'] == 'jbank-transfer', 'uid 유지: ' + new['uid'])
+#   
+#   ids = [p['id'] for p in panels]
+#   check(len(ids) == len(set(ids)), f'패널 id 고유 ({len(ids)}개)')
+#   
+#   cells = {}
+#   for p in panels:
+#       g = p['gridPos']
+#       for dx in range(g['w']):
+#           for dy in range(g['h']):
+#               key = (g['x'] + dx, g['y'] + dy)
+#               if key in cells:
+#                   fails.append(f"겹침 {p['id']}/{cells[key]}")
+#               cells[key] = p['id']
+#       check(g['x'] + g['w'] <= 24, f"패널 {p['id']} 폭 24 이내")
+#   check(not any(f.startswith('겹침') for f in fails), 'gridPos 겹침 없음')
+#   
+#   by_id = {p['id']: p for p in panels}
+#   for old in base['panels']:
+#       cur = by_id.get(old['id'])
+#       same = (cur is not None and cur['title'] == old['title']
+#               and [t['expr'] for t in cur['targets']] == [t['expr'] for t in old['targets']]
+#               and cur['fieldConfig'] == old['fieldConfig'])
+#       check(same, f"기존 패널 {old['id']} '{old['title']}' 쿼리·단위 불변")
+#   
+#   expected_units = {6: 'short', 7: 's', 8: 's', 9: 's', 10: 'percentunit', 11: 'bytes', 12: 'percentunit', 13: 's'}
+#   for pid, unit in expected_units.items():
+#       p = by_id.get(pid)
+#       check(p is not None and p['fieldConfig']['defaults']['unit'] == unit, f'새 패널 {pid} 단위 {unit}')
+#       if p is None:
+#           continue
+#       check(p['datasource']['uid'] == 'prometheus' and all(t['datasource']['uid'] == 'prometheus' for t in p['targets']),
+#             f'새 패널 {pid} datasource uid prometheus')
+#       check(all('job="jbank-api"' in t['expr'] for t in p['targets']), f'새 패널 {pid} job 선택자')
+#   
+#   p9 = by_id[9]['targets'][0]['expr']
+#   check(all(s in p9 for s in ['/readyz', '/livez', '/actuator.*', 'UNKNOWN', '/\\\\*\\\\*']), 'API p95 제외 라벨 5종')
+#   for t in by_id[10]['targets']:
+#       check(' or 0 * ' in t['expr'] and 'by (' not in t['expr'], f"오류율 {t['legendFormat']} 0/값 없음 구분식·전체 합계")
+#   
+#   rows = [p for p in panels if p['type'] == 'row']
+#   check([r['title'] for r in rows] == ['이체·DB', '입금 반영 (ADR 0012)', 'API 전체', 'JVM'], '행 4개')
+#   
+#   print('결과:', '통과' if not fails else '실패 ' + str(fails))
+#   sys.exit(1 if fails else 0)
+
+OK   제목 J-Bank 운영: J-Bank 운영
+OK   uid 유지: jbank-transfer
+OK   패널 id 고유 (17개)
+OK   패널 100 폭 24 이내
+OK   패널 1 폭 24 이내
+OK   패널 2 폭 24 이내
+OK   패널 3 폭 24 이내
+OK   패널 4 폭 24 이내
+OK   패널 5 폭 24 이내
+OK   패널 101 폭 24 이내
+OK   패널 6 폭 24 이내
+OK   패널 7 폭 24 이내
+OK   패널 8 폭 24 이내
+OK   패널 102 폭 24 이내
+OK   패널 9 폭 24 이내
+OK   패널 10 폭 24 이내
+OK   패널 103 폭 24 이내
+OK   패널 11 폭 24 이내
+OK   패널 12 폭 24 이내
+OK   패널 13 폭 24 이내
+OK   gridPos 겹침 없음
+OK   기존 패널 1 '이체 처리시간 백분위' 쿼리·단위 불변
+OK   기존 패널 2 '초당 처리 건수 (TPS)' 쿼리·단위 불변
+OK   기존 패널 3 '에러율' 쿼리·단위 불변
+OK   기존 패널 4 'DB 커넥션 풀 사용률' 쿼리·단위 불변
+OK   기존 패널 5 '계좌 락 대기 시간' 쿼리·단위 불변
+OK   새 패널 6 단위 short
+OK   새 패널 6 datasource uid prometheus
+OK   새 패널 6 job 선택자
+OK   새 패널 7 단위 s
+OK   새 패널 7 datasource uid prometheus
+OK   새 패널 7 job 선택자
+OK   새 패널 8 단위 s
+OK   새 패널 8 datasource uid prometheus
+OK   새 패널 8 job 선택자
+OK   새 패널 9 단위 s
+OK   새 패널 9 datasource uid prometheus
+OK   새 패널 9 job 선택자
+OK   새 패널 10 단위 percentunit
+OK   새 패널 10 datasource uid prometheus
+OK   새 패널 10 job 선택자
+OK   새 패널 11 단위 bytes
+OK   새 패널 11 datasource uid prometheus
+OK   새 패널 11 job 선택자
+OK   새 패널 12 단위 percentunit
+OK   새 패널 12 datasource uid prometheus
+OK   새 패널 12 job 선택자
+OK   새 패널 13 단위 s
+OK   새 패널 13 datasource uid prometheus
+OK   새 패널 13 job 선택자
+OK   API p95 제외 라벨 5종
+OK   오류율 5xx 0/값 없음 구분식·전체 합계
+OK   오류율 4xx 0/값 없음 구분식·전체 합계
+OK   행 4개
+결과: 통과
+# 종료 코드: 0
+
+## 2. 로컬 Grafana 11.3.1 프로비저닝 로드
+# 명령: docker run -d --rm -p 13000:3000 -e GF_AUTH_ANONYMOUS_ENABLED=true -e GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer -v $PWD/infra/compose/observability/provisioning:/etc/grafana/provisioning:ro grafana/grafana:11.3.1
+#       curl localhost:13000/api/dashboards/uid/jbank-transfer
+title: J-Bank 운영 | uid: jbank-transfer | panels: 17 | provisioned: True | folder: J-Bank
+rows: ['이체·DB', '입금 반영 (ADR 0012)', 'API 전체', 'JVM']
+
+## 3. Grafana 로그 (logger=provisioning*)
+logger=provisioning.datasources t=2026-10-02T01:33:49.977546382Z level=info msg="inserting datasource from configuration" name=Prometheus uid=prometheus
+logger=provisioning.plugins t=2026-10-02T01:33:49.991706257Z level=error msg="Failed to read plugin provisioning files from directory" path=/etc/grafana/provisioning/plugins error="open /etc/grafana/provisioning/plugins: no such file or directory"
+logger=provisioning.alerting t=2026-10-02T01:33:49.992209799Z level=error msg="can't read alerting provisioning files from directory" path=/etc/grafana/provisioning/alerting error="open /etc/grafana/provisioning/alerting: no such file or directory"
+logger=provisioning.alerting t=2026-10-02T01:33:49.992220924Z level=info msg="starting to provision alerting"
+logger=provisioning.alerting t=2026-10-02T01:33:49.992225716Z level=info msg="finished to provision alerting"
+logger=provisioning.dashboard t=2026-10-02T01:33:50.098499841Z level=info msg="starting to provision dashboards"
+logger=provisioning.dashboard t=2026-10-02T01:33:50.175472007Z level=info msg="finished to provision dashboards"
+
+## 판정
+대시보드 프로비저닝(logger=provisioning.dashboard) 오류 없음, finished to provision dashboards.
+level=error 2건은 저장소에 plugins·alerting 프로비저닝 폴더가 없어서 나는 것으로 이번 변경과 무관(변경 전 파일로도 같은 폴더 구성).

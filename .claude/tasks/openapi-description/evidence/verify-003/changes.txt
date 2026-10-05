@@ -1,0 +1,25 @@
+# 작업 시작 HEAD
+dc2179e0633aac5960dacdb8435849d990bdd965
+# 작업 시작 시 변경 상태
+
+# 현재 git status --porcelain
+
+# 작업 시작 HEAD부터 현재 파일까지의 이름·상태
+M	apps/jbank-api/src/main/java/com/jbank/auth/config/SecurityConfig.java
+M	apps/jbank-api/src/main/java/com/jbank/global/config/OpenApiConfig.java
+M	apps/jbank-api/src/test/java/com/jbank/auth/controller/AuthControllerTest.java
+A	apps/jbank-api/src/test/java/com/jbank/global/config/OpenApiConfigTest.java
+M	contracts/openapi/openapi.yaml
+A	"docs/devlog/2026-10-02_Swagger\354\204\244\353\252\205\352\263\274\354\232\264\354\230\201\355\230\270\354\266\234.md"
+M	docs/devlog/README.md
+
+# 작업 시작 HEAD부터 현재 파일까지의 통계
+ .../java/com/jbank/auth/config/SecurityConfig.java |  7 +--
+ .../com/jbank/global/config/OpenApiConfig.java     | 59 ++++++++++++++++++----
+ .../jbank/auth/controller/AuthControllerTest.java  | 39 ++++++++++++++
+ .../com/jbank/global/config/OpenApiConfigTest.java | 58 +++++++++++++++++++++
+ contracts/openapi/openapi.yaml                     | 49 ++++++++++++++----
+ ...232\264\354\230\201\355\230\270\354\266\234.md" | 33 ++++++++++++
+ docs/devlog/README.md                              |  1 +
+ 7 files changed, 223 insertions(+), 23 deletions(-)
+

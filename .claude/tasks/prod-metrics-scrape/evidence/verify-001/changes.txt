@@ -1,0 +1,47 @@
+# 작업 시작 HEAD
+c88dde079789f2cee00a43fc185d5efae7d78b52
+# 작업 시작 시 변경 상태
+
+# 현재 git status --porcelain
+
+# 작업 시작 HEAD부터 현재 파일까지의 이름·상태
+M	apps/frontend/app/api/server-status/route.test.ts
+M	apps/frontend/app/api/server-status/route.ts
+M	apps/jbank-api/src/main/java/com/jbank/JbankApiApplication.java
+A	apps/jbank-api/src/main/java/com/jbank/auth/config/PrometheusScrapeRequestMatcher.java
+M	apps/jbank-api/src/main/java/com/jbank/auth/config/SecurityConfig.java
+M	apps/jbank-api/src/main/java/com/jbank/global/exception/GlobalExceptionHandler.java
+M	apps/jbank-api/src/main/resources/application.yml
+A	apps/jbank-api/src/test/java/com/jbank/auth/config/PrometheusScrapeRequestMatcherTest.java
+M	apps/jbank-api/src/test/java/com/jbank/auth/config/SecurityConfigTest.java
+M	apps/jbank-api/src/test/java/com/jbank/global/exception/GlobalExceptionHandlerTest.java
+A	apps/jbank-api/src/test/java/com/jbank/integration/ActuatorManagementPortIntegrationTest.java
+A	apps/jbank-api/src/test/java/com/jbank/integration/ActuatorSamePortIntegrationTest.java
+M	apps/jbank-api/src/test/java/com/jbank/integration/FullFlowIntegrationTest.java
+M	"docs/06_J-Bank_\354\235\270\355\224\204\353\235\274\354\225\204\355\202\244\355\205\215\354\262\230.md"
+A	docs/adr/0013-management-port-metrics.md
+M	infra/compose/docker-compose.prod.yml
+M	infra/compose/observability/prometheus.prod.yml
+M	perf/README.md
+
+# 작업 시작 HEAD부터 현재 파일까지의 통계
+ apps/frontend/app/api/server-status/route.test.ts  |   6 +
+ apps/frontend/app/api/server-status/route.ts       |   5 +-
+ .../main/java/com/jbank/JbankApiApplication.java   |   4 +-
+ .../config/PrometheusScrapeRequestMatcher.java     |  38 ++++++
+ .../java/com/jbank/auth/config/SecurityConfig.java |  16 ++-
+ .../global/exception/GlobalExceptionHandler.java   |  10 ++
+ apps/jbank-api/src/main/resources/application.yml  |   3 +
+ .../config/PrometheusScrapeRequestMatcherTest.java |  76 ++++++++++++
+ .../com/jbank/auth/config/SecurityConfigTest.java  |  10 ++
+ .../exception/GlobalExceptionHandlerTest.java      |  23 ++++
+ .../ActuatorManagementPortIntegrationTest.java     | 134 +++++++++++++++++++++
+ .../ActuatorSamePortIntegrationTest.java           |  74 ++++++++++++
+ .../jbank/integration/FullFlowIntegrationTest.java |   9 ++
+ ...225\204\355\202\244\355\205\215\354\262\230.md" |   9 +-
+ docs/adr/0013-management-port-metrics.md           |  41 +++++++
+ infra/compose/docker-compose.prod.yml              |   5 +-
+ infra/compose/observability/prometheus.prod.yml    |   3 +-
+ perf/README.md                                     |   4 +-
+ 18 files changed, 458 insertions(+), 12 deletions(-)
+
