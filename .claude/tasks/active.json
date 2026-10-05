@@ -1,10 +1,10 @@
 {
   "id": "openapi-description",
-  "phase": "implementing",
+  "phase": "done",
   "spec_protocol": 1,
   "base_head": "dc2179e0633aac5960dacdb8435849d990bdd965",
   "base_status": "",
-  "updated_at": "2026-10-02T06:36:49.351264+00:00",
+  "updated_at": "2026-10-02T08:21:25.345899+00:00",
   "verifier_calls": [
     {
       "at": "2026-10-02T03:19:53.695876+00:00",
@@ -37,10 +37,26 @@
       "attempt": 1,
       "snapshot": "2a8a827686889069ce64d3e8eb8bec45645b7f8cccae4ce82cdc9ef6cc206227",
       "plan_snapshot": null
+    },
+    {
+      "at": "2026-10-02T08:14:58.290124+00:00",
+      "phase": "reviewing",
+      "stage": "result",
+      "attempt": 2,
+      "snapshot": "4bbbca1be6447e14414d236fd29b04f5639eddde9ea8a9b6d9bd354be5d06e5f",
+      "plan_snapshot": null
+    },
+    {
+      "at": "2026-10-02T08:19:24.801745+00:00",
+      "phase": "reviewing",
+      "stage": "result",
+      "attempt": 3,
+      "snapshot": "4bbbca1be6447e14414d236fd29b04f5639eddde9ea8a9b6d9bd354be5d06e5f",
+      "plan_snapshot": null
     }
   ],
   "approved_plan_snapshot": "23ee2d5d975d618a9d56107221f81420a927b8a805f7a2b101477de5e48942ee",
   "started": true,
-  "verify_attempts": 1,
-  "review_attempts": 1
+  "verify_attempts": 3,
+  "review_attempts": 3
 }
