@@ -9,6 +9,7 @@
 | v1.2 | 2026-07-26 | 프로젝트명을 J-Bank로 변경. 배치 워크로드를 API와 같은 이미지로 운영하는 방식을 명시 |
 | v2.0 | 2026-09-17 | EKS·RDS·ElastiCache·ALB·ArgoCD 구성을 단일 EC2 + Docker Compose로 교체(ADR 0010). v1.x의 설계 원문은 `v1.0.0` 태그의 이 문서에 있다 |
 | v2.1 | 2026-10-01 | api actuator를 Compose 내부 전용 관리 포트 9095로 분리하고 Prometheus가 인증 없이 수집하도록 변경(ADR 0013) |
+| v2.2 | 2026-10-29 | 로그 수집(Loki·Alloy·socket-proxy), postgres-exporter, Prometheus 알림 규칙과 Alertmanager 메일 발송 추가(ADR 0014) |
 
 ## 관련 문서
 
@@ -41,13 +42,16 @@ v1.x 설계에서 배운 것(GitOps에서 이미지 태그를 어떻게 전달�
       │ /api/proxy   └────┼──────┘                        api ──▶ postgres :5432
       │ (서버사이드)        │                              api ──▶ redis :6379
       └────HTTPS──────────▶│                       prometheus ──▶ api :9095/actuator/prometheus
-                          │                          grafana ──▶ prometheus
+                          │                       prometheus ──▶ postgres-exporter ──▶ postgres
+                          │                       prometheus ──▶ alertmanager ──▶ Gmail SMTP
+                          │  alloy ──▶ socket-proxy(docker.sock) · alloy ──▶ loki
+                          │                          grafana ──▶ prometheus · loki · alertmanager
                           └──────────────────────────────────────────────┘
                                      ▲ SSM Run Command (배포)     ▲ SSM Session (운영 접근)
   GitHub Actions ─── GHCR 이미지 푸시 ┘                            운영자 ┘
 ```
 
-한 대의 EC2 위에서 여섯 컨테이너가 돈다. 외부에서 들어오는 경로는 caddy의 80/443 하나뿐이고, 나머지 서비스는 Compose 내부 네트워크로만 통신한다. api는 업무 API를 본 포트 8080에, actuator를 관리 포트 9095에 둔다. caddy는 8080만 프록시하고 9095는 호스트에 매핑하지 않는다. 프론트엔드는 Vercel에 있고 브라우저가 API를 직접 부르지 않는다 — Next.js 라우트(`/api/proxy`)가 서버사이드에서 `BACKEND_API_URL`로 프록시하므로 브라우저 기준 동일 출처이고 CORS가 발생하지 않는다(v1.x와 같은 구조).
+한 대의 EC2 위에서 여덟 컨테이너(로그 수집 `logs` 프로필을 켜면 열한 개)가 돈다. 외부에서 들어오는 경로는 caddy의 80/443 하나뿐이고, 나머지 서비스는 Compose 내부 네트워크로만 통신한다. api는 업무 API를 본 포트 8080에, actuator를 관리 포트 9095에 둔다. caddy는 8080만 프록시하고 9095는 호스트에 매핑하지 않는다. 프론트엔드는 Vercel에 있고 브라우저가 API를 직접 부르지 않는다 — Next.js 라우트(`/api/proxy`)가 서버사이드에서 `BACKEND_API_URL`로 프록시하므로 브라우저 기준 동일 출처이고 CORS가 발생하지 않는다(v1.x와 같은 구조).
 
 ## 3. 컴포넌트
 
@@ -76,9 +80,13 @@ RDS·ElastiCache 대신 같은 호스트의 컨테이너를 쓴다. 데이터는
 - 비밀값(DB 비밀번호, PII 암호화 키, JWT 시크릿, Grafana 비밀번호)은 `infra/compose/.env`(chmod 600, gitignore)에 둔다. Secrets Manager + ESO가 하던 자리다. 키 로테이션은 수동.
 - GitHub Actions → AWS 인증은 v1.x와 같이 OIDC(`infra/terraform/bootstrap/oidc.tf`). 배포 역할은 "이 인스턴스에 `AWS-RunShellScript` 보내기 + 결과 조회 + 인스턴스·SSM 상태 조회"만 허용한다. 인스턴스가 꺼져 있으면 배포를 건너뛰고 다음 부팅 때 `:latest`가 반영된다(ADR 0011).
 
-### 3.5 관측 — Prometheus·Grafana
+### 3.5 관측 — Prometheus·Grafana·Loki·Alertmanager
 
-api 관리 포트의 `api:9095/actuator/prometheus`를 인증 없이 15초마다 스크랩하고(보존 15일), Grafana는 `grafana.j-bank.site`로 노출한다(자체 로그인). 대시보드·datasource 프로비저닝 파일은 로컬 Compose와 같은 `infra/compose/observability/provisioning`을 쓴다. Loki는 제거했다 — 인스턴스 한 대의 로그는 `docker logs`로 충분하고, Grafana 대시보드는 Prometheus만 쓴다. api 컨테이너 healthcheck도 관리 포트의 readiness(`localhost:9095/actuator/health/readiness`)로 판정한다. Prometheus 설정 파일은 단일 파일 바인드 마운트라 바꾼 뒤 `docker compose restart prometheus`가 필요하다. 로컬 Compose의 Prometheus(`prometheus.yml`, 호스트 8080)는 관리 포트가 없어 지금도 401이다. 로컬에서도 수집하려면 api에 `MANAGEMENT_SERVER_PORT`를 주고 대상을 그 포트로 바꾼다.
+api 관리 포트의 `api:9095/actuator/prometheus`를 인증 없이 15초마다 스크랩하고(보존 15일), Grafana는 `grafana.j-bank.site`로 노출한다(자체 로그인). 대시보드·datasource 프로비저닝 파일은 로컬 Compose와 같은 `infra/compose/observability/provisioning`을 쓴다. api 컨테이너 healthcheck도 관리 포트의 readiness(`localhost:9095/actuator/health/readiness`)로 판정한다. Prometheus 설정 파일은 단일 파일 바인드 마운트라 바꾼 뒤 `docker compose restart prometheus`가 필요하다. 로컬 Compose도 api 컨테이너(프로필 api)에 관리 포트를 주고 `api:9095`를 수집한다. bootRun으로 띄운 api는 수집 대상이 아니다.
+
+postgres-exporter가 교착 카운터(`pg_stat_database_deadlocks`)와 DB 접속 상태(`pg_up`)를 낸다. postgres는 `log_lock_waits=on`으로 1초 넘는 락 대기를 로그에 남긴다.
+
+로그는 alloy가 컨테이너 로그를 읽어 loki로 보내고(보관 15일), Grafana Loki 데이터소스에서 `container`·`service` 라벨로 조회한다. alloy는 socket-proxy를 거쳐 도커 API의 조회·로그 GET만 쓴다. 운영의 로그 수집 세 서비스는 `logs` 프로필이며 메모리 기준(유휴 600MiB, 배치 중 150MiB)에 미달하면 끈다(ADR 0014, `docs/runbook/observability.md`).
 
 대시보드는 `J-Bank 운영`(uid `jbank-transfer`, `dashboards/json/jbank-transfer.json`) 하나다. Grafana가 프로비저닝 폴더를 디렉터리로 마운트하고 30초마다 다시 읽으므로 파일만 바꾸면 재시작 없이 반영된다. 패널은 네 행으로 나뉜다.
 
@@ -89,7 +97,9 @@ api 관리 포트의 `api:9095/actuator/prometheus`를 인증 없이 15초마다
 | API 전체 | method·uri별 p95, 전체 5xx·4xx 비율 |
 | JVM | 힙 used/max, GC 멈춤 시간 비율, GC 최대 멈춤 |
 
-API 행은 상태 확인 경로(`/readyz`·`/livez`·`/actuator/**`)를 뺀다. p95는 업무 API만 보이도록 `UNKNOWN`(보안 필터 거부)·`/**`(매핑 없는 경로)도 빼고, 4xx 비율에는 이 둘이 포함된다. 오류율은 요청이 있고 오류가 없으면 0, 요청이 없으면 빈 그래프다. 알림 규칙은 아직 없다.
+API 행은 상태 확인 경로(`/readyz`·`/livez`·`/actuator/**`)를 뺀다. p95는 업무 API만 보이도록 `UNKNOWN`(보안 필터 거부)·`/**`(매핑 없는 경로)도 빼고, 4xx 비율에는 이 둘이 포함된다. 오류율은 요청이 있고 오류가 없으면 0, 요청이 없으면 빈 그래프다.
+
+알림 규칙 4종(`observability/rules/alerts.yml`)은 Prometheus가 평가하고 Alertmanager가 메일로 보낸다(발생·해제). 교착 발생, 이체 API 5xx 비율 5% 이상, 수집 대상 다운(api·exporter 수집 실패, `pg_up` 0, 2분 이상), 계좌 락 대기 1초 초과다. 기준값은 promtool 테스트(`observability/tests/alerts.test.yml`)로 검증한다. 운영 메일은 Gmail SMTP이고 계정·주소는 `.env.alertmanager`에만 둔다. 로컬은 mailpit(`http://localhost:8025`)이 받는다.
 
 ### 3.6 CI/CD와 IaC
 
@@ -153,7 +163,7 @@ v1.x 시연 구성(EKS 컨트롤플레인 $73 + t3.medium 노드 + RDS db.t3.mic
 | 단일 장애점 | 인스턴스·AZ 하나 | 앱 무상태이므로 인스턴스 2대 + ALB로 수평 확장 가능. DB는 그때 RDS로 |
 | 비밀값 수동 관리 | `.env` 파일, 로테이션 수동 | SSM Parameter Store(SecureString)에서 배포 시 읽기 |
 | 배포 중 중단 | api 컨테이너 재기동 동안 수 초 503 | 인스턴스 2대가 되면 롤링. 1대에서는 Caddy 앞 blue/green 컨테이너 |
-| 로그 검색 | `docker logs` | 인스턴스가 늘면 Loki 재도입 |
+| 로그 검색 | Loki(15일). 메모리 기준 미달이면 끄고 `docker logs` | 인스턴스 상향 또는 로그 외부 저장(CloudWatch 등) |
 | WAF·Shield Advanced 없음 | Caddy 기본 + Shield Standard | 트래픽이 생기면 CloudFront + WAF를 앞에 |
 
 ## 7. 실제 금융권 방식과의 차이

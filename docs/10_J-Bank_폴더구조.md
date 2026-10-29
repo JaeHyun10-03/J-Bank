@@ -180,15 +180,19 @@ j-bank/
 │   │       └── dev/
 │   └── compose/
 │       ├── docker-compose.yml                   # 로컬. profiles: core / api / observability
-│       ├── docker-compose.prod.yml              # EC2. caddy·api·postgres·redis·prometheus·grafana
+│       ├── docker-compose.prod.yml              # EC2. caddy·api·postgres·redis·prometheus·grafana·postgres-exporter·alertmanager (+ logs 프로필: loki·alloy·socket-proxy)
 │       ├── Caddyfile                            # api./grafana.j-bank.site TLS
 │       ├── deploy.sh                            # backend-cd가 SSM으로 호출
 │       ├── run-batch.sh                         # crontab이 호출하는 배치 잡 실행기
 │       ├── .env.example                         # EC2 비밀값 양식
 │       └── observability/
-│           ├── prometheus.yml                   # 로컬(host.docker.internal)
-│           ├── prometheus.prod.yml              # EC2(api:8080)
-│           └── provisioning/                    # Grafana datasource·대시보드
+│           ├── prometheus.yml                   # 로컬(api:9095, postgres-exporter)
+│           ├── prometheus.prod.yml              # EC2(api:9095, postgres-exporter)
+│           ├── rules/alerts.yml                 # 알림 규칙 4종(ADR 0014)
+│           ├── tests/alerts.test.yml            # 알림 규칙 promtool 테스트
+│           ├── alertmanager-entrypoint.sh       # 기동 시 Alertmanager 메일 설정 생성
+│           ├── loki.yml · alloy.alloy           # 로그 저장(15일)·수집
+│           └── provisioning/                    # Grafana datasource(Prometheus·Loki·Alertmanager)·대시보드
 │
 ├── perf/
 │   ├── k6/
