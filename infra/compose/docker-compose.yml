@@ -43,13 +43,16 @@ services:
       PII_ENCRYPTION_KEY: rEs9xA1c4JnQE3giHpqdSmhxY/r3DzbFx45Gn7NNv7o= # 로컬 전용, 운영 키와 무관
       RESIDENT_REG_NO_HASH_KEY: EaAMdQ3zxtSSUvgPsQYLyUT7iT+WbKhxERsRlx8P58g= # 로컬 전용, 운영 키와 무관
       JWT_SECRET: c0zN1QYc5xkPHqE3fJ8mWZ2vLdT9bR4gA6hK7nS0uYeXpVjMoIiFwCq1DtGzBl5r # 로컬 전용, 운영 키와 무관
+      # 운영과 같이 actuator를 Compose 내부 관리 포트로 분리한다(ADR 0013). 그래야 Prometheus가
+      # 인증 없이 수집한다. bootRun으로 띄운 api는 관리 포트가 없어 수집 대상이 아니다.
+      MANAGEMENT_SERVER_PORT: "9095"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_started
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health/readiness || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9095/actuator/health/readiness || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 12

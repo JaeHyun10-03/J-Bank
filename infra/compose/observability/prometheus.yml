@@ -2,7 +2,8 @@ global:
   scrape_interval: 15s
 
 scrape_configs:
+  # 로컬 api 컨테이너(프로필 api)의 관리 포트. 운영과 같은 경로다(ADR 0013).
   - job_name: jbank-api
     metrics_path: /actuator/prometheus
     static_configs:
-      - targets: ["host.docker.internal:8080"]
+      - targets: ["api:9095"]
