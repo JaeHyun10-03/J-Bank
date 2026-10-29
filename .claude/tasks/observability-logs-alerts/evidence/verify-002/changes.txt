@@ -1,0 +1,81 @@
+# 작업 시작 HEAD
+8d3dc6e841276ab2814812c9be9c23448185dfbd
+# 작업 시작 시 변경 상태
+?? perf/results/ec2-baseline/dryrun/artifacts.txt
+?? perf/results/ec2-baseline/dryrun/environment.md
+?? perf/results/ec2-baseline/dryrun/integrity.md
+?? perf/results/ec2-baseline/dryrun/loadgen/analysis.json
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-summary.json
+?? perf/results/ec2-baseline/dryrun/loadgen/prometheus/query_range.json.gz
+?? perf/results/ec2-baseline/dryrun/target/batch.txt
+?? perf/results/ec2-baseline/dryrun/target/boundary.env
+?? perf/results/ec2-baseline/dryrun/target/integrity-target.txt
+?? perf/results/ec2-baseline/dryrun/target/log-counts.txt
+?? perf/results/ec2-baseline/dryrun/target/pg_stat_activity.csv
+?? perf/results/ec2-baseline/dryrun/warmup/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-summary.json
+
+# 현재 git status --porcelain
+?? perf/results/ec2-baseline/dryrun/artifacts.txt
+?? perf/results/ec2-baseline/dryrun/environment.md
+?? perf/results/ec2-baseline/dryrun/integrity.md
+?? perf/results/ec2-baseline/dryrun/loadgen/analysis.json
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-summary.json
+?? perf/results/ec2-baseline/dryrun/loadgen/prometheus/query_range.json.gz
+?? perf/results/ec2-baseline/dryrun/target/batch.txt
+?? perf/results/ec2-baseline/dryrun/target/boundary.env
+?? perf/results/ec2-baseline/dryrun/target/integrity-target.txt
+?? perf/results/ec2-baseline/dryrun/target/log-counts.txt
+?? perf/results/ec2-baseline/dryrun/target/pg_stat_activity.csv
+?? perf/results/ec2-baseline/dryrun/warmup/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-summary.json
+
+# 작업 시작 HEAD부터 현재 파일까지의 이름·상태
+M	"docs/06_J-Bank_\354\235\270\355\224\204\353\235\274\354\225\204\355\202\244\355\205\215\354\262\230.md"
+M	"docs/10_J-Bank_\355\217\264\353\215\224\352\265\254\354\241\260.md"
+A	docs/adr/0014-observability-logs-alerts.md
+A	"docs/devlog/2026-10-29_\352\264\200\354\270\241\354\212\244\355\203\235\353\241\234\352\267\270\354\231\200\354\225\214\353\246\274.md"
+M	docs/devlog/README.md
+A	docs/runbook/observability.md
+M	infra/compose/.env.example
+M	infra/compose/docker-compose.prod.yml
+M	infra/compose/docker-compose.yml
+A	infra/compose/observability/alertmanager-entrypoint.sh
+A	infra/compose/observability/alloy.alloy
+A	infra/compose/observability/loki.yml
+M	infra/compose/observability/prometheus.prod.yml
+M	infra/compose/observability/prometheus.yml
+M	infra/compose/observability/provisioning/datasources/datasources.yml
+A	infra/compose/observability/rules/alerts.yml
+A	infra/compose/observability/tests/alerts.test.yml
+
+# 작업 시작 HEAD부터 현재 파일까지의 통계
+ ...225\204\355\202\244\355\205\215\354\262\230.md" |  22 ++-
+ ...217\264\353\215\224\352\265\254\354\241\260.md" |  12 +-
+ docs/adr/0014-observability-logs-alerts.md         |  57 +++++++
+ ...267\270\354\231\200\354\225\214\353\246\274.md" |  50 +++++++
+ docs/devlog/README.md                              |   1 +
+ docs/runbook/observability.md                      |  85 +++++++++++
+ infra/compose/.env.example                         |   6 +
+ infra/compose/docker-compose.prod.yml              |  94 ++++++++++++
+ infra/compose/docker-compose.yml                   | 108 +++++++++++++-
+ .../observability/alertmanager-entrypoint.sh       |  47 ++++++
+ infra/compose/observability/alloy.alloy            |  35 +++++
+ infra/compose/observability/loki.yml               |  53 +++++++
+ infra/compose/observability/prometheus.prod.yml    |  13 ++
+ infra/compose/observability/prometheus.yml         |  16 +-
+ .../provisioning/datasources/datasources.yml       |  16 ++
+ infra/compose/observability/rules/alerts.yml       |  47 ++++++
+ infra/compose/observability/tests/alerts.test.yml  | 166 +++++++++++++++++++++
+ 17 files changed, 816 insertions(+), 12 deletions(-)
+
