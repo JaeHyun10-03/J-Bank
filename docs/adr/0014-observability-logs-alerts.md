@@ -18,7 +18,7 @@ v2.0(ADR 0010)에서 "인스턴스 한 대의 로그는 `docker logs`로 충분�
 ## 결정
 
 - 로그: alloy가 컨테이너 로그를 읽어 loki(단일 바이너리, 파일시스템)로 보내고 Grafana의 Loki 데이터소스로 조회한다. 라벨은 `container`(compose-api-1 등)와 `service`(api 등). 보관 15일(`retention_period` + compactor `retention_enabled`).
-- 도커 API: alloy는 socket-proxy를 거쳐서만 도커에 닿는다. 프록시는 GET `/_ping`·`/version`·`/networks`·`/containers/json`·`/containers/{id}/json`·`/containers/{id}/logs`와 HEAD `/_ping`만 허용하고 나머지(모든 쓰기, archive, exec)는 403으로 거부한다. 프록시는 alloy만 붙는 internal 네트워크(`docker-api`)에 있고 `-allowfrom=alloy`로 출발지도 제한한다.
+- 도커 API: alloy는 socket-proxy를 거쳐서만 도커에 닿는다. 프록시는 GET `/_ping`·`/version`·`/networks`·`/containers/json`·`/containers/{id}/json`·`/containers/{id}/logs`와 HEAD `/_ping`만 허용하고 나머지는 거부한다. 허용 밖 메서드(POST·DELETE 등 모든 쓰기)는 405, 허용 밖 경로(archive 등)는 403이다. 프록시는 alloy만 붙는 internal 네트워크(`docker-api`)에 있고 `-allowfrom=alloy`로 출발지도 제한한다.
 - 지표: postgres-exporter를 추가해 교착 카운터와 DB 접속 상태(`pg_up`)를 수집한다. 로컬 api는 운영처럼 관리 포트 9095로 수집한다.
 - DB 로그: `log_lock_waits=on`으로 1초(`deadlock_timeout`) 넘는 락 대기를 남긴다.
 - 알림: Prometheus 규칙 4종(`observability/rules/alerts.yml`)을 Alertmanager가 메일로 보낸다. 발생·해제 모두 보낸다(`send_resolved`). 주기는 `group_wait 30s`, `group_interval 5m`, `repeat_interval 12h`.

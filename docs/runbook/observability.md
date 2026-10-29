@@ -49,7 +49,7 @@
    - 표본 중 **150MiB 미만이 보이면 즉시** `dc stop loki alloy socket-proxy`를 실행한다.
    - 서버가 응답하지 않으면 EC2를 중지·시작해 복구한다(커밋된 데이터는 WAL로 복구된다).
    - 최저값이 150MiB 미만이었으면 4절로 로그 수집을 끈다.
-3. 측정값(유휴, 배치 중 최저, `docker stats`)을 작업 기록에 남긴다.
+3. 측정값(유휴, 배치 중 최저, `docker stats`)을 작업 기록에 남긴다. `docker stats`에서 상한 대비 사용률도 본다. 로컬에서 socket-proxy가 16MiB 중 약 12MiB(75%)를 썼으므로, 운영에서 상한에 붙어 재시작이 반복되면(`docker inspect -f '{{.RestartCount}}'`) 상한을 올린다.
 
 ## 4. 로그 수집 끄기 (기준 미달 시)
 
@@ -79,6 +79,8 @@
 4. `.env.alertmanager`를 지우고 `.env`의 `COMPOSE_PROFILES`를 지운다.
 
 ## 7. 알려진 한계
+
+- postgres의 여러 줄 로그(`deadlock detected` 아래 `DETAIL`, `Process NNNN: <쿼리>`, `STATEMENT`)는 Loki에 줄마다 따로 들어간다. 교착을 볼 때는 `{container="compose-postgres-1"} |~ "deadlock detected|DETAIL|Process [0-9]+:|STATEMENT"`처럼 함께 조회하고 시각으로 묶어 읽는다.
 
 - 18:00에 서버가 꺼질 때 발생 중이던 알림은 해제 메일이 오지 않는다.
 - 이체 트래픽이 적어 5xx 한 건으로도 5%를 넘을 수 있다.
