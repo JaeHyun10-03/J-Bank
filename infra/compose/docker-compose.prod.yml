@@ -102,9 +102,71 @@ services:
       - grafana-data:/var/lib/grafana
       - ./observability/provisioning:/etc/grafana/provisioning:ro
 
+  # 로그 수집(loki·alloy·socket-proxy)은 logs 프로필이다. .env의 COMPOSE_PROFILES=logs로 켠다.
+  # 메모리 여유가 기준(유휴 600MiB, 배치 중 150MiB)보다 작으면 .env에서 빼고 세 서비스를 멈춘다 —
+  # 그러면 이후 전체 `up -d`에도 다시 올라오지 않는다(ADR 0014, docs/runbook/observability.md).
+  loki:
+    image: grafana/loki:3.7.8
+    profiles: ["logs"]
+    restart: unless-stopped
+    mem_limit: 192m
+    command: ["-config.file=/etc/loki/loki.yml"]
+    environment:
+      GOMEMLIMIT: 160MiB
+    volumes:
+      - ./observability/loki.yml:/etc/loki/loki.yml:ro
+      - loki-data:/loki
+
+  alloy:
+    image: grafana/alloy:v1.20.1
+    profiles: ["logs"]
+    restart: unless-stopped
+    mem_limit: 96m
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - --disable-reporting
+      - /etc/alloy/config.alloy
+    environment:
+      GOMEMLIMIT: 80MiB
+    volumes:
+      - ./observability/alloy.alloy:/etc/alloy/config.alloy:ro
+      - alloy-data:/var/lib/alloy/data
+    networks: [default, docker-api]
+    depends_on: [socket-proxy, loki]
+
+  # 도커 소켓은 이 프록시만 연다. 컨테이너 목록·inspect·로그와 네트워크 목록 GET만 허용하고 나머지
+  # (쓰기·archive·exec)는 거부한다. docker-api 네트워크에는 alloy만 붙는다. inspect 응답에는 api의
+  # 환경변수가 들어 있어, alloy가 침해되면 비밀값이 보일 수 있다 — 수용한 위험(ADR 0014).
+  socket-proxy:
+    image: wollomatic/socket-proxy:1.13.1
+    profiles: ["logs"]
+    restart: unless-stopped
+    mem_limit: 16m
+    user: "0:0"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    command:
+      - -loglevel=info
+      - -listenip=0.0.0.0
+      - -allowfrom=alloy
+      - -allowGET=(/v[0-9.]+)?/(_ping|version|networks|containers/json|containers/[a-zA-Z0-9_.-]+/(json|logs))
+      - -allowHEAD=(/v[0-9.]+)?/_ping
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks: [docker-api]
+
+networks:
+  docker-api:
+    internal: true
+
 volumes:
   postgres-data:
   prometheus-data:
   grafana-data:
   caddy-data:
   caddy-config:
+  loki-data:
+  alloy-data:

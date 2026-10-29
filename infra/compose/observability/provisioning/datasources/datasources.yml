@@ -8,3 +8,10 @@ datasources:
     url: http://prometheus:9090
     isDefault: true
 
+  # 운영에서 logs 프로필을 끄면 이 데이터소스는 연결 실패로 남는다(ADR 0014).
+  - name: Loki
+    uid: loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+
