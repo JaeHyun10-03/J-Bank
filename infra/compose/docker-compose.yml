@@ -78,6 +78,32 @@ services:
       - "9090:9090"
     volumes:
       - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./observability/rules:/etc/prometheus/rules:ro
+
+  # 알림 메일 발송. 로컬은 mailpit(http://localhost:8025)이 받는다. 운영과 같은 진입 스크립트를 쓴다.
+  alertmanager:
+    image: prom/alertmanager:v0.34.1
+    profiles: ["observability"]
+    mem_limit: 32m
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "/etc/alertmanager/entrypoint.sh"]
+    command: ["/bin/alertmanager", "--config.file=/tmp/alertmanager.yml", "--storage.path=/alertmanager"]
+    environment:
+      ALERT_EMAIL_TO: dev@jbank.local
+      SMTP_FROM: alertmanager@jbank.local
+      SMTP_SMARTHOST: mailpit:1025
+      SMTP_REQUIRE_TLS: "false"
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./observability/alertmanager-entrypoint.sh:/etc/alertmanager/entrypoint.sh:ro
+      - alertmanager-data:/alertmanager
+
+  mailpit:
+    image: axllent/mailpit:v1.31.4
+    profiles: ["observability"]
+    ports:
+      - "8025:8025"
 
   grafana:
     image: grafana/grafana:11.3.1
@@ -156,3 +182,4 @@ volumes:
   grafana-data:
   loki-data:
   alloy-data:
+  alertmanager-data:

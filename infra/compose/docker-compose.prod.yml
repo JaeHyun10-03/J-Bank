@@ -87,10 +87,26 @@ services:
     restart: unless-stopped
     volumes:
       - ./observability/prometheus.prod.yml:/etc/prometheus/prometheus.yml:ro
+      - ./observability/rules:/etc/prometheus/rules:ro
       - prometheus-data:/prometheus
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.retention.time=15d
+
+  # 알림 메일 발송(Gmail SMTP). 받는 주소·SMTP 계정·앱 비밀번호는 .env.alertmanager(chmod 600, git 제외)에만
+  # 둔다 — api가 쓰는 .env에 넣지 않는다. 파일이 없거나 값이 비면 메일 없이 기동한다(ADR 0014).
+  alertmanager:
+    image: prom/alertmanager:v0.34.1
+    restart: unless-stopped
+    mem_limit: 32m
+    entrypoint: ["/bin/sh", "/etc/alertmanager/entrypoint.sh"]
+    command: ["/bin/alertmanager", "--config.file=/tmp/alertmanager.yml", "--storage.path=/alertmanager"]
+    env_file:
+      - path: .env.alertmanager
+        required: false
+    volumes:
+      - ./observability/alertmanager-entrypoint.sh:/etc/alertmanager/entrypoint.sh:ro
+      - alertmanager-data:/alertmanager
 
   grafana:
     image: grafana/grafana:11.3.1
@@ -170,3 +186,4 @@ volumes:
   caddy-config:
   loki-data:
   alloy-data:
+  alertmanager-data:

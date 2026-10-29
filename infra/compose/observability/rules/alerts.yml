@@ -1,0 +1,47 @@
+# 메일 알림 규칙 4종(ADR 0014). 기준값은 tests/alerts.test.yml이 경계 사례로 검증한다.
+groups:
+  - name: jbank
+    rules:
+      # increase()는 외삽으로 소수가 나올 수 있어 ">= 1" 대신 "> 0"으로 1건 이상 증가를 판정한다.
+      - alert: DeadlockDetected
+        expr: increase(pg_stat_database_deadlocks{datname="jbank"}[5m]) > 0
+        labels:
+          severity: critical
+        annotations:
+          summary: "jbank DB에서 교착이 발생했습니다"
+          description: "최근 5분 교착 증가량 {{ $value | printf \"%.1f\" }}. Grafana Loki에서 postgres 로그의 deadlock detected를 확인하세요."
+
+      # 4xx(잔액 부족 등)는 분자에 넣지 않는다. 5xx가 없거나 이체 요청이 없으면 결과가 비어 알림도 없다.
+      - alert: TransferServerErrorRate
+        expr: |
+          sum(rate(http_server_requests_seconds_count{job="jbank-api", uri=~"/api/v1/transfers.*", status=~"5.."}[5m]))
+            /
+          sum(rate(http_server_requests_seconds_count{job="jbank-api", uri=~"/api/v1/transfers.*"}[5m]))
+            >= 0.05
+        labels:
+          severity: critical
+        annotations:
+          summary: "이체 API 5xx 비율이 5% 이상입니다"
+          description: "최근 5분 이체 요청 중 5xx 비율 {{ $value | humanizePercentage }}."
+
+      # api·exporter 수집 실패와 exporter의 DB 접속 실패(pg_up 0)를 한 알림으로 본다. target 라벨이 대상이다.
+      # 2분 미만(부팅 직후 15~30초 등)은 알리지 않는다.
+      - alert: TargetDown
+        expr: |
+          label_replace(up{job="jbank-api"} == 0, "target", "api", "", "")
+            or label_replace(up{job="postgres"} == 0, "target", "postgres-exporter", "", "")
+            or label_replace(pg_up == 0, "target", "postgres", "", "")
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.target }} 다운(2분 이상)"
+          description: "{{ $labels.target }}의 지표 수집 또는 DB 접속이 2분 넘게 실패하고 있습니다."
+
+      - alert: AccountLockWaitHigh
+        expr: max(db_lock_wait_seconds_max) > 1
+        labels:
+          severity: warning
+        annotations:
+          summary: "계좌 락 대기가 1초를 넘었습니다"
+          description: "락 대기 최대값 {{ $value | printf \"%.2f\" }}초. 핫 계좌 경합을 확인하세요."
