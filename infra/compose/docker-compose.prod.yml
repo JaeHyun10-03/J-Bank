@@ -51,6 +51,9 @@ services:
   postgres:
     image: postgres:16
     restart: unless-stopped
+    # deadlock_timeout(기본 1초)보다 오래 락을 기다린 쿼리를 로그로 남긴다. 교착 자체는 기본으로 남는다.
+    # 이 줄이 바뀌면 deploy.sh의 `up -d api`가 postgres를 재생성한다 — 병합은 18시 이후(runbook).
+    command: ["postgres", "-c", "log_lock_waits=on"]
     environment:
       POSTGRES_DB: jbank
       POSTGRES_USER: jbank
