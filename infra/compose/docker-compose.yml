@@ -58,6 +58,17 @@ services:
       retries: 12
       start_period: 30s
 
+  # 교착 카운터(pg_stat_database_deadlocks)와 DB 접속 상태(pg_up)를 Prometheus로 낸다.
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
+    profiles: ["observability"]
+    mem_limit: 32m
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_URI: postgres:5432/jbank?sslmode=disable
+      DATA_SOURCE_USER: jbank
+      DATA_SOURCE_PASS: jbank
+
   prometheus:
     image: prom/prometheus:v2.55.1
     profiles: ["observability"]
