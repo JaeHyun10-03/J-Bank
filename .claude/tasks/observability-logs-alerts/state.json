@@ -1,0 +1,62 @@
+{
+  "id": "observability-logs-alerts",
+  "phase": "done",
+  "spec_protocol": 1,
+  "base_head": "8d3dc6e841276ab2814812c9be9c23448185dfbd",
+  "base_status": "?? perf/results/ec2-baseline/dryrun/artifacts.txt\n?? perf/results/ec2-baseline/dryrun/environment.md\n?? perf/results/ec2-baseline/dryrun/integrity.md\n?? perf/results/ec2-baseline/dryrun/loadgen/analysis.json\n?? perf/results/ec2-baseline/dryrun/loadgen/k6-end.txt\n?? perf/results/ec2-baseline/dryrun/loadgen/k6-exit.txt\n?? perf/results/ec2-baseline/dryrun/loadgen/k6-start.txt\n?? perf/results/ec2-baseline/dryrun/loadgen/k6-summary.json\n?? perf/results/ec2-baseline/dryrun/loadgen/prometheus/query_range.json.gz\n?? perf/results/ec2-baseline/dryrun/target/batch.txt\n?? perf/results/ec2-baseline/dryrun/target/boundary.env\n?? perf/results/ec2-baseline/dryrun/target/integrity-target.txt\n?? perf/results/ec2-baseline/dryrun/target/log-counts.txt\n?? perf/results/ec2-baseline/dryrun/target/pg_stat_activity.csv\n?? perf/results/ec2-baseline/dryrun/warmup/k6-end.txt\n?? perf/results/ec2-baseline/dryrun/warmup/k6-exit.txt\n?? perf/results/ec2-baseline/dryrun/warmup/k6-start.txt\n?? perf/results/ec2-baseline/dryrun/warmup/k6-summary.json\n",
+  "updated_at": "2026-10-29T12:47:53.132038+00:00",
+  "verifier_calls": [
+    {
+      "at": "2026-10-29T07:18:23.209322+00:00",
+      "phase": "planning",
+      "stage": "plan",
+      "attempt": 0,
+      "snapshot": null,
+      "plan_snapshot": "771cf36c374d513a6843ac640fe31cc65934ebad4771a80daebcee60d3fc090a"
+    },
+    {
+      "at": "2026-10-29T07:50:48.186346+00:00",
+      "phase": "waiting",
+      "stage": "plan",
+      "attempt": 0,
+      "snapshot": null,
+      "plan_snapshot": "c15def45eb28dcdcf222b7765f2d540f2a05e2ce2ee2f269a950d990d279ed89"
+    },
+    {
+      "at": "2026-10-29T08:03:17.188708+00:00",
+      "phase": "waiting",
+      "stage": "plan",
+      "attempt": 0,
+      "snapshot": null,
+      "plan_snapshot": "7d3592ca2cbaf0f59031ab600b80cd321e94899ea47e16c53ab4872a3c02bc10"
+    },
+    {
+      "at": "2026-10-29T08:19:38.809282+00:00",
+      "phase": "waiting",
+      "stage": "plan",
+      "attempt": 0,
+      "snapshot": null,
+      "plan_snapshot": "3489d143a027557495e212641c9bde0905280ecfde8e535c9151e305bc4c417b"
+    },
+    {
+      "at": "2026-10-29T11:47:54.425194+00:00",
+      "phase": "reviewing",
+      "stage": "result",
+      "attempt": 1,
+      "snapshot": "e4f7f1b627531f152f60d4c64e921b9e0c907a0e1cc0babf21a0be01f72016cd",
+      "plan_snapshot": null
+    },
+    {
+      "at": "2026-10-29T12:39:15.447172+00:00",
+      "phase": "reviewing",
+      "stage": "result",
+      "attempt": 2,
+      "snapshot": "c9c211d16c42531933ba723b43148fecaaf08bfd682ef4233385fe0e3d9f93b3",
+      "plan_snapshot": null
+    }
+  ],
+  "approved_plan_snapshot": "3489d143a027557495e212641c9bde0905280ecfde8e535c9151e305bc4c417b",
+  "started": true,
+  "verify_attempts": 3,
+  "review_attempts": 2
+}

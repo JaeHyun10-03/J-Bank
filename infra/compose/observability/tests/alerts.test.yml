@@ -1,0 +1,166 @@
+# 알림 규칙 경계 사례. 실행(저장소 루트):
+#   docker run --rm -v "$PWD/infra/compose/observability:/w" --entrypoint promtool prom/prometheus:v2.55.1 \
+#     test rules /w/tests/alerts.test.yml
+rule_files:
+  - ../rules/alerts.yml
+
+evaluation_interval: 15s
+
+tests:
+  # 교착: 5분 창에서 카운터가 늘지 않으면 없음, 1 늘면 발생.
+  - interval: 15s
+    input_series:
+      - series: 'pg_stat_database_deadlocks{datname="jbank", job="postgres", instance="pe"}'
+        values: '0x40'
+    alert_rule_test:
+      - eval_time: 8m
+        alertname: DeadlockDetected
+        exp_alerts: []
+
+  - interval: 15s
+    input_series:
+      - series: 'pg_stat_database_deadlocks{datname="jbank", job="postgres", instance="pe"}'
+        values: '0x20 1x20'
+    alert_rule_test:
+      - eval_time: 6m
+        alertname: DeadlockDetected
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              datname: jbank
+              job: postgres
+              instance: pe
+            exp_annotations:
+              summary: "jbank DB에서 교착이 발생했습니다"
+              description: "최근 5분 교착 증가량 1.0. Grafana Loki에서 postgres 로그의 deadlock detected를 확인하세요."
+
+  # 이체 5xx 비율: 5%면 발생, 4.9%면 없음, 4xx만 있으면 없음, 요청 0건이면 없음.
+  - interval: 15s
+    input_series:
+      - series: 'http_server_requests_seconds_count{job="jbank-api", uri="/api/v1/transfers", status="200"}'
+        values: '0+95x40'
+      - series: 'http_server_requests_seconds_count{job="jbank-api", uri="/api/v1/transfers", status="500"}'
+        values: '0+5x40'
+    alert_rule_test:
+      - eval_time: 6m
+        alertname: TransferServerErrorRate
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+            exp_annotations:
+              summary: "이체 API 5xx 비율이 5% 이상입니다"
+              description: "최근 5분 이체 요청 중 5xx 비율 5%."
+
+  - interval: 15s
+    input_series:
+      - series: 'http_server_requests_seconds_count{job="jbank-api", uri="/api/v1/transfers", status="200"}'
+        values: '0+951x40'
+      - series: 'http_server_requests_seconds_count{job="jbank-api", uri="/api/v1/transfers", status="500"}'
+        values: '0+49x40'
+    alert_rule_test:
+      - eval_time: 6m
+        alertname: TransferServerErrorRate
+        exp_alerts: []
+
+  - interval: 15s
+    input_series:
+      - series: 'http_server_requests_seconds_count{job="jbank-api", uri="/api/v1/transfers", status="200"}'
+        values: '0+50x40'
+      - series: 'http_server_requests_seconds_count{job="jbank-api", uri="/api/v1/transfers", status="400"}'
+        values: '0+50x40'
+    alert_rule_test:
+      - eval_time: 6m
+        alertname: TransferServerErrorRate
+        exp_alerts: []
+
+  - interval: 15s
+    input_series:
+      - series: 'http_server_requests_seconds_count{job="jbank-api", uri="/api/v1/transfers", status="200"}'
+        values: '7x40'
+      - series: 'http_server_requests_seconds_count{job="jbank-api", uri="/api/v1/transfers", status="500"}'
+        values: '3x40'
+    alert_rule_test:
+      - eval_time: 6m
+        alertname: TransferServerErrorRate
+        exp_alerts: []
+
+  # 수집 대상 다운: api·exporter 수집 실패, exporter의 DB 접속 실패. 1분45초는 대기(pending), 2분이면 발생.
+  - interval: 15s
+    input_series:
+      - series: 'up{job="jbank-api", instance="api:9095"}'
+        values: '0x20'
+      - series: 'up{job="postgres", instance="pe"}'
+        values: '0x20'
+      - series: 'pg_up{job="postgres", instance="pe2"}'
+        values: '0x20'
+      - series: 'up{job="postgres", instance="pe2"}'
+        values: '1x20'
+    alert_rule_test:
+      - eval_time: 1m45s
+        alertname: TargetDown
+        exp_alerts: []
+      - eval_time: 2m
+        alertname: TargetDown
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              target: api
+              job: jbank-api
+              instance: api:9095
+            exp_annotations:
+              summary: "api 다운(2분 이상)"
+              description: "api의 지표 수집 또는 DB 접속이 2분 넘게 실패하고 있습니다."
+          - exp_labels:
+              severity: critical
+              target: postgres-exporter
+              job: postgres
+              instance: pe
+            exp_annotations:
+              summary: "postgres-exporter 다운(2분 이상)"
+              description: "postgres-exporter의 지표 수집 또는 DB 접속이 2분 넘게 실패하고 있습니다."
+          - exp_labels:
+              severity: critical
+              target: postgres
+              job: postgres
+              instance: pe2
+            exp_annotations:
+              summary: "postgres 다운(2분 이상)"
+              description: "postgres의 지표 수집 또는 DB 접속이 2분 넘게 실패하고 있습니다."
+
+  # 모두 정상이면 없음.
+  - interval: 15s
+    input_series:
+      - series: 'up{job="jbank-api", instance="api:9095"}'
+        values: '1x20'
+      - series: 'up{job="postgres", instance="pe"}'
+        values: '1x20'
+      - series: 'pg_up{job="postgres", instance="pe"}'
+        values: '1x20'
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: TargetDown
+        exp_alerts: []
+
+  # 락 대기: 1초면 없음, 1.01초면 발생.
+  - interval: 15s
+    input_series:
+      - series: 'db_lock_wait_seconds_max{job="jbank-api", method="lockSenderByAccountNumber"}'
+        values: '1x8'
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: AccountLockWaitHigh
+        exp_alerts: []
+
+  - interval: 15s
+    input_series:
+      - series: 'db_lock_wait_seconds_max{job="jbank-api", method="lockSenderByAccountNumber"}'
+        values: '1.01x8'
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: AccountLockWaitHigh
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              summary: "계좌 락 대기가 1초를 넘었습니다"
+              description: "락 대기 최대값 1.01초. 핫 계좌 경합을 확인하세요."

@@ -2,6 +2,8 @@ services:
   postgres:
     image: postgres:16
     profiles: ["core"]
+    # deadlock_timeout(기본 1초)보다 오래 락을 기다린 쿼리를 로그로 남긴다. 교착 자체는 기본으로 남는다.
+    command: ["postgres", "-c", "log_lock_waits=on"]
     environment:
       POSTGRES_DB: jbank
       POSTGRES_USER: jbank
@@ -43,17 +45,31 @@ services:
       PII_ENCRYPTION_KEY: rEs9xA1c4JnQE3giHpqdSmhxY/r3DzbFx45Gn7NNv7o= # 로컬 전용, 운영 키와 무관
       RESIDENT_REG_NO_HASH_KEY: EaAMdQ3zxtSSUvgPsQYLyUT7iT+WbKhxERsRlx8P58g= # 로컬 전용, 운영 키와 무관
       JWT_SECRET: c0zN1QYc5xkPHqE3fJ8mWZ2vLdT9bR4gA6hK7nS0uYeXpVjMoIiFwCq1DtGzBl5r # 로컬 전용, 운영 키와 무관
+      # 운영과 같이 actuator를 Compose 내부 관리 포트로 분리한다(ADR 0013). 그래야 Prometheus가
+      # 인증 없이 수집한다. bootRun으로 띄운 api는 관리 포트가 없어 수집 대상이 아니다.
+      MANAGEMENT_SERVER_PORT: "9095"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_started
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health/readiness || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9095/actuator/health/readiness || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 12
       start_period: 30s
+
+  # 교착 카운터(pg_stat_database_deadlocks)와 DB 접속 상태(pg_up)를 Prometheus로 낸다.
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
+    profiles: ["observability"]
+    mem_limit: 32m
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_URI: postgres:5432/jbank?sslmode=disable
+      DATA_SOURCE_USER: jbank
+      DATA_SOURCE_PASS: jbank
 
   prometheus:
     image: prom/prometheus:v2.55.1
@@ -62,6 +78,32 @@ services:
       - "9090:9090"
     volumes:
       - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./observability/rules:/etc/prometheus/rules:ro
+
+  # 알림 메일 발송. 로컬은 mailpit(http://localhost:8025)이 받는다. 운영과 같은 진입 스크립트를 쓴다.
+  alertmanager:
+    image: prom/alertmanager:v0.34.1
+    profiles: ["observability"]
+    mem_limit: 32m
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "/etc/alertmanager/entrypoint.sh"]
+    command: ["/bin/alertmanager", "--config.file=/tmp/alertmanager.yml", "--storage.path=/alertmanager"]
+    environment:
+      ALERT_EMAIL_TO: dev@jbank.local
+      SMTP_FROM: alertmanager@jbank.local
+      SMTP_SMARTHOST: mailpit:1025
+      SMTP_REQUIRE_TLS: "false"
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./observability/alertmanager-entrypoint.sh:/etc/alertmanager/entrypoint.sh:ro
+      - alertmanager-data:/alertmanager
+
+  mailpit:
+    image: axllent/mailpit:v1.31.4
+    profiles: ["observability"]
+    ports:
+      - "8025:8025"
 
   grafana:
     image: grafana/grafana:11.3.1
@@ -74,6 +116,70 @@ services:
       - grafana-data:/var/lib/grafana
       - ./observability/provisioning:/etc/grafana/provisioning:ro
 
+  # 로그 수집: 컨테이너 로그 → alloy → loki → Grafana(ADR 0014). 운영과 같은 구성이다.
+  loki:
+    image: grafana/loki:3.7.8
+    profiles: ["observability"]
+    mem_limit: 192m
+    restart: unless-stopped
+    command: ["-config.file=/etc/loki/loki.yml"]
+    environment:
+      GOMEMLIMIT: 160MiB
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./observability/loki.yml:/etc/loki/loki.yml:ro
+      - loki-data:/loki
+
+  alloy:
+    image: grafana/alloy:v1.20.1
+    profiles: ["observability"]
+    mem_limit: 96m
+    restart: unless-stopped
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - --disable-reporting
+      - /etc/alloy/config.alloy
+    environment:
+      GOMEMLIMIT: 80MiB
+    volumes:
+      - ./observability/alloy.alloy:/etc/alloy/config.alloy:ro
+      - alloy-data:/var/lib/alloy/data
+    networks: [default, docker-api]
+    depends_on: [socket-proxy, loki]
+
+  # 도커 소켓은 이 프록시만 연다. 컨테이너 목록·inspect·로그와 네트워크 목록(alloy의 컨테이너 탐색이
+  # 라벨 계산에 씀) GET만 허용하고 나머지(쓰기·archive·exec)는 거부한다. 허용식 앞뒤 ^$는 프록시가 붙인다.
+  # docker-api 네트워크에는 alloy만 붙어 다른 컨테이너는 프록시에 닿지 않는다.
+  socket-proxy:
+    image: wollomatic/socket-proxy:1.13.1
+    profiles: ["observability"]
+    mem_limit: 16m
+    restart: unless-stopped
+    # 소켓(root:docker 660)을 읽으려면 소켓 소유자인 root여야 한다. 권한은 모두 내리고 파일시스템은 읽기 전용.
+    user: "0:0"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    command:
+      - -loglevel=info
+      - -listenip=0.0.0.0
+      - -allowfrom=alloy
+      - -allowGET=(/v[0-9.]+)?/(_ping|version|networks|containers/json|containers/[a-zA-Z0-9_.-]+/(json|logs))
+      - -allowHEAD=(/v[0-9.]+)?/_ping
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks: [docker-api]
+
+networks:
+  docker-api:
+    internal: true
+
 volumes:
   postgres-data:
   grafana-data:
+  loki-data:
+  alloy-data:
+  alertmanager-data:

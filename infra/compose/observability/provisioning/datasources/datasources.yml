@@ -8,3 +8,19 @@ datasources:
     url: http://prometheus:9090
     isDefault: true
 
+  # 운영에서 logs 프로필을 끄면 이 데이터소스는 연결 실패로 남는다(ADR 0014).
+  - name: Loki
+    uid: loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+
+  # 발생 중인 알림 조회용. 알림 규칙은 Prometheus, 발송은 Alertmanager가 한다(ADR 0014).
+  - name: Alertmanager
+    uid: alertmanager
+    type: alertmanager
+    access: proxy
+    url: http://alertmanager:9093
+    jsonData:
+      implementation: prometheus
+      handleGrafanaManagedAlerts: false
