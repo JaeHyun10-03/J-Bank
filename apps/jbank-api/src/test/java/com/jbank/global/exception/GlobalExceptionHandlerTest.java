@@ -3,8 +3,10 @@ package com.jbank.global.exception;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jbank.global.response.ApiResponse;
+import java.sql.SQLException;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -66,6 +68,21 @@ class GlobalExceptionHandlerTest {
     assertThat(resourceResponse.getBody().error().code()).isEqualTo("COMMON_004_NOT_FOUND");
     assertThat(handlerResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     assertThat(handlerResponse.getBody().error().code()).isEqualTo("COMMON_004_NOT_FOUND");
+  }
+
+  @Test
+  void 교착_40P01은_전용_매핑_없이_500_COMMON_006으로_변환된다() {
+    // given: 교착으로 실패한 락 조회(교착 재현 실험의 unsorted-for-update)
+    CannotAcquireLockException exception =
+        new CannotAcquireLockException(
+            "could not execute statement", new SQLException("deadlock detected", "40P01"));
+
+    // when
+    ResponseEntity<ApiResponse<Void>> response = handler.handleUnexpected(exception);
+
+    // then
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+    assertThat(response.getBody().error().code()).isEqualTo("COMMON_006_INTERNAL_ERROR");
   }
 
   private void sample(@RequestHeader("Idempotency-Key") String key) {}
