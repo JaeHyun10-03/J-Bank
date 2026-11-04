@@ -76,7 +76,11 @@
 
 - 사용자 자격증명으로 읽기 전용 명령이 되는지 확인한다.
   - SSM: `aws ssm send-command ... --parameters 'commands=["echo ok"]'`
-  - 원격 스크립트 실행 방식: 스크립트는 표준 입력이 아니라 임시 파일로 넘긴다. 표준 입력으로 넘기면 `docker compose exec -T`가 다음 줄을 삼킨다(로컬에서 재현 확인). 실험일 전에 같은 방식으로 읽기 전용 명령 `$DC exec -T api printenv JBANK_TRANSFER_LOCK_STRATEGY || echo 없음` 다음 줄에 `echo 다음줄`을 두고, `다음줄`이 출력되는지 본다.
+  - 원격 스크립트 실행 방식: 스크립트는 표준 입력이 아니라 임시 파일로 넘긴다. 표준 입력으로 넘기면 `docker compose exec -T`가 다음 줄을 삼킨다(로컬에서 재현 확인). 읽기 전용 점검 모드로 SSM 실행, `exec -T` 다음 줄 실행, 컨테이너 안 wget, 스케줄 조회 권한을 한 번에 본다. 출력에 `exec 다음 줄: ok`와 `마지막 줄: ok`가 있어야 한다.
+
+    ```bash
+    INSTANCE_ID=<인스턴스ID> perf/run-deadlock.sh prod-check
+    ```
   - 스케줄: `aws scheduler get-schedule --name jbank-dev-app-stop`
 - 사용자가 할 일: 운영에 테스트 고객 1명을 가입하고, ACTIVE 계좌 2개를 열어 각각 1억 원 이상 입금한다. 에이전트는 운영 계정을 만들거나 비밀번호를 입력하지 않는다.
 
