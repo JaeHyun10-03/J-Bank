@@ -1,0 +1,33 @@
+time="2026-11-04T17:10:21+09:00" level=warning msg="Request Failed" error="Post \"http://localhost:8080/api/v1/transfers\": request timeout"
+time="2026-11-04T17:10:23+09:00" level=warning msg="Request Failed" error="Post \"http://localhost:8080/api/v1/transfers\": request timeout"
+time="2026-11-04T17:10:37+09:00" level=warning msg="Request Failed" error="Post \"http://localhost:8080/api/v1/transfers\": request timeout"
+time="2026-11-04T17:10:42+09:00" level=warning msg="Request Failed" error="Post \"http://localhost:8080/api/v1/transfers\": request timeout"
+time="2026-11-04T17:10:45+09:00" level=warning msg="Request Failed" error="Post \"http://localhost:8080/api/v1/transfers\": request timeout"
+
+
+  █ TOTAL RESULTS 
+
+    CUSTOM
+    code_COMMON_006_INTERNAL_ERROR...: 173    2.240257/s
+    status_0.........................: 5      0.064747/s
+    status_2xx.......................: 17     0.220141/s
+    status_5xx.......................: 173    2.240257/s
+
+    HTTP
+    http_req_duration................: avg=17.15s min=118.65ms med=18.26s max=30s    p(95)=25.38s p(99)=30s   
+      { expected_response:true }.....: avg=19.93s min=118.65ms med=22.32s max=29.37s p(95)=26.77s p(99)=28.85s
+    http_req_failed..................: 90.81% 178 out of 196
+    http_reqs........................: 196    2.538094/s
+
+    EXECUTION
+    iteration_duration...............: avg=17.24s min=1.02s    med=18.26s max=30.01s p(95)=25.38s p(99)=30s   
+    iterations.......................: 195    2.525145/s
+    vus..............................: 2      min=2          max=50
+    vus_max..........................: 50     min=50         max=50
+
+    NETWORK
+    data_received....................: 109 kB 1.4 kB/s
+    data_sent........................: 166 kB 2.2 kB/s
+
+
+

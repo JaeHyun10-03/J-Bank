@@ -1,0 +1,25 @@
+
+
+  █ TOTAL RESULTS 
+
+    CUSTOM
+    status_2xx.....................: 49600 821.615811/s
+
+    HTTP
+    http_req_duration..............: avg=120.9ms  min=2.41ms med=109.99ms max=1.11s p(95)=192.35ms p(99)=277.64ms
+      { expected_response:true }...: avg=120.9ms  min=2.41ms med=109.99ms max=1.11s p(95)=192.35ms p(99)=277.64ms
+    http_req_failed................: 0.00% 0 out of 49601
+    http_reqs......................: 49601 821.632376/s
+
+    EXECUTION
+    iteration_duration.............: avg=121.02ms min=2.55ms med=110.11ms max=1.11s p(95)=192.47ms p(99)=277.74ms
+    iterations.....................: 49600 821.615811/s
+    vus............................: 100   min=100        max=100
+    vus_max........................: 100   min=100        max=100
+
+    NETWORK
+    data_received..................: 30 MB 499 kB/s
+    data_sent......................: 42 MB 700 kB/s
+
+
+

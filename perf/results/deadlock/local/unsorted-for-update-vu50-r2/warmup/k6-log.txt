@@ -1,0 +1,27 @@
+
+
+  █ TOTAL RESULTS 
+
+    CUSTOM
+    code_COMMON_006_INTERNAL_ERROR...: 28     1.17565/s
+    status_2xx.......................: 9      0.377888/s
+    status_5xx.......................: 28     1.17565/s
+
+    HTTP
+    http_req_duration................: avg=2.93s min=330.4ms med=3.05s max=6.07s p(95)=5.22s p(99)=6.06s
+      { expected_response:true }.....: avg=3.3s  min=330.4ms med=3.14s max=5.08s p(95)=5.06s p(99)=5.07s
+    http_req_failed..................: 73.68% 28 out of 38
+    http_reqs........................: 38     1.595525/s
+
+    EXECUTION
+    iteration_duration...............: avg=3s    min=1.01s   med=3.05s max=6.07s p(95)=5.27s p(99)=6.07s
+    iterations.......................: 37     1.553538/s
+    vus..............................: 2      min=2        max=5
+    vus_max..........................: 5      min=5        max=5
+
+    NETWORK
+    data_received....................: 23 kB  950 B/s
+    data_sent........................: 32 kB  1.3 kB/s
+
+
+
