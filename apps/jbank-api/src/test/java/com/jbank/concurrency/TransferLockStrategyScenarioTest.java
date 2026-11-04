@@ -208,7 +208,8 @@ abstract class TransferLockStrategyScenarioTest extends AbstractConcurrencyTest 
 
   private Outcome runConcurrently(List<Runnable> tasks) throws InterruptedException {
     ExecutorService executor = Executors.newFixedThreadPool(THREADS);
-    CountDownLatch ready = new CountDownLatch(tasks.size());
+    // 스레드 수만큼만 준비를 기다린다. 작업 수로 기다리면 나머지 작업이 큐에 묶여 매번 10초 시간 초과로 끝난다.
+    CountDownLatch ready = new CountDownLatch(Math.min(THREADS, tasks.size()));
     CountDownLatch start = new CountDownLatch(1);
     Outcome outcome = new Outcome();
     try {
