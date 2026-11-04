@@ -54,14 +54,19 @@ log() { echo "$(date '+%F %T') $*" | tee -a "$PROGRESS" >&2; }
 now_utc() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 readyz() { curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$BASE_URL/readyz" || true; }
 
-# Ctrl-C·종료 신호: 진행 중인 회차를 기록하고 끝낸다(재개는 --from). 측정 전이면 측정 미실행,
-# 종료값까지 남았으면 완료(조건 ①은 해제 미확인)로 남긴다.
+# Ctrl-C·종료 신호: 대기 중인 SSM 명령을 취소하고 진행 중인 회차를 기록한 뒤 끝낸다(재개는 --from).
+# 측정을 시작하기 전이면 측정 미실행, 종료값까지 남았으면 완료(조건 ①만 해제 미확인)로 남긴다.
 CURRENT_ROUND_DIR=""
 on_interrupt() {
+  if [ -f "$TMP/ssm.id" ]; then
+    aws ssm cancel-command --region "$REGION" --command-id "$(cat "$TMP/ssm.id")" > /dev/null 2>&1 || true
+  fi
   if [ -n "$CURRENT_ROUND_DIR" ] && [ ! -f "$CURRENT_ROUND_DIR/result.json" ]; then
     if [ -f "$CURRENT_ROUND_DIR/after.json" ]; then
-      write_result "$CURRENT_ROUND_DIR" "완료" "" "해제 미확인(사용자 중단)"
-    elif [ "${measured:-no}" = yes ]; then
+      local release=-
+      [[ "$CURRENT_ROUND_DIR" == *unsorted-for-update* ]] && release="해제 미확인(사용자 중단)"
+      write_result "$CURRENT_ROUND_DIR" "완료" "" "$release"
+    elif [ "${measuring:-no}" = yes ]; then
       write_result "$CURRENT_ROUND_DIR" "사용자 중단" "종료값 전 INT/TERM" "-"
     else
       write_result "$CURRENT_ROUND_DIR" "측정 미실행(사용자 중단)" "INT/TERM" "-"
@@ -77,6 +82,14 @@ timeout_reason() {
   if [ "$1" = yes ]; then echo "시간 초과"; else echo "무응답"; fi
 }
 
+# 운영 호스트에서 실행할 스크립트 본문과, 그것을 임시 파일로 풀어 ec2-user로 실행하는 SSM 명령.
+remote_script() {
+  printf 'set -euo pipefail\nexport HOME=/home/ec2-user\ncd /opt/jbank/infra/compose\nDC="docker compose -f docker-compose.prod.yml"\n%s\n' "$1"
+}
+remote_command() {
+  echo "f=\$(mktemp /tmp/deadlock-cmd.XXXXXX) && echo $1 | base64 -d > \"\$f\" && chmod 644 \"\$f\" && runuser -u ec2-user -- bash \"\$f\" < /dev/null; rc=\$?; rm -f \"\$f\"; exit \$rc"
+}
+
 # 대상 호스트의 compose 폴더에서 셸 스크립트를 실행한다. $DC는 그 환경의 docker compose 명령이다.
 # 실패하면 $TMP/stop에 사유를 남기고 0이 아닌 값을 돌려준다.
 host() {
@@ -86,26 +99,32 @@ host() {
     return 0
   fi
   local b64 id status saw200=no deadline=$((SECONDS + STEP_LIMIT))
-  b64="$(printf 'set -euo pipefail\nexport HOME=/home/ec2-user\ncd /opt/jbank/infra/compose\nDC="docker compose -f docker-compose.prod.yml"\n%s\n' "$1" | base64 | tr -d '\n')"
+  b64="$(remote_script "$1" | base64 | tr -d '\n')"
+  # 스크립트는 표준 입력이 아니라 파일로 넘긴다. 표준 입력으로 넘기면 `docker compose exec -T`가
+  # 아직 읽지 않은 다음 줄을 컨테이너로 가져가 버린다.
   if ! id="$(aws ssm send-command --region "$REGION" --instance-ids "$INSTANCE_ID" \
     --document-name AWS-RunShellScript --timeout-seconds 600 \
-    --parameters "$(jq -cn --arg c "echo $b64 | base64 -d | runuser -u ec2-user -- bash" '{commands: [$c]}')" \
+    --parameters "$(jq -cn --arg c "$(remote_command "$b64")" '{commands: [$c]}')" \
     --query Command.CommandId --output text 2> "$TMP/ssm.err")"; then
     log "SSM 전송 실패: $(head -c 300 "$TMP/ssm.err")"
     [ "$(readyz)" = 200 ] && saw200=yes
     timeout_reason "$saw200" > "$TMP/stop"
     return 1
   fi
+  # 대기 중 Ctrl-C가 오면 on_interrupt가 이 명령을 취소한다(host는 대개 $(...) 안이라 파일로 넘긴다).
+  echo "$id" > "$TMP/ssm.id"
   while :; do
     status="$(aws ssm get-command-invocation --region "$REGION" --command-id "$id" --instance-id "$INSTANCE_ID" \
       --query Status --output text 2> /dev/null || echo Pending)"
     case "$status" in
       Success)
+        rm -f "$TMP/ssm.id"
         aws ssm get-command-invocation --region "$REGION" --command-id "$id" --instance-id "$INSTANCE_ID" \
           --query StandardOutputContent --output text
         return 0
         ;;
       Failed | Cancelled | TimedOut | Cancelling)
+        rm -f "$TMP/ssm.id"
         log "SSM 명령 실패($status): $(aws ssm get-command-invocation --region "$REGION" --command-id "$id" \
           --instance-id "$INSTANCE_ID" --query StandardErrorContent --output text | head -c 500)"
         echo "명령 실패" > "$TMP/stop"
@@ -116,6 +135,7 @@ host() {
     if [ "$SECONDS" -gt "$deadline" ]; then
       # 상한을 넘긴 명령이 스크립트가 끝난 뒤에 실행되지 않게 취소한다(예: flock을 기다리던 전략 적용).
       aws ssm cancel-command --region "$REGION" --command-id "$id" > /dev/null 2>&1 || true
+      rm -f "$TMP/ssm.id"
       timeout_reason "$saw200" > "$TMP/stop"
       return 1
     fi
@@ -355,7 +375,7 @@ write_result() {
 
 # 회차 하나. 중단되면 결과 이름과 사유를 기록하고 1을 돌려준다. 측정 전에 멈춘 회차는 "측정 미실행"이다.
 run_round() {
-  local strategy="$1" vus="$2" round="$3" dir started measured=no logline release="-" mem measure_end
+  local strategy="$1" vus="$2" round="$3" dir started measured=no measuring=no logline release="-" mem measure_end
   dir="$RESULTS/$ENV_NAME/$strategy-vu$vus-r$round"
   # 끝난 회차는 다시 돌리지 않는다(Q-05). 결과를 덮어쓰지 않게 막는다.
   [ ! -f "$dir/result.json" ] || { log "이미 결과가 있는 회차: $dir"; return 1; }
@@ -397,6 +417,7 @@ run_round() {
 
   if [ "$ENV_NAME" = prod ]; then mem_sampler_start || { fail_round "메모리 표본 시작"; return 1; }; fi
   log "측정 $MEASURE VU $vus"
+  measuring=yes
   run_k6 "$vus" "$MEASURE" "$dir" || { fail_round "측정 k6"; return 1; }
   measured=yes
   measure_end="$(now_utc)"

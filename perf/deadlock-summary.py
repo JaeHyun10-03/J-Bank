@@ -24,7 +24,8 @@ LOCK_METHODS = ("lockSenderByAccountNumber", "lockReceiverByAccountNumber", "loc
 
 
 def load(path):
-    return json.loads(path.read_text()) if path.exists() else None
+    # 0바이트 파일(k6가 요약을 못 쓰고 끝남)은 없는 것으로 본다.
+    return json.loads(path.read_text()) if path.exists() and path.stat().st_size else None
 
 
 def metric(summary, name, field):
