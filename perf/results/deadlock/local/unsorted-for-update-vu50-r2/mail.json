@@ -1,0 +1,74 @@
+[
+  {
+    "subject": "[RESOLVED] DeadlockDetected (16384 jbank postgres-exporter:9187 postgres critical)",
+    "created": "2026-11-04T07:52:50.449Z"
+  },
+  {
+    "subject": "[RESOLVED] TransferServerErrorRate (critical)",
+    "created": "2026-11-04T07:52:50.446Z"
+  },
+  {
+    "subject": "[RESOLVED] AccountLockWaitHigh (warning)",
+    "created": "2026-11-04T07:47:50.452Z"
+  },
+  {
+    "subject": "[FIRING:1] TransferServerErrorRate (critical)",
+    "created": "2026-11-04T07:47:50.448Z"
+  },
+  {
+    "subject": "[FIRING:1] DeadlockDetected (16384 jbank postgres-exporter:9187 postgres critical)",
+    "created": "2026-11-04T07:42:50.466Z"
+  },
+  {
+    "subject": "[FIRING:1] AccountLockWaitHigh (warning)",
+    "created": "2026-11-04T07:42:50.461Z"
+  },
+  {
+    "subject": "[RESOLVED] DeadlockDetected (16384 jbank postgres-exporter:9187 postgres critical)",
+    "created": "2026-11-04T07:25:50.431Z"
+  },
+  {
+    "subject": "[RESOLVED] TransferServerErrorRate (critical)",
+    "created": "2026-11-04T07:24:50.437Z"
+  },
+  {
+    "subject": "[RESOLVED] AccountLockWaitHigh (warning)",
+    "created": "2026-11-04T07:19:50.424Z"
+  },
+  {
+    "subject": "[FIRING:1] DeadlockDetected (16384 jbank postgres-exporter:9187 postgres critical)",
+    "created": "2026-11-04T07:15:50.421Z"
+  },
+  {
+    "subject": "[FIRING:1] TransferServerErrorRate (critical)",
+    "created": "2026-11-04T07:14:50.45Z"
+  },
+  {
+    "subject": "[FIRING:1] AccountLockWaitHigh (warning)",
+    "created": "2026-11-04T07:14:50.446Z"
+  },
+  {
+    "subject": "[RESOLVED] DeadlockDetected (16384 jbank postgres-exporter:9187 postgres critical)",
+    "created": "2026-11-04T07:13:50.495Z"
+  },
+  {
+    "subject": "[RESOLVED] TransferServerErrorRate (critical)",
+    "created": "2026-11-04T07:11:50.424Z"
+  },
+  {
+    "subject": "[RESOLVED] AccountLockWaitHigh (warning)",
+    "created": "2026-11-04T07:08:50.482Z"
+  },
+  {
+    "subject": "[FIRING:1] TransferServerErrorRate (critical)",
+    "created": "2026-11-04T07:06:50.414Z"
+  },
+  {
+    "subject": "[FIRING:1] DeadlockDetected (16384 jbank postgres-exporter:9187 postgres critical)",
+    "created": "2026-11-04T07:03:50.508Z"
+  },
+  {
+    "subject": "[FIRING:1] AccountLockWaitHigh (warning)",
+    "created": "2026-11-04T07:03:50.505Z"
+  }
+]
