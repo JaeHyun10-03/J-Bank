@@ -4,6 +4,7 @@
 #   로컬 1회차:      (LOGIN_ID·PASSWORD를 저장소 밖 파일에서 export) perf/run-deadlock.sh local <조건> <VU> <회차>
 #   운영 6회:        INSTANCE_ID=<인스턴스ID> LOGIN_ID=<로그인ID> perf/run-deadlock.sh prod-all [--from <조건>-vu<VU>]
 #   운영 복귀 확인:  INSTANCE_ID=<인스턴스ID> LOGIN_ID=<로그인ID> perf/run-deadlock.sh prod-restore-check
+#   실험 전 점검:    INSTANCE_ID=<인스턴스ID> perf/run-deadlock.sh prod-check   (읽기 전용, 로그인 없음)
 #
 # 조건: current | sorted-for-update | unsorted-for-update. 운영 비밀번호는 read -s로 한 번 받아 셸 변수에만 둔다
 # (인자·파일·로그에 남기지 않는다). 계좌는 로그인한 고객의 ACTIVE 계좌 중 계좌 ID가 가장 작은 두 개이고,
@@ -22,7 +23,7 @@ PROD_ORDER=(current-vu50 current-vu100 sorted-for-update-vu50 sorted-for-update-
   unsorted-for-update-vu50 unsorted-for-update-vu100)
 
 usage() {
-  sed -n '4,6p' "$0" >&2
+  sed -n '4,7p' "$0" >&2
   exit 1
 }
 
@@ -41,9 +42,14 @@ case "$MODE" in
     read -r -s -p "운영 로그인 비밀번호: " PASSWORD
     echo >&2
     ;;
+  prod-check)
+    ENV_NAME=prod
+    BASE_URL="${BASE_URL:-https://api.j-bank.site}"
+    : "${INSTANCE_ID:?INSTANCE_ID 환경변수가 필요하다}"
+    ;;
   *) usage ;;
 esac
-: "${LOGIN_ID:?LOGIN_ID 환경변수가 필요하다}"
+[ "$MODE" = prod-check ] || : "${LOGIN_ID:?LOGIN_ID 환경변수가 필요하다}"
 
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
@@ -62,7 +68,7 @@ on_interrupt() {
     aws ssm cancel-command --region "$REGION" --command-id "$(cat "$TMP/ssm.id")" > /dev/null 2>&1 || true
   fi
   if [ -n "$CURRENT_ROUND_DIR" ] && [ ! -f "$CURRENT_ROUND_DIR/result.json" ]; then
-    if [ -f "$CURRENT_ROUND_DIR/after.json" ]; then
+    if [ -s "$CURRENT_ROUND_DIR/after.json" ]; then
       local release=-
       [[ "$CURRENT_ROUND_DIR" == *unsorted-for-update* ]] && release="해제 미확인(사용자 중단)"
       write_result "$CURRENT_ROUND_DIR" "완료" "" "$release"
@@ -427,7 +433,9 @@ run_round() {
     echo "$mem" > "$dir/mem-min-mib.txt"
   fi
   wait_unapplied_zero || { fail_round "종료값 전 미반영 입금"; return 1; }
-  snapshot > "$dir/after.json" || { fail_round "종료값"; return 1; }
+  # 임시 파일에 쓴 뒤 옮긴다. 기록 도중 중단돼도 빈 after.json이 남지 않게(on_interrupt가 완료로 오인).
+  snapshot > "$TMP/after.json" || { fail_round "종료값"; return 1; }
+  mv "$TMP/after.json" "$dir/after.json"
   lock_wait_metrics > "$dir/lock-wait-after.json" || { fail_round "종료 락 대기"; return 1; }
   backup_postgres_log "$started" "$dir" || { fail_round "postgres 로그 백업"; return 1; }
 
@@ -511,6 +519,16 @@ case "$MODE" in
       fi
     done
     prod_restore
+    ;;
+  prod-check)
+    # 실험일 전 읽기 전용 점검: SSM 실행, 원격 스크립트가 exec -T 뒤 줄까지 실행되는지, 컨테이너 안 wget, 스케줄 조회 권한.
+    host "echo \"SSM: ok\"
+echo \"컨테이너 변수: \$(\$DC exec -T api printenv JBANK_TRANSFER_LOCK_STRATEGY || echo 없음)\"
+echo \"exec 다음 줄: ok\"
+echo \"Alertmanager: \$(\$DC exec -T alertmanager wget -qO- http://localhost:9093/-/ready || echo 실패)\"
+echo \"Prometheus: \$(\$DC exec -T prometheus wget -qO- http://localhost:9090/-/ready || echo 실패)\"
+echo \"마지막 줄: ok\"" || { echo "SSM 실패: $(cat "$TMP/stop")"; exit 1; }
+    echo "중지 스케줄: $(aws scheduler get-schedule --region "$REGION" --name jbank-dev-app-stop --query State --output text 2>&1)"
     ;;
   prod-restore-check)
     {
