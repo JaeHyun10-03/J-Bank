@@ -61,7 +61,8 @@
 4. 회차마다 다음 명령을 실행한다.
 
    ```bash
-   LOGIN_ID=<로그인ID> PASSWORD=<비밀번호> perf/run-deadlock.sh local <조건> <VU> <회차>
+   set -a; . <저장소 밖 파일(LOGIN_ID·PASSWORD)>; set +a
+   perf/run-deadlock.sh local <조건> <VU> <회차>
    ```
 
 5. 순서
@@ -84,12 +85,12 @@
 - 사용자 터미널에서 실행한다. 비밀번호는 한 번 입력한다(`read -s`).
 
   ```bash
-  INSTANCE_ID=<인스턴스ID> LOGIN_ID=<로그인ID> perf/run-deadlock.sh prod-all
+  caffeinate -i env INSTANCE_ID=<인스턴스ID> LOGIN_ID=<로그인ID> perf/run-deadlock.sh prod-all
   ```
 
 - 순서는 ③(VU 50·100) → ②(VU 50·100) → ①(VU 50·100)이다. 소요 시간은 약 40분이다.
 - 마지막 단계에서 설정을 복귀한다(5절).
-- 진행 상황은 `perf/results/deadlock/prod/progress.log`로 본다.
+- 진행 상황은 `perf/results/deadlock/prod/progress.txt`(`*.log`는 .gitignore 대상이라 결과 파일은 `.txt`로 남긴다)로 본다.
 - 알림 메일(DeadlockDetected 발생·해제, 그 밖의 5xx 비율·락 대기 알림)은 사용자가 Gmail에서 확인한다. 받은 시각은 회차 결과와 함께 기록한다. 측정을 마친 ① 회차가 없거나, 측정 직후 서버가 멈춰 메일을 못 받았으면 "미수신(사유)"으로 적고 다시 돌리지 않는다.
 
 ### 4-3. 무응답·시간 초과
@@ -97,7 +98,7 @@
 - SSM 단계마다 대기 상한이 5분이다.
   - 그동안 `https://api.j-bank.site/readyz`가 한 번도 200을 주지 않으면 "무응답", 200을 주면 "시간 초과"다.
   - 측정 전에 멈추면 "측정 미실행(사유)"다.
-- 스크립트는 그 회차를 기록하고 끝낸다. 남은 회차는 돌지 않는다. 끝난 회차는 다시 돌리지 않는다.
+- 스크립트는 그 회차를 기록하고 끝낸다. 남은 회차는 돌지 않는다. 끝난 회차는 다시 돌리지 않는다(결과가 있는 회차는 건너뛰고, `--from` 값이 목록에 없으면 멈춘다). 상한을 넘긴 SSM 명령은 취소한다. Ctrl-C도 그 회차를 기록하고 끝낸다.
 - 복구 순서(에이전트)
   1. 무응답이면 AWS CLI로 EC2를 중지·시작한다.
   2. 부팅 배치가 끝났는지 확인한다(4-2와 같은 기준). failed이면 실패한 잡을 기록한다.
