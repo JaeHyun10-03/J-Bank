@@ -1,0 +1,89 @@
+{
+  "sum by (method) (db_lock_wait_seconds_count)": [
+    {
+      "metric": {
+        "method": "lockForBalanceUpdate"
+      },
+      "value": [
+        1793777921.845,
+        "168"
+      ]
+    },
+    {
+      "metric": {
+        "method": "lockReceiverByAccountNumber"
+      },
+      "value": [
+        1793777921.845,
+        "17992"
+      ]
+    },
+    {
+      "metric": {
+        "method": "lockSenderByAccountNumber"
+      },
+      "value": [
+        1793777921.845,
+        "17992"
+      ]
+    }
+  ],
+  "sum by (method) (db_lock_wait_seconds_sum)": [
+    {
+      "metric": {
+        "method": "lockForBalanceUpdate"
+      },
+      "value": [
+        1793777921.860,
+        "0.426490627"
+      ]
+    },
+    {
+      "metric": {
+        "method": "lockReceiverByAccountNumber"
+      },
+      "value": [
+        1793777921.860,
+        "3.173433804"
+      ]
+    },
+    {
+      "metric": {
+        "method": "lockSenderByAccountNumber"
+      },
+      "value": [
+        1793777921.860,
+        "34.905678533"
+      ]
+    }
+  ],
+  "max by (method) (db_lock_wait_seconds_max)": [
+    {
+      "metric": {
+        "method": "lockForBalanceUpdate"
+      },
+      "value": [
+        1793777921.874,
+        "0.069423417"
+      ]
+    },
+    {
+      "metric": {
+        "method": "lockReceiverByAccountNumber"
+      },
+      "value": [
+        1793777921.874,
+        "0.013103375"
+      ]
+    },
+    {
+      "metric": {
+        "method": "lockSenderByAccountNumber"
+      },
+      "value": [
+        1793777921.874,
+        "0.125886208"
+      ]
+    }
+  ]
+}

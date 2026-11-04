@@ -1,0 +1,1 @@
+2026-11-04 07:40:21.726 UTC [26] LOG:  checkpoint starting: wal

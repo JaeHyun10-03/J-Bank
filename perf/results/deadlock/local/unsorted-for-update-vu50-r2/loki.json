@@ -1,0 +1,24 @@
+{
+  "deadlock detected": {
+    "count": 203,
+    "samples": [
+      "2026-11-04 07:43:58.544 UTC [5064] ERROR:  deadlock detected",
+      "2026-11-04 07:43:58.544 UTC [5071] ERROR:  deadlock detected",
+      "2026-11-04 07:43:58.543 UTC [5063] ERROR:  deadlock detected",
+      "2026-11-04 07:43:58.542 UTC [5067] ERROR:  deadlock detected",
+      "2026-11-04 07:43:57.507 UTC [5067] ERROR:  deadlock detected",
+      "2026-11-04 07:43:57.499 UTC [5070] ERROR:  deadlock detected"
+    ]
+  },
+  "DETAIL:  Process": {
+    "count": 659,
+    "samples": [
+      "2026-11-04 07:43:58.545 UTC [5062] DETAIL:  Process holding the lock: 5068. Wait queue: 5069, 5070, 5062.",
+      "2026-11-04 07:43:58.545 UTC [5070] DETAIL:  Process holding the lock: 5068. Wait queue: 5069, 5070, 5062.",
+      "2026-11-04 07:43:58.544 UTC [5064] DETAIL:  Process 5064 waits for AccessExclusiveLock on tuple (4,12) of relation 16408 of database 16384; blocked by process 5068.",
+      "2026-11-04 07:43:58.544 UTC [5071] DETAIL:  Process 5071 waits for AccessExclusiveLock on tuple (4,12) of relation 16408 of database 16384; blocked by process 5068.",
+      "2026-11-04 07:43:58.544 UTC [5064] DETAIL:  Process holding the lock: 5068. Wait queue: 5069, 5070, 5062.",
+      "2026-11-04 07:43:58.544 UTC [5071] DETAIL:  Process holding the lock: 5068. Wait queue: 5064, 5069, 5070, 5062."
+    ]
+  }
+}

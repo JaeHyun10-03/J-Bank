@@ -1,0 +1,2 @@
+2026-11-04 08:08:02.370 UTC [26] LOG:  checkpoint complete: wrote 2019 buffers (12.3%); 0 WAL file(s) added, 1 removed, 0 recycled; write=161.168 s, sync=0.095 s, total=161.282 s; sync files=65, longest=0.010 s, average=0.002 s; distance=18792 kB, estimate=464275 kB; lsn=0/B1421F08, redo lsn=0/93BA9078
+2026-11-04 08:08:17.507 UTC [26] LOG:  checkpoint starting: wal

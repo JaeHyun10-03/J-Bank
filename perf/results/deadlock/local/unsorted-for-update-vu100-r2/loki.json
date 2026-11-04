@@ -1,0 +1,24 @@
+{
+  "deadlock detected": {
+    "count": 227,
+    "samples": [
+      "2026-11-04 07:55:26.211 UTC [6248] ERROR:  deadlock detected",
+      "2026-11-04 07:55:25.202 UTC [6250] ERROR:  deadlock detected",
+      "2026-11-04 07:55:24.191 UTC [6249] ERROR:  deadlock detected",
+      "2026-11-04 07:55:23.187 UTC [6244] ERROR:  deadlock detected",
+      "2026-11-04 07:55:22.179 UTC [6245] ERROR:  deadlock detected",
+      "2026-11-04 07:55:21.173 UTC [6251] ERROR:  deadlock detected"
+    ]
+  },
+  "DETAIL:  Process": {
+    "count": 738,
+    "samples": [
+      "2026-11-04 07:55:26.211 UTC [6248] DETAIL:  Process 6248 waits for ShareLock on transaction 720212; blocked by process 6246.",
+      "2026-11-04 07:55:26.210 UTC [6248] DETAIL:  Process holding the lock: 6246. Wait queue: .",
+      "2026-11-04 07:55:25.202 UTC [6250] DETAIL:  Process 6250 waits for ShareLock on transaction 720212; blocked by process 6246.",
+      "2026-11-04 07:55:25.202 UTC [6250] DETAIL:  Process holding the lock: 6246. Wait queue: .",
+      "2026-11-04 07:55:24.191 UTC [6249] DETAIL:  Process 6249 waits for ShareLock on transaction 720212; blocked by process 6246.",
+      "2026-11-04 07:55:24.191 UTC [6249] DETAIL:  Process holding the lock: 6246. Wait queue: ."
+    ]
+  }
+}

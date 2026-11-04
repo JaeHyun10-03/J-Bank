@@ -65,6 +65,16 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
       nativeQuery = true)
   Optional<Account> lockReceiverById(@Param("accountId") Long accountId);
 
+  // 교착 재현 실험의 for-update 전략(TransferLockStrategy)에서만 쓴다. 송금·수신 계좌 모두 이 모드로 잡으면
+  // 서로 충돌해 잠그는 순서가 엇갈릴 때 교착이 난다. 계좌 ID 경로는 같은 SQL인 lockForStatusChange를 쓴다.
+  @Timed(
+      value = "db.lock.wait",
+      extraTags = {"repository", "account", "method", "lockForUpdateByAccountNumber"})
+  @Query(
+      value = "select * from accounts where account_number = :accountNumber for update",
+      nativeQuery = true)
+  Optional<Account> lockForUpdateByAccountNumber(@Param("accountNumber") String accountNumber);
+
   // 해지·상태 변경용. FOR UPDATE는 잔액 갱신(NO KEY UPDATE)과 이체의 수신 계좌 읽기(KEY SHARE) 모두와
   // 충돌해, 검사하는 동안 잔액이 바뀌거나 새 입금이 들어오지 못하게 한다. 이 트랜잭션에서 계좌를 처음 읽는
   // 쿼리여야 한다 — 먼저 findById로 읽어 두면 영속성 컨텍스트가 옛 값을 돌려줘 전체 컬럼 UPDATE가 동시

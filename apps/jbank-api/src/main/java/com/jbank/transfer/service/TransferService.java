@@ -17,6 +17,7 @@ import com.jbank.transfer.domain.TransactionType;
 import com.jbank.transfer.dto.TransferResponse;
 import com.jbank.transfer.repository.PendingCreditRepository;
 import com.jbank.transfer.repository.TransactionRepository;
+import com.jbank.transfer.service.TransferLockStrategy.Mode;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,6 +37,7 @@ public class TransferService {
   private final ApplicationEventPublisher eventPublisher;
   private final OtpService otpService;
   private final BigDecimal otpThresholdAmount;
+  private final TransferLockStrategy lockStrategy;
 
   public TransferService(
       AccountRepository accountRepository,
@@ -45,7 +47,8 @@ public class TransferService {
       IdempotencyRecovery idempotencyRecovery,
       ApplicationEventPublisher eventPublisher,
       OtpService otpService,
-      @Value("${jbank.transfer.otp.threshold-amount:10000000}") BigDecimal otpThresholdAmount) {
+      @Value("${jbank.transfer.otp.threshold-amount:10000000}") BigDecimal otpThresholdAmount,
+      TransferLockStrategy lockStrategy) {
     this.accountRepository = accountRepository;
     this.transactionRepository = transactionRepository;
     this.ledgerEntryRepository = ledgerEntryRepository;
@@ -54,6 +57,7 @@ public class TransferService {
     this.eventPublisher = eventPublisher;
     this.otpService = otpService;
     this.otpThresholdAmount = otpThresholdAmount;
+    this.lockStrategy = lockStrategy;
   }
 
   @Transactional
@@ -75,15 +79,17 @@ public class TransferService {
 
     // 두 계좌를 계좌번호 순서로 잠근다(FR-TXN-003). 송금 계좌는 잔액을 바꾸므로 NO KEY UPDATE, 수신 계좌는
     // 존재·상태만 확인하므로 KEY SHARE다 — 입금은 반영 워커가 따로 하므로(ADR 0012) 한 계좌로 이체가 몰려도
-    // 수신 계좌 행에서 줄 서지 않는다.
+    // 수신 계좌 행에서 줄 서지 않는다. 교착 재현 실험에서는 TransferLockStrategy가 정렬·락 모드를 바꾼다.
+    Mode mode = lockStrategy.mode();
+    boolean forUpdate = mode != Mode.CURRENT;
     Account from;
     Account to;
-    if (fromAccountNumber.compareTo(toAccountNumber) < 0) {
-      from = lockSender(fromAccountNumber);
-      to = lockReceiver(toAccountNumber);
+    if (mode == Mode.UNSORTED_FOR_UPDATE || fromAccountNumber.compareTo(toAccountNumber) < 0) {
+      from = lockSender(fromAccountNumber, forUpdate);
+      to = lockReceiver(toAccountNumber, forUpdate);
     } else {
-      to = lockReceiver(toAccountNumber);
-      from = lockSender(fromAccountNumber);
+      to = lockReceiver(toAccountNumber, forUpdate);
+      from = lockSender(fromAccountNumber, forUpdate);
     }
 
     if (!from.getCustomerId().equals(requestingCustomerId)) {
@@ -151,14 +157,17 @@ public class TransferService {
 
     // 즉시 이체와 같은 락 모드(송금 NO KEY UPDATE, 수신 KEY SHARE). 수신 계좌 상태는 다시 보지 않는다 —
     // 인증 대기 이체가 들어올 계좌는 해지가 거절되므로(ACC_012) 여기서 해지된 계좌를 만날 수 없다.
+    Mode mode = lockStrategy.mode();
+    boolean forUpdate = mode != Mode.CURRENT;
     Account from;
     Account to;
-    if (transaction.getFromAccountId() < transaction.getToAccountId()) {
-      from = lockSender(transaction.getFromAccountId());
-      to = lockReceiver(transaction.getToAccountId());
+    if (mode == Mode.UNSORTED_FOR_UPDATE
+        || transaction.getFromAccountId() < transaction.getToAccountId()) {
+      from = lockSender(transaction.getFromAccountId(), forUpdate);
+      to = lockReceiver(transaction.getToAccountId(), forUpdate);
     } else {
-      to = lockReceiver(transaction.getToAccountId());
-      from = lockSender(transaction.getFromAccountId());
+      to = lockReceiver(transaction.getToAccountId(), forUpdate);
+      from = lockSender(transaction.getFromAccountId(), forUpdate);
     }
 
     from.release(transaction.getAmount());
@@ -192,28 +201,32 @@ public class TransferService {
             occurredAt));
   }
 
-  private Account lockSender(String accountNumber) {
-    return accountRepository
-        .lockSenderByAccountNumber(accountNumber)
+  private Account lockSender(String accountNumber, boolean forUpdate) {
+    return (forUpdate
+            ? accountRepository.lockForUpdateByAccountNumber(accountNumber)
+            : accountRepository.lockSenderByAccountNumber(accountNumber))
         .orElseThrow(() -> new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
   }
 
-  private Account lockReceiver(String accountNumber) {
-    return accountRepository
-        .lockReceiverByAccountNumber(accountNumber)
+  private Account lockReceiver(String accountNumber, boolean forUpdate) {
+    return (forUpdate
+            ? accountRepository.lockForUpdateByAccountNumber(accountNumber)
+            : accountRepository.lockReceiverByAccountNumber(accountNumber))
         .orElseThrow(
             () -> new TransactionException(ErrorCode.TXN_003_COUNTERPARTY_ACCOUNT_NOT_FOUND));
   }
 
-  private Account lockSender(Long accountId) {
-    return accountRepository
-        .lockForBalanceUpdate(accountId)
+  private Account lockSender(Long accountId, boolean forUpdate) {
+    return (forUpdate
+            ? accountRepository.lockForStatusChange(accountId)
+            : accountRepository.lockForBalanceUpdate(accountId))
         .orElseThrow(() -> new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
   }
 
-  private Account lockReceiver(Long accountId) {
-    return accountRepository
-        .lockReceiverById(accountId)
+  private Account lockReceiver(Long accountId, boolean forUpdate) {
+    return (forUpdate
+            ? accountRepository.lockForStatusChange(accountId)
+            : accountRepository.lockReceiverById(accountId))
         .orElseThrow(() -> new AccountException(ErrorCode.COMMON_004_NOT_FOUND));
   }
 

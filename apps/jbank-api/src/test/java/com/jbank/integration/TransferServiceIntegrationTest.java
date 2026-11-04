@@ -28,6 +28,7 @@ import com.jbank.transfer.repository.TransactionRepository;
 import com.jbank.transfer.service.CreditApplier;
 import com.jbank.transfer.service.IdempotencyRecovery;
 import com.jbank.transfer.service.OtpService;
+import com.jbank.transfer.service.TransferLockStrategy;
 import com.jbank.transfer.service.TransferService;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.math.BigDecimal;
@@ -61,6 +62,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
   IdempotencyRecovery.class,
   OtpService.class,
   TransferService.class,
+  TransferLockStrategy.class,
   CreditApplier.class,
   SimpleMeterRegistry.class,
   AuditLogListener.class,
