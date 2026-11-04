@@ -36,7 +36,7 @@
    - 상한에 닿으면 "해제 미확인"으로 기록하고 다음 회차로 간다. 운영의 마지막 회차 뒤에는 기다리지 않는다.
 8. `result.json`에 결과를 기록한다.
    - 정상: `완료`
-   - 중단: `무응답` / `시간 초과` / `측정 미실행(사유)`
+   - 중단: `무응답` / `시간 초과` / `측정 미실행(사유)` / `사용자 중단`(측정 중 Ctrl-C)
    - 조건 ①은 해제 상태도 함께 남긴다.
 
 결과 폴더는 `perf/results/deadlock/<local|prod>/<조건>-vu<N>-r<회차>/`이다. 계좌번호·비밀번호·토큰은 파일에 쓰지 않는다. 계좌는 ID로만 남기고, k6 요약의 `setup_data`는 비운다.
@@ -76,6 +76,7 @@
 
 - 사용자 자격증명으로 읽기 전용 명령이 되는지 확인한다.
   - SSM: `aws ssm send-command ... --parameters 'commands=["echo ok"]'`
+  - 원격 스크립트 실행 방식: 스크립트는 표준 입력이 아니라 임시 파일로 넘긴다. 표준 입력으로 넘기면 `docker compose exec -T`가 다음 줄을 삼킨다(로컬에서 재현 확인). 실험일 전에 같은 방식으로 읽기 전용 명령 `$DC exec -T api printenv JBANK_TRANSFER_LOCK_STRATEGY || echo 없음` 다음 줄에 `echo 다음줄`을 두고, `다음줄`이 출력되는지 본다.
   - 스케줄: `aws scheduler get-schedule --name jbank-dev-app-stop`
 - 사용자가 할 일: 운영에 테스트 고객 1명을 가입하고, ACTIVE 계좌 2개를 열어 각각 1억 원 이상 입금한다. 에이전트는 운영 계정을 만들거나 비밀번호를 입력하지 않는다.
 
@@ -103,13 +104,13 @@
   1. 무응답이면 AWS CLI로 EC2를 중지·시작한다.
   2. 부팅 배치가 끝났는지 확인한다(4-2와 같은 기준). failed이면 실패한 잡을 기록한다.
   3. 전략 변수와 중지 스케줄 상태를 확인한다.
-  4. 측정을 마친 회차였다면 미반영 입금 0을 확인하고 종료값을 SSM으로 기록한다. 그 회차의 불변식은 이 값으로 판정한다.
+  4. 측정을 마친 회차였다면 미반영 입금 0을 확인하고 종료값을 SSM으로 기록한다. 스크립트의 `snapshot`과 같은 형식으로 그 회차 폴더의 `after.json`에 저장한다(요약 스크립트가 이 파일로 불변식을 판정한다).
      - 다음 회차가 시작되면 거래 수가 바뀌므로, 재개 전에 한다.
      - 시간 초과도 원인을 확인하고 기록한 뒤 같은 방식으로 처리한다.
   5. 사용자가 남은 회차만 재개한다. 비밀번호는 다시 입력한다.
 
      ```bash
-     INSTANCE_ID=<인스턴스ID> LOGIN_ID=<로그인ID> perf/run-deadlock.sh prod-all --from <조건>-vu<VU>
+     caffeinate -i env INSTANCE_ID=<인스턴스ID> LOGIN_ID=<로그인ID> perf/run-deadlock.sh prod-all --from <조건>-vu<VU>
      ```
 
      직전 ① 회차가 "해제 미확인"이면 스크립트가 해제 확인부터 한다.
@@ -147,7 +148,7 @@ diff <(jq -S 'del(.Arn, .CreationDate, .LastModificationDate)' /tmp/stop-schedul
   - 사용자: 이체 1건을 확인한다(비밀번호 `read -s`).
 
     ```bash
-    INSTANCE_ID=<인스턴스ID> LOGIN_ID=<로그인ID> perf/run-deadlock.sh prod-restore-check
+    caffeinate -i env INSTANCE_ID=<인스턴스ID> LOGIN_ID=<로그인ID> perf/run-deadlock.sh prod-restore-check
     ```
 
 - 운영 조회는 `JBANK_TRANSFER_LOCK_STRATEGY` 줄과 컨테이너의 그 변수만 출력한다. `.env` 전체나 `docker inspect`는 출력하지 않는다.
