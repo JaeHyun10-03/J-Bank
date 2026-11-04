@@ -28,6 +28,7 @@ import com.jbank.transfer.service.DepositService;
 import com.jbank.transfer.service.IdempotencyRecovery;
 import com.jbank.transfer.service.OtpService;
 import com.jbank.transfer.service.TransactionHistoryService;
+import com.jbank.transfer.service.TransferLockStrategy;
 import com.jbank.transfer.service.TransferService;
 import com.jbank.transfer.service.WithdrawalService;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -66,6 +67,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
   DepositService.class,
   WithdrawalService.class,
   TransferService.class,
+  TransferLockStrategy.class,
   TransactionHistoryService.class,
   CreditApplier.class,
   SimpleMeterRegistry.class,

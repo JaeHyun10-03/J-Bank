@@ -19,6 +19,7 @@ import com.jbank.transfer.service.CreditApplier;
 import com.jbank.transfer.service.DepositService;
 import com.jbank.transfer.service.IdempotencyRecovery;
 import com.jbank.transfer.service.OtpService;
+import com.jbank.transfer.service.TransferLockStrategy;
 import com.jbank.transfer.service.TransferService;
 import com.jbank.transfer.service.WithdrawalService;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -64,6 +65,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
   DepositService.class,
   WithdrawalService.class,
   TransferService.class,
+  TransferLockStrategy.class,
   CreditApplier.class,
   AbstractConcurrencyTest.RedisTestConfig.class
 })
