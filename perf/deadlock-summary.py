@@ -53,7 +53,8 @@ def row(run):
     status = result.get("status", "기록 없음")
     base = [run.name, LABEL[conditions["strategy"]], str(conditions["vus"]), status]
     summary, before, after = load(run / "k6-summary.json"), load(run / "before.json"), load(run / "after.json")
-    if status != "완료" or not (summary and before and after):
+    # 측정 뒤 시간 초과·무응답으로 끝난 회차도 측정값과 (복구 뒤 기록한) 종료값이 있으면 같은 방식으로 판정한다.
+    if not (summary and before and after):
         return base + ["-"] * 12 + [result.get("release", "-")]
 
     # http_reqs에는 setup()의 로그인 요청이 섞이므로 이체 응답 카운터의 합을 요청 수로 쓴다.

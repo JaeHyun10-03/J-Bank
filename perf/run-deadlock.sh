@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 교착 재현 실험 실행. 절차와 판정은 docs/runbook/transfer-deadlock-experiment.md, 결과는 perf/results/deadlock/.
 #
-#   로컬 1회차:      LOGIN_ID=<로그인ID> PASSWORD=<비밀번호> perf/run-deadlock.sh local <조건> <VU> <회차>
+#   로컬 1회차:      (LOGIN_ID·PASSWORD를 저장소 밖 파일에서 export) perf/run-deadlock.sh local <조건> <VU> <회차>
 #   운영 6회:        INSTANCE_ID=<인스턴스ID> LOGIN_ID=<로그인ID> perf/run-deadlock.sh prod-all [--from <조건>-vu<VU>]
 #   운영 복귀 확인:  INSTANCE_ID=<인스턴스ID> LOGIN_ID=<로그인ID> perf/run-deadlock.sh prod-restore-check
 #
@@ -48,11 +48,29 @@ esac
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 mkdir -p "$RESULTS/$ENV_NAME"
-PROGRESS="$RESULTS/$ENV_NAME/progress.log"
+PROGRESS="$RESULTS/$ENV_NAME/progress.txt"
 
 log() { echo "$(date '+%F %T') $*" | tee -a "$PROGRESS" >&2; }
 now_utc() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 readyz() { curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$BASE_URL/readyz" || true; }
+
+# Ctrl-C·종료 신호: 진행 중인 회차를 기록하고 끝낸다(재개는 --from). 측정 전이면 측정 미실행,
+# 종료값까지 남았으면 완료(조건 ①은 해제 미확인)로 남긴다.
+CURRENT_ROUND_DIR=""
+on_interrupt() {
+  if [ -n "$CURRENT_ROUND_DIR" ] && [ ! -f "$CURRENT_ROUND_DIR/result.json" ]; then
+    if [ -f "$CURRENT_ROUND_DIR/after.json" ]; then
+      write_result "$CURRENT_ROUND_DIR" "완료" "" "해제 미확인(사용자 중단)"
+    elif [ "${measured:-no}" = yes ]; then
+      write_result "$CURRENT_ROUND_DIR" "사용자 중단" "종료값 전 INT/TERM" "-"
+    else
+      write_result "$CURRENT_ROUND_DIR" "측정 미실행(사용자 중단)" "INT/TERM" "-"
+    fi
+  fi
+  log "사용자 중단(INT/TERM). 복구 후 --from으로 다음 회차부터 재개한다"
+  exit 130
+}
+trap on_interrupt INT TERM
 
 # 대기 상한을 넘겼을 때의 판정(운영): 그동안 readyz가 한 번도 200이 아니면 무응답, 200이 있었으면 시간 초과.
 timeout_reason() {
@@ -96,6 +114,8 @@ host() {
     esac
     [ "$(readyz)" = 200 ] && saw200=yes
     if [ "$SECONDS" -gt "$deadline" ]; then
+      # 상한을 넘긴 명령이 스크립트가 끝난 뒤에 실행되지 않게 취소한다(예: flock을 기다리던 전략 적용).
+      aws ssm cancel-command --region "$REGION" --command-id "$id" > /dev/null 2>&1 || true
       timeout_reason "$saw200" > "$TMP/stop"
       return 1
     fi
@@ -111,15 +131,18 @@ SQL"
 
 # 로그인해 쿠키 헤더를 만들고 실험 계좌 두 개(ID 오름차순)를 고른다.
 login_and_resolve_accounts() {
-  local body customer accounts
-  body="$(jq -cn --arg l "$LOGIN_ID" --arg p "$PASSWORD" '{loginId: $l, password: $p}')"
-  curl -sf -D "$TMP/login.headers" -o "$TMP/login.json" -H 'Content-Type: application/json' \
-    --data-binary @- "$BASE_URL/api/v1/auth/login" <<< "$body" || { log "로그인 실패"; return 1; }
-  COOKIE="$(grep -i '^set-cookie:' "$TMP/login.headers" | sed -E 's/^[Ss]et-[Cc]ookie: ([^;]*).*/\1/' |
+  local cookie customer accounts
+  # 비밀번호는 명령 인자로 넘기지 않는다(ps에 보임). jq는 환경변수로 읽고, 본문은 파이프로 curl에 넘긴다.
+  PASSWORD="$PASSWORD" jq -cn --arg l "$LOGIN_ID" '{loginId: $l, password: env.PASSWORD}' |
+    curl -sf -D "$TMP/login.headers" -o "$TMP/login.json" -H 'Content-Type: application/json' \
+      --data-binary @- "$BASE_URL/api/v1/auth/login" || { log "로그인 실패"; return 1; }
+  cookie="$(grep -i '^set-cookie:' "$TMP/login.headers" | sed -E 's/^[Ss]et-[Cc]ookie: ([^;]*).*/\1/' |
     paste -sd ';' - | sed 's/;/; /g')"
-  CSRF="$(printf '%s' "$COOKIE" | tr ';' '\n' | sed -n 's/^ *XSRF-TOKEN=//p')"
+  # 쿠키·CSRF 토큰도 인자 대신 헤더 파일로 넘긴다($TMP는 본인만 읽는 임시 폴더).
+  printf 'Cookie: %s\nX-CSRF-TOKEN: %s\n' "$cookie" \
+    "$(printf '%s' "$cookie" | tr ';' '\n' | sed -n 's/^ *XSRF-TOKEN=//p')" > "$TMP/auth.headers"
   customer="$(jq -r .data.customerId "$TMP/login.json")"
-  accounts="$(curl -sf -H "Cookie: $COOKIE" "$BASE_URL/api/v1/customers/$customer/accounts?status=ACTIVE&size=50" |
+  accounts="$(curl -sf -H @"$TMP/auth.headers" "$BASE_URL/api/v1/customers/$customer/accounts?status=ACTIVE&size=50" |
     jq -c '[.data.content[] | {id: (.accountId | tonumber), number: .accountNumber}] | sort_by(.id) | .[0:2]')"
   [ "$(jq length <<< "$accounts")" -eq 2 ] || { log "ACTIVE 계좌가 2개 이상 필요하다"; return 1; }
   ID_A="$(jq -r '.[0].id' <<< "$accounts")"
@@ -132,7 +155,7 @@ login_and_resolve_accounts() {
 one_transfer() {
   login_and_resolve_accounts || { echo "로그인 실패"; return 0; }
   curl -s -o "$TMP/transfer.json" -w '%{http_code}' -X POST "$BASE_URL/api/v1/transfers" \
-    -H 'Content-Type: application/json' -H "Cookie: $COOKIE" -H "X-CSRF-TOKEN: $CSRF" \
+    -H 'Content-Type: application/json' -H @"$TMP/auth.headers" \
     -H "Idempotency-Key: $(uuidgen)" \
     --data-binary "$(jq -cn --arg f "$NUM_A" --arg t "$NUM_B" \
       '{fromAccountNumber: $f, toAccountNumber: $t, amount: "1000.00", memo: "deadlock restore check"}')" \
@@ -194,26 +217,46 @@ apply_strategy() {
 for i in \$(seq 1 60); do
   [ \"\$(docker inspect -f '{{.State.Health.Status}}' \$(\$DC ps -q api))\" = healthy ] && break; sleep 3
 done
+[ \"\$(docker inspect -f '{{.State.Health.Status}}' \$(\$DC ps -q api))\" = healthy ] || { echo 'api가 healthy가 되지 않았다' >&2; exit 1; }
 docker logs \$(\$DC ps -q api) 2>&1 | grep -o '이체 락 전략: [a-z-]*' | tail -1"
   else
-    host "flock /var/lib/jbank/deploy.lock bash -c \"sed -i '/^JBANK_TRANSFER_LOCK_STRATEGY=/d' .env && { [ -z '$line' ] || echo '$line' >> .env; } && \$DC up -d --no-deps --force-recreate api >/dev/null 2>&1\"
+    # 전략 줄을 붙이기 전에 .env 끝 줄바꿈을 보장한다(없으면 앞 줄에 붙어 복귀 때 지워지지 않는다).
+    host "flock /var/lib/jbank/deploy.lock bash -s <<'EOS'
+set -e
+sed -i '/^JBANK_TRANSFER_LOCK_STRATEGY=/d' .env
+if [ -n '$line' ]; then
+  [ -z \"\$(tail -c1 .env)\" ] || echo >> .env
+  echo '$line' >> .env
+fi
+docker compose -f docker-compose.prod.yml up -d --no-deps --force-recreate api >/dev/null 2>&1
+EOS
 for i in \$(seq 1 80); do
   [ \"\$(docker inspect -f '{{.State.Health.Status}}' \$(\$DC ps -q api))\" = healthy ] && break; sleep 3
 done
+[ \"\$(docker inspect -f '{{.State.Health.Status}}' \$(\$DC ps -q api))\" = healthy ] || { echo 'api가 healthy가 되지 않았다' >&2; exit 1; }
 echo \".env 줄 수: \$(grep -c '^JBANK_TRANSFER_LOCK_STRATEGY=' .env || true) \$(grep '^JBANK_TRANSFER_LOCK_STRATEGY=' .env || true)\"
 echo \"컨테이너 변수: \$(\$DC exec -T api printenv JBANK_TRANSFER_LOCK_STRATEGY || echo 없음)\"
 docker logs \$(\$DC ps -q api) 2>&1 | grep -o '이체 락 전략: [a-z-]*' | tail -1"
   fi
 }
 
+# k6가 0이 아닌 값으로 끝나거나 요약이 없으면 실패한다(setup 로그인 실패 등). 이때 대상이 응답하지 않으면 무응답이다.
 run_k6() {
-  local vus="$1" duration="$2" out="$3"
+  local vus="$1" duration="$2" out="$3" rc=0
   BASE_URL="$BASE_URL" ACCOUNT_A="$NUM_A" ACCOUNT_B="$NUM_B" LOGIN_ID="$LOGIN_ID" PASSWORD="$PASSWORD" \
     VUS="$vus" DURATION="$duration" \
-    k6 run --quiet --summary-export "$out/k6-summary.json" "$ROOT/perf/k6/deadlock.js" > "$out/k6.log" 2>&1
+    k6 run --quiet --summary-export "$out/k6-summary.json" "$ROOT/perf/k6/deadlock.js" > "$out/k6-log.txt" 2>&1 ||
+    rc=$?
   # summary-export가 setup()의 반환값(쿠키·CSRF 토큰)을 setup_data에 넣으므로 비운다.
-  jq '.setup_data = {}' "$out/k6-summary.json" > "$out/k6-summary.json.tmp"
-  mv "$out/k6-summary.json.tmp" "$out/k6-summary.json"
+  if [ -s "$out/k6-summary.json" ]; then
+    jq '.setup_data = {}' "$out/k6-summary.json" > "$out/k6-summary.json.tmp" &&
+      mv "$out/k6-summary.json.tmp" "$out/k6-summary.json"
+  fi
+  if [ "$rc" -ne 0 ] || [ ! -s "$out/k6-summary.json" ]; then
+    log "k6 실패(종료 코드 $rc)"
+    if [ "$(readyz)" = 200 ]; then echo "명령 실패" > "$TMP/stop"; else echo "무응답" > "$TMP/stop"; fi
+    return 1
+  fi
 }
 
 # postgres 로그를 회차 시작 시각부터 저장한다(Loki가 일부를 버릴 수 있어 파일로도 남김).
@@ -222,7 +265,7 @@ backup_postgres_log() {
   local since="$1" out="$2" size chunk=20000 start
   if [ "$ENV_NAME" = local ]; then
     (cd "$ROOT/infra/compose" && COMPOSE_PROFILES=core,api,observability \
-      docker compose logs --no-log-prefix --no-color --since "$since" postgres > "$out/postgres.log" 2>&1)
+      docker compose logs --no-log-prefix --no-color --since "$since" postgres > "$out/postgres-log.txt" 2>&1)
     return 0
   fi
   size="$(host "\$DC logs --no-log-prefix --no-color --since '$since' postgres 2>&1 | gzip -c | base64 -w0 > /tmp/deadlock-pg.b64
@@ -231,11 +274,13 @@ wc -c < /tmp/deadlock-pg.b64")" || return 1
   for ((start = 1; start <= size; start += chunk)); do
     host "cut -c $start-$((start + chunk - 1)) /tmp/deadlock-pg.b64" | tr -d '\n' >> "$TMP/pg.b64" || return 1
   done
-  base64 -d < "$TMP/pg.b64" | gunzip > "$out/postgres.log"
+  base64 -d < "$TMP/pg.b64" | gunzip > "$out/postgres-log.txt"
 }
 
+# 앞 회차가 중간에 멈춰 남은 표본 수집이 있으면 먼저 끈다.
 mem_sampler_start() {
-  host "cat > /tmp/deadlock-mem.sh <<'EOS'
+  host "pkill -f /tmp/deadlock-mem.sh || true
+cat > /tmp/deadlock-mem.sh <<'EOS'
 while :; do echo \"\$(date +%s) \$(awk '/MemAvailable/{print \$2}' /proc/meminfo)\"; sleep 1; done
 EOS
 setsid nohup bash /tmp/deadlock-mem.sh > /tmp/deadlock-mem.log 2>&1 < /dev/null &
@@ -252,7 +297,7 @@ awk 'NR == 1 || \$2 < m { m = \$2 } END { printf \"%d\", m / 1024 }' /tmp/deadlo
 # 알림이 사라진 뒤 6분을 더 기다린다(해제 메일 발송 시간. 메일 확인은 사용자가 Gmail에서 한다).
 # 출력: "해제 확인" 또는 "해제 미확인(사유)". 운영 SSM이 실패하면 1을 돌려준다.
 wait_release() {
-  local after="$1" out="$2" deadline=$((SECONDS + RELEASE_LIMIT)) alerts am prom
+  local after="$1" out="$2" deadline=$((SECONDS + RELEASE_LIMIT)) alerts am prom seen=no
   log "알림 해제 대기(상한 ${RELEASE_LIMIT}초)"
   while [ "$SECONDS" -le "$deadline" ]; do
     if [ "$ENV_NAME" = local ]; then
@@ -274,9 +319,11 @@ echo
       am="$(head -1 <<< "$alerts" | jq length)"
       prom="$(tail -1 <<< "$alerts" | jq '.data.result | length')"
       echo "$(now_utc) alertmanager=$am prometheus=$prom" >> "$out/alerts.txt"
+      if [ "$am" -gt 0 ] || [ "$prom" -gt 0 ]; then seen=yes; fi
       if [ "$am" -eq 0 ] && [ "$prom" -eq 0 ]; then
         sleep 360
-        echo "해제 확인"
+        # 대기 동안 발생을 한 번도 못 봤으면(이미 해제됐거나 발생하지 않음) 그렇게 남긴다.
+        if [ "$seen" = yes ]; then echo "해제 확인"; else echo "해제 확인(대기 중 발생 미관측)"; fi
         return 0
       fi
     fi
@@ -310,7 +357,10 @@ write_result() {
 run_round() {
   local strategy="$1" vus="$2" round="$3" dir started measured=no logline release="-" mem measure_end
   dir="$RESULTS/$ENV_NAME/$strategy-vu$vus-r$round"
+  # 끝난 회차는 다시 돌리지 않는다(Q-05). 결과를 덮어쓰지 않게 막는다.
+  [ ! -f "$dir/result.json" ] || { log "이미 결과가 있는 회차: $dir"; return 1; }
   mkdir -p "$dir"
+  CURRENT_ROUND_DIR="$dir"
   rm -f "$TMP/stop"
   started="$(now_utc)"
   log "회차 시작 $strategy-vu$vus-r$round"
@@ -380,7 +430,9 @@ run_round() {
 # 실험 전략 줄을 지우고 api를 재생성한 뒤 기동 로그 전략과 이체 1건을 확인한다(운영 설정 복귀).
 prod_restore() {
   local logline
+  CURRENT_ROUND_DIR=""
   rm -f "$TMP/stop"
+  host "pkill -f /tmp/deadlock-mem.sh || true" > /dev/null || true
   logline="$(apply_strategy current)" || { log "설정 복귀 실패: $(cat "$TMP/stop")"; return 1; }
   {
     echo "## 설정 복귀 $(now_utc)"
@@ -403,6 +455,10 @@ case "$MODE" in
   prod-all)
     FROM=""
     [ "${2:-}" = --from ] && FROM="${3:?--from <조건>-vu<VU>}"
+    if [ -n "$FROM" ] && ! printf '%s\n' "${PROD_ORDER[@]}" | grep -qx "$FROM"; then
+      log "--from 값이 회차 목록에 없다: $FROM (목록: ${PROD_ORDER[*]})"
+      exit 1
+    fi
     login_and_resolve_accounts
     started=no
     [ -z "$FROM" ] && started=yes
@@ -421,6 +477,10 @@ case "$MODE" in
         fi
       fi
       [ "$started" = yes ] || continue
+      if [ -f "$RESULTS/prod/$key-r1/result.json" ]; then
+        log "이미 결과가 있는 회차는 건너뛴다: $key"
+        continue
+      fi
       # 마지막 회차 뒤에는 해제를 기다리지 않고 바로 설정 복귀로 간다.
       SKIP_RELEASE_WAIT=no
       [ "$i" -eq "$last" ] && SKIP_RELEASE_WAIT=yes
