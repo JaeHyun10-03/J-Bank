@@ -70,7 +70,13 @@ class AuthControllerTest {
 
   // MockMvc 요청은 http://localhost라 아래 출처는 모두 교차 출처로 판정되어 허용 목록 검사를 거친다.
   @ParameterizedTest
-  @ValueSource(strings = {"http://localhost:3000", "https://api.j-bank.site"})
+  @ValueSource(
+      strings = {
+        "http://localhost:3000",
+        "https://api.j-bank.site",
+        "https://www.j-bank.site",
+        "https://j-bank.site"
+      })
   void 허용한_출처의_로그인_요청은_CORS를_통과한다(String origin) throws Exception {
     given(authService.login(any()))
         .willReturn(
@@ -91,12 +97,20 @@ class AuthControllerTest {
         .andExpect(header().string("Access-Control-Allow-Credentials", "true"));
   }
 
-  @Test
-  void 허용하지_않은_출처의_요청은_CORS에서_403으로_막힌다() throws Exception {
+  // 운영 프론트 출처와 스킴·접미사만 다른 주소, Vercel 미리보기 주소도 허용하지 않는다.
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "https://evil.example",
+        "https://j-bank.vercel.app",
+        "http://www.j-bank.site",
+        "https://www.j-bank.site.evil.example"
+      })
+  void 허용하지_않은_출처의_요청은_CORS에서_403으로_막힌다(String origin) throws Exception {
     mockMvc
         .perform(
             post("/api/v1/auth/login")
-                .header("Origin", "https://evil.example")
+                .header("Origin", origin)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(new LoginRequest("user1", "pw"))))
         .andExpect(status().isForbidden())
