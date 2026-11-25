@@ -169,12 +169,36 @@ login_and_resolve_accounts() {
     "$(printf '%s' "$cookie" | tr ';' '\n' | sed -n 's/^ *XSRF-TOKEN=//p')" > "$TMP/auth.headers"
   customer="$(jq -r .data.customerId "$TMP/login.json")"
   accounts="$(curl -sf -H @"$TMP/auth.headers" "$BASE_URL/api/v1/customers/$customer/accounts?status=ACTIVE&size=50" |
-    jq -c '[.data.content[] | {id: (.accountId | tonumber), number: .accountNumber}] | sort_by(.id) | .[0:2]')"
+    jq -c '[.data.content[] | {id: (.accountId | tonumber), number: .accountNumber, available: .availableBalance}] |
+      sort_by(.id) | .[0:2]')"
   [ "$(jq length <<< "$accounts")" -eq 2 ] || { log "ACTIVE 계좌가 2개 이상 필요하다"; return 1; }
+  # 잔액은 check_start_balance가 해석한다. 여기서 숫자로 바꾸면 잔액이 없는 응답에서 복귀 확인까지 실패한다.
+  BALANCES="$(jq -c 'map({id, available})' <<< "$accounts")"
   ID_A="$(jq -r '.[0].id' <<< "$accounts")"
   ID_B="$(jq -r '.[1].id' <<< "$accounts")"
   NUM_A="$(jq -r '.[0].number' <<< "$accounts")"
   NUM_B="$(jq -r '.[1].number' <<< "$accounts")"
+}
+
+# prod-all이 서버를 건드리기 전에 두 실험 계좌의 사용 가능 잔액을 확인한다. 새 시작은 각 1억 원 이상,
+# 재개($1 = resume)는 합 2억 원 이상(이체로 한쪽이 줄어 있을 수 있다)이어야 한다. 1차 운영 실행은 잔액 0원인 채
+# 6회가 "완료"로 끝났다. API 금액은 문자열 십진수라 변환 없이 비교하면 jq가 문자열을 숫자보다 크게 봐 "0.00"도
+# 통과한다. 소수 오차를 피하려고 전(錢) 단위 정수로 바꿔 비교한다. 계좌번호는 로그에 남기지 않는다.
+check_start_balance() {
+  local mode="$1" verdict
+  verdict="$(jq -rn --arg mode "$mode" --argjson b "$BALANCES" '
+    def cents: if type == "string" and test("^[0-9]+([.][0-9]+)?$")
+      then split(".") as $p | ($p[0] | tonumber) * 100 + ((($p[1] // "") + "00")[0:2] | tonumber)
+      else null end;
+    ($b | map(.available | cents)) as $c |
+    ($b | map("계좌 \(.id) 사용 가능 \(.available // "없음")원") | join(", ")) as $now |
+    if any($c[]; . == null) then "잔액을 읽지 못했다: \($now). 시작하지 않는다"
+    elif $mode == "resume" and ($c | add) < 20000000000 then
+      "재개 전 잔액 부족: \($now). 합 200000000원 이상이 필요하다. 미반영 입금이 0인지 확인하고 다시 실행한다(추가 입금부터 하지 말 것, runbook 4-3)"
+    elif $mode == "start" and any($c[]; . < 10000000000) then
+      "시작 전 잔액 부족: \($now). 새로 시작하려면 계좌마다 100000000원 이상이 필요하다. 입금한 뒤 다시 실행하거나, 이미 시작한 실험이면 입금하지 말고 --from <조건>-vu<VU>로 재개한다"
+    else "ok" end')" || { log "잔액을 읽지 못했다: 응답을 해석하지 못함. 시작하지 않는다"; return 1; }
+  [ "$verdict" = ok ] || { log "$verdict"; return 1; }
 }
 
 # 설정 복귀 확인용 이체 1건(A→B 1,000원). HTTP 코드와 거래 상태를 출력한다.
@@ -489,6 +513,7 @@ case "$MODE" in
       exit 1
     fi
     login_and_resolve_accounts
+    if [ -n "$FROM" ]; then check_start_balance resume; else check_start_balance start; fi
     started=no
     [ -z "$FROM" ] && started=yes
     last=$((${#PROD_ORDER[@]} - 1))
