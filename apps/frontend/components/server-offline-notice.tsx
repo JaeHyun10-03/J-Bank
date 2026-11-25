@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useServerStatus } from "@/lib/server-status";
 
 export const OFFLINE_MESSAGE =
-  "지금은 서버가 꺼져 있습니다. 데모 서버는 평일 09:00~18:00(KST)에만 운영합니다.";
+  "지금은 서버가 꺼져 있습니다. 데모 서버는 평일 09:00~24:00(KST)에만 운영합니다.";
 
 /** 첫 진입 때 서버 상태를 확인하고, 꺼져 있으면(또는 API 실패 뒤 꺼짐이 확인되면) 안내한다. */
 export function ServerOfflineNotice() {

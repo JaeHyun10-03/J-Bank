@@ -25,7 +25,7 @@ async function proxy(request: NextRequest, { params }: { params: { path: string[
       redirect: "manual",
     });
   } catch (error) {
-    // 운영 인스턴스가 꺼진 시간(평일 09~18시 외)에는 연결 단계에서 실패한다. 화면이 운영 시간
+    // 운영 인스턴스가 꺼진 시간(평일 09~24시 외)에는 연결 단계에서 실패한다. 화면이 운영 시간
     // 안내를 띄울 수 있게 구분된 코드로 돌려준다. 그 밖의 오류는 그대로 던진다.
     if (isBackendConnectError(error)) {
       return NextResponse.json({ code: "SERVER_OFFLINE" }, { status: 503 });
