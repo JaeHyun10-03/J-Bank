@@ -15,4 +15,17 @@
 - 결과 리뷰 1회차(병합 전): 수정 필요로 등록(review fail). 코드·설정 결함 없음. ADR 0015 비용 합계 설명을 고침(cb4e6b4), observability runbook에 병합 전 stopped 확인을 넣음(4d4003f). plan 원문은 review.md에 보존(12:54 KST). 병합·apply 뒤 확인 항목은 미확인.
 - 수정 뒤 verify-003 통과(HEAD 4d4003f). REQ-06 검색 0건, 커밋 메시지 attribution 0건. `gh variable list` 다시 조회: `EC2_DEPLOY_READY`만 있음.
 - 작업 폴더만 커밋하고 공용 상태 파일(활성 작업·목록)은 이 PR에 넣지 않음. 메인 폴더의 진행 중 작업과 같은 파일이라 병합 충돌을 피하려는 것. 완료 기록 때 함께 커밋함.
-- 다음 행동(병합 뒤): 교착 실험 여부와 병합 확인 → backend-cd 결과·`/readyz` → plan 공유·승인 → 재조회 → `plan -out`(scratchpad) 대조 → apply → 조회 → plan 파일 삭제 → 실험 작업 알림(공유 노트·메인 세션) → 첫 평일 18:05 running → 00:00 StopInstances → verify·결과 리뷰 2회차 → complete.
+- 2026-11-25 13:46 KST 사용자가 PR #20 병합(3996237). 바로 앞 13:46에 PR #19도 병합됨(a7ce63d). infra-cd는 skipped, `gh variable list`는 `EC2_DEPLOY_READY`만.
+- 병합 재배포(OPS-05): backend-cd run 45549089991 성공(13:49 KST, Deploy via SSM 성공, api Recreated, postgres는 Running 유지). `/readyz`는 배포 중 502(13:47), 배포 뒤 200(13:50).
+- 병합 뒤 조회: 중지 `cron(0 18 * * ? *)` ENABLED, 시작 `cron(0 9 ? * MON-FRI *)` ENABLED, 인스턴스 running.
+- REQ-04: 13:50 plan 공유, 사용자 답 "승인, 지금 apply"·"오늘은 없음"(교착 실험), 질문 13:50:28·답변 13:50:40. 13:50:52 직전 재조회 `cron(0 18 * * ? *)` Asia/Seoul ENABLED → 새 plan 파일 생성 → `terraform show -json` 대조(변경 1건, `module.ec2.aws_scheduler_schedule.stop` update, 달라진 속성은 schedule_expression뿐, state ENABLED) → `apply <파일>` → 13:51:01 완료(0 added, 1 changed, 0 destroyed). plan 파일 삭제 확인.
+- 적용 후 조회(REQ-01·03): 중지 `cron(0 0 * * ? *)` Asia/Seoul ENABLED, 시작 `cron(0 9 ? * MON-FRI *)` Asia/Seoul ENABLED.
+- 병합 뒤 plan 원문(13:50:15 KST, main 3996237, Terraform v1.15.8): review.md 1회차 plan과 같은 1건(stop schedule_expression `cron(0 18 * * ? *)` -> `cron(0 0 * * ? *)`), `Plan: 0 to add, 1 to change, 0 to destroy.`
+- 교착 실험 작업 알림: 공유 노트 폴더에 ops-hours-midnight.md 작성(13:5x KST). 메인 세션에는 이 세션의 마무리 보고로 전달.
+- 18시 이후 확인(Q-03 앞 절반, 2026-11-25 18:23:10~18:23:13 KST 조회): 인스턴스 `running`(LaunchTime 2026-11-25 09:00:43 KST, StateTransitionReason 빈 값), `/readyz` 200 `{"status":"UP"}`, 중지 `cron(0 0 * * ? *)`·시작 `cron(0 9 ? * MON-FRI *)` 둘 다 Asia/Seoul ENABLED(중지 LastModificationDate 13:51:01). CloudTrail(ap-northeast-2, 오늘 09:00 KST 이후) StopInstances 0건, StartInstances 1건(09:00:43).
+  - 대조: 같은 조회를 2026-11-23부터로 넓히면 11-23·11-24 모두 18:00:22 KST에 `jbank-dev-scheduler`의 StopInstances가 1건씩 잡힘. 오늘 0건은 조회가 비어서가 아니라 18시 중지가 없었던 것. CloudTrail 반영 지연(보통 15분 이내)을 지난 18:23에 조회했고, LaunchTime이 09:00:43 그대로인 것과도 맞음.
+- 00:00 중지 확인(Q-03 뒤 절반, 2026-11-26 00:23:09 KST 조회): CloudTrail(ap-northeast-2, 2026-11-25 09:00 KST 이후) StopInstances 1건. 2026-11-26 00:00:22 KST, AssumedRole `jbank-dev-scheduler`, i-0b71df18394cf8010, running -> stopping, errorCode 없음(eventID c74519de-0c3f-4872-b5fe-1e9080546975). 같은 기간 StartInstances는 11-25 09:00:43 1건뿐. 인스턴스 `stopped`(StateTransitionReason `User initiated (2026-11-25 15:00:22 GMT)`, 중지 이벤트 시각과 같음). `/readyz`는 접속 시간 초과(서버 꺼짐). 두 스케줄 표현식·ENABLED 그대로.
+- 2026-11-26 00:23 KST 재개(start, 명세·계획 지문 변경 없음), verify-004 통과(HEAD a429f29, snapshot은 verify-003과 같음, 백엔드 테스트는 UP-TO-DATE로 실제 실행은 verify-001). review-begin 2/3. REQ-06 검색 0건, attribution 0건, 비밀값 검색은 작업 기록 폴더를 빼면 0건(폴더 포함 시 task.md의 검색 명령 문자열 1건).
+- 결과 리뷰 2회차: 통과 권고(차단·중요 0, 개선 7). 처리: 승인 시각 보강(질문 13:50:28·답변 13:50:40), 재개 시각 정정(00:24 -> 00:23), apply 출력 원문과 알림 근거를 review.md에 추가, 알림 노트에 확인 완료 기록.
+- 교착 실험 알림 전달: 노트(13:51)와 메인 세션 마무리 보고(13:51:32). main 60882a0(11-25 23:18)에서 runbook이 24시 중지에 맞게 바뀐 것을 확인.
+- review pass·complete 실행(2026-11-26 KST), phase done. 남은 일: 개발일지 마무리와 완료 기록 커밋·PR(활성 작업 파일은 다른 작업이 쓰므로 넣지 않음).

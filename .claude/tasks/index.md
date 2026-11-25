@@ -11,7 +11,7 @@
 - [observability-logs-alerts](observability-logs-alerts/task.md): done
 - [openapi-description](openapi-description/task.md): done
 - [ops-dashboard-panels](ops-dashboard-panels/task.md): done
-- [ops-hours-midnight](ops-hours-midnight/task.md): waiting
+- [ops-hours-midnight](ops-hours-midnight/task.md): done
 - [prod-metrics-scrape](prod-metrics-scrape/task.md): done
 - [repo-cleanup](repo-cleanup/task.md): done
 - [transfer-deadlock-experiment](transfer-deadlock-experiment/task.md): done
