@@ -1,0 +1,84 @@
+{
+  "passed": false,
+  "snapshot": "785e3c1a0eb64cabd52f97ca6b10bf1da4440be219af4f77da5d336e8ad7a054",
+  "unchanged_during_checks": true,
+  "started_at": "2026-11-04T08:39:13.039643+00:00",
+  "finished_at": "2026-11-04T08:40:00.461178+00:00",
+  "python": "3.9.6",
+  "archive": "verify-001/checks.json",
+  "skipped_checks": [
+    [
+      "apps/jbank-api/gradlew",
+      "-p",
+      "apps/jbank-api",
+      "test",
+      "spotlessCheck"
+    ],
+    [
+      "npm",
+      "--prefix",
+      "apps/frontend",
+      "run",
+      "build"
+    ]
+  ],
+  "git": {
+    "head": "87a0b977b8a52b08043c7d80a421f8d75de59e04",
+    "dirty": true
+  },
+  "results": [
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        ".claude/tests"
+      ],
+      "exit_code": 0,
+      "log": "verify-001/check-1.log",
+      "log_hash": "7baa783a816a216859d65c9a0f5e81fc848717b60b5a09fb3f42a1f015056b99",
+      "duration_seconds": 29.201
+    },
+    {
+      "argv": [
+        "npm",
+        "--prefix",
+        "apps/frontend",
+        "run",
+        "lint"
+      ],
+      "exit_code": 0,
+      "log": "verify-001/check-2.log",
+      "log_hash": "4229503a8faf5a2862b0ec0ea8dc5ecb21e36ef677e84518ca5d7160cf8bf176",
+      "duration_seconds": 6.487
+    },
+    {
+      "argv": [
+        "apps/frontend/node_modules/.bin/tsc",
+        "-p",
+        "apps/frontend",
+        "--noEmit"
+      ],
+      "exit_code": 0,
+      "log": "verify-001/check-3.log",
+      "log_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "duration_seconds": 2.696
+    },
+    {
+      "argv": [
+        "npm",
+        "--prefix",
+        "apps/frontend",
+        "test",
+        "--",
+        "--ci"
+      ],
+      "exit_code": 1,
+      "log": "verify-001/check-4.log",
+      "log_hash": "a57dd701442a7120d6c72def980820fb5186beb37ec3e0ee15882288bf5eee9c",
+      "duration_seconds": 8.099
+    }
+  ]
+}

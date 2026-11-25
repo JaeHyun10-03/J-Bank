@@ -1,62 +1,133 @@
 {
-  "id": "observability-logs-alerts",
+  "id": "transfer-deadlock-experiment",
   "phase": "done",
   "spec_protocol": 1,
-  "base_head": "8d3dc6e841276ab2814812c9be9c23448185dfbd",
+  "base_head": "1e433bed8c6bd5f95030b1988a02c5e42b0a0416",
   "base_status": "?? perf/results/ec2-baseline/dryrun/artifacts.txt\n?? perf/results/ec2-baseline/dryrun/environment.md\n?? perf/results/ec2-baseline/dryrun/integrity.md\n?? perf/results/ec2-baseline/dryrun/loadgen/analysis.json\n?? perf/results/ec2-baseline/dryrun/loadgen/k6-end.txt\n?? perf/results/ec2-baseline/dryrun/loadgen/k6-exit.txt\n?? perf/results/ec2-baseline/dryrun/loadgen/k6-start.txt\n?? perf/results/ec2-baseline/dryrun/loadgen/k6-summary.json\n?? perf/results/ec2-baseline/dryrun/loadgen/prometheus/query_range.json.gz\n?? perf/results/ec2-baseline/dryrun/target/batch.txt\n?? perf/results/ec2-baseline/dryrun/target/boundary.env\n?? perf/results/ec2-baseline/dryrun/target/integrity-target.txt\n?? perf/results/ec2-baseline/dryrun/target/log-counts.txt\n?? perf/results/ec2-baseline/dryrun/target/pg_stat_activity.csv\n?? perf/results/ec2-baseline/dryrun/warmup/k6-end.txt\n?? perf/results/ec2-baseline/dryrun/warmup/k6-exit.txt\n?? perf/results/ec2-baseline/dryrun/warmup/k6-start.txt\n?? perf/results/ec2-baseline/dryrun/warmup/k6-summary.json\n",
-  "updated_at": "2026-10-29T12:47:53.132038+00:00",
+  "updated_at": "2026-11-25T07:57:34.011829+00:00",
   "verifier_calls": [
     {
-      "at": "2026-10-29T07:18:23.209322+00:00",
+      "at": "2026-10-30T07:44:34.395712+00:00",
       "phase": "planning",
       "stage": "plan",
       "attempt": 0,
       "snapshot": null,
-      "plan_snapshot": "771cf36c374d513a6843ac640fe31cc65934ebad4771a80daebcee60d3fc090a"
+      "plan_snapshot": "2f869674c414c5f1b23e1e7e533c0e50ae05d3d65074df206992459358bee21e"
     },
     {
-      "at": "2026-10-29T07:50:48.186346+00:00",
+      "at": "2026-10-30T08:19:57.981998+00:00",
+      "phase": "planning",
+      "stage": "plan",
+      "attempt": 0,
+      "snapshot": null,
+      "plan_snapshot": "aa2f6b1fed955f4139db6ebb7aa7caf03206dee1f58526e8bd22419409630c1f"
+    },
+    {
+      "at": "2026-10-30T09:47:31.354811+00:00",
+      "phase": "planning",
+      "stage": "plan",
+      "attempt": 0,
+      "snapshot": null,
+      "plan_snapshot": "c75a62ad1e596ac16bc784abd3a5a32f174d90783176cb6e769c253d2229ca51"
+    },
+    {
+      "at": "2026-10-30T12:57:08.071959+00:00",
+      "phase": "planning",
+      "stage": "plan",
+      "attempt": 0,
+      "snapshot": null,
+      "plan_snapshot": "df3efea94198e98cecdccfa148e471d0413a94a1a73d03db6bdd4bcbbc6733f1"
+    },
+    {
+      "at": "2026-10-30T13:41:31.136190+00:00",
       "phase": "waiting",
       "stage": "plan",
       "attempt": 0,
       "snapshot": null,
-      "plan_snapshot": "c15def45eb28dcdcf222b7765f2d540f2a05e2ce2ee2f269a950d990d279ed89"
+      "plan_snapshot": "ef49b87401895312df390e8aca1126bc4f54ff02e53eefd6bc1f099bb9da1199"
     },
     {
-      "at": "2026-10-29T08:03:17.188708+00:00",
+      "at": "2026-10-30T13:58:21.697207+00:00",
       "phase": "waiting",
       "stage": "plan",
       "attempt": 0,
       "snapshot": null,
-      "plan_snapshot": "7d3592ca2cbaf0f59031ab600b80cd321e94899ea47e16c53ab4872a3c02bc10"
+      "plan_snapshot": "3b3cd9e04f25a46ed0ee40b1673a93860ec7546f6f87d86a4fff949607cdea88"
     },
     {
-      "at": "2026-10-29T08:19:38.809282+00:00",
+      "at": "2026-11-02T03:11:33.644516+00:00",
       "phase": "waiting",
       "stage": "plan",
       "attempt": 0,
       "snapshot": null,
-      "plan_snapshot": "3489d143a027557495e212641c9bde0905280ecfde8e535c9151e305bc4c417b"
+      "plan_snapshot": "d3b235055d5ae5d40b1e5148ed8e7523c6de3d045304d29d27a8b6eca8df205b"
     },
     {
-      "at": "2026-10-29T11:47:54.425194+00:00",
+      "at": "2026-11-02T04:19:23.904514+00:00",
+      "phase": "waiting",
+      "stage": "plan",
+      "attempt": 0,
+      "snapshot": null,
+      "plan_snapshot": "692b67ba577f49865d2a62246c9a0552275e357d0274d6c4dad2f3ac0935b9f7"
+    },
+    {
+      "at": "2026-11-02T04:30:15.177022+00:00",
+      "phase": "waiting",
+      "stage": "plan",
+      "attempt": 0,
+      "snapshot": null,
+      "plan_snapshot": "ef268d1537160b8fa709f46ed01ee6f8a9400a0599a8247eae97a5262216bd99"
+    },
+    {
+      "at": "2026-11-04T08:51:19.061544+00:00",
       "phase": "reviewing",
       "stage": "result",
       "attempt": 1,
-      "snapshot": "e4f7f1b627531f152f60d4c64e921b9e0c907a0e1cc0babf21a0be01f72016cd",
+      "snapshot": "785e3c1a0eb64cabd52f97ca6b10bf1da4440be219af4f77da5d336e8ad7a054",
       "plan_snapshot": null
     },
     {
-      "at": "2026-10-29T12:39:15.447172+00:00",
+      "at": "2026-11-04T10:18:42.820595+00:00",
       "phase": "reviewing",
       "stage": "result",
       "attempt": 2,
-      "snapshot": "c9c211d16c42531933ba723b43148fecaaf08bfd682ef4233385fe0e3d9f93b3",
+      "snapshot": "9ca4215725bcbc5ee38b0aa924765a6304a70669bb61d402b8900abd53e87a6f",
+      "plan_snapshot": null
+    },
+    {
+      "at": "2026-11-04T10:33:14.045571+00:00",
+      "phase": "reviewing",
+      "stage": "result",
+      "attempt": 3,
+      "snapshot": "405d112285c5c89a1a846f0bdef1eb0236d517ae2027faf46ce8bc33e8c7cc2b",
+      "plan_snapshot": null
+    },
+    {
+      "at": "2026-11-23T09:18:26.523909+00:00",
+      "phase": "waiting",
+      "stage": "plan",
+      "attempt": 3,
+      "snapshot": null,
+      "plan_snapshot": "23153ac12f6853b9018a17d4512d602469a094fd012b87ff2caace638991b033"
+    },
+    {
+      "at": "2026-11-25T07:52:48.419877+00:00",
+      "phase": "reviewing",
+      "stage": "result",
+      "attempt": 4,
+      "snapshot": "6aa9cdfc7853555aa75ea7c8643af47262e01960e2d73d863af8492cc1e8d669",
       "plan_snapshot": null
     }
   ],
-  "approved_plan_snapshot": "3489d143a027557495e212641c9bde0905280ecfde8e535c9151e305bc4c417b",
+  "approved_plan_snapshot": "23153ac12f6853b9018a17d4512d602469a094fd012b87ff2caace638991b033",
   "started": true,
-  "verify_attempts": 3,
-  "review_attempts": 2
+  "verify_attempts": 7,
+  "review_attempts": 4,
+  "review_extensions": [
+    {
+      "reason": "2026-11-22 사용자가 운영 결과를 포함한 최종 결과 리뷰 1회 추가를 허락함(\"허락\")",
+      "at": "2026-11-22T04:58:03.411530+00:00"
+    }
+  ],
+  "review_limit": 4
 }

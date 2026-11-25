@@ -1,0 +1,712 @@
+# 작업 시작 HEAD
+1e433bed8c6bd5f95030b1988a02c5e42b0a0416
+# 작업 시작 시 변경 상태
+?? perf/results/ec2-baseline/dryrun/artifacts.txt
+?? perf/results/ec2-baseline/dryrun/environment.md
+?? perf/results/ec2-baseline/dryrun/integrity.md
+?? perf/results/ec2-baseline/dryrun/loadgen/analysis.json
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-summary.json
+?? perf/results/ec2-baseline/dryrun/loadgen/prometheus/query_range.json.gz
+?? perf/results/ec2-baseline/dryrun/target/batch.txt
+?? perf/results/ec2-baseline/dryrun/target/boundary.env
+?? perf/results/ec2-baseline/dryrun/target/integrity-target.txt
+?? perf/results/ec2-baseline/dryrun/target/log-counts.txt
+?? perf/results/ec2-baseline/dryrun/target/pg_stat_activity.csv
+?? perf/results/ec2-baseline/dryrun/warmup/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-summary.json
+
+# 현재 git status --porcelain
+?? .ua/.trash-1794501197/assemble-review.json
+?? .ua/.trash-1794501197/assembled-graph.json
+?? .ua/.trash-1794501197/batch-1-part-1.json
+?? .ua/.trash-1794501197/batch-1-part-2.json
+?? .ua/.trash-1794501197/batch-10.json
+?? .ua/.trash-1794501197/batch-11.json
+?? .ua/.trash-1794501197/batch-12.json
+?? .ua/.trash-1794501197/batch-13.json
+?? .ua/.trash-1794501197/batch-14.json
+?? .ua/.trash-1794501197/batch-15.json
+?? .ua/.trash-1794501197/batch-16.json
+?? .ua/.trash-1794501197/batch-17.json
+?? .ua/.trash-1794501197/batch-18.json
+?? .ua/.trash-1794501197/batch-19.json
+?? .ua/.trash-1794501197/batch-2.json
+?? .ua/.trash-1794501197/batch-20.json
+?? .ua/.trash-1794501197/batch-21.json
+?? .ua/.trash-1794501197/batch-22.json
+?? .ua/.trash-1794501197/batch-23.json
+?? .ua/.trash-1794501197/batch-24.json
+?? .ua/.trash-1794501197/batch-25.json
+?? .ua/.trash-1794501197/batch-26.json
+?? .ua/.trash-1794501197/batch-27.json
+?? .ua/.trash-1794501197/batch-28.json
+?? .ua/.trash-1794501197/batch-29.json
+?? .ua/.trash-1794501197/batch-3-part-1.json
+?? .ua/.trash-1794501197/batch-3-part-2.json
+?? .ua/.trash-1794501197/batch-30.json
+?? .ua/.trash-1794501197/batch-31.json
+?? .ua/.trash-1794501197/batch-32.json
+?? .ua/.trash-1794501197/batch-33.json
+?? .ua/.trash-1794501197/batch-34.json
+?? .ua/.trash-1794501197/batch-35.json
+?? .ua/.trash-1794501197/batch-36.json
+?? .ua/.trash-1794501197/batch-37.json
+?? .ua/.trash-1794501197/batch-38.json
+?? .ua/.trash-1794501197/batch-39.json
+?? .ua/.trash-1794501197/batch-4.json
+?? .ua/.trash-1794501197/batch-40.json
+?? .ua/.trash-1794501197/batch-5-part-1.json
+?? .ua/.trash-1794501197/batch-5-part-2.json
+?? .ua/.trash-1794501197/batch-5-part-3.json
+?? .ua/.trash-1794501197/batch-6.json
+?? .ua/.trash-1794501197/batch-7.json
+?? .ua/.trash-1794501197/batch-8.json
+?? .ua/.trash-1794501197/batch-9.json
+?? .ua/.trash-1794501197/batches.json
+?? .ua/.trash-1794501197/fingerprint-input.json
+?? .ua/.trash-1794501197/layers-final.json
+?? .ua/.trash-1794501197/layers.json
+?? .ua/.trash-1794501197/review.json
+?? .ua/.trash-1794501197/tmp/arch-all-edges.json
+?? .ua/.trash-1794501197/tmp/arch-file-nodes.json
+?? .ua/.trash-1794501197/tmp/arch-import-edges.json
+?? .ua/.trash-1794501197/tmp/b21.json
+?? .ua/.trash-1794501197/tmp/b22.json
+?? .ua/.trash-1794501197/tmp/b23.json
+?? .ua/.trash-1794501197/tmp/b24.json
+?? .ua/.trash-1794501197/tmp/batch-stderr.txt
+?? .ua/.trash-1794501197/tmp/fa-batch-7.json
+?? .ua/.trash-1794501197/tmp/fa-batch-8.json
+?? .ua/.trash-1794501197/tmp/fa-batch-9.json
+?? .ua/.trash-1794501197/tmp/merge-stderr.txt
+?? .ua/.trash-1794501197/tmp/tour-layers.json
+?? .ua/.trash-1794501197/tmp/tour-nodes.json
+?? .ua/.trash-1794501197/tmp/ua-arch-analyze.js
+?? .ua/.trash-1794501197/tmp/ua-arch-assign.js
+?? .ua/.trash-1794501197/tmp/ua-arch-input.json
+?? .ua/.trash-1794501197/tmp/ua-arch-results.json
+?? .ua/.trash-1794501197/tmp/ua-build-1.mjs
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-1.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-10.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-11.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-12.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-13.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-14.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-15.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-16.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-17.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-18.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-19.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-2.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-20.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-21.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-22.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-23.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-24.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-25.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-26.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-27.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-28.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-29.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-3.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-30.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-31.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-32.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-33.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-34.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-35.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-36.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-37.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-38.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-39.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-4.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-40.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-5.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-6.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-7.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-8.json
+?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-9.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-1.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-10.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-11.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-12.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-13.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-14.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-15.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-16.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-17.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-18.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-19.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-2.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-20.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-21.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-22.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-23.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-24.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-25.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-26.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-27.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-28.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-29.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-3.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-30.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-31.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-32.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-33.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-34.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-35.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-36.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-37.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-38.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-39.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-4.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-40.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-5.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-6.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-7.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-8.json
+?? .ua/.trash-1794501197/tmp/ua-file-extract-results-9.json
+?? .ua/.trash-1794501197/tmp/ua-import-map-input.json
+?? .ua/.trash-1794501197/tmp/ua-import-map-output.json
+?? .ua/.trash-1794501197/tmp/ua-inline-validate.cjs
+?? .ua/.trash-1794501197/tmp/ua-scan-files.json
+?? .ua/.trash-1794501197/tmp/ua-tour-analyze.js
+?? .ua/.trash-1794501197/tmp/ua-tour-input.json
+?? .ua/.trash-1794501197/tmp/ua-tour-results.json
+?? .ua/.trash-1794501197/tour.json
+?? .ua/.understandignore
+?? .ua/config.json
+?? .ua/fingerprints.json
+?? .ua/intermediate/scan-result.json
+?? .ua/knowledge-graph.json
+?? .ua/meta.json
+?? docs/planning/reconciliation-and-bulk-payroll-brief.md
+?? perf/results/ec2-baseline/dryrun/artifacts.txt
+?? perf/results/ec2-baseline/dryrun/environment.md
+?? perf/results/ec2-baseline/dryrun/integrity.md
+?? perf/results/ec2-baseline/dryrun/loadgen/analysis.json
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/loadgen/k6-summary.json
+?? perf/results/ec2-baseline/dryrun/loadgen/prometheus/query_range.json.gz
+?? perf/results/ec2-baseline/dryrun/target/batch.txt
+?? perf/results/ec2-baseline/dryrun/target/boundary.env
+?? perf/results/ec2-baseline/dryrun/target/integrity-target.txt
+?? perf/results/ec2-baseline/dryrun/target/log-counts.txt
+?? perf/results/ec2-baseline/dryrun/target/pg_stat_activity.csv
+?? perf/results/ec2-baseline/dryrun/warmup/k6-end.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-exit.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-start.txt
+?? perf/results/ec2-baseline/dryrun/warmup/k6-summary.json
+
+# 작업 시작 HEAD부터 현재 파일까지의 이름·상태
+M	apps/jbank-api/src/main/java/com/jbank/account/repository/AccountRepository.java
+M	apps/jbank-api/src/main/java/com/jbank/auth/config/SecurityConfig.java
+A	apps/jbank-api/src/main/java/com/jbank/transfer/service/TransferLockStrategy.java
+M	apps/jbank-api/src/main/java/com/jbank/transfer/service/TransferService.java
+M	apps/jbank-api/src/test/java/com/jbank/auth/controller/AuthControllerTest.java
+M	apps/jbank-api/src/test/java/com/jbank/concurrency/AbstractConcurrencyTest.java
+A	apps/jbank-api/src/test/java/com/jbank/concurrency/CurrentLockStrategyScenarioTest.java
+A	apps/jbank-api/src/test/java/com/jbank/concurrency/SortedForUpdateLockStrategyScenarioTest.java
+A	apps/jbank-api/src/test/java/com/jbank/concurrency/TransferLockStrategyScenarioTest.java
+A	apps/jbank-api/src/test/java/com/jbank/concurrency/UnsortedForUpdateLockStrategyScenarioTest.java
+M	apps/jbank-api/src/test/java/com/jbank/global/exception/GlobalExceptionHandlerTest.java
+M	apps/jbank-api/src/test/java/com/jbank/integration/OtpVerificationServiceIntegrationTest.java
+M	apps/jbank-api/src/test/java/com/jbank/integration/TransactionHistoryServiceIntegrationTest.java
+M	apps/jbank-api/src/test/java/com/jbank/integration/TransferServiceIntegrationTest.java
+A	apps/jbank-api/src/test/java/com/jbank/transfer/TransferLockStrategyConfigTest.java
+A	docs/runbook/transfer-deadlock-experiment.md
+M	infra/compose/docker-compose.yml
+A	perf/deadlock-summary.py
+A	perf/k6/deadlock.js
+A	perf/results/deadlock/README.md
+A	perf/results/deadlock/local/current-vu100-r1/after.json
+A	perf/results/deadlock/local/current-vu100-r1/before.json
+A	perf/results/deadlock/local/current-vu100-r1/conditions.json
+A	perf/results/deadlock/local/current-vu100-r1/k6-log.txt
+A	perf/results/deadlock/local/current-vu100-r1/k6-summary.json
+A	perf/results/deadlock/local/current-vu100-r1/lock-wait-after.json
+A	perf/results/deadlock/local/current-vu100-r1/lock-wait-before.json
+A	perf/results/deadlock/local/current-vu100-r1/postgres-log.txt
+A	perf/results/deadlock/local/current-vu100-r1/result.json
+A	perf/results/deadlock/local/current-vu100-r1/strategy.txt
+A	perf/results/deadlock/local/current-vu100-r1/warmup/k6-log.txt
+A	perf/results/deadlock/local/current-vu100-r1/warmup/k6-summary.json
+A	perf/results/deadlock/local/current-vu100-r2/after.json
+A	perf/results/deadlock/local/current-vu100-r2/before.json
+A	perf/results/deadlock/local/current-vu100-r2/conditions.json
+A	perf/results/deadlock/local/current-vu100-r2/k6-log.txt
+A	perf/results/deadlock/local/current-vu100-r2/k6-summary.json
+A	perf/results/deadlock/local/current-vu100-r2/lock-wait-after.json
+A	perf/results/deadlock/local/current-vu100-r2/lock-wait-before.json
+A	perf/results/deadlock/local/current-vu100-r2/postgres-log.txt
+A	perf/results/deadlock/local/current-vu100-r2/result.json
+A	perf/results/deadlock/local/current-vu100-r2/strategy.txt
+A	perf/results/deadlock/local/current-vu100-r2/warmup/k6-log.txt
+A	perf/results/deadlock/local/current-vu100-r2/warmup/k6-summary.json
+A	perf/results/deadlock/local/current-vu100-r3/after.json
+A	perf/results/deadlock/local/current-vu100-r3/before.json
+A	perf/results/deadlock/local/current-vu100-r3/conditions.json
+A	perf/results/deadlock/local/current-vu100-r3/k6-log.txt
+A	perf/results/deadlock/local/current-vu100-r3/k6-summary.json
+A	perf/results/deadlock/local/current-vu100-r3/lock-wait-after.json
+A	perf/results/deadlock/local/current-vu100-r3/lock-wait-before.json
+A	perf/results/deadlock/local/current-vu100-r3/postgres-log.txt
+A	perf/results/deadlock/local/current-vu100-r3/result.json
+A	perf/results/deadlock/local/current-vu100-r3/strategy.txt
+A	perf/results/deadlock/local/current-vu100-r3/warmup/k6-log.txt
+A	perf/results/deadlock/local/current-vu100-r3/warmup/k6-summary.json
+A	perf/results/deadlock/local/current-vu50-r1/after.json
+A	perf/results/deadlock/local/current-vu50-r1/before.json
+A	perf/results/deadlock/local/current-vu50-r1/conditions.json
+A	perf/results/deadlock/local/current-vu50-r1/k6-log.txt
+A	perf/results/deadlock/local/current-vu50-r1/k6-summary.json
+A	perf/results/deadlock/local/current-vu50-r1/lock-wait-after.json
+A	perf/results/deadlock/local/current-vu50-r1/lock-wait-before.json
+A	perf/results/deadlock/local/current-vu50-r1/postgres-log.txt
+A	perf/results/deadlock/local/current-vu50-r1/result.json
+A	perf/results/deadlock/local/current-vu50-r1/strategy.txt
+A	perf/results/deadlock/local/current-vu50-r1/warmup/k6-log.txt
+A	perf/results/deadlock/local/current-vu50-r1/warmup/k6-summary.json
+A	perf/results/deadlock/local/current-vu50-r2/after.json
+A	perf/results/deadlock/local/current-vu50-r2/before.json
+A	perf/results/deadlock/local/current-vu50-r2/conditions.json
+A	perf/results/deadlock/local/current-vu50-r2/k6-log.txt
+A	perf/results/deadlock/local/current-vu50-r2/k6-summary.json
+A	perf/results/deadlock/local/current-vu50-r2/lock-wait-after.json
+A	perf/results/deadlock/local/current-vu50-r2/lock-wait-before.json
+A	perf/results/deadlock/local/current-vu50-r2/postgres-log.txt
+A	perf/results/deadlock/local/current-vu50-r2/result.json
+A	perf/results/deadlock/local/current-vu50-r2/strategy.txt
+A	perf/results/deadlock/local/current-vu50-r2/warmup/k6-log.txt
+A	perf/results/deadlock/local/current-vu50-r2/warmup/k6-summary.json
+A	perf/results/deadlock/local/current-vu50-r3/after.json
+A	perf/results/deadlock/local/current-vu50-r3/before.json
+A	perf/results/deadlock/local/current-vu50-r3/conditions.json
+A	perf/results/deadlock/local/current-vu50-r3/k6-log.txt
+A	perf/results/deadlock/local/current-vu50-r3/k6-summary.json
+A	perf/results/deadlock/local/current-vu50-r3/lock-wait-after.json
+A	perf/results/deadlock/local/current-vu50-r3/lock-wait-before.json
+A	perf/results/deadlock/local/current-vu50-r3/postgres-log.txt
+A	perf/results/deadlock/local/current-vu50-r3/result.json
+A	perf/results/deadlock/local/current-vu50-r3/strategy.txt
+A	perf/results/deadlock/local/current-vu50-r3/warmup/k6-log.txt
+A	perf/results/deadlock/local/current-vu50-r3/warmup/k6-summary.json
+A	perf/results/deadlock/local/progress.txt
+A	perf/results/deadlock/local/sorted-for-update-vu100-r1/after.json
+A	perf/results/deadlock/local/sorted-for-update-vu100-r1/before.json
+A	perf/results/deadlock/local/sorted-for-update-vu100-r1/conditions.json
+A	perf/results/deadlock/local/sorted-for-update-vu100-r1/k6-log.txt
+A	perf/results/deadlock/local/sorted-for-update-vu100-r1/k6-summary.json
+A	perf/results/deadlock/local/sorted-for-update-vu100-r1/lock-wait-after.json
+A	perf/results/deadlock/local/sorted-for-update-vu100-r1/lock-wait-before.json
+A	perf/results/deadlock/local/sorted-for-update-vu100-r1/postgres-log.txt
+A	perf/results/deadlock/local/sorted-for-update-vu100-r1/result.json
+A	perf/results/deadlock/local/sorted-for-update-vu100-r1/strategy.txt
+A	perf/results/deadlock/local/sorted-for-update-vu100-r1/warmup/k6-log.txt
+A	perf/results/deadlock/local/sorted-for-update-vu100-r1/warmup/k6-summary.json
+A	perf/results/deadlock/local/sorted-for-update-vu100-r2/after.json
+A	perf/results/deadlock/local/sorted-for-update-vu100-r2/before.json
+A	perf/results/deadlock/local/sorted-for-update-vu100-r2/conditions.json
+A	perf/results/deadlock/local/sorted-for-update-vu100-r2/k6-log.txt
+A	perf/results/deadlock/local/sorted-for-update-vu100-r2/k6-summary.json
+A	perf/results/deadlock/local/sorted-for-update-vu100-r2/lock-wait-after.json
+A	perf/results/deadlock/local/sorted-for-update-vu100-r2/lock-wait-before.json
+A	perf/results/deadlock/local/sorted-for-update-vu100-r2/postgres-log.txt
+A	perf/results/deadlock/local/sorted-for-update-vu100-r2/result.json
+A	perf/results/deadlock/local/sorted-for-update-vu100-r2/strategy.txt
+A	perf/results/deadlock/local/sorted-for-update-vu100-r2/warmup/k6-log.txt
+A	perf/results/deadlock/local/sorted-for-update-vu100-r2/warmup/k6-summary.json
+A	perf/results/deadlock/local/sorted-for-update-vu100-r3/after.json
+A	perf/results/deadlock/local/sorted-for-update-vu100-r3/before.json
+A	perf/results/deadlock/local/sorted-for-update-vu100-r3/conditions.json
+A	perf/results/deadlock/local/sorted-for-update-vu100-r3/k6-log.txt
+A	perf/results/deadlock/local/sorted-for-update-vu100-r3/k6-summary.json
+A	perf/results/deadlock/local/sorted-for-update-vu100-r3/lock-wait-after.json
+A	perf/results/deadlock/local/sorted-for-update-vu100-r3/lock-wait-before.json
+A	perf/results/deadlock/local/sorted-for-update-vu100-r3/postgres-log.txt
+A	perf/results/deadlock/local/sorted-for-update-vu100-r3/result.json
+A	perf/results/deadlock/local/sorted-for-update-vu100-r3/strategy.txt
+A	perf/results/deadlock/local/sorted-for-update-vu100-r3/warmup/k6-log.txt
+A	perf/results/deadlock/local/sorted-for-update-vu100-r3/warmup/k6-summary.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r1/after.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r1/before.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r1/conditions.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r1/k6-log.txt
+A	perf/results/deadlock/local/sorted-for-update-vu50-r1/k6-summary.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r1/lock-wait-after.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r1/lock-wait-before.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r1/postgres-log.txt
+A	perf/results/deadlock/local/sorted-for-update-vu50-r1/result.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r1/strategy.txt
+A	perf/results/deadlock/local/sorted-for-update-vu50-r1/warmup/k6-log.txt
+A	perf/results/deadlock/local/sorted-for-update-vu50-r1/warmup/k6-summary.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r2/after.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r2/before.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r2/conditions.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r2/k6-log.txt
+A	perf/results/deadlock/local/sorted-for-update-vu50-r2/k6-summary.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r2/lock-wait-after.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r2/lock-wait-before.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r2/postgres-log.txt
+A	perf/results/deadlock/local/sorted-for-update-vu50-r2/result.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r2/strategy.txt
+A	perf/results/deadlock/local/sorted-for-update-vu50-r2/warmup/k6-log.txt
+A	perf/results/deadlock/local/sorted-for-update-vu50-r2/warmup/k6-summary.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r3/after.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r3/before.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r3/conditions.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r3/k6-log.txt
+A	perf/results/deadlock/local/sorted-for-update-vu50-r3/k6-summary.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r3/lock-wait-after.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r3/lock-wait-before.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r3/postgres-log.txt
+A	perf/results/deadlock/local/sorted-for-update-vu50-r3/result.json
+A	perf/results/deadlock/local/sorted-for-update-vu50-r3/strategy.txt
+A	perf/results/deadlock/local/sorted-for-update-vu50-r3/warmup/k6-log.txt
+A	perf/results/deadlock/local/sorted-for-update-vu50-r3/warmup/k6-summary.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r1/after.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r1/before.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r1/conditions.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r1/k6-log.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r1/k6-summary.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r1/lock-wait-after.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r1/lock-wait-before.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r1/loki.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r1/mail.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r1/postgres-log.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r1/result.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r1/strategy.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r1/warmup/k6-log.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r1/warmup/k6-summary.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r2/after.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r2/before.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r2/conditions.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r2/k6-log.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r2/k6-summary.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r2/lock-wait-after.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r2/lock-wait-before.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r2/loki.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r2/mail.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r2/postgres-log.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r2/result.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r2/strategy.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r2/warmup/k6-log.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r2/warmup/k6-summary.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r3/after.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r3/before.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r3/conditions.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r3/k6-log.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r3/k6-summary.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r3/lock-wait-after.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r3/lock-wait-before.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r3/loki.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r3/mail.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r3/postgres-log.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r3/result.json
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r3/strategy.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r3/warmup/k6-log.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu100-r3/warmup/k6-summary.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r1/after.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r1/before.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r1/conditions.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r1/k6-log.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r1/k6-summary.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r1/lock-wait-after.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r1/lock-wait-before.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r1/loki.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r1/mail.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r1/postgres-log.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r1/result.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r1/strategy.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r1/warmup/k6-log.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r1/warmup/k6-summary.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r2/after.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r2/before.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r2/conditions.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r2/k6-log.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r2/k6-summary.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r2/lock-wait-after.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r2/lock-wait-before.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r2/loki.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r2/mail.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r2/postgres-log.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r2/result.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r2/strategy.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r2/warmup/k6-log.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r2/warmup/k6-summary.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r3/after.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r3/before.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r3/conditions.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r3/k6-log.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r3/k6-summary.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r3/lock-wait-after.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r3/lock-wait-before.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r3/loki.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r3/mail.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r3/postgres-log.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r3/result.json
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r3/strategy.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r3/warmup/k6-log.txt
+A	perf/results/deadlock/local/unsorted-for-update-vu50-r3/warmup/k6-summary.json
+A	perf/run-deadlock.sh
+
+# 작업 시작 HEAD부터 현재 파일까지의 통계
+ .../account/repository/AccountRepository.java      |   10 +
+ .../java/com/jbank/auth/config/SecurityConfig.java |   14 +-
+ .../transfer/service/TransferLockStrategy.java     |   71 +
+ .../jbank/transfer/service/TransferService.java    |   61 +-
+ .../jbank/auth/controller/AuthControllerTest.java  |   22 +-
+ .../jbank/concurrency/AbstractConcurrencyTest.java |    2 +
+ .../CurrentLockStrategyScenarioTest.java           |   14 +
+ .../SortedForUpdateLockStrategyScenarioTest.java   |   14 +
+ .../TransferLockStrategyScenarioTest.java          |  333 ++
+ .../UnsortedForUpdateLockStrategyScenarioTest.java |   14 +
+ .../exception/GlobalExceptionHandlerTest.java      |   17 +
+ .../OtpVerificationServiceIntegrationTest.java     |    2 +
+ .../TransactionHistoryServiceIntegrationTest.java  |    2 +
+ .../TransferServiceIntegrationTest.java            |    2 +
+ .../transfer/TransferLockStrategyConfigTest.java   |   91 +
+ docs/runbook/transfer-deadlock-experiment.md       |  202 +
+ infra/compose/docker-compose.yml                   |    2 +
+ perf/deadlock-summary.py                           |  123 +
+ perf/k6/deadlock.js                                |   93 +
+ perf/results/deadlock/README.md                    |  106 +
+ .../deadlock/local/current-vu100-r1/after.json     |    1 +
+ .../deadlock/local/current-vu100-r1/before.json    |    1 +
+ .../local/current-vu100-r1/conditions.json         |   21 +
+ .../deadlock/local/current-vu100-r1/k6-log.txt     |   25 +
+ .../local/current-vu100-r1/k6-summary.json         |  119 +
+ .../local/current-vu100-r1/lock-wait-after.json    |   89 +
+ .../local/current-vu100-r1/lock-wait-before.json   |   89 +
+ .../local/current-vu100-r1/postgres-log.txt        |    2 +
+ .../deadlock/local/current-vu100-r1/result.json    |    6 +
+ .../deadlock/local/current-vu100-r1/strategy.txt   |    1 +
+ .../local/current-vu100-r1/warmup/k6-log.txt       |   25 +
+ .../local/current-vu100-r1/warmup/k6-summary.json  |  119 +
+ .../deadlock/local/current-vu100-r2/after.json     |    1 +
+ .../deadlock/local/current-vu100-r2/before.json    |    1 +
+ .../local/current-vu100-r2/conditions.json         |   21 +
+ .../deadlock/local/current-vu100-r2/k6-log.txt     |   25 +
+ .../local/current-vu100-r2/k6-summary.json         |  119 +
+ .../local/current-vu100-r2/lock-wait-after.json    |   89 +
+ .../local/current-vu100-r2/lock-wait-before.json   |   89 +
+ .../local/current-vu100-r2/postgres-log.txt        |    1 +
+ .../deadlock/local/current-vu100-r2/result.json    |    6 +
+ .../deadlock/local/current-vu100-r2/strategy.txt   |    1 +
+ .../local/current-vu100-r2/warmup/k6-log.txt       |   25 +
+ .../local/current-vu100-r2/warmup/k6-summary.json  |  119 +
+ .../deadlock/local/current-vu100-r3/after.json     |    1 +
+ .../deadlock/local/current-vu100-r3/before.json    |    1 +
+ .../local/current-vu100-r3/conditions.json         |   21 +
+ .../deadlock/local/current-vu100-r3/k6-log.txt     |   25 +
+ .../local/current-vu100-r3/k6-summary.json         |  119 +
+ .../local/current-vu100-r3/lock-wait-after.json    |   89 +
+ .../local/current-vu100-r3/lock-wait-before.json   |   89 +
+ .../local/current-vu100-r3/postgres-log.txt        |    2 +
+ .../deadlock/local/current-vu100-r3/result.json    |    6 +
+ .../deadlock/local/current-vu100-r3/strategy.txt   |    1 +
+ .../local/current-vu100-r3/warmup/k6-log.txt       |   25 +
+ .../local/current-vu100-r3/warmup/k6-summary.json  |  119 +
+ .../deadlock/local/current-vu50-r1/after.json      |    1 +
+ .../deadlock/local/current-vu50-r1/before.json     |    1 +
+ .../deadlock/local/current-vu50-r1/conditions.json |   21 +
+ .../deadlock/local/current-vu50-r1/k6-log.txt      |   25 +
+ .../deadlock/local/current-vu50-r1/k6-summary.json |  119 +
+ .../local/current-vu50-r1/lock-wait-after.json     |   89 +
+ .../local/current-vu50-r1/lock-wait-before.json    |   89 +
+ .../local/current-vu50-r1/postgres-log.txt         |    0
+ .../deadlock/local/current-vu50-r1/result.json     |    6 +
+ .../deadlock/local/current-vu50-r1/strategy.txt    |    1 +
+ .../local/current-vu50-r1/warmup/k6-log.txt        |   25 +
+ .../local/current-vu50-r1/warmup/k6-summary.json   |  119 +
+ .../deadlock/local/current-vu50-r2/after.json      |    1 +
+ .../deadlock/local/current-vu50-r2/before.json     |    1 +
+ .../deadlock/local/current-vu50-r2/conditions.json |   21 +
+ .../deadlock/local/current-vu50-r2/k6-log.txt      |   25 +
+ .../deadlock/local/current-vu50-r2/k6-summary.json |  119 +
+ .../local/current-vu50-r2/lock-wait-after.json     |   89 +
+ .../local/current-vu50-r2/lock-wait-before.json    |   89 +
+ .../local/current-vu50-r2/postgres-log.txt         |    1 +
+ .../deadlock/local/current-vu50-r2/result.json     |    6 +
+ .../deadlock/local/current-vu50-r2/strategy.txt    |    1 +
+ .../local/current-vu50-r2/warmup/k6-log.txt        |   25 +
+ .../local/current-vu50-r2/warmup/k6-summary.json   |  119 +
+ .../deadlock/local/current-vu50-r3/after.json      |    1 +
+ .../deadlock/local/current-vu50-r3/before.json     |    1 +
+ .../deadlock/local/current-vu50-r3/conditions.json |   21 +
+ .../deadlock/local/current-vu50-r3/k6-log.txt      |   25 +
+ .../deadlock/local/current-vu50-r3/k6-summary.json |  119 +
+ .../local/current-vu50-r3/lock-wait-after.json     |   89 +
+ .../local/current-vu50-r3/lock-wait-before.json    |   89 +
+ .../local/current-vu50-r3/postgres-log.txt         |    1 +
+ .../deadlock/local/current-vu50-r3/result.json     |    6 +
+ .../deadlock/local/current-vu50-r3/strategy.txt    |    1 +
+ .../local/current-vu50-r3/warmup/k6-log.txt        |   25 +
+ .../local/current-vu50-r3/warmup/k6-summary.json   |  119 +
+ perf/results/deadlock/local/progress.txt           |   60 +
+ .../local/sorted-for-update-vu100-r1/after.json    |    1 +
+ .../local/sorted-for-update-vu100-r1/before.json   |    1 +
+ .../sorted-for-update-vu100-r1/conditions.json     |   21 +
+ .../local/sorted-for-update-vu100-r1/k6-log.txt    |   25 +
+ .../sorted-for-update-vu100-r1/k6-summary.json     |  119 +
+ .../lock-wait-after.json                           |   62 +
+ .../lock-wait-before.json                          |   62 +
+ .../sorted-for-update-vu100-r1/postgres-log.txt    |    1 +
+ .../local/sorted-for-update-vu100-r1/result.json   |    6 +
+ .../local/sorted-for-update-vu100-r1/strategy.txt  |    1 +
+ .../sorted-for-update-vu100-r1/warmup/k6-log.txt   |   25 +
+ .../warmup/k6-summary.json                         |  119 +
+ .../local/sorted-for-update-vu100-r2/after.json    |    1 +
+ .../local/sorted-for-update-vu100-r2/before.json   |    1 +
+ .../sorted-for-update-vu100-r2/conditions.json     |   21 +
+ .../local/sorted-for-update-vu100-r2/k6-log.txt    |   25 +
+ .../sorted-for-update-vu100-r2/k6-summary.json     |  119 +
+ .../lock-wait-after.json                           |   62 +
+ .../lock-wait-before.json                          |   62 +
+ .../sorted-for-update-vu100-r2/postgres-log.txt    |    2 +
+ .../local/sorted-for-update-vu100-r2/result.json   |    6 +
+ .../local/sorted-for-update-vu100-r2/strategy.txt  |    1 +
+ .../sorted-for-update-vu100-r2/warmup/k6-log.txt   |   25 +
+ .../warmup/k6-summary.json                         |  119 +
+ .../local/sorted-for-update-vu100-r3/after.json    |    1 +
+ .../local/sorted-for-update-vu100-r3/before.json   |    1 +
+ .../sorted-for-update-vu100-r3/conditions.json     |   21 +
+ .../local/sorted-for-update-vu100-r3/k6-log.txt    |   25 +
+ .../sorted-for-update-vu100-r3/k6-summary.json     |  119 +
+ .../lock-wait-after.json                           |   62 +
+ .../lock-wait-before.json                          |   62 +
+ .../sorted-for-update-vu100-r3/postgres-log.txt    |    0
+ .../local/sorted-for-update-vu100-r3/result.json   |    6 +
+ .../local/sorted-for-update-vu100-r3/strategy.txt  |    1 +
+ .../sorted-for-update-vu100-r3/warmup/k6-log.txt   |   25 +
+ .../warmup/k6-summary.json                         |  119 +
+ .../local/sorted-for-update-vu50-r1/after.json     |    1 +
+ .../local/sorted-for-update-vu50-r1/before.json    |    1 +
+ .../sorted-for-update-vu50-r1/conditions.json      |   21 +
+ .../local/sorted-for-update-vu50-r1/k6-log.txt     |   25 +
+ .../sorted-for-update-vu50-r1/k6-summary.json      |  119 +
+ .../sorted-for-update-vu50-r1/lock-wait-after.json |   62 +
+ .../lock-wait-before.json                          |   62 +
+ .../sorted-for-update-vu50-r1/postgres-log.txt     |    0
+ .../local/sorted-for-update-vu50-r1/result.json    |    6 +
+ .../local/sorted-for-update-vu50-r1/strategy.txt   |    1 +
+ .../sorted-for-update-vu50-r1/warmup/k6-log.txt    |   25 +
+ .../warmup/k6-summary.json                         |  119 +
+ .../local/sorted-for-update-vu50-r2/after.json     |    1 +
+ .../local/sorted-for-update-vu50-r2/before.json    |    1 +
+ .../sorted-for-update-vu50-r2/conditions.json      |   21 +
+ .../local/sorted-for-update-vu50-r2/k6-log.txt     |   25 +
+ .../sorted-for-update-vu50-r2/k6-summary.json      |  119 +
+ .../sorted-for-update-vu50-r2/lock-wait-after.json |   62 +
+ .../lock-wait-before.json                          |   62 +
+ .../sorted-for-update-vu50-r2/postgres-log.txt     |    0
+ .../local/sorted-for-update-vu50-r2/result.json    |    6 +
+ .../local/sorted-for-update-vu50-r2/strategy.txt   |    1 +
+ .../sorted-for-update-vu50-r2/warmup/k6-log.txt    |   25 +
+ .../warmup/k6-summary.json                         |  119 +
+ .../local/sorted-for-update-vu50-r3/after.json     |    1 +
+ .../local/sorted-for-update-vu50-r3/before.json    |    1 +
+ .../sorted-for-update-vu50-r3/conditions.json      |   21 +
+ .../local/sorted-for-update-vu50-r3/k6-log.txt     |   25 +
+ .../sorted-for-update-vu50-r3/k6-summary.json      |  119 +
+ .../sorted-for-update-vu50-r3/lock-wait-after.json |   62 +
+ .../lock-wait-before.json                          |   62 +
+ .../sorted-for-update-vu50-r3/postgres-log.txt     |    2 +
+ .../local/sorted-for-update-vu50-r3/result.json    |    6 +
+ .../local/sorted-for-update-vu50-r3/strategy.txt   |    1 +
+ .../sorted-for-update-vu50-r3/warmup/k6-log.txt    |   25 +
+ .../warmup/k6-summary.json                         |  119 +
+ .../local/unsorted-for-update-vu100-r1/after.json  |    1 +
+ .../local/unsorted-for-update-vu100-r1/before.json |    1 +
+ .../unsorted-for-update-vu100-r1/conditions.json   |   21 +
+ .../local/unsorted-for-update-vu100-r1/k6-log.txt  |  164 +
+ .../unsorted-for-update-vu100-r1/k6-summary.json   |  131 +
+ .../lock-wait-after.json                           |   62 +
+ .../lock-wait-before.json                          |   62 +
+ .../local/unsorted-for-update-vu100-r1/loki.json   |   24 +
+ .../local/unsorted-for-update-vu100-r1/mail.json   |   50 +
+ .../unsorted-for-update-vu100-r1/postgres-log.txt  | 5204 ++++++++++++++++++++
+ .../local/unsorted-for-update-vu100-r1/result.json |    6 +
+ .../unsorted-for-update-vu100-r1/strategy.txt      |    1 +
+ .../unsorted-for-update-vu100-r1/warmup/k6-log.txt |   27 +
+ .../warmup/k6-summary.json                         |  127 +
+ .../local/unsorted-for-update-vu100-r2/after.json  |    1 +
+ .../local/unsorted-for-update-vu100-r2/before.json |    1 +
+ .../unsorted-for-update-vu100-r2/conditions.json   |   21 +
+ .../local/unsorted-for-update-vu100-r2/k6-log.txt  |  199 +
+ .../unsorted-for-update-vu100-r2/k6-summary.json   |  131 +
+ .../lock-wait-after.json                           |   62 +
+ .../lock-wait-before.json                          |   62 +
+ .../local/unsorted-for-update-vu100-r2/loki.json   |   24 +
+ .../local/unsorted-for-update-vu100-r2/mail.json   |   98 +
+ .../unsorted-for-update-vu100-r2/postgres-log.txt  | 4805 ++++++++++++++++++
+ .../local/unsorted-for-update-vu100-r2/result.json |    6 +
+ .../unsorted-for-update-vu100-r2/strategy.txt      |    1 +
+ .../unsorted-for-update-vu100-r2/warmup/k6-log.txt |   27 +
+ .../warmup/k6-summary.json                         |  127 +
+ .../local/unsorted-for-update-vu100-r3/after.json  |    1 +
+ .../local/unsorted-for-update-vu100-r3/before.json |    1 +
+ .../unsorted-for-update-vu100-r3/conditions.json   |   21 +
+ .../local/unsorted-for-update-vu100-r3/k6-log.txt  |  191 +
+ .../unsorted-for-update-vu100-r3/k6-summary.json   |  131 +
+ .../lock-wait-after.json                           |   62 +
+ .../lock-wait-before.json                          |   62 +
+ .../local/unsorted-for-update-vu100-r3/loki.json   |   24 +
+ .../local/unsorted-for-update-vu100-r3/mail.json   |  146 +
+ .../unsorted-for-update-vu100-r3/postgres-log.txt  | 4914 ++++++++++++++++++
+ .../local/unsorted-for-update-vu100-r3/result.json |    6 +
+ .../unsorted-for-update-vu100-r3/strategy.txt      |    1 +
+ .../unsorted-for-update-vu100-r3/warmup/k6-log.txt |   27 +
+ .../warmup/k6-summary.json                         |  127 +
+ .../local/unsorted-for-update-vu50-r1/after.json   |    1 +
+ .../local/unsorted-for-update-vu50-r1/before.json  |    1 +
+ .../unsorted-for-update-vu50-r1/conditions.json    |   21 +
+ .../local/unsorted-for-update-vu50-r1/k6-log.txt   |   29 +
+ .../unsorted-for-update-vu50-r1/k6-summary.json    |  131 +
+ .../lock-wait-after.json                           |   62 +
+ .../lock-wait-before.json                          |   62 +
+ .../local/unsorted-for-update-vu50-r1/loki.json    |   24 +
+ .../local/unsorted-for-update-vu50-r1/mail.json    |   26 +
+ .../unsorted-for-update-vu50-r1/postgres-log.txt   | 4930 ++++++++++++++++++
+ .../local/unsorted-for-update-vu50-r1/result.json  |    6 +
+ .../local/unsorted-for-update-vu50-r1/strategy.txt |    1 +
+ .../unsorted-for-update-vu50-r1/warmup/k6-log.txt  |   27 +
+ .../warmup/k6-summary.json                         |  127 +
+ .../local/unsorted-for-update-vu50-r2/after.json   |    1 +
+ .../local/unsorted-for-update-vu50-r2/before.json  |    1 +
+ .../unsorted-for-update-vu50-r2/conditions.json    |   21 +
+ .../local/unsorted-for-update-vu50-r2/k6-log.txt   |   34 +
+ .../unsorted-for-update-vu50-r2/k6-summary.json    |  131 +
+ .../lock-wait-after.json                           |   62 +
+ .../lock-wait-before.json                          |   62 +
+ .../local/unsorted-for-update-vu50-r2/loki.json    |   24 +
+ .../local/unsorted-for-update-vu50-r2/mail.json    |   74 +
+ .../unsorted-for-update-vu50-r2/postgres-log.txt   | 4307 ++++++++++++++++
+ .../local/unsorted-for-update-vu50-r2/result.json  |    6 +
+ .../local/unsorted-for-update-vu50-r2/strategy.txt |    1 +
+ .../unsorted-for-update-vu50-r2/warmup/k6-log.txt  |   27 +
+ .../warmup/k6-summary.json                         |  127 +
+ .../local/unsorted-for-update-vu50-r3/after.json   |    1 +
+ .../local/unsorted-for-update-vu50-r3/before.json  |    1 +
+ .../unsorted-for-update-vu50-r3/conditions.json    |   21 +
+ .../local/unsorted-for-update-vu50-r3/k6-log.txt   |   33 +
+ .../unsorted-for-update-vu50-r3/k6-summary.json    |  131 +
+ .../lock-wait-after.json                           |   62 +
+ .../lock-wait-before.json                          |   62 +
+ .../local/unsorted-for-update-vu50-r3/loki.json    |   24 +
+ .../local/unsorted-for-update-vu50-r3/mail.json    |  122 +
+ .../unsorted-for-update-vu50-r3/postgres-log.txt   | 4345 ++++++++++++++++
+ .../local/unsorted-for-update-vu50-r3/result.json  |    6 +
+ .../local/unsorted-for-update-vu50-r3/strategy.txt |    1 +
+ .../unsorted-for-update-vu50-r3/warmup/k6-log.txt  |   27 +
+ .../warmup/k6-summary.json                         |  127 +
+ perf/run-deadlock.sh                               |  548 +++
+ 250 files changed, 39860 insertions(+), 32 deletions(-)
+
