@@ -7,11 +7,11 @@
 
 ## 1. 병합 시점
 
-- PR은 서버가 꺼진 **18:00(KST) 이후**에 병합한다.
-- 병합하면 backend-cd가 이미지를 만들고, 다음 날 부팅 때 `sync-latest.sh`가 `deploy.sh`(`up -d api`)를 실행한다. postgres 설정(`log_lock_waits`)이 바뀌어 postgres가 재생성된다. 배치 전, 사용자가 없는 시각이다.
+- PR은 서버가 꺼진 **평일 00:00~09:00(KST)이나 주말**에 병합한다(ADR 0015).
+- 병합하면 backend-cd가 이미지를 만들고, 다음 부팅 때 `sync-latest.sh`가 `deploy.sh`(`up -d api`)를 실행한다. postgres 설정(`log_lock_waits`)이 바뀌어 postgres가 재생성된다. 배치 전, 사용자가 없는 시각이다.
 - 이 단계에서는 새 서비스가 생기지 않는다. 기존 prometheus는 새 설정을 읽어도 정상 기동한다(없는 alertmanager·exporter 대상은 연결 실패만 남는다).
 
-## 2. 반영 (다음 날 운영 시간 중)
+## 2. 반영 (다음 부팅 뒤 운영 시간 중)
 
 1. 반영 전 기록: `free -m`, `grep MemAvailable /proc/meminfo`, `docker stats --no-stream`.
 2. 메일 설정 파일을 만든다. 값은 직접 입력하고 저장소·채팅에 남기지 않는다.
@@ -73,7 +73,7 @@
 
 호스트에서만 되돌리면 다음 배포·부팅의 `git reset`에 덮인다. main에서 되돌린다.
 
-1. 되돌리는 revert 커밋을 **18:00 이후** 병합한다(다음 부팅 때 postgres가 원래 설정으로 재생성된다).
+1. 되돌리는 revert 커밋을 **서버가 꺼진 시간(평일 00:00~09:00·주말)**에 병합한다(다음 부팅 때 postgres가 원래 설정으로 재생성된다).
 2. 다음 부팅에서 `sync-latest.sh`가 끝난 뒤(`journalctl -u jbank-boot`로 확인) `dc up -d --remove-orphans`로 새 서비스를 지운다.
 3. `dc restart grafana` 후 Grafana에서 Loki·Alertmanager 데이터소스를 삭제한다(provisioning에서 빠져도 DB에 남는다).
 4. `.env.alertmanager`를 지우고 `.env`의 `COMPOSE_PROFILES`를 지운다.
@@ -82,6 +82,6 @@
 
 - postgres의 여러 줄 로그(`deadlock detected` 아래 `DETAIL`, `Process NNNN: <쿼리>`, `STATEMENT`)는 Loki에 줄마다 따로 들어간다. 교착을 볼 때는 `{container="compose-postgres-1"} |~ "deadlock detected|DETAIL|Process [0-9]+:|STATEMENT"`처럼 함께 조회하고 시각으로 묶어 읽는다.
 
-- 18:00에 서버가 꺼질 때 발생 중이던 알림은 해제 메일이 오지 않는다.
+- 24:00에 서버가 꺼질 때 발생 중이던 알림은 해제 메일이 오지 않는다.
 - 이체 트래픽이 적어 5xx 한 건으로도 5%를 넘을 수 있다.
 - alloy가 침해되면 inspect로 api 환경변수(비밀값)를 읽을 수 있다(ADR 0014, 수용).
