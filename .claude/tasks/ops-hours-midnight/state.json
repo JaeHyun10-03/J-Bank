@@ -1,10 +1,10 @@
 {
   "id": "ops-hours-midnight",
-  "phase": "waiting",
+  "phase": "done",
   "spec_protocol": 1,
   "base_head": "65d15e03e76462bbc1cc8683cb0bc08040999a23",
   "base_status": "",
-  "updated_at": "2026-11-25T03:55:51.982324+00:00",
+  "updated_at": "2026-11-25T15:30:28.429131+00:00",
   "verifier_calls": [
     {
       "at": "2026-11-23T10:26:34.708029+00:00",
@@ -37,11 +37,18 @@
       "attempt": 1,
       "snapshot": "ec0b20615b776f7059dcf38d7377f04ec04837da902d0510c115516376e9c51c",
       "plan_snapshot": null
+    },
+    {
+      "at": "2026-11-25T15:26:28.921776+00:00",
+      "phase": "reviewing",
+      "stage": "result",
+      "attempt": 2,
+      "snapshot": "059786e39370ad632a81e8b2ab57e7867384139f56ac0fafeeb00b3b8a781317",
+      "plan_snapshot": null
     }
   ],
   "approved_plan_snapshot": "acacc9a62fd4471d57de08542a6f5f690c5f3cf017209700c35b527c0e398866",
   "started": true,
-  "verify_attempts": 3,
-  "review_attempts": 1,
-  "reason": "PR 병합 대기(사용자). 병합은 교착 실험이 없을 때. 이후 plan 승인·apply·00시 중지 확인이 남음"
+  "verify_attempts": 4,
+  "review_attempts": 2
 }

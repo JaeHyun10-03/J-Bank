@@ -1,6 +1,6 @@
 {
-  "verdict": "fail",
-  "snapshot": "ec0b20615b776f7059dcf38d7377f04ec04837da902d0510c115516376e9c51c",
-  "report_hash": "9246644bb0279fcecbcf84a174d91c52cc09aa7756f09345d63fd637388433f0",
-  "verification": "verify-002/checks.json"
+  "verdict": "pass",
+  "snapshot": "059786e39370ad632a81e8b2ab57e7867384139f56ac0fafeeb00b3b8a781317",
+  "report_hash": "db1969a4d1d256ce2fb40599562ed951c0b12ee4375881cd73ddceead483d294",
+  "verification": "verify-004/checks.json"
 }
