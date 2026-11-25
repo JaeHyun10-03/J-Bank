@@ -58,7 +58,7 @@ jobs:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ap-northeast-2
 
-      # 운영 인스턴스는 평일 09~18시에만 켜진다. 꺼져 있으면 배포를 건너뛰고(경고) 다음 부팅 때
+      # 운영 인스턴스는 평일 09~24시에만 켜진다. 꺼져 있으면 배포를 건너뛰고(경고) 다음 부팅 때
       # 반영되고, 켜져 있으면 SSM으로 배포한다. 절차와 실패 조건은 스크립트 주석 참고.
       - name: Deploy via SSM
         env:
