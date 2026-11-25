@@ -1,0 +1,126 @@
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:16:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+
+
+  █ TOTAL RESULTS 
+
+    CUSTOM
+    code_other.....................: 18595  307.808196/s
+    status_4xx.....................: 18595  307.808196/s
+
+    HTTP
+    http_req_duration..............: avg=322.12ms min=21.38ms med=310.36ms max=949.89ms p(95)=519.15ms p(99)=637.34ms
+      { expected_response:true }...: avg=111.1ms  min=111.1ms med=111.1ms  max=111.1ms  p(95)=111.1ms  p(99)=111.1ms 
+    http_req_failed................: 99.99% 18595 out of 18596
+    http_reqs......................: 18596  307.824749/s
+
+    EXECUTION
+    iteration_duration.............: avg=322.99ms min=21.65ms med=310.9ms  max=950.09ms p(95)=520.82ms p(99)=642.75ms
+    iterations.....................: 18595  307.808196/s
+    vus............................: 100    min=100            max=100
+    vus_max........................: 100    min=100            max=100
+
+    NETWORK
+    data_received..................: 5.8 MB 95 kB/s
+    data_sent......................: 4.5 MB 74 kB/s
+
+
+

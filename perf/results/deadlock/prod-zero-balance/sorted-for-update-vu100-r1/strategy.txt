@@ -1,0 +1,3 @@
+.env 줄 수: 1 JBANK_TRANSFER_LOCK_STRATEGY=sorted-for-update
+컨테이너 변수: sorted-for-update
+이체 락 전략: sorted-for-update

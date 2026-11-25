@@ -1,0 +1,20 @@
+2026-11-25 15:22:12 회차 시작 current-vu50-r1
+2026-11-25 15:23:52 측정 60s VU 50
+2026-11-25 15:25:38 회차 끝 current-vu50-r1 (해제: -)
+2026-11-25 15:25:38 회차 시작 current-vu100-r1
+2026-11-25 15:27:22 측정 60s VU 100
+2026-11-25 15:29:05 회차 끝 current-vu100-r1 (해제: -)
+2026-11-25 15:29:05 회차 시작 sorted-for-update-vu50-r1
+2026-11-25 15:30:48 측정 60s VU 50
+2026-11-25 15:32:38 회차 끝 sorted-for-update-vu50-r1 (해제: -)
+2026-11-25 15:32:38 회차 시작 sorted-for-update-vu100-r1
+2026-11-25 15:34:25 측정 60s VU 100
+2026-11-25 15:36:14 회차 끝 sorted-for-update-vu100-r1 (해제: -)
+2026-11-25 15:36:14 회차 시작 unsorted-for-update-vu50-r1
+2026-11-25 15:38:01 측정 60s VU 50
+2026-11-25 15:40:08 알림 해제 대기(상한 900초)
+2026-11-25 15:50:32 회차 끝 unsorted-for-update-vu50-r1 (해제: 해제 확인)
+2026-11-25 15:50:32 회차 시작 unsorted-for-update-vu100-r1
+2026-11-25 15:52:16 측정 60s VU 100
+2026-11-25 15:54:38 회차 끝 unsorted-for-update-vu100-r1 (해제: -)
+2026-11-25 15:55:18 설정 복귀 기록: /Users/imjaehyeon/Documents/[01] - Project/j-bank/perf/results/deadlock/prod/restore.md

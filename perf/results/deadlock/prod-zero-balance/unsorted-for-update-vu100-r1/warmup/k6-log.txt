@@ -1,0 +1,32 @@
+time="2026-11-25T14:34:28+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:34:28+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:34:30+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:34:46+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+
+
+  █ TOTAL RESULTS 
+
+    CUSTOM
+    code_COMMON_006_INTERNAL_ERROR...: 33     1.44238/s
+    code_other.......................: 22     0.961587/s
+    status_4xx.......................: 22     0.961587/s
+    status_5xx.......................: 33     1.44238/s
+
+    HTTP
+    http_req_duration................: avg=1.93s    min=838.29ms med=2.04s    max=3.17s    p(95)=2.08s    p(99)=2.58s   
+      { expected_response:true }.....: avg=838.29ms min=838.29ms med=838.29ms max=838.29ms p(95)=838.29ms p(99)=838.29ms
+    http_req_failed..................: 98.21% 55 out of 56
+    http_reqs........................: 56     2.447675/s
+
+    EXECUTION
+    iteration_duration...............: avg=1.96s    min=1s       med=2.04s    max=3.17s    p(95)=2.08s    p(99)=2.59s   
+    iterations.......................: 55     2.403967/s
+    vus..............................: 3      min=3        max=5
+    vus_max..........................: 5      min=5        max=5
+
+    NETWORK
+    data_received....................: 47 kB  2.1 kB/s
+    data_sent........................: 25 kB  1.1 kB/s
+
+
+

@@ -1,0 +1,102 @@
+time="2026-11-25T15:52:55+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:52:59+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:04+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:05+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:06+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:06+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:09+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:10+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:11+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:13+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:14+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:29+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:30+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:30+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:31+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:32+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:32+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:32+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:33+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:33+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:33+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:33+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:33+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:34+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:35+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:36+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:36+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:36+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:37+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:37+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:38+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:38+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:39+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:39+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:39+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:39+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:39+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:40+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:40+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:41+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:41+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:41+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:41+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:41+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:42+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:42+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:42+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:42+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:42+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:42+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:43+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:43+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:43+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:43+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:43+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:43+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:44+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:44+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:44+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:44+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:45+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:45+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:45+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:45+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:45+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:45+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:46+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:46+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:46+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:46+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:46+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:46+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:46+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T15:53:46+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+
+
+  █ TOTAL RESULTS 
+
+    CUSTOM
+    code_COMMON_006_INTERNAL_ERROR...: 261    2.922422/s
+    status_0.........................: 74     0.82858/s
+    status_2xx.......................: 26     0.291123/s
+    status_5xx.......................: 261    2.922422/s
+
+    HTTP
+    http_req_duration................: avg=21.12s min=111.69ms med=24.33s max=30s    p(95)=30s    p(99)=30s  
+      { expected_response:true }.....: avg=17.91s min=111.69ms med=18.52s max=29.41s p(95)=29.37s p(99)=29.4s
+    http_req_failed..................: 92.54% 335 out of 362
+    http_reqs........................: 362    4.053322/s
+
+    EXECUTION
+    iteration_duration...............: avg=21.21s min=286.43ms med=24.34s max=30s    p(95)=30s    p(99)=30s  
+    iterations.......................: 361    4.042124/s
+    vus..............................: 8      min=8          max=100
+    vus_max..........................: 100    min=100        max=100
+
+    NETWORK
+    data_received....................: 603 kB 6.7 kB/s
+    data_sent........................: 300 kB 3.4 kB/s
+
+
+

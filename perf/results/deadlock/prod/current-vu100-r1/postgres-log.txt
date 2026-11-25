@@ -1,0 +1,2 @@
+2026-11-25 06:26:14.575 UTC [27] LOG:  checkpoint starting: time
+2026-11-25 06:28:46.956 UTC [27] LOG:  checkpoint complete: wrote 1552 buffers (9.5%); 0 WAL file(s) added, 0 removed, 2 recycled; write=152.365 s, sync=0.005 s, total=152.382 s; sync files=49, longest=0.004 s, average=0.001 s; distance=29960 kB, estimate=29960 kB; lsn=0/6B32868, redo lsn=0/4AA66E0
