@@ -130,9 +130,10 @@ DETAIL:  Process 443 waits for ShareLock on transaction 78123; blocked by proces
 
 ① 동시 100: 첫 교착 15:51:21, 발생 메일 15:52:52, 해제 메일 16:02:52다. 로그의 `deadlock detected`는 350줄이다(측정 증가 309건 + 워밍업 41건). 모든 메일의 시각은 [alert-mails.md](prod/alert-mails.md)에 있다.
 
-### 설정 복귀
+### 설정 복귀와 FDS
 
 - `prod-all`의 마지막 단계가 실험 설정을 지우고 api를 재생성했다. 기동 로그는 `이체 락 전략: current`, 확인용 이체 1건은 201 `COMPLETED`다(`prod/restore.md`).
+- 실험 당일 FDS 배치를 손으로 한 번 실행해 관찰했다. 1,393초(부팅 때는 25초), 새 의심 거래 36,590건, 최저 가용 메모리 199MiB, 정상 종료다([fds.md](prod/fds.md)). 다음 부팅의 따라잡기는 2026-11-25를 건너뛴다.
 
 ### 쓰지 않는 1차 실행
 
