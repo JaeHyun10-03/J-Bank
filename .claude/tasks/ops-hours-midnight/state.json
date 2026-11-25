@@ -1,0 +1,47 @@
+{
+  "id": "ops-hours-midnight",
+  "phase": "waiting",
+  "spec_protocol": 1,
+  "base_head": "65d15e03e76462bbc1cc8683cb0bc08040999a23",
+  "base_status": "",
+  "updated_at": "2026-11-25T03:55:51.982324+00:00",
+  "verifier_calls": [
+    {
+      "at": "2026-11-23T10:26:34.708029+00:00",
+      "phase": "planning",
+      "stage": "plan",
+      "attempt": 0,
+      "snapshot": null,
+      "plan_snapshot": "cccc1ade2988aa8e05749ea52269e376929b3792c95ce637459a4b7a76934c0f"
+    },
+    {
+      "at": "2026-11-23T11:03:38.541386+00:00",
+      "phase": "planning",
+      "stage": "plan",
+      "attempt": 0,
+      "snapshot": null,
+      "plan_snapshot": "87a4dd42863c25b62622ae7f4ea0727826bf03695c1069dff9565ff312c2e205"
+    },
+    {
+      "at": "2026-11-23T11:07:42.600475+00:00",
+      "phase": "planning",
+      "stage": "plan",
+      "attempt": 0,
+      "snapshot": null,
+      "plan_snapshot": "acacc9a62fd4471d57de08542a6f5f690c5f3cf017209700c35b527c0e398866"
+    },
+    {
+      "at": "2026-11-25T03:51:05.730369+00:00",
+      "phase": "reviewing",
+      "stage": "result",
+      "attempt": 1,
+      "snapshot": "ec0b20615b776f7059dcf38d7377f04ec04837da902d0510c115516376e9c51c",
+      "plan_snapshot": null
+    }
+  ],
+  "approved_plan_snapshot": "acacc9a62fd4471d57de08542a6f5f690c5f3cf017209700c35b527c0e398866",
+  "started": true,
+  "verify_attempts": 3,
+  "review_attempts": 1,
+  "reason": "PR 병합 대기(사용자). 병합은 교착 실험이 없을 때. 이후 plan 승인·apply·00시 중지 확인이 남음"
+}
