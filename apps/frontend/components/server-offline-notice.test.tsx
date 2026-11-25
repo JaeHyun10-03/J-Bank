@@ -9,6 +9,11 @@ function mockStatus(online: boolean) {
 beforeEach(() => useServerStatus.setState({ offline: false }));
 
 describe("서버 꺼짐 안내", () => {
+  it("안내 문구가 현재 운영 시간을 말한다", () => {
+    expect(OFFLINE_MESSAGE).toContain("평일 09:00~24:00(KST)");
+    expect(OFFLINE_MESSAGE).not.toContain("18:00");
+  });
+
   it("첫 진입 때 서버가 꺼져 있으면 운영 시간 안내를 alert로 보인다", async () => {
     mockStatus(false);
     render(<ServerOfflineNotice />);
