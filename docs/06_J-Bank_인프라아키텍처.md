@@ -10,6 +10,7 @@
 | v2.0 | 2026-09-17 | EKS·RDS·ElastiCache·ALB·ArgoCD 구성을 단일 EC2 + Docker Compose로 교체(ADR 0010). v1.x의 설계 원문은 `v1.0.0` 태그의 이 문서에 있다 |
 | v2.1 | 2026-10-01 | api actuator를 Compose 내부 전용 관리 포트 9095로 분리하고 Prometheus가 인증 없이 수집하도록 변경(ADR 0013) |
 | v2.2 | 2026-10-29 | 로그 수집(Loki·Alloy·socket-proxy), postgres-exporter, Prometheus 알림 규칙과 Alertmanager 메일 발송 추가(ADR 0014) |
+| v2.3 | 2026-11-25 | 프론트 프록시의 CORS 서술 정정. 프록시가 Origin을 넘겨 API의 CORS 허용 목록 검사를 받는다 |
 
 ## 관련 문서
 
@@ -51,7 +52,7 @@ v1.x 설계에서 배운 것(GitOps에서 이미지 태그를 어떻게 전달�
   GitHub Actions ─── GHCR 이미지 푸시 ┘                            운영자 ┘
 ```
 
-한 대의 EC2 위에서 여덟 컨테이너(로그 수집 `logs` 프로필을 켜면 열한 개)가 돈다. 외부에서 들어오는 경로는 caddy의 80/443 하나뿐이고, 나머지 서비스는 Compose 내부 네트워크로만 통신한다. api는 업무 API를 본 포트 8080에, actuator를 관리 포트 9095에 둔다. caddy는 8080만 프록시하고 9095는 호스트에 매핑하지 않는다. 프론트엔드는 Vercel에 있고 브라우저가 API를 직접 부르지 않는다 — Next.js 라우트(`/api/proxy`)가 서버사이드에서 `BACKEND_API_URL`로 프록시하므로 브라우저 기준 동일 출처이고 CORS가 발생하지 않는다(v1.x와 같은 구조).
+한 대의 EC2 위에서 여덟 컨테이너(로그 수집 `logs` 프로필을 켜면 열한 개)가 돈다. 외부에서 들어오는 경로는 caddy의 80/443 하나뿐이고, 나머지 서비스는 Compose 내부 네트워크로만 통신한다. api는 업무 API를 본 포트 8080에, actuator를 관리 포트 9095에 둔다. caddy는 8080만 프록시하고 9095는 호스트에 매핑하지 않는다. 프론트엔드는 Vercel에 있고 브라우저가 API를 직접 부르지 않는다 — Next.js 라우트(`/api/proxy`)가 서버사이드에서 `BACKEND_API_URL`로 프록시하므로 브라우저 기준 동일 출처이고 브라우저의 CORS 검사는 생기지 않는다(v1.x와 같은 구조). 그러나 프록시가 브라우저의 `Origin`을 그대로 넘기므로 API는 자신의 CORS 허용 목록을 검사한다. 목록에 프론트엔드 출처가 없으면 `Origin`이 붙는 요청(로그인·가입 등)이 403으로 거절된다(2026-11-23 운영에서 POST로 확인, `SecurityConfig`).
 
 ## 3. 컴포넌트
 
