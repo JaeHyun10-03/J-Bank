@@ -1,5 +1,5 @@
-# 운영 시간에만 인스턴스를 켠다(docs/adr/0011). 평일 09:00에 켜고 매일 18:00에 끈다 —
-# 주말·저녁에 손으로 켠 경우도 그날 18:00에 꺼져 요금이 새지 않는다. 공휴일은 모른다.
+# 운영 시간에만 인스턴스를 켠다(docs/adr/0011, 시간은 0015). 평일 09:00에 켜고 매일 24:00(다음 날 00:00)에
+# 끈다 — 주말에 손으로 켠 경우도 그날 밤 꺼져 요금이 새지 않는다. 공휴일은 모른다.
 # 꺼진 동안의 배포·배치·화면 처리는 infra/compose/boot.sh, backend-cd.yml, 프론트 안내가 맡는다.
 
 data "aws_caller_identity" "current" {}
@@ -58,7 +58,7 @@ resource "aws_scheduler_schedule" "start" {
 
 resource "aws_scheduler_schedule" "stop" {
   name                         = "jbank-${var.environment}-app-stop"
-  schedule_expression          = "cron(0 18 * * ? *)"
+  schedule_expression          = "cron(0 0 * * ? *)"
   schedule_expression_timezone = "Asia/Seoul"
 
   flexible_time_window {
