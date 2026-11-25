@@ -1,0 +1,85 @@
+time="2026-11-25T14:35:23+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:35:23+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:35:23+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:35:25+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:35:26+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:35:27+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:35:29+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:35:29+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:35:30+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:35:31+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:35:37+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:35:38+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:35:40+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:35:43+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:35:44+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:35:45+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:35:47+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:35:50+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:35:55+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:35:58+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:35:59+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:36:00+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:36:00+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:36:01+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:36:01+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T14:36:02+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:36:04+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T14:36:11+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:36:13+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:36:16+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T14:36:17+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:36:19+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T14:36:19+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:36:19+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:36:23+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:36:26+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:36:32+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T14:36:33+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:36:34+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T14:36:39+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:36:44+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T14:36:48+09:00" level=warning msg="other_code status=409 code=TXN_001_INSUFFICIENT_BALANCE" source=console
+time="2026-11-25T14:36:50+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T14:36:50+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T14:36:51+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T14:36:52+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T14:36:52+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T14:36:52+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T14:36:52+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T14:36:52+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T14:36:53+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T14:36:53+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T14:36:53+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T14:36:53+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T14:36:53+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+time="2026-11-25T14:36:53+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+
+
+  █ TOTAL RESULTS 
+
+    CUSTOM
+    code_COMMON_006_INTERNAL_ERROR...: 297    3.308992/s
+    code_other.......................: 39     0.434514/s
+    status_0.........................: 21     0.233969/s
+    status_4xx.......................: 39     0.434514/s
+    status_5xx.......................: 297    3.308992/s
+
+    HTTP
+    http_req_duration................: avg=20.87s   min=54.24ms  med=24.06s   max=30s      p(95)=30s      p(99)=30s     
+      { expected_response:true }.....: avg=111.41ms min=111.41ms med=111.41ms max=111.41ms p(95)=111.41ms p(99)=111.41ms
+    http_req_failed..................: 99.72% 357 out of 358
+    http_reqs........................: 358    3.988617/s
+
+    EXECUTION
+    iteration_duration...............: avg=20.96s   min=76.12ms  med=24.06s   max=30s      p(95)=30s      p(99)=30s     
+    iterations.......................: 357    3.977476/s
+    vus..............................: 6      min=6          max=100
+    vus_max..........................: 100    min=100        max=100
+
+    NETWORK
+    data_received....................: 615 kB 6.9 kB/s
+    data_sent........................: 296 kB 3.3 kB/s
+
+
+

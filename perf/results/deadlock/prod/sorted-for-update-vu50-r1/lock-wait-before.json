@@ -1,0 +1,62 @@
+{
+  "sum by (method) (db_lock_wait_seconds_count)": [
+    {
+      "metric": {
+        "method": "lockForUpdateByAccountNumber"
+      },
+      "value": [
+        1795588233.894,
+        "2430"
+      ]
+    },
+    {
+      "metric": {
+        "method": "lockForBalanceUpdate"
+      },
+      "value": [
+        1795588233.894,
+        "141"
+      ]
+    }
+  ],
+  "sum by (method) (db_lock_wait_seconds_sum)": [
+    {
+      "metric": {
+        "method": "lockForUpdateByAccountNumber"
+      },
+      "value": [
+        1795588238.739,
+        "37.295662018"
+      ]
+    },
+    {
+      "metric": {
+        "method": "lockForBalanceUpdate"
+      },
+      "value": [
+        1795588238.739,
+        "2.256365379"
+      ]
+    }
+  ],
+  "max by (method) (db_lock_wait_seconds_max)": [
+    {
+      "metric": {
+        "method": "lockForUpdateByAccountNumber"
+      },
+      "value": [
+        1795588243.462,
+        "0.25901542"
+      ]
+    },
+    {
+      "metric": {
+        "method": "lockForBalanceUpdate"
+      },
+      "value": [
+        1795588243.462,
+        "0.133891671"
+      ]
+    }
+  ]
+}

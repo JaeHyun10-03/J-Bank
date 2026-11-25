@@ -1,0 +1,29 @@
+time="2026-11-25T15:39:08+09:00" level=warning msg="Request Failed" error="Post \"https://api.j-bank.site/api/v1/transfers\": request timeout"
+
+
+  █ TOTAL RESULTS 
+
+    CUSTOM
+    code_COMMON_006_INTERNAL_ERROR...: 250    3.290092/s
+    status_0.........................: 1      0.01316/s
+    status_2xx.......................: 35     0.460613/s
+    status_5xx.......................: 250    3.290092/s
+
+    HTTP
+    http_req_duration................: avg=11.87s min=138.18ms med=11.25s max=30s    p(95)=19.24s p(99)=21.12s
+      { expected_response:true }.....: avg=12.87s min=138.18ms med=13.3s  max=20.74s p(95)=19.48s p(99)=20.52s
+    http_req_failed..................: 87.45% 251 out of 287
+    http_reqs........................: 287    3.777026/s
+
+    EXECUTION
+    iteration_duration...............: avg=11.94s min=1.03s    med=11.25s max=30.01s p(95)=19.24s p(99)=21.12s
+    iterations.......................: 286    3.763866/s
+    vus..............................: 3      min=3          max=50
+    vus_max..........................: 50     min=50         max=50
+
+    NETWORK
+    data_received....................: 343 kB 4.5 kB/s
+    data_sent........................: 172 kB 2.3 kB/s
+
+
+

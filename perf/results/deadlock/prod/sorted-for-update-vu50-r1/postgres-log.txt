@@ -1,0 +1,1 @@
+2026-11-25 06:31:15.052 UTC [27] LOG:  checkpoint starting: time

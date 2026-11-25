@@ -1,0 +1,21 @@
+{
+  "env": "prod",
+  "strategy": "current",
+  "vus": 100,
+  "round": 1,
+  "executor": "constant-vus",
+  "measure": "60s",
+  "request_timeout": "30s",
+  "warmup": "20s",
+  "warmup_vus": 5,
+  "amount": "1000.00",
+  "direction": "(__VU + __ITER) % 2",
+  "account_ids": [
+    1,
+    2
+  ],
+  "base_url": "https://api.j-bank.site",
+  "k6": "k6 v2.1.0 (commit/devel, go1.26.4, darwin/arm64)",
+  "git": "72c4517",
+  "started_at": "2026-11-25T06:25:38Z"
+}

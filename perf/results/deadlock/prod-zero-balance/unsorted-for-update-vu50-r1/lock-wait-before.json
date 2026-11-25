@@ -1,0 +1,35 @@
+{
+  "sum by (method) (db_lock_wait_seconds_count)": [
+    {
+      "metric": {
+        "method": "lockForUpdateByAccountNumber"
+      },
+      "value": [
+        1795584001.281,
+        "112"
+      ]
+    }
+  ],
+  "sum by (method) (db_lock_wait_seconds_sum)": [
+    {
+      "metric": {
+        "method": "lockForUpdateByAccountNumber"
+      },
+      "value": [
+        1795584005.728,
+        "95.93375091499999"
+      ]
+    }
+  ],
+  "max by (method) (db_lock_wait_seconds_max)": [
+    {
+      "metric": {
+        "method": "lockForUpdateByAccountNumber"
+      },
+      "value": [
+        1795584010.288,
+        "2.013584482"
+      ]
+    }
+  ]
+}
