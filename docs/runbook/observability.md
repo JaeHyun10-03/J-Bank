@@ -7,7 +7,7 @@
 
 ## 1. 병합 시점
 
-- PR은 서버가 꺼진 **평일 00:00~09:00(KST)이나 주말**에 병합한다(ADR 0015).
+- PR은 서버가 꺼진 **평일 00:00~09:00(KST)이나 주말**에 병합한다(ADR 0015). 병합 전 인스턴스가 stopped인지 확인하고, backend-cd가 09:00 전에 끝나지 못할 시각은 피한다.
 - 병합하면 backend-cd가 이미지를 만들고, 다음 부팅 때 `sync-latest.sh`가 `deploy.sh`(`up -d api`)를 실행한다. postgres 설정(`log_lock_waits`)이 바뀌어 postgres가 재생성된다. 배치 전, 사용자가 없는 시각이다.
 - 이 단계에서는 새 서비스가 생기지 않는다. 기존 prometheus는 새 설정을 읽어도 정상 기동한다(없는 alertmanager·exporter 대상은 연결 실패만 남는다).
 
