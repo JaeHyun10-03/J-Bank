@@ -20,15 +20,15 @@
 
 | 요청 | Origin | 결과 |
 | --- | --- | --- |
-| `api.j-bank.site/api/v1/customers` | 없음 | 400 `COMMON_001` |
-| 같음 | `https://www.j-bank.site` | 400, 이 출처의 `Access-Control-Allow-Origin`, `Access-Control-Allow-Credentials: true` |
-| 같음 | `https://j-bank.site` | 400, 이 출처의 `Access-Control-Allow-Origin`, `Access-Control-Allow-Credentials: true` |
-| 같음 | `https://api.j-bank.site` | 400, 이 출처의 `Access-Control-Allow-Origin`, `Access-Control-Allow-Credentials: true` |
+| `api.j-bank.site/api/v1/customers` | 없음 | 400 `COMMON_001_VALIDATION_FAILED` |
+| 같음 | `https://www.j-bank.site` | 400 `COMMON_001_VALIDATION_FAILED`, 이 출처의 `Access-Control-Allow-Origin`, `Access-Control-Allow-Credentials: true` |
+| 같음 | `https://j-bank.site` | 400 `COMMON_001_VALIDATION_FAILED`, 이 출처의 `Access-Control-Allow-Origin`, `Access-Control-Allow-Credentials: true` |
+| 같음 | `https://api.j-bank.site` | 400 `COMMON_001_VALIDATION_FAILED`, 이 출처의 `Access-Control-Allow-Origin`, `Access-Control-Allow-Credentials: true` |
 | 같음 | `https://evil.example` | 403 `Invalid CORS request` |
 | 같음 | `https://j-bank.vercel.app` | 403 `Invalid CORS request` |
 | 같음 | `http://www.j-bank.site` | 403 `Invalid CORS request` |
-| `www.j-bank.site/api/proxy/api/v1/customers` | `https://www.j-bank.site` | 400 `COMMON_001` |
-| `www.j-bank.site/api/proxy/api/v1/auth/login` | `https://www.j-bank.site` | 400 `COMMON_001` |
+| `www.j-bank.site/api/proxy/api/v1/customers` | `https://www.j-bank.site` | 400 `COMMON_001_VALIDATION_FAILED` |
+| `www.j-bank.site/api/proxy/api/v1/auth/login` | `https://www.j-bank.site` | 400 `COMMON_001_VALIDATION_FAILED` |
 
 ## 사용자 화면 확인
 
