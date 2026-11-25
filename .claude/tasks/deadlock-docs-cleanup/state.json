@@ -1,0 +1,62 @@
+{
+  "id": "deadlock-docs-cleanup",
+  "phase": "done",
+  "spec_protocol": 1,
+  "base_head": "69e0665edc591004b82ed990d81ad6f943396d9a",
+  "base_status": "?? .ua/.trash-1794501197/assemble-review.json\n?? .ua/.trash-1794501197/assembled-graph.json\n?? .ua/.trash-1794501197/batch-1-part-1.json\n?? .ua/.trash-1794501197/batch-1-part-2.json\n?? .ua/.trash-1794501197/batch-10.json\n?? .ua/.trash-1794501197/batch-11.json\n?? .ua/.trash-1794501197/batch-12.json\n?? .ua/.trash-1794501197/batch-13.json\n?? .ua/.trash-1794501197/batch-14.json\n?? .ua/.trash-1794501197/batch-15.json\n?? .ua/.trash-1794501197/batch-16.json\n?? .ua/.trash-1794501197/batch-17.json\n?? .ua/.trash-1794501197/batch-18.json\n?? .ua/.trash-1794501197/batch-19.json\n?? .ua/.trash-1794501197/batch-2.json\n?? .ua/.trash-1794501197/batch-20.json\n?? .ua/.trash-1794501197/batch-21.json\n?? .ua/.trash-1794501197/batch-22.json\n?? .ua/.trash-1794501197/batch-23.json\n?? .ua/.trash-1794501197/batch-24.json\n?? .ua/.trash-1794501197/batch-25.json\n?? .ua/.trash-1794501197/batch-26.json\n?? .ua/.trash-1794501197/batch-27.json\n?? .ua/.trash-1794501197/batch-28.json\n?? .ua/.trash-1794501197/batch-29.json\n?? .ua/.trash-1794501197/batch-3-part-1.json\n?? .ua/.trash-1794501197/batch-3-part-2.json\n?? .ua/.trash-1794501197/batch-30.json\n?? .ua/.trash-1794501197/batch-31.json\n?? .ua/.trash-1794501197/batch-32.json\n?? .ua/.trash-1794501197/batch-33.json\n?? .ua/.trash-1794501197/batch-34.json\n?? .ua/.trash-1794501197/batch-35.json\n?? .ua/.trash-1794501197/batch-36.json\n?? .ua/.trash-1794501197/batch-37.json\n?? .ua/.trash-1794501197/batch-38.json\n?? .ua/.trash-1794501197/batch-39.json\n?? .ua/.trash-1794501197/batch-4.json\n?? .ua/.trash-1794501197/batch-40.json\n?? .ua/.trash-1794501197/batch-5-part-1.json\n?? .ua/.trash-1794501197/batch-5-part-2.json\n?? .ua/.trash-1794501197/batch-5-part-3.json\n?? .ua/.trash-1794501197/batch-6.json\n?? .ua/.trash-1794501197/batch-7.json\n?? .ua/.trash-1794501197/batch-8.json\n?? .ua/.trash-1794501197/batch-9.json\n?? .ua/.trash-1794501197/batches.json\n?? .ua/.trash-1794501197/fingerprint-input.json\n?? .ua/.trash-1794501197/layers-final.json\n?? .ua/.trash-1794501197/layers.json\n?? .ua/.trash-1794501197/review.json\n?? .ua/.trash-1794501197/tmp/arch-all-edges.json\n?? .ua/.trash-1794501197/tmp/arch-file-nodes.json\n?? .ua/.trash-1794501197/tmp/arch-import-edges.json\n?? .ua/.trash-1794501197/tmp/b21.json\n?? .ua/.trash-1794501197/tmp/b22.json\n?? .ua/.trash-1794501197/tmp/b23.json\n?? .ua/.trash-1794501197/tmp/b24.json\n?? .ua/.trash-1794501197/tmp/batch-stderr.txt\n?? .ua/.trash-1794501197/tmp/fa-batch-7.json\n?? .ua/.trash-1794501197/tmp/fa-batch-8.json\n?? .ua/.trash-1794501197/tmp/fa-batch-9.json\n?? .ua/.trash-1794501197/tmp/merge-stderr.txt\n?? .ua/.trash-1794501197/tmp/tour-layers.json\n?? .ua/.trash-1794501197/tmp/tour-nodes.json\n?? .ua/.trash-1794501197/tmp/ua-arch-analyze.js\n?? .ua/.trash-1794501197/tmp/ua-arch-assign.js\n?? .ua/.trash-1794501197/tmp/ua-arch-input.json\n?? .ua/.trash-1794501197/tmp/ua-arch-results.json\n?? .ua/.trash-1794501197/tmp/ua-build-1.mjs\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-1.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-10.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-11.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-12.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-13.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-14.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-15.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-16.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-17.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-18.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-19.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-2.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-20.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-21.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-22.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-23.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-24.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-25.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-26.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-27.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-28.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-29.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-3.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-30.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-31.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-32.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-33.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-34.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-35.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-36.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-37.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-38.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-39.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-4.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-40.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-5.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-6.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-7.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-8.json\n?? .ua/.trash-1794501197/tmp/ua-file-analyzer-input-9.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-1.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-10.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-11.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-12.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-13.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-14.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-15.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-16.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-17.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-18.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-19.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-2.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-20.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-21.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-22.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-23.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-24.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-25.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-26.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-27.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-28.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-29.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-3.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-30.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-31.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-32.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-33.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-34.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-35.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-36.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-37.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-38.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-39.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-4.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-40.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-5.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-6.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-7.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-8.json\n?? .ua/.trash-1794501197/tmp/ua-file-extract-results-9.json\n?? .ua/.trash-1794501197/tmp/ua-import-map-input.json\n?? .ua/.trash-1794501197/tmp/ua-import-map-output.json\n?? .ua/.trash-1794501197/tmp/ua-inline-validate.cjs\n?? .ua/.trash-1794501197/tmp/ua-scan-files.json\n?? .ua/.trash-1794501197/tmp/ua-tour-analyze.js\n?? .ua/.trash-1794501197/tmp/ua-tour-input.json\n?? .ua/.trash-1794501197/tmp/ua-tour-results.json\n?? .ua/.trash-1794501197/tour.json\n?? .ua/.understandignore\n?? .ua/config.json\n?? .ua/fingerprints.json\n?? .ua/intermediate/scan-result.json\n?? .ua/knowledge-graph.json\n?? .ua/meta.json\n?? docs/planning/reconciliation-and-bulk-payroll-brief.md\n?? perf/results/ec2-baseline/dryrun/artifacts.txt\n?? perf/results/ec2-baseline/dryrun/environment.md\n?? perf/results/ec2-baseline/dryrun/integrity.md\n?? perf/results/ec2-baseline/dryrun/loadgen/analysis.json\n?? perf/results/ec2-baseline/dryrun/loadgen/k6-end.txt\n?? perf/results/ec2-baseline/dryrun/loadgen/k6-exit.txt\n?? perf/results/ec2-baseline/dryrun/loadgen/k6-start.txt\n?? perf/results/ec2-baseline/dryrun/loadgen/k6-summary.json\n?? perf/results/ec2-baseline/dryrun/loadgen/prometheus/query_range.json.gz\n?? perf/results/ec2-baseline/dryrun/target/batch.txt\n?? perf/results/ec2-baseline/dryrun/target/boundary.env\n?? perf/results/ec2-baseline/dryrun/target/integrity-target.txt\n?? perf/results/ec2-baseline/dryrun/target/log-counts.txt\n?? perf/results/ec2-baseline/dryrun/target/pg_stat_activity.csv\n?? perf/results/ec2-baseline/dryrun/warmup/k6-end.txt\n?? perf/results/ec2-baseline/dryrun/warmup/k6-exit.txt\n?? perf/results/ec2-baseline/dryrun/warmup/k6-start.txt\n?? perf/results/ec2-baseline/dryrun/warmup/k6-summary.json\n",
+  "updated_at": "2026-11-25T14:31:59.105054+00:00",
+  "verifier_calls": [
+    {
+      "at": "2026-11-25T09:02:11.835117+00:00",
+      "phase": "planning",
+      "stage": "plan",
+      "attempt": 0,
+      "snapshot": null,
+      "plan_snapshot": "38270054c9309f507021683cfe868f841fdfd6320a68f9fa1f5e4bc75362cb86"
+    },
+    {
+      "at": "2026-11-25T09:07:43.896400+00:00",
+      "phase": "planning",
+      "stage": "plan",
+      "attempt": 0,
+      "snapshot": null,
+      "plan_snapshot": "e0d413fe773a95035ab9a96bbe60333162a64eb4f782b26a8a994d5a47ac7fef"
+    },
+    {
+      "at": "2026-11-25T09:11:24.332120+00:00",
+      "phase": "planning",
+      "stage": "plan",
+      "attempt": 0,
+      "snapshot": null,
+      "plan_snapshot": "e0d413fe773a95035ab9a96bbe60333162a64eb4f782b26a8a994d5a47ac7fef"
+    },
+    {
+      "at": "2026-11-25T10:12:43.809332+00:00",
+      "phase": "waiting",
+      "stage": "plan",
+      "attempt": 0,
+      "snapshot": null,
+      "plan_snapshot": "236952ee6790d88f1cf0ada1fb116fbbda201470d62f97eb0b2bab0b9364174f"
+    },
+    {
+      "at": "2026-11-25T14:21:01.747277+00:00",
+      "phase": "reviewing",
+      "stage": "result",
+      "attempt": 1,
+      "snapshot": "66eb8eb0dbaa4e6918195411629620e4839485649f6cf4690516dc48f9eecd69",
+      "plan_snapshot": null
+    },
+    {
+      "at": "2026-11-25T14:29:06.374969+00:00",
+      "phase": "reviewing",
+      "stage": "result",
+      "attempt": 2,
+      "snapshot": "2f743ca40570c92872d904ba5df418703e39c442ee4b07c8b04c5b300bf13f87",
+      "plan_snapshot": null
+    }
+  ],
+  "approved_plan_snapshot": "236952ee6790d88f1cf0ada1fb116fbbda201470d62f97eb0b2bab0b9364174f",
+  "started": true,
+  "verify_attempts": 2,
+  "review_attempts": 2
+}
