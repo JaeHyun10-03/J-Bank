@@ -74,12 +74,18 @@ public class SecurityConfig {
     return http.build();
   }
 
-  // localhost:3000은 로컬 프론트 개발용. 배포 프론트는 서버 쪽 프록시라 CORS가 생기지 않는다(구현계획 4절 W3).
-  // api.j-bank.site는 운영 Swagger용이다. Caddy가 TLS를 끝내 앱은 요청을 http로 보므로, 같은 출처인
-  // https Swagger의 POST도 교차 출처로 판정된다. 운영 도메인이 바뀌면 이 값도 바꿔야 한다.
+  // localhost:3000은 로컬 프론트 개발용. 배포 프론트(j-bank.site, www.j-bank.site)는 서버 쪽 프록시로
+  // 호출하지만, 프록시가 브라우저의 Origin 헤더를 그대로 넘기므로 여기서 CORS 검사를 받는다. 그래서 두
+  // 프론트 출처도 허용한다. api.j-bank.site는 운영 Swagger용이다. Caddy가 TLS를 끝내 앱은 요청을 http로
+  // 보므로, 같은 출처인 https Swagger의 POST도 교차 출처로 판정된다. 운영 도메인이 바뀌면 이 값도 바꿔야 한다.
   private CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://api.j-bank.site"));
+    configuration.setAllowedOrigins(
+        List.of(
+            "http://localhost:3000",
+            "https://api.j-bank.site",
+            "https://www.j-bank.site",
+            "https://j-bank.site"));
     configuration.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE", "OPTIONS"));
     configuration.setAllowedHeaders(List.of("Content-Type", "X-CSRF-TOKEN", "Idempotency-Key"));
     configuration.setAllowCredentials(true);
