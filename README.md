@@ -8,7 +8,7 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
 ![Redis](https://img.shields.io/badge/Redis-7-DC382D?logo=redis&logoColor=white)
 
-[www.j-bank.site](https://www.j-bank.site) · 데모 서버는 평일 09:00~18:00(KST)에만 운영
+[www.j-bank.site](https://www.j-bank.site) · 데모 서버는 평일 09:00~24:00(KST)에만 운영
 
 <img src="docs/assets/screens/hero-screens.png" width="100%" alt="J-Bank 앱 화면 — 홈, 상품, 계좌이체 3단계" />
 
@@ -103,15 +103,15 @@
   - 비용 때문에 인스턴스를 수동으로 끄자 main 머지마다 CD가 `InvalidInstanceId`로 실패
   - 새벽 cron 배치(이자·CTR·FDS·대사)는 서버가 꺼진 시간이라 한 번도 실행되지 않음
 - 해결 과정
-  - EventBridge Scheduler로 평일 09시 시작, 매일 18시 중지
+  - EventBridge Scheduler로 평일 09시 시작, 매일 24시 중지
   - CD가 인스턴스 상태를 확인해 꺼져 있으면 배포 스킵. 이미지에 revision 라벨을 붙여 켜질 때 부팅 작업(systemd)이 최신 이미지 반영
   - 새벽 cron 대신 부팅 직후 배치 실행. CTR·FDS는 Spring Batch 실행 기록에서 마지막 완료일을 찾아 빠진 날짜를 하루씩 처리
   - CD와 부팅 작업이 같은 flock 잠금으로 순차 배포. 서버가 꺼져 있으면 프론트에 운영 시간 안내
   - 테스트: 가짜 docker·aws로 부팅·배포 스크립트를 동시 배포 경합까지 검증, 1회용 스케줄로 실제 중지·시작 확인, 실제 DB에서 중단된 배치 기록이 재실행을 막는 문제를 재현하고 정리 로직 확인
 - 결과
-  - 월 약 $24 → $11, 꺼진 시간 CD 실패 없이 다음 부팅 때 자동 반영
+  - 월 약 $24 → $14(평일 09~24시), 꺼진 시간 CD 실패 없이 다음 부팅 때 자동 반영
   - 배치가 부팅 때 자동 실행되고 주말분도 누락 없이 처리
-  - 결정 과정은 [ADR 0010](docs/adr/0010-ec2-single-instance.md), [ADR 0011](docs/adr/0011-ec2-weekday-hours.md)
+  - 결정 과정은 [ADR 0010](docs/adr/0010-ec2-single-instance.md), [ADR 0011](docs/adr/0011-ec2-weekday-hours.md), [ADR 0015](docs/adr/0015-ec2-weekday-until-midnight.md)
 
 ### 6. AI 에이전트가 근거 없이 완료를 선언하지 못하게 Hook 단계 게이트와 읽기 전용 검증 에이전트를 도입해 계획·결과 누락 문제 해결
 

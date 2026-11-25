@@ -60,7 +60,7 @@ v1.x 설계에서 배운 것(GitOps에서 이미지 태그를 어떻게 전달�
 - `t3.small`(2 vCPU, 2GB) Amazon Linux 2023 x86_64, gp3 20GB 암호화 루트 볼륨. `infra/terraform/modules/ec2`.
 - 메모리 예산: api(JVM 힙 512m) ~600MB, postgres ~150MB, prometheus ~200MB, grafana ~120MB, redis·caddy ~60MB. OOM이 보이면 `instance_type` 변수만 `t3.medium`으로 올린다.
 - user_data가 최초 부팅에 docker·compose 플러그인을 설치하고 저장소를 `/opt/jbank`에 clone한다. AMI가 갱신돼도 인스턴스를 교체하지 않는다(`ignore_changes = [ami, user_data]`) — 데이터가 루트 볼륨에 있다.
-- 운영 인스턴스는 평일 09:00~18:00(KST)에만 켜진다(EventBridge Scheduler, ADR 0011). 꺼진 시간의 배포·배치·화면 처리도 ADR 0011에 있다.
+- 운영 인스턴스는 평일 09:00~24:00(KST)에만 켜진다(EventBridge Scheduler, ADR 0011·0015). 꺼진 시간의 배포·배치·화면 처리도 ADR 0011에 있다.
 - 배치 잡(이자·정합성대사·CTR·FDS)은 k8s CronJob 대신 호스트의 부팅 작업(`jbank-boot.service` → `infra/compose/host/boot.sh`)이 인스턴스가 켜진 직후 `infra/compose/run-batch.sh`로 돌린다. CTR·FDS는 마지막 완료 기준일 다음 날부터 어제까지 따라잡는다. 스크립트는 api 서비스의 이미지·env_file을 그대로 쓰는 일회성 컨테이너에 `--spring.profiles.active=prod,batch --spring.batch.job.name=<job>`을 넘긴다 — v1.x CronJob과 같은 방식이다. 인스턴스가 하나라 Redisson 분산락(ADR 0005)은 지금은 사실상 로컬 락으로 동작하지만, 인스턴스를 늘려도 코드 변경 없이 같은 보장을 유지하기 위해 그대로 둔다.
 
 ### 3.2 데이터 — Compose 안의 PostgreSQL·Redis

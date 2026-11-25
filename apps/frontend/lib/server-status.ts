@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 /**
- * 운영 서버는 평일 09~18시(KST)에만 켜진다(docs/adr/0011). 꺼져 있는지는 시계가 아니라
+ * 운영 서버는 평일 09~24시(KST)에만 켜진다(docs/adr/0015). 꺼져 있는지는 시계가 아니라
  * `/api/server-status`(백엔드 health에 실제로 닿는지)로 판단해 공휴일·수동 기동과 어긋나지 않는다.
  */
 type ServerStatusState = {

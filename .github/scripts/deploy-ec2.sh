@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # backend-cd의 배포 단계. 사용법: INSTANCE_ID=<id> SHA=<git sha> deploy-ec2.sh
-# 운영 인스턴스는 평일 09~18시에만 켜진다(docs/adr/0011). 꺼져 있으면 배포를 건너뛰고 성공으로
+# 운영 인스턴스는 평일 09~24시에만 켜진다(docs/adr/0015). 꺼져 있으면 배포를 건너뛰고 성공으로
 # 끝낸다 — 다음 부팅 때 호스트의 부팅 작업이 :latest(이 이미지)를 반영한다. 켜져 있는데 SSM이
 # 붙지 않거나, 상태 조회·배포가 실패하면 실패로 끝낸다.
 set -euo pipefail

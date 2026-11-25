@@ -1,0 +1,47 @@
+# 작업 시작 HEAD
+65d15e03e76462bbc1cc8683cb0bc08040999a23
+# 작업 시작 시 변경 상태
+
+# 현재 git status --porcelain
+
+# 작업 시작 HEAD부터 현재 파일까지의 이름·상태
+M	.github/scripts/deploy-ec2.sh
+M	.github/workflows/backend-cd.yml
+M	README.md
+M	apps/frontend/app/api/proxy/[...path]/route.ts
+M	apps/frontend/components/server-offline-notice.test.tsx
+M	apps/frontend/components/server-offline-notice.tsx
+M	apps/frontend/lib/server-status.ts
+M	"docs/06_J-Bank_\354\235\270\355\224\204\353\235\274\354\225\204\355\202\244\355\205\215\354\262\230.md"
+M	docs/adr/0011-ec2-weekday-hours.md
+M	docs/adr/0014-observability-logs-alerts.md
+A	docs/adr/0015-ec2-weekday-until-midnight.md
+M	docs/assets/diagrams/architecture.svg
+M	docs/assets/diagrams/weekday-ops.svg
+A	"docs/devlog/2026-11-25_\354\232\264\354\230\201\354\213\234\352\260\20424\354\213\234\354\227\260\354\236\245.md"
+M	docs/devlog/README.md
+M	docs/runbook/observability.md
+M	infra/compose/docker-compose.prod.yml
+M	infra/terraform/modules/ec2/schedule.tf
+
+# 작업 시작 HEAD부터 현재 파일까지의 통계
+ .github/scripts/deploy-ec2.sh                      |  2 +-
+ .github/workflows/backend-cd.yml                   |  2 +-
+ README.md                                          |  8 ++---
+ apps/frontend/app/api/proxy/[...path]/route.ts     |  2 +-
+ .../components/server-offline-notice.test.tsx      |  5 +++
+ apps/frontend/components/server-offline-notice.tsx |  2 +-
+ apps/frontend/lib/server-status.ts                 |  2 +-
+ ...225\204\355\202\244\355\205\215\354\262\230.md" |  2 +-
+ docs/adr/0011-ec2-weekday-hours.md                 |  1 +
+ docs/adr/0014-observability-logs-alerts.md         |  1 +
+ docs/adr/0015-ec2-weekday-until-midnight.md        | 40 ++++++++++++++++++++++
+ docs/assets/diagrams/architecture.svg              |  2 +-
+ docs/assets/diagrams/weekday-ops.svg               |  2 +-
+ ...0\20424\354\213\234\354\227\260\354\236\245.md" | 35 +++++++++++++++++++
+ docs/devlog/README.md                              |  1 +
+ docs/runbook/observability.md                      | 10 +++---
+ infra/compose/docker-compose.prod.yml              |  2 +-
+ infra/terraform/modules/ec2/schedule.tf            |  6 ++--
+ 18 files changed, 104 insertions(+), 21 deletions(-)
+
